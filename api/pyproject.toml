@@ -17,9 +17,12 @@ packages = [{include = "api", from = "src"}]
 
 [tool.poetry.scripts]
 dev = "scripts.dev:start"
+format = "scripts.format:format_code"
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.13.0"
+black = "^25.1.0"
+isort = "^6.0.1"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]
