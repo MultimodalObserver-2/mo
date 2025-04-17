@@ -1,0 +1,31 @@
+# Virtual environments
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+
+# Poetry files
+poetry.lock
+
+
+# Build files
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+
+# IDE & editor files
+.vscode/
+.idea/
+*.iml
+
+
+# env files
+.env
+.env.*
+!.env.example
