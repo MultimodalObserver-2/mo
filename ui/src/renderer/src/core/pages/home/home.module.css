@@ -12,6 +12,7 @@
 
 .panel {
     display: flex;
+    padding: 1vh 40px;
     width: 100%;
     height: 25vh;
     background-color: var(--color-primary-700);

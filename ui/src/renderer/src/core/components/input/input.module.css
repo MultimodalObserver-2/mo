@@ -1,0 +1,35 @@
+.label-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    font-size: 1em;
+    font-weight: 400;
+    color: var(--color-text);
+}
+
+.label .required {
+    color: var(--color-red-500);
+    font-weight: 700;
+}
+
+.input {
+    background-color: var(--color-primary-800);
+    border: 2px solid var(--color-primary-500);
+    border-radius: 4px;
+    padding: 6px 8px;
+    color: var(--color-text);
+    font-size: 0.9em;
+    font-weight: 400;
+    outline: none;
+}
+
+.input:focus {
+    border-color: var(--color-primary-200);
+}
+
+.input::placeholder {
+    color: rgb(180, 180, 180);
+}

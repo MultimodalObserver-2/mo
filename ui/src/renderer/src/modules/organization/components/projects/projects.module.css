@@ -1,0 +1,32 @@
+.box {
+    display: flex;
+    flex-direction: column;
+}
+
+.top {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title {
+    color: var(--color-text-light);
+    font-weight: 500;
+    font-size: 1.2em;
+}
+
+.add-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    margin: 5px 0 0 0;
+    cursor: pointer;
+}
+
+.svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-primary-100);
+}

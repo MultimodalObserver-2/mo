@@ -1,0 +1,46 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 16px 5vw;
+    background-color: var(--color-primary-700);
+    color: var(--color-text);
+}
+
+.top {
+    display: flex;
+    align-items: flex-end;
+    gap: 6px;
+}
+
+.icon {
+    width: 24px;
+    height: 24px;
+    fill: var(--color-primary-100);
+}
+
+.line {
+    border: none;
+    height: 2px;
+    border-radius: 6px;
+    background-color: var(--color-primary-300);
+}
+
+.title {
+    font-size: 1.2em;
+    font-weight: 500;
+    color: var(--color-primary-50);
+}
+
+.form {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.buttons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 14px;
+    margin-top: 12px;
+}
