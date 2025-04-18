@@ -1,7 +1,7 @@
 import { ComponentType } from "react"
 import styles from "./sidebar-item.module.css"
-import { IconProps } from "@renderer/components/icons/IconProps"
 import { NavLink } from "react-router"
+import { IconProps } from "../../icons/IconProps"
 
 interface SidebarItemProps {
   path: string
