@@ -29,3 +29,6 @@ pip-wheel-metadata/
 .env
 .env.*
 !.env.example
+
+# Data files
+data
