@@ -1,4 +1,4 @@
-@import './base.css';
+@import "./base.css";
 
 #root {
   display: flex;
@@ -14,8 +14,11 @@ main {
   min-height: 100vh;
 }
 
-@media (max-width: 720px) {}
+@media (max-width: 720px) {
+}
 
-@media (max-width: 620px) {}
+@media (max-width: 620px) {
+}
 
-@media (max-width: 350px) {}
+@media (max-width: 350px) {
+}

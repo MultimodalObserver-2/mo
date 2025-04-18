@@ -1,18 +1,18 @@
 :root {
   /* Background colors */
-  --color-background: #F1F1F1;
+  --color-background: #f1f1f1;
 
   /* Primary colors */
-  --color-primary-900: #001D1F;
-  --color-primary-800: #002B30;
-  --color-primary-700: #084B51;
+  --color-primary-900: #001d1f;
+  --color-primary-800: #002b30;
+  --color-primary-700: #084b51;
   --color-primary-600: #266a72;
   --color-primary-500: #3a7980;
   --color-primary-400: #48868d;
-  --color-primary-300: #5A9398;
-  --color-primary-200: #80B9BF;
-  --color-primary-100: #B0DEE2;
-  --color-primary-50: #CFE3E4;
+  --color-primary-300: #5a9398;
+  --color-primary-200: #80b9bf;
+  --color-primary-100: #b0dee2;
+  --color-primary-50: #cfe3e4;
 
   /* Accent colors */
   --color-accent-700: #009a8f;
@@ -31,11 +31,11 @@
   --color-gray-200: #696d85;
   --color-gray-100: #767a92;
   --color-gray-50: #afb3c8;
-  --color-gray-25: #edeef2;  
+  --color-gray-25: #edeef2;
 
   /* Text Colors */
-  --color-text-light: #F1F1F1;
-  --color-text-dark: #002B30;
+  --color-text-light: #f1f1f1;
+  --color-text-dark: #002b30;
 }
 
 *,
@@ -59,7 +59,7 @@ body {
   min-height: 100vh;
   color: var(--color-text-light);
   background: var(--color-background);
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -67,5 +67,5 @@ body {
 
 input,
 button {
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
