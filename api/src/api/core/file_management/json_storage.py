@@ -55,13 +55,13 @@ class JsonStorage:
     def update(self, query: dict[str, Any], new_document: dict[str, Any]):
         documents = self.find_all()
         document_idx = self._find_index(query)
-        if document_idx is not None:
-            documents[document_idx] = new_document
-            with self.lock:
-                with open(self._path, "w") as file:
-                    json.dump(documents, file, indent=4, default=str)
-        else:
+        if document_idx is None:
             raise NotFoundError("Document not found")
+        
+        documents[document_idx] = new_document
+        with self.lock:
+            with open(self._path, "w") as file:
+                json.dump(documents, file, indent=4, default=str)
 
     def _find_index(self, query: dict[str, Any]) -> Optional[int]:
         content = self.find_all()
