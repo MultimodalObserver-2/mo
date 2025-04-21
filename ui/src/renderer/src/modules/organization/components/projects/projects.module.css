@@ -27,14 +27,14 @@
   cursor: pointer;
 }
 
-.svg {
+.add-button .svg {
   width: 20px;
   height: 20px;
   fill: var(--color-primary-100);
   transition: all 150ms ease-in-out;
 }
 
-.svg:hover {
+.add-button .svg:hover {
   transform: scale(1.1);
   fill: var(--color-primary-100);
 }
@@ -63,10 +63,10 @@
 }
 
 .items .item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   padding: 8px 12px;
-  color: var(--color-text-light);
-  font-size: 1em;
-  font-weight: 500;
   cursor: pointer;
 }
 
@@ -76,4 +76,32 @@
 
 .items .item:hover {
   background-color: var(--color-primary-500);
+}
+
+.item .name {
+  color: var(--color-text-light);
+  font-size: 1em;
+  font-weight: 500;
+}
+
+.item .actions {
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.item:hover .actions {
+  visibility: visible;
+}
+
+.actions .action {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+}
+
+.actions .action:hover {
+  transform: scale(1.1);
+  fill: var(--color-accent-500);
 }

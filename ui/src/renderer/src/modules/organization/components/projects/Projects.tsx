@@ -3,6 +3,7 @@ import styles from "./projects.module.css"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { Project } from "../../types/Project"
 import projectService from "../../services/ProjectService"
+import EditIcon from "@renderer/core/components/icons/EditIcon"
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -11,6 +12,13 @@ export default function Projects() {
     window.core.openModalWindow(
       { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Create Project" },
       "organization/create-project"
+    )
+  }
+
+  const handleEdit = (project: Project) => {
+    window.core.openModalWindow(
+      { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Update Project" },
+      `organization/update-project/${project.name}`
     )
   }
 
@@ -43,7 +51,10 @@ export default function Projects() {
       <ul className={styles.items}>
         {projects.map((project) => (
           <li className={styles.item} key={project.name} tabIndex={0}>
-            {project.name}
+            <h4 className={styles.name}>{project.name}</h4>
+            <div className={styles.actions}>
+              <EditIcon className={styles.action} onClick={() => handleEdit(project)} />
+            </div>
           </li>
         ))}
       </ul>
