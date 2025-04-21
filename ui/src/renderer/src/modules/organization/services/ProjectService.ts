@@ -8,6 +8,10 @@ class ProjectService {
   async create(data: ProjectCreate): Promise<AxiosResponse<Project, unknown>> {
     return axios.post(`${this.endpoint}/`, data)
   }
+
+  async getAll(): Promise<AxiosResponse<Project[], unknown>> {
+    return axios.get(`${this.endpoint}/`)
+  }
 }
 
 const projectService = new ProjectService()

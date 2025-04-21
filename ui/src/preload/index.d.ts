@@ -6,5 +6,9 @@ declare global {
     core: {
       openModalWindow: (options: Electron.BrowserWindowConstructorOptions, endpoint: string) => void
     }
+    organization: {
+      reloadProjects: () => void
+      onReloadProjects: (callback: () => void) => void
+    }
   }
 }

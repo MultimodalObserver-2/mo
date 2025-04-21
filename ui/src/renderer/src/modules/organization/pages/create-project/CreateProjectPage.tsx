@@ -14,6 +14,7 @@ export default function CreateProjectPage() {
     }
     try {
       await projectService.create(newProject)
+      window.organization.reloadProjects()
       window.close()
     } catch (error) {
       let errorMessage = error

@@ -1,32 +1,79 @@
 .box {
-    display: flex;
-    flex-direction: column;
+  display: flex;
+  flex-direction: column;
+  width: 15vw;
+  min-width: 180px;
 }
 
 .top {
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .title {
-    color: var(--color-text-light);
-    font-weight: 500;
-    font-size: 1.2em;
+  color: var(--color-text-light);
+  font-weight: 500;
+  font-size: 1.2em;
 }
 
 .add-button {
-    width: 20px;
-    height: 20px;
-    border: none;
-    background-color: transparent;
-    padding: 0;
-    margin: 5px 0 0 0;
-    cursor: pointer;
+  width: 20px;
+  height: 20px;
+  border: none;
+  background-color: transparent;
+  padding: 0;
+  margin: 5px 0 0 0;
+  cursor: pointer;
 }
 
 .svg {
-    width: 20px;
-    height: 20px;
-    fill: var(--color-primary-100);
+  width: 20px;
+  height: 20px;
+  fill: var(--color-primary-100);
+  transition: all 150ms ease-in-out;
+}
+
+.svg:hover {
+  transform: scale(1.1);
+  fill: var(--color-primary-100);
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 10px 0;
+  border-radius: 4px;
+  background-color: var(--color-primary-600);
+  scroll-behavior: smooth;
+  overflow: auto;
+}
+
+.items::-webkit-scrollbar {
+  background-color: var(--color-primary-100);
+  width: 6px;
+  height: 6px;
+}
+
+.items::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary-800);
+  width: 6px;
+  height: 6px;
+}
+
+.items .item {
+  padding: 8px 12px;
+  color: var(--color-text-light);
+  font-size: 1em;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.items .item:first-child {
+  border-radius: 4px 4px 0 0;
+}
+
+.items .item:hover {
+  background-color: var(--color-primary-500);
 }
