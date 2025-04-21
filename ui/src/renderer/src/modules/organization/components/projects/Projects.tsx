@@ -4,9 +4,21 @@ import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { Project } from "../../types/Project"
 import projectService from "../../services/ProjectService"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
+import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
+import { MessageBoxOptions } from "electron"
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
+
+  const fetchProjects = async () => {
+    try {
+      const response = await projectService.getAll()
+      setProjects(response.data)
+    } catch {
+      alert("Error: an unexpected error occurred, please relaunch the app")
+      setProjects([])
+    }
+  }
 
   const handleOnCreate = () => {
     window.core.openModalWindow(
@@ -22,17 +34,32 @@ export default function Projects() {
     )
   }
 
-  useEffect(() => {
-    const fetchProjects = async () => {
-      try {
-        const response = await projectService.getAll()
-        setProjects(response.data)
-      } catch {
-        alert("Error: an unexpected error occurred, please relaunch the app")
-        setProjects([])
-      }
+  const handleDelete = async (project: Project) => {
+    const buttons = ["Accept", "Cancel"]
+    const acceptId = 0
+    const cancelId = 1
+    const options: MessageBoxOptions = {
+      title: "Delete Project",
+      message: `Are you sure you want to delete the project ${project.name}?, this will delete all the data related to this project`,
+      type: "warning",
+      buttons: buttons,
+      defaultId: acceptId,
+      cancelId: cancelId,
+      noLink: true
     }
 
+    const response = await window.core.dialog.showMessageBox(options)
+    if (response.response === acceptId) {
+      try {
+        await projectService.delete(project.name)
+        await fetchProjects()
+      } catch {
+        window.core.dialog.showErrorBox("Delete Error", "An unexpected error occurred")
+      }
+    }
+  }
+
+  useEffect(() => {
     window.organization.onReloadProjects(() => {
       fetchProjects()
     })
@@ -53,7 +80,16 @@ export default function Projects() {
           <li className={styles.item} key={project.name} tabIndex={0}>
             <h4 className={styles.name}>{project.name}</h4>
             <div className={styles.actions}>
-              <EditIcon className={styles.action} onClick={() => handleEdit(project)} />
+              <EditIcon
+                className={`${styles.action} ${styles.normal}`}
+                onClick={() => handleEdit(project)}
+              />
+              <DeleteIcon
+                className={`${styles.action} ${styles.danger}`}
+                onClick={() => {
+                  handleDelete(project)
+                }}
+              />
             </div>
           </li>
         ))}

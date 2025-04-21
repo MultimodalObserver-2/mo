@@ -99,9 +99,15 @@
   width: 20px;
   height: 20px;
   fill: var(--color-text-light);
+  transition: transform 150ms ease-in-out;
 }
 
-.actions .action:hover {
-  transform: scale(1.1);
-  fill: var(--color-accent-500);
+.actions .action.normal:hover {
+  transform: scale(1.2);
+  fill: var(--color-accent-200);
+}
+
+.actions .action.danger:hover {
+  transform: scale(1.2);
+  fill: var(--color-red-500);
 }

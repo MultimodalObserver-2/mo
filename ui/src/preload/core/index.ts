@@ -1,4 +1,4 @@
-import { contextBridge, ipcRenderer } from "electron"
+import { contextBridge, ipcRenderer, MessageBoxOptions } from "electron"
 
 const core = {
   openModalWindow: (options: Electron.BrowserWindowConstructorOptions, endpoint: string) => {
@@ -13,6 +13,9 @@ const core = {
         title,
         content
       })
+    },
+    showMessageBox: (options: MessageBoxOptions) => {
+      return ipcRenderer.invoke("core:show-message-box", options)
     }
   }
 }

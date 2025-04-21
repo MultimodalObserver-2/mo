@@ -20,6 +20,10 @@ class ProjectService {
   async update(name: string, data: ProjectUpdate): Promise<AxiosResponse<Project, unknown>> {
     return axios.put(`${this.endpoint}/${name}`, data)
   }
+
+  async delete(name: string): Promise<AxiosResponse<void, unknown>> {
+    return axios.delete(`${this.endpoint}/${name}`)
+  }
 }
 
 const projectService = new ProjectService()

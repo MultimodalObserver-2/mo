@@ -7,6 +7,7 @@ declare global {
       openModalWindow: (options: Electron.BrowserWindowConstructorOptions, endpoint: string) => void
       dialog: {
         showErrorBox: (title: string, content: string) => void
+        showMessageBox: (options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
       }
     }
     organization: {
