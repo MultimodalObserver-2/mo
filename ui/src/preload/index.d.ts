@@ -5,6 +5,9 @@ declare global {
     electron: ElectronAPI
     core: {
       openModalWindow: (options: Electron.BrowserWindowConstructorOptions, endpoint: string) => void
+      dialog: {
+        showErrorBox: (title: string, content: string) => void
+      }
     }
     organization: {
       reloadProjects: () => void

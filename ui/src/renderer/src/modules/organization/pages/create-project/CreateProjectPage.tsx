@@ -17,11 +17,11 @@ export default function CreateProjectPage() {
       window.organization.reloadProjects()
       window.close()
     } catch (error) {
-      let errorMessage = error
+      let errorMessage = error as string
       if (error instanceof AxiosError && error.response && error.response.data.detail) {
         errorMessage = error.response.data.detail
       }
-      alert("Error: " + errorMessage)
+      window.core.dialog.showErrorBox("Project creation error", errorMessage)
     }
   }
 

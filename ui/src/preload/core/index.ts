@@ -6,6 +6,14 @@ const core = {
       options,
       endpoint
     })
+  },
+  dialog: {
+    showErrorBox: (title: string, content: string) => {
+      ipcRenderer.send("core:show-error-box", {
+        title,
+        content
+      })
+    }
   }
 }
 
