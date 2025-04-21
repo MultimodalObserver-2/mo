@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends
 
-from api.modules.organization.schemas.project import ProjectPostReq, ProjectRes
+from api.modules.organization.schemas.project import (ProjectPostReq,
+                                                      ProjectPutReq,
+                                                      ProjectRes)
 from api.modules.organization.services.project_service import ProjectService
 
 project_router = APIRouter(prefix="/projects", tags=["projects"])
@@ -14,3 +16,10 @@ async def create_project(project: ProjectPostReq, service: ProjectService = Depe
 @project_router.get("/", response_model=list[ProjectRes], description="Get all projects")
 async def get_all_projects(service: ProjectService = Depends()):
     return service.get_all_projects()
+
+
+@project_router.put("/{project_name}", response_model=ProjectRes, description="Update a project")
+async def update_project(
+    project_name: str, project: ProjectPutReq, service: ProjectService = Depends()
+):
+    return service.update_project(project_name, project)

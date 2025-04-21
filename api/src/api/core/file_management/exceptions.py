@@ -10,3 +10,9 @@ class InvalidFileNameError(Exception):
         self.file_name = file_name
         self.message = message
         super().__init__(f"{self.message}: {self.file_name}")
+
+
+class NotFoundError(Exception):
+    def __init__(self, message: str = "Not found"):
+        self.message = message
+        super().__init__(self.message)

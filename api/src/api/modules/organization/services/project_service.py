@@ -6,7 +6,9 @@ from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException)
-from api.modules.organization.schemas.project import ProjectPostReq, ProjectRes
+from api.modules.organization.schemas.project import (ProjectPostReq,
+                                                      ProjectPutReq,
+                                                      ProjectRes)
 from api.modules.organization.services.paths import (
     PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME)
 
@@ -50,3 +52,29 @@ class ProjectService:
     def get_all_projects(self) -> list[ProjectRes]:
         projects = self.projects_storage.find_all()
         return [ProjectRes(**project) for project in projects]
+
+    def update_project(self, project_name: str, project: ProjectPutReq) -> ProjectRes:
+        new_project = self.projects_storage.find_one({"name": project_name})
+        if new_project is None:
+            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+
+        new_project["name"] = project.name if project.name else new_project["name"]
+        new_project["description"] = (
+            project.description if project.description else new_project["description"]
+        )
+        new_project["updated_at"] = datetime.now()
+
+        if project.name != None and new_project["name"] != project_name:
+            if not FileValidators.is_valid_directory_name(project.name):
+                raise BadRequestException(f"Project name {project.name} isn’t allowed.")
+
+            if self.projects_storage.exists({"name": project.name}):
+                raise AlreadyExistsException(f"Project with name {project.name} already exists.")
+
+            new_location = self.file_management.rename_directory(
+                old_name=project_name, new_name=project.name
+            )
+            new_project["location"] = new_location
+
+        self.projects_storage.update({"name": project_name}, new_project)
+        return ProjectRes(**new_project)

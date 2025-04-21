@@ -4,7 +4,8 @@ from typing import Any, Optional
 
 from filelock import FileLock
 
-from api.core.file_management.exceptions import InvalidFileNameError
+from api.core.file_management.exceptions import (InvalidFileNameError,
+                                                 NotFoundError)
 from api.core.file_management.validators import FileValidators
 
 
@@ -37,9 +38,37 @@ class JsonStorage:
             with open(self._path, "r") as file:
                 return json.load(file)
 
+    def find_one(self, query: dict[str, Any]) -> Optional[dict[str, Any]]:
+        content = self.find_all()
+        for document in content:
+            if self._is_subset(document, query):
+                return document
+        return None
+
     def exists(self, query: dict[str, Any]) -> bool:
         content = self.find_all()
         for document in content:
-            if all(item in document.items() for item in query.items()):
+            if self._is_subset(document, query):
                 return True
         return False
+
+    def update(self, query: dict[str, Any], new_document: dict[str, Any]):
+        documents = self.find_all()
+        document_idx = self._find_index(query)
+        if document_idx is not None:
+            documents[document_idx] = new_document
+            with self.lock:
+                with open(self._path, "w") as file:
+                    json.dump(documents, file, indent=4, default=str)
+        else:
+            raise NotFoundError("Document not found")
+
+    def _find_index(self, query: dict[str, Any]) -> Optional[int]:
+        content = self.find_all()
+        for index, document in enumerate(content):
+            if self._is_subset(document, query):
+                return index
+        return None
+
+    def _is_subset(self, document: dict[str, Any], query: dict[str, Any]) -> bool:
+        return all(item in document.items() for item in query.items())

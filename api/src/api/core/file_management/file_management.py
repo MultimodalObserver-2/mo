@@ -1,5 +1,4 @@
 import os
-from email import message
 from typing import Optional
 
 from api.core.file_management.exceptions import (InvalidDirectoryNameError,
@@ -39,3 +38,13 @@ class FileManagement:
 
     def exists(self, rel_path: str) -> bool:
         return os.path.exists(os.path.join(self._path, rel_path))
+
+    def rename_directory(self, old_name: str, new_name: str, rel_path: str = ""):
+        if not FileValidators.is_valid_directory_name(new_name):
+            raise InvalidDirectoryNameError(new_name)
+        old_path = os.path.join(self._path, rel_path, old_name)
+        old_path = os.path.normpath(old_path)
+        new_path = os.path.join(self._path, rel_path, new_name)
+        new_path = os.path.normpath(new_path)
+        os.rename(old_path, new_path)
+        return new_path
