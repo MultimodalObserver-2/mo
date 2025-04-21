@@ -46,3 +46,7 @@ class ProjectService:
         JsonStorage.create_storage(file_name=self._participants_data_file_name, base_path=dir_path)
 
         return ProjectRes(**project_data)
+
+    def get_all_projects(self) -> list[ProjectRes]:
+        projects = self.projects_storage.find_all()
+        return [ProjectRes(**project) for project in projects]

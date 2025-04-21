@@ -9,3 +9,8 @@ project_router = APIRouter(prefix="/projects", tags=["projects"])
 @project_router.post("/", response_model=ProjectRes, description="Create a new project")
 async def create_project(project: ProjectPostReq, service: ProjectService = Depends()):
     return service.create_project(project)
+
+
+@project_router.get("/", response_model=list[ProjectRes], description="Get all projects")
+async def get_all_projects(service: ProjectService = Depends()):
+    return service.get_all_projects()
