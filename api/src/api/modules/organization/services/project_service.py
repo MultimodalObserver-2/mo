@@ -78,3 +78,9 @@ class ProjectService:
 
         self.projects_storage.update({"name": project_name}, new_project)
         return ProjectRes(**new_project)
+
+    def get_project(self, project_name: str) -> ProjectRes:
+        project = self.projects_storage.find_one({"name": project_name})
+        if project is None:
+            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+        return ProjectRes(**project)

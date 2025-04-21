@@ -23,3 +23,8 @@ async def update_project(
     project_name: str, project: ProjectPutReq, service: ProjectService = Depends()
 ):
     return service.update_project(project_name, project)
+
+
+@project_router.get("/{project_name}", response_model=ProjectRes, description="Get a project")
+async def get_project(project_name: str, service: ProjectService = Depends()):
+    return service.get_project(project_name)
