@@ -84,3 +84,10 @@ class ProjectService:
         if project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
         return ProjectRes(**project)
+
+    def delete_project(self, project_name: str) -> None:
+        if not self.projects_storage.exists({"name": project_name}):
+            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+
+        self.file_management.delete_directory(project_name)
+        self.projects_storage.delete_one({"name": project_name})

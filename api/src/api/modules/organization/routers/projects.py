@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from api.modules.organization.schemas.project import (ProjectPostReq,
                                                       ProjectPutReq,
@@ -28,3 +28,10 @@ async def update_project(
 @project_router.get("/{project_name}", response_model=ProjectRes, description="Get a project")
 async def get_project(project_name: str, service: ProjectService = Depends()):
     return service.get_project(project_name)
+
+
+@project_router.delete(
+    "/{project_name}", description="Delete a project", status_code=status.HTTP_204_NO_CONTENT
+)
+async def delete_project(project_name: str, service: ProjectService = Depends()):
+    return service.delete_project(project_name)

@@ -57,8 +57,19 @@ class JsonStorage:
         document_idx = self._find_index(query)
         if document_idx is None:
             raise NotFoundError("Document not found")
-        
+
         documents[document_idx] = new_document
+        with self.lock:
+            with open(self._path, "w") as file:
+                json.dump(documents, file, indent=4, default=str)
+
+    def delete_one(self, query: dict[str, Any]):
+        documents = self.find_all()
+        document_idx = self._find_index(query)
+        if document_idx is None:
+            raise NotFoundError("Document not found")
+
+        documents.pop(document_idx)
         with self.lock:
             with open(self._path, "w") as file:
                 json.dump(documents, file, indent=4, default=str)

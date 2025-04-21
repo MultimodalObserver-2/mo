@@ -1,8 +1,10 @@
 import os
+import shutil
 from typing import Optional
 
 from api.core.file_management.exceptions import (InvalidDirectoryNameError,
-                                                 InvalidFileNameError)
+                                                 InvalidFileNameError,
+                                                 NotFoundError)
 from api.core.file_management.validators import FileValidators
 
 
@@ -48,3 +50,11 @@ class FileManagement:
         new_path = os.path.normpath(new_path)
         os.rename(old_path, new_path)
         return new_path
+
+    def delete_directory(self, dir_name: str, rel_path: str = ""):
+        dir_path = os.path.join(self._path, rel_path, dir_name)
+        dir_path = os.path.normpath(dir_path)
+        if not os.path.exists(dir_path):
+            raise NotFoundError(f"Directory {dir_path} does not exist.")
+        shutil.rmtree(dir_path)
+        return dir_path
