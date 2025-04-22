@@ -1,0 +1,6 @@
+.box {
+    display: flex;
+    flex-direction: column;
+    width: 15vw;
+    min-width: 180px;
+}

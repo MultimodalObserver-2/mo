@@ -36,7 +36,7 @@
 
 .add-button .svg:hover {
   transform: scale(1.1);
-  fill: var(--color-primary-100);
+  fill: var(--color-primary-200);
 }
 
 .items {

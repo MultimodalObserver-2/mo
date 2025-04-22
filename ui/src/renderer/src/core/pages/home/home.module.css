@@ -5,7 +5,7 @@
   height: 100vh;
 }
 
-.playground {
+.workspace {
   height: 75vh;
   border: 12px solid var(--color-primary-500);
 }

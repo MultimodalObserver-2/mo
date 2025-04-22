@@ -1,0 +1,29 @@
+.header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.title {
+    color: var(--color-text-light);
+    font-weight: 500;
+    font-size: 1.2em;
+}
+
+.actions {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.actions svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-primary-100);
+    transition: all 200ms ease-in-out;
+}
+
+.actions svg:hover {
+    transform: scale(1.1);
+    fill: var(--color-primary-200);
+}

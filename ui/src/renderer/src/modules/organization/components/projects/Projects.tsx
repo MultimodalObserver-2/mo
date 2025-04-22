@@ -3,10 +3,17 @@ import styles from "./projects.module.css"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { Project } from "../../types/Project"
 import projectService from "../../services/ProjectService"
-import EditIcon from "@renderer/core/components/icons/EditIcon"
-import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import { MessageBoxOptions } from "electron"
-import InfoIcon from "@renderer/core/components/icons/InfoIcon"
+import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
+import {
+  ElementActions,
+  ElementHeader,
+  ElementTitle
+} from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
+import {
+  ElementList,
+  ElementListItem
+} from "@renderer/core/components/panel/panel-element/element-list/ElementList"
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -76,36 +83,29 @@ export default function Projects() {
   }, [])
 
   return (
-    <div className={styles.box}>
-      <section className={styles.top}>
-        <h2 className={styles.title}>Projects</h2>
-        <button className={styles["add-button"]} onClick={handleOnCreate}>
-          <AddCircleIcon className={styles.svg} />
-        </button>
-      </section>
-      <ul className={styles.items}>
+    <PanelElement>
+      <ElementHeader>
+        <ElementTitle>Projects</ElementTitle>
+        <ElementActions>
+          <button className={styles["add-button"]} onClick={handleOnCreate}>
+            <AddCircleIcon className={styles.svg} />
+          </button>
+        </ElementActions>
+      </ElementHeader>
+      <ElementList>
         {projects.map((project) => (
-          <li className={styles.item} key={project.name} tabIndex={0}>
-            <h4 className={styles.name}>{project.name}</h4>
-            <div className={styles.actions}>
-              <InfoIcon
-                className={`${styles.action} ${styles.normal}`}
-                onClick={() => handleShowInfo(project)}
-              />
-              <EditIcon
-                className={`${styles.action} ${styles.normal}`}
-                onClick={() => handleEdit(project)}
-              />
-              <DeleteIcon
-                className={`${styles.action} ${styles.danger}`}
-                onClick={() => {
-                  handleDelete(project)
-                }}
-              />
-            </div>
-          </li>
+          <ElementListItem
+            key={project.name}
+            label={project.name}
+            showActions={true}
+            onInfo={() => handleShowInfo(project)}
+            onEdit={() => handleEdit(project)}
+            onDelete={() => {
+              handleDelete(project)
+            }}
+          />
         ))}
-      </ul>
-    </div>
+      </ElementList>
+    </PanelElement>
   )
 }
