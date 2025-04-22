@@ -6,6 +6,7 @@ import { Await, useAsyncError, useParams } from "react-router"
 import { Suspense } from "react"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import projectService from "../../services/ProjectService"
+import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 
 export default function UpdateProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()
@@ -36,14 +37,6 @@ export default function UpdateProjectPage() {
     window.close()
   }
 
-  function ProjectLoadingError() {
-    const error = useAsyncError()
-    if (error instanceof Error) {
-      return <div>Error loading: {error.message}</div>
-    }
-    return <div>Unknown error occurred</div>
-  }
-
   async function fetchProject(projectName: string | undefined) {
     if (!projectName) {
       throw new Error("No project name declared")
@@ -61,7 +54,7 @@ export default function UpdateProjectPage() {
       </section>
       <hr className={styles.line} />
       <Suspense>
-        <Await resolve={fetchProject(projectName)} errorElement={ProjectLoadingError()}>
+        <Await resolve={fetchProject(projectName)} errorElement={<ErrorElement name="Project" />}>
           {(project) => (
             <>
               <form id="update" className={styles.form} onSubmit={handleSubmit}>

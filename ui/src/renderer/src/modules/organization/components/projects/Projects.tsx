@@ -6,6 +6,7 @@ import projectService from "../../services/ProjectService"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import { MessageBoxOptions } from "electron"
+import InfoIcon from "@renderer/core/components/icons/InfoIcon"
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -59,6 +60,13 @@ export default function Projects() {
     }
   }
 
+  const handleShowInfo = (project: Project) => {
+    window.core.openModalWindow(
+      { width: 720, height: 430, minWidth: 650, minHeight: 430, title: "Project Information" },
+      `organization/projects/${project.name}`
+    )
+  }
+
   useEffect(() => {
     window.organization.onReloadProjects(() => {
       fetchProjects()
@@ -80,6 +88,10 @@ export default function Projects() {
           <li className={styles.item} key={project.name} tabIndex={0}>
             <h4 className={styles.name}>{project.name}</h4>
             <div className={styles.actions}>
+              <InfoIcon
+                className={`${styles.action} ${styles.normal}`}
+                onClick={() => handleShowInfo(project)}
+              />
               <EditIcon
                 className={`${styles.action} ${styles.normal}`}
                 onClick={() => handleEdit(project)}

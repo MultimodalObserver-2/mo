@@ -1,0 +1,49 @@
+.box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.label {
+    margin-left: 4px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.label .bullet {
+    width: 8px;
+    height: 8px;
+    background-color: var(--color-primary-100);
+    border-radius: 50%;
+    margin-top: 3px;
+}
+
+.label .name {
+    font-size: 1em;
+    font-weight: 400;
+    color: var(--color-text-light);
+}
+
+.value {
+    background-color: var(--color-primary-800);
+    border-radius: 4px;
+    padding: 8px 8px;
+    color: var(--color-text-light);
+    font-size: 1em;
+    font-weight: 400;
+    overflow-x: auto;
+    white-space: nowrap;
+}
+
+.value::-webkit-scrollbar {
+    background-color: var(--color-primary-100);
+    width: 6px;
+    height: 6px;
+}
+
+.value::-webkit-scrollbar-thumb {
+    background-color: var(--color-primary-500);
+    width: 6px;
+    height: 6px;
+}

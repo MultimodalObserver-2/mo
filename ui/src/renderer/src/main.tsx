@@ -7,6 +7,7 @@ import MainLayout from "./core/layouts/MainLayout"
 import Home from "./core/pages/home/Home"
 import CreateProjectPage from "./modules/organization/pages/create-project/CreateProjectPage"
 import UpdateProjectPage from "./modules/organization/pages/update-project/UpdateProjectPage"
+import ProjectPage from "./modules/organization/pages/project/ProjectPage"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -19,6 +20,7 @@ createRoot(document.getElementById("root")!).render(
         </Route>
         <Route path="/organization/create-project" element={<CreateProjectPage />} />
         <Route path="/organization/update-project/:projectName" element={<UpdateProjectPage />} />
+        <Route path="/organization/projects/:projectName" element={<ProjectPage />} />
       </Routes>
     </BrowserRouter>
   </StrictMode>

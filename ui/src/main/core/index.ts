@@ -1,2 +1,4 @@
 import "./browserWindow"
 import "./dialog"
+import "./clipboard"
+import "./shell"

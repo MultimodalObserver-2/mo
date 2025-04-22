@@ -31,8 +31,25 @@
   box-shadow: -2px 2px 3px var(--color-primary-900);
 }
 
+/* soft */
+.button.soft {
+  background-color: var(--color-primary-600);
+  color: var(--color-text-dark);
+  box-shadow: -2px 2px 1px var(--color-primary-800);
+}
+
+.button.soft:hover {
+  background-color: var(--color-primary-500);
+  box-shadow: -2px 2px 3px var(--color-primary-900);
+}
+
 /* Border Radius Styles */
 /* small (sm) */
 .button.sm {
   border-radius: 4px;
+}
+
+/* extra large (xl) */
+.button.xl {
+  border-radius: 16px;
 }
