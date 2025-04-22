@@ -1,9 +1,13 @@
-import styles from "./create-project.module.css"
 import { AxiosError } from "axios"
 import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import CreateFolderIcon from "@renderer/core/components/icons/CreateFolderIcon"
 import projectService from "../../services/ProjectService"
+import PageModal from "@renderer/core/components/page-modal/PageModal"
+import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
+import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
+import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
+import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 
 export default function CreateProjectPage() {
   const handleSubmit = async (e) => {
@@ -30,13 +34,11 @@ export default function CreateProjectPage() {
   }
 
   return (
-    <main className={styles.page}>
-      <section className={styles.top}>
-        <CreateFolderIcon className={styles.icon} />
-        <h2 className={styles.title}>New Project</h2>
-      </section>
-      <hr className={styles.line} />
-      <form id="create" className={styles.form} onSubmit={handleSubmit}>
+    <PageModal>
+      <ModalHeader>
+        <ModalTitle title="New Project" Icon={CreateFolderIcon} />
+      </ModalHeader>
+      <ModalBody type="form" id="create" onSubmit={handleSubmit}>
         <Input label="Name" id="name" required placeholder="Enter the project name" type="text" />
         <Input
           label="Description"
@@ -44,15 +46,15 @@ export default function CreateProjectPage() {
           placeholder="Enter the project description"
           type="text"
         />
-      </form>
-      <section className={styles.buttons}>
+      </ModalBody>
+      <ModalFooter>
         <Button type="submit" form="create">
           CREATE
         </Button>
         <Button styleType="danger" onClick={handleClose}>
           CLOSE
         </Button>
-      </section>
-    </main>
+      </ModalFooter>
+    </PageModal>
   )
 }

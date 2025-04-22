@@ -1,12 +1,16 @@
 import Input from "@renderer/core/components/input/Input"
-import styles from "./update-project.module.css"
 import Button from "@renderer/core/components/button/Button"
 import { AxiosError } from "axios"
-import { Await, useAsyncError, useParams } from "react-router"
+import { Await, useParams } from "react-router"
 import { Suspense } from "react"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import projectService from "../../services/ProjectService"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
+import PageModal from "@renderer/core/components/page-modal/PageModal"
+import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
+import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
+import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
+import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 
 export default function UpdateProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()
@@ -46,18 +50,18 @@ export default function UpdateProjectPage() {
     return response.data
   }
 
+  const projectPromise = fetchProject(projectName)
+
   return (
-    <main className={styles.page}>
-      <section className={styles.top}>
-        <EditIcon className={styles.icon} />
-        <h2 className={styles.title}>Update project</h2>
-      </section>
-      <hr className={styles.line} />
-      <Suspense>
-        <Await resolve={fetchProject(projectName)} errorElement={<ErrorElement name="Project" />}>
-          {(project) => (
-            <>
-              <form id="update" className={styles.form} onSubmit={handleSubmit}>
+    <PageModal>
+      <ModalHeader>
+        <ModalTitle title="Update project" Icon={EditIcon} />
+      </ModalHeader>
+      <ModalBody type="form" id="update" onSubmit={handleSubmit}>
+        <Suspense>
+          <Await resolve={projectPromise} errorElement={<ErrorElement name="Project" />}>
+            {(project) => (
+              <>
                 <Input
                   label="Name"
                   id="name"
@@ -73,19 +77,27 @@ export default function UpdateProjectPage() {
                   defaultValue={project.description}
                   type="text"
                 />
-              </form>
-              <section className={styles.buttons}>
+              </>
+            )}
+          </Await>
+        </Suspense>
+      </ModalBody>
+      <ModalFooter>
+        <Suspense>
+          <Await resolve={projectPromise} errorElement={<ErrorElement name="Project" />}>
+            {() => (
+              <>
                 <Button type="submit" form="update">
                   UPDATE
                 </Button>
                 <Button styleType="danger" onClick={closeModalWindow}>
                   CLOSE
                 </Button>
-              </section>
-            </>
-          )}
-        </Await>
-      </Suspense>
-    </main>
+              </>
+            )}
+          </Await>
+        </Suspense>
+      </ModalFooter>
+    </PageModal>
   )
 }

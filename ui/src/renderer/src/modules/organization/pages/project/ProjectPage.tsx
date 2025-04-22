@@ -11,6 +11,10 @@ import InfoIcon from "@renderer/core/components/icons/InfoIcon"
 import DisplayData from "@renderer/core/components/display-data/DisplayData"
 import ContentCopyIcon from "@renderer/core/components/icons/ContentCopyIcon"
 import DocumentSearchIcon from "@renderer/core/components/icons/DocumentSearchIcon"
+import PageModal from "@renderer/core/components/page-modal/PageModal"
+import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
+import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
+import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 
 export default function ProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()
@@ -86,11 +90,10 @@ export default function ProjectPage() {
   const projectPromise = fetchProject(projectName)
 
   return (
-    <main className={styles.page}>
-      <section className={styles.top}>
+    <PageModal>
+      <ModalHeader className={styles.header}>
         <div className={styles["title-box"]}>
-          <InfoIcon className={styles.icon} />
-          <h2 className={styles.title}>Project Information</h2>
+          <ModalTitle title="Project Information" Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
           <Button
@@ -110,56 +113,57 @@ export default function ProjectPage() {
             <DeleteIcon className={styles["action-icon"]} />
           </Button>
         </div>
-      </section>
-      <hr className={styles.line} />
-      <Suspense>
-        <Await resolve={projectPromise} errorElement={<ErrorElement name="Project" />}>
-          {(project) => (
-            <section className={styles.info}>
-              <DisplayData name="Name" value={project.name} />
-              <DisplayData
-                name="Description"
-                value={project.description ? project.description : "No description"}
-              />
-              <DisplayData
-                name="Location"
-                value={project.location}
-                childrenClass={styles["location-box"]}
-              >
-                <span className={styles["copy-container"]}>
+      </ModalHeader>
+      <ModalBody>
+        <Suspense>
+          <Await resolve={projectPromise} errorElement={<ErrorElement name="Project" />}>
+            {(project) => (
+              <>
+                <DisplayData name="Name" value={project.name} />
+                <DisplayData
+                  name="Description"
+                  value={project.description ? project.description : "No description"}
+                />
+                <DisplayData
+                  name="Location"
+                  value={project.location}
+                  childrenClass={styles["location-box"]}
+                >
+                  <span className={styles["copy-container"]}>
+                    <Button
+                      className={styles["location-button"]}
+                      styleType="soft"
+                      onClick={() => handleCopy(project.location)}
+                    >
+                      <ContentCopyIcon className={styles["button-icon"]} />
+                    </Button>
+                    <span ref={copyMessage} className={styles["copy-message"]}>
+                      Copied!
+                    </span>
+                  </span>
                   <Button
                     className={styles["location-button"]}
                     styleType="soft"
-                    onClick={() => handleCopy(project.location)}
+                    onClick={() => handleOpenPath(project.location)}
                   >
-                    <ContentCopyIcon className={styles["button-icon"]} />
+                    <DocumentSearchIcon className={styles["button-icon"]} />
                   </Button>
-                  <span ref={copyMessage} className={styles["copy-message"]}>
-                    Copied!
-                  </span>
-                </span>
-                <Button
-                  className={styles["location-button"]}
-                  styleType="soft"
-                  onClick={() => handleOpenPath(project.location)}
-                >
-                  <DocumentSearchIcon className={styles["button-icon"]} />
-                </Button>
-              </DisplayData>
-              <div className={styles.dates}>
-                <DisplayData
-                  name="Created At"
-                  value={new Date(project.created_at).toLocaleDateString()}
-                />
-                <DisplayData
-                  name="Updated At"
-                  value={new Date(project.updated_at).toLocaleDateString()}
-                />
-              </div>
-            </section>
-          )}
-        </Await>
-      </Suspense>
-    </main>
+                </DisplayData>
+                <div className={styles.dates}>
+                  <DisplayData
+                    name="Created At"
+                    value={new Date(project.created_at).toLocaleDateString()}
+                  />
+                  <DisplayData
+                    name="Updated At"
+                    value={new Date(project.updated_at).toLocaleDateString()}
+                  />
+                </div>
+              </>
+            )}
+          </Await>
+        </Suspense>
+      </ModalBody>
+    </PageModal>
   )
 }

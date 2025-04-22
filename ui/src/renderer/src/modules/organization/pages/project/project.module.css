@@ -1,13 +1,4 @@
-.page {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-    padding: 16px 5vw;
-    background-color: var(--color-primary-700);
-    color: var(--color-text-light);
-}
-
-.top {
+.header {
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -33,31 +24,6 @@
     fill: var(--color-text-light);
     width: 18px;
     height: 18px;
-}
-
-.icon {
-    width: 24px;
-    height: 24px;
-    fill: var(--color-primary-100);
-}
-
-.line {
-    border: none;
-    height: 2px;
-    border-radius: 6px;
-    background-color: var(--color-primary-500);
-}
-
-.title {
-    font-size: 1.2em;
-    font-weight: 500;
-    color: var(--color-primary-50);
-}
-
-.info {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
 }
 
 .location-box {
