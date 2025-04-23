@@ -1,72 +1,76 @@
 .items {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    margin: 10px 0;
-    border-radius: 4px;
-    background-color: var(--color-primary-600);
-    scroll-behavior: smooth;
-    overflow: auto;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 10px 0;
+  border-radius: 4px;
+  background-color: var(--color-primary-600);
+  scroll-behavior: smooth;
+  overflow: auto;
 }
 
 .items::-webkit-scrollbar {
-    background-color: var(--color-primary-100);
-    width: 6px;
-    height: 6px;
+  background-color: var(--color-primary-100);
+  width: 6px;
+  height: 6px;
 }
 
 .items::-webkit-scrollbar-thumb {
-    background-color: var(--color-primary-800);
-    width: 6px;
-    height: 6px;
+  background-color: var(--color-primary-800);
+  width: 6px;
+  height: 6px;
 }
 
 .item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 8px 12px;
-    cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 8px 12px;
+  cursor: pointer;
 }
 
 .item:first-child {
-    border-radius: 4px 4px 0 0;
+  border-radius: 4px 4px 0 0;
 }
 
 .item:hover {
-    background-color: var(--color-primary-500);
+  background-color: var(--color-primary-500);
+}
+
+.item.active {
+  background-color: var(--color-primary-400);
 }
 
 .item .name {
-    color: var(--color-text-light);
-    font-size: 1em;
-    font-weight: 500;
+  color: var(--color-text-light);
+  font-size: 1em;
+  font-weight: 500;
 }
 
 .item .actions {
-    visibility: hidden;
-    display: flex;
-    align-items: center;
-    gap: 4px;
+  visibility: hidden;
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .item:hover .actions {
-    visibility: visible;
+  visibility: visible;
 }
 
-.actions .action{
-    width: 20px;
-    height: 20px;
-    fill: var(--color-text-light);
-    transition: transform 150ms ease-in-out;
+.actions .action {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+  transition: transform 150ms ease-in-out;
 }
 
 .actions .action.normal:hover {
-    transform: scale(1.15);
-    fill: var(--color-accent-200);
+  transform: scale(1.15);
+  fill: var(--color-accent-200);
 }
 
 .actions .action.danger:hover {
-    transform: scale(1.15);
-    fill: var(--color-red-500);
+  transform: scale(1.15);
+  fill: var(--color-red-500);
 }
