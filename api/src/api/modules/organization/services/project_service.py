@@ -58,10 +58,9 @@ class ProjectService:
         new_project = self.projects_storage.find_one({"name": project_name})
         if new_project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
-        
+
         if self.is_project_locked(project_name):
             raise BadRequestException(f"Project with name {project_name} is locked.")
-        
 
         new_project["name"] = project.name if project.name else new_project["name"]
         new_project["description"] = (
@@ -104,16 +103,16 @@ class ProjectService:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
-        
+
         project["locked"] = True
         self.projects_storage.update({"name": project_name}, project)
         return ProjectRes(**project)
-    
+
     def unlock_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
-        
+
         project["locked"] = False
         self.projects_storage.update({"name": project_name}, project)
         return ProjectRes(**project)
@@ -123,6 +122,6 @@ class ProjectService:
         if project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
         return project["locked"]
-    
+
     def exists(self, project_name: str) -> bool:
         return self.projects_storage.exists({"name": project_name})
