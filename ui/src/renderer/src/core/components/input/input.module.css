@@ -31,5 +31,5 @@
 }
 
 .input::placeholder {
-  color: rgb(180, 180, 180);
+  color: var(--color-gray-200);
 }

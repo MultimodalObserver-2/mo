@@ -23,17 +23,17 @@
   --color-accent-200: #00fff5;
 
   /* Gray colors */
-  --color-gray-900: #18191e;
-  --color-gray-800: #212229;
-  --color-gray-700: #282932;
-  --color-gray-600: #2e303b;
-  --color-gray-500: #373946;
-  --color-gray-400: #444756;
-  --color-gray-300: #5c5f75;
-  --color-gray-200: #696d85;
-  --color-gray-100: #767a92;
-  --color-gray-50: #afb3c8;
-  --color-gray-25: #edeef2;
+  --color-gray-900: #2b2b2b;
+  --color-gray-800: #353535;
+  --color-gray-700: #474747;
+  --color-gray-600: #505050;
+  --color-gray-500: #646464;
+  --color-gray-400: #8b8b8b;
+  --color-gray-300: #a5a5a5;
+  --color-gray-200: #bdbdbd;
+  --color-gray-100: #c9c9c9;
+  --color-gray-50: #dadada;
+  --color-gray-25: #f1f1f1;
 
   /* Red colors */
   --color-red-900: #4c0000;

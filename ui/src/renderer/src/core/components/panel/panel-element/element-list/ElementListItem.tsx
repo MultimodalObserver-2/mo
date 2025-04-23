@@ -9,6 +9,7 @@ import LockOpenIcon from "@renderer/core/components/icons/LockOpenIcon"
 interface ElementListItemProps {
   label: string
   showActions?: boolean | { info: boolean; lock: boolean; edit: boolean; delete: boolean }
+  isSelected?: boolean
   isLocked?: boolean
   onClick?: () => void
   onInfo?: () => void
@@ -20,6 +21,7 @@ interface ElementListItemProps {
 export default function ElementListItem({
   label,
   showActions = false,
+  isSelected = false,
   isLocked = false,
   onClick,
   onInfo,
@@ -32,7 +34,11 @@ export default function ElementListItem({
   }
 
   return (
-    <li className={`${styles.item}`} tabIndex={0} onClick={onClick}>
+    <li
+      className={`${styles.item} ${isSelected ? styles.active : ""}`}
+      tabIndex={0}
+      onClick={onClick}
+    >
       <h4 className={styles.name}>{label}</h4>
       <Show show={!!showActions}>
         <div className={styles.actions}>

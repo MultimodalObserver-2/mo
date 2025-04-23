@@ -11,8 +11,12 @@ import ElementList from "@renderer/core/components/panel/panel-element/element-l
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
 import { AxiosError } from "axios"
+import { useDispatch, useSelector } from "react-redux"
+import { selectSelectedProject, setSelectedProject } from "../../store/organizationSlice"
 
 export default function Projects() {
+  const selectedProject = useSelector(selectSelectedProject)
+  const dispatch = useDispatch()
   const [projects, setProjects] = useState<Project[]>([])
 
   const fetchProjects = async () => {
@@ -20,12 +24,15 @@ export default function Projects() {
       const response = await projectService.getAll()
       setProjects(response.data)
     } catch {
-      alert("Error: an unexpected error occurred, please relaunch the app")
+      window.core.dialog.showErrorBox(
+        "Error",
+        "An unexpected error occurred, please relaunch the app"
+      )
       setProjects([])
     }
   }
 
-  const handleOnCreate = () => {
+  const handleCreate = () => {
     window.core.openModalWindow(
       { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Create Project" },
       "organization/create-project"
@@ -118,7 +125,7 @@ export default function Projects() {
       <ElementHeader>
         <ElementTitle>Projects</ElementTitle>
         <ElementActions>
-          <button className={styles["add-button"]} onClick={handleOnCreate}>
+          <button className={styles["add-button"]} onClick={handleCreate}>
             <AddCircleIcon className={styles.svg} />
           </button>
         </ElementActions>
@@ -129,7 +136,9 @@ export default function Projects() {
             key={project.name}
             label={project.name}
             isLocked={project.locked}
+            isSelected={project.name === selectedProject?.name}
             showActions={true}
+            onClick={() => dispatch(setSelectedProject(project))}
             onInfo={() => handleShowInfo(project)}
             onLock={() => handleLock(project)}
             onEdit={() => handleEdit(project)}
