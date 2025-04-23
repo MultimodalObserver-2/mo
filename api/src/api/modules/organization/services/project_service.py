@@ -28,7 +28,7 @@ class ProjectService:
         )
 
     def create_project(self, project: ProjectPostReq) -> ProjectRes:
-        if self.projects_storage.exists({"name": project.name}):
+        if self.exists(project.name):
             raise AlreadyExistsException(f"Project with name {project.name} already exists.")
 
         if not FileValidators.is_valid_directory_name(project.name):
@@ -73,7 +73,7 @@ class ProjectService:
             if not FileValidators.is_valid_directory_name(project.name):
                 raise BadRequestException(f"Project name {project.name} isn’t allowed.")
 
-            if self.projects_storage.exists({"name": project.name}):
+            if self.exists(project.name):
                 raise AlreadyExistsException(f"Project with name {project.name} already exists.")
 
             new_location = self.file_management.rename_directory(
@@ -91,7 +91,7 @@ class ProjectService:
         return ProjectRes(**project)
 
     def delete_project(self, project_name: str) -> None:
-        if not self.projects_storage.exists({"name": project_name}):
+        if not self.exists(project_name):
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
 
         if self.is_project_locked(project_name):
@@ -123,3 +123,6 @@ class ProjectService:
         if project is None:
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
         return project["locked"]
+    
+    def exists(self, project_name: str) -> bool:
+        return self.projects_storage.exists({"name": project_name})

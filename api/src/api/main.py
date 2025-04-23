@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from api.modules.organization.routers.projects import project_router
+from api.modules.organization.routers.participants import participant_router
 
 app = FastAPI(
     title="Multimodal Observer API",
@@ -34,3 +35,4 @@ app.add_middleware(
 
 
 app.include_router(project_router)
+app.include_router(participant_router)
