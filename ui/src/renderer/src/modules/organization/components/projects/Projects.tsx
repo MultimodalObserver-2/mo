@@ -5,15 +5,12 @@ import { Project } from "../../types/Project"
 import projectService from "../../services/ProjectService"
 import { MessageBoxOptions } from "electron"
 import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
-import {
-  ElementActions,
-  ElementHeader,
-  ElementTitle
-} from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
-import {
-  ElementList,
-  ElementListItem
-} from "@renderer/core/components/panel/panel-element/element-list/ElementList"
+import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
+import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
+import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
+import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
+import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
+import { AxiosError } from "axios"
 
 export default function Projects() {
   const [projects, setProjects] = useState<Project[]>([])
@@ -36,6 +33,14 @@ export default function Projects() {
   }
 
   const handleEdit = (project: Project) => {
+    if (project.locked) {
+      window.core.dialog.showErrorBox(
+        "Edit error",
+        "You cannot edit a locked project, please unlock it first"
+      )
+      return
+    }
+
     window.core.openModalWindow(
       { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Update Project" },
       `organization/update-project/${project.name}`
@@ -43,6 +48,14 @@ export default function Projects() {
   }
 
   const handleDelete = async (project: Project) => {
+    if (project.locked) {
+      window.core.dialog.showErrorBox(
+        "Delete error",
+        "You cannot delete a locked project, please unlock it first"
+      )
+      return
+    }
+
     const buttons = ["Accept", "Cancel"]
     const acceptId = 0
     const cancelId = 1
@@ -61,8 +74,12 @@ export default function Projects() {
       try {
         await projectService.delete(project.name)
         await fetchProjects()
-      } catch {
-        window.core.dialog.showErrorBox("Delete Error", "An unexpected error occurred")
+      } catch (error) {
+        let errorMessage = "An unexpected error occurred"
+        if (error instanceof AxiosError && error.response && error.response.data.detail) {
+          errorMessage = error.response.data.detail
+        }
+        window.core.dialog.showErrorBox("Delete error", errorMessage)
       }
     }
   }
@@ -72,6 +89,20 @@ export default function Projects() {
       { width: 720, height: 430, minWidth: 650, minHeight: 430, title: "Project Information" },
       `organization/projects/${project.name}`
     )
+  }
+
+  const handleLock = async (project: Project) => {
+    try {
+      if (project.locked) {
+        await projectService.unlock(project.name)
+      } else {
+        await projectService.lock(project.name)
+      }
+
+      await fetchProjects()
+    } catch {
+      window.core.dialog.showErrorBox("Lock error", "An unexpected error occurred")
+    }
   }
 
   useEffect(() => {
@@ -97,8 +128,10 @@ export default function Projects() {
           <ElementListItem
             key={project.name}
             label={project.name}
+            isLocked={project.locked}
             showActions={true}
             onInfo={() => handleShowInfo(project)}
+            onLock={() => handleLock(project)}
             onEdit={() => handleEdit(project)}
             onDelete={() => {
               handleDelete(project)

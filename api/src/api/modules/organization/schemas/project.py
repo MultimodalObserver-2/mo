@@ -8,6 +8,7 @@ class ProjectRes(BaseModel):
     name: str
     description: str
     location: str
+    locked: bool
     created_at: datetime
     updated_at: datetime
 

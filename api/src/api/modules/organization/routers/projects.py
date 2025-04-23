@@ -35,3 +35,15 @@ async def get_project(project_name: str, service: ProjectService = Depends()):
 )
 async def delete_project(project_name: str, service: ProjectService = Depends()):
     return service.delete_project(project_name)
+
+@project_router.post(
+    "/{project_name}/lock", response_model=ProjectRes, description="Lock a project"
+)
+async def lock_project(project_name: str, service: ProjectService = Depends()):
+    return service.lock_project(project_name)
+
+@project_router.post(
+    "/{project_name}/unlock", response_model=ProjectRes, description="Unlock a project"
+)
+async def unlock_project(project_name: str, service: ProjectService = Depends()):
+    return service.unlock_project(project_name)

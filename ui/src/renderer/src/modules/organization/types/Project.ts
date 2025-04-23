@@ -2,6 +2,7 @@ export type Project = {
   name: string
   description: string
   location: string
+  locked: boolean
   created_at: string
   updated_at: string
 }

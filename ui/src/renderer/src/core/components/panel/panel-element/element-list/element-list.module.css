@@ -62,11 +62,11 @@
 }
 
 .actions .action.normal:hover {
-    transform: scale(1.2);
+    transform: scale(1.15);
     fill: var(--color-accent-200);
 }
 
 .actions .action.danger:hover {
-    transform: scale(1.2);
+    transform: scale(1.15);
     fill: var(--color-red-500);
 }

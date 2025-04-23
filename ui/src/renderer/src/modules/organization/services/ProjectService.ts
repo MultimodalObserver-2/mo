@@ -24,6 +24,14 @@ class ProjectService {
   async delete(name: string): Promise<AxiosResponse<void, unknown>> {
     return axios.delete(`${this.endpoint}/${name}`)
   }
+
+  async lock(name: string): Promise<AxiosResponse<void, unknown>> {
+    return axios.post(`${this.endpoint}/${name}/lock`)
+  }
+
+  async unlock(name: string): Promise<AxiosResponse<void, unknown>> {
+    return axios.post(`${this.endpoint}/${name}/unlock`)
+  }
 }
 
 const projectService = new ProjectService()
