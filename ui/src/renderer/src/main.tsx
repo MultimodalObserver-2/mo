@@ -12,6 +12,7 @@ import { Provider } from "react-redux"
 import store from "./core/store/store"
 import AddParticipantPage from "./modules/organization/pages/add-participant/AddParticipantPage"
 import UpdateParticipantPage from "./modules/organization/pages/update-participant/UpdateParticipantPage"
+import ParticipantPage from "./modules/organization/pages/participant/ParticipantPage"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -33,6 +34,10 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/organization/:projectName/update-participant/:participantCode"
             element={<UpdateParticipantPage />}
+          />
+          <Route
+            path="/organization/:projectName/participants/:participantCode"
+            element={<ParticipantPage />}
           />
         </Routes>
       </BrowserRouter>

@@ -92,7 +92,7 @@ export default function Participants() {
     const acceptId = 0
     const cancelId = 1
     const options: MessageBoxOptions = {
-      title: "Delete Project",
+      title: "Delete Participant",
       message:
         `Are you sure you want to delete the participant ${participant.name}` +
         ` (code: ${participant.code}) from the project ${selectedProject?.name}?` +
@@ -135,6 +135,13 @@ export default function Participants() {
     }
   }
 
+  const handleInfo = (participant: Participant) => {
+    window.core.openModalWindow(
+      { width: 720, height: 510, minWidth: 650, minHeight: 500, title: "Participant Info" },
+      `organization/${selectedProject?.name}/participants/${participant.code}`
+    )
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -154,8 +161,9 @@ export default function Participants() {
             label={`[${participant.code}] ${participant.name}`}
             isLocked={participant.locked}
             isSelected={participant.code === selectedParticipant?.code}
-            showActions={{ info: false, lock: true, edit: true, delete: true }}
+            showActions={true}
             onClick={() => dispatch(setSelectedParticipant(participant))}
+            onInfo={() => handleInfo(participant)}
             onLock={() => handleLock(participant)}
             onEdit={() => handleEdit(participant)}
             onDelete={() => handleDelete(participant)}

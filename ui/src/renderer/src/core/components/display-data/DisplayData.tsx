@@ -7,7 +7,7 @@ export default function DisplayData({
   childrenClass
 }: {
   name: string
-  value: string | number
+  value: string | number | string[]
   children?: React.ReactNode
   childrenClass?: string
 }) {
@@ -18,7 +18,17 @@ export default function DisplayData({
         <h4 className={styles.name}>{name}</h4>
       </div>
       <div className={childrenClass}>
-        <p className={styles.value}>{value}</p>
+        {Array.isArray(value) ? (
+          <ul className={styles.list}>
+            {value.map((item, idx) => (
+              <li key={idx} className={styles.value}>
+                {item}
+              </li>
+            ))}
+          </ul>
+        ) : (
+          <p className={styles.value}>{value}</p>
+        )}
         {children}
       </div>
     </div>

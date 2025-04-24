@@ -38,7 +38,6 @@ export default function ProjectPage() {
   }
 
   const handleOpenPath = (path: string) => {
-    console.log(path)
     window.core.shell.openPath(path)
   }
 
@@ -140,7 +139,6 @@ export default function ProjectPage() {
         <div className={styles["title-box"]}>
           <ModalTitle title="Project Information" Icon={InfoIcon} />
         </div>
-
         <div className={styles.actions}>
           <Button
             styleType="soft"
