@@ -25,8 +25,11 @@ export default function UpdateProjectPage() {
     if (!projectName) return
 
     try {
-      await projectService.update(projectName, project)
+      const response = await projectService.update(projectName, project)
       window.organization.reloadProjects()
+      if (projectName !== project.name) {
+        window.organization.changeSelectedProject(response.data)
+      }
       window.close()
     } catch (error) {
       let errorMessage = error as string

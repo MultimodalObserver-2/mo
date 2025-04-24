@@ -12,4 +12,16 @@ app.whenReady().then(() => {
       window.webContents.send("organization:on-reload-participants")
     })
   })
+
+  ipcMain.on("organization:change-selected-project", async (_event, project) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-change-selected-project", project)
+    })
+  })
+
+  ipcMain.on("organization:change-selected-participant", async (_event, participant) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-change-selected-participant", participant)
+    })
+  })
 })

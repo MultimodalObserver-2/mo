@@ -22,6 +22,10 @@ declare global {
       reloadParticipants: () => void
       onReloadParticipants: (callback: () => void) => void
       removeReloadParticipants: () => void
+      changeSelectedProject: (project) => void
+      onChangeSelectedProject: (callback: (project) => void) => void
+      changeSelectedParticipant: (participant) => void
+      onChangeSelectedParticipant: (callback: (participant) => void) => void
     }
   }
 }

@@ -15,6 +15,20 @@ const organization = {
   },
   removeReloadParticipants: () => {
     ipcRenderer.removeAllListeners("organization:on-reload-participants")
+  },
+  changeSelectedProject: (project) => {
+    ipcRenderer.send("organization:change-selected-project", project)
+  },
+  onChangeSelectedProject: (callback: (project) => void) => {
+    ipcRenderer.on("organization:on-change-selected-project", (_, project) => callback(project))
+  },
+  changeSelectedParticipant: (participant) => {
+    ipcRenderer.send("organization:change-selected-participant", participant)
+  },
+  onChangeSelectedParticipant: (callback: (participant) => void) => {
+    ipcRenderer.on("organization:on-change-selected-participant", (_, participant) =>
+      callback(participant)
+    )
   }
 }
 

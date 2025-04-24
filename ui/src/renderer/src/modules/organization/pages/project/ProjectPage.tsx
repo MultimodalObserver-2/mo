@@ -68,6 +68,7 @@ export default function ProjectPage() {
       try {
         await projectService.delete(project.name)
         window.organization.reloadProjects()
+        window.organization.changeSelectedProject(null)
         window.close()
       } catch {
         window.core.dialog.showErrorBox("Delete Error", "An unexpected error occurred")

@@ -76,6 +76,7 @@ export default function ParticipantPage() {
       try {
         await participantService.delete(projectName, participant.code)
         window.organization.reloadParticipants()
+        window.organization.changeSelectedParticipant(null)
         window.close()
       } catch {
         window.core.dialog.showErrorBox("Delete Error", "An unexpected error occurred")

@@ -12,7 +12,11 @@ import ElementListItem from "@renderer/core/components/panel/panel-element/eleme
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
 import { AxiosError } from "axios"
 import { useDispatch, useSelector } from "react-redux"
-import { selectSelectedProject, setSelectedProject } from "../../store/projectsSlice"
+import {
+  clearSelectedProject,
+  selectSelectedProject,
+  setSelectedProject
+} from "../../store/projectsSlice"
 import { clearSelectedParticipant } from "../../store/participantsSlice"
 
 export default function Projects() {
@@ -82,6 +86,7 @@ export default function Projects() {
       try {
         await projectService.delete(project.name)
         await fetchProjects()
+        dispatch(clearSelectedProject())
       } catch (error) {
         let errorMessage = "An unexpected error occurred"
         if (error instanceof AxiosError && error.response && error.response.data.detail) {
@@ -118,8 +123,17 @@ export default function Projects() {
       fetchProjects()
     })
 
+    window.organization.onChangeSelectedProject((project) => {
+      if (project) {
+        dispatch(setSelectedProject(project))
+      } else {
+        dispatch(clearSelectedProject())
+        dispatch(clearSelectedParticipant())
+      }
+    })
+
     fetchProjects()
-  }, [])
+  }, [dispatch])
 
   return (
     <PanelElement>
@@ -140,8 +154,10 @@ export default function Projects() {
             isSelected={project.name === selectedProject?.name}
             showActions={true}
             onClick={() => {
-              dispatch(setSelectedProject(project))
-              dispatch(clearSelectedParticipant())
+              if (selectedProject?.name !== project.name) {
+                dispatch(setSelectedProject(project))
+                dispatch(clearSelectedParticipant())
+              }
             }}
             onInfo={() => handleShowInfo(project)}
             onLock={() => handleLock(project)}

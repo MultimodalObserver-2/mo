@@ -5,13 +5,17 @@ import ElementTitle from "@renderer/core/components/panel/panel-element/element-
 import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
 import { useDispatch, useSelector } from "react-redux"
-import { useEffect, useState } from "react"
+import { useCallback, useEffect, useState } from "react"
 import participantService from "../../services/ParticipantService"
 import { Participant } from "../../types/Participant"
 import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import { selectSelectedProject } from "../../store/projectsSlice"
-import { selectSelectedParticipant, setSelectedParticipant } from "../../store/participantsSlice"
+import {
+  clearSelectedParticipant,
+  selectSelectedParticipant,
+  setSelectedParticipant
+} from "../../store/participantsSlice"
 import { MessageBoxOptions } from "electron"
 import { AxiosError } from "axios"
 
@@ -21,23 +25,38 @@ export default function Participants() {
   const dispatch = useDispatch()
   const [participants, setParticipants] = useState<Participant[]>([])
 
-  const fetchParticipants = async (project) => {
-    if (!project) {
-      setParticipants([])
-      return
-    }
+  const fetchParticipants = useCallback(
+    async (project) => {
+      if (!project) {
+        dispatch(clearSelectedParticipant())
+        setParticipants([])
+        return
+      }
 
-    try {
-      const response = await participantService.getAll(project.name)
-      setParticipants(response.data)
-    } catch {
-      window.core.dialog.showErrorBox(
-        "Error",
-        "An unexpected error occurred, please relaunch the app"
-      )
-      setParticipants([])
-    }
-  }
+      try {
+        const response = await participantService.getAll(project.name)
+        setParticipants(response.data)
+      } catch {
+        window.core.dialog.showErrorBox(
+          "Error",
+          "An unexpected error occurred, please relaunch the app"
+        )
+        dispatch(clearSelectedParticipant())
+        setParticipants([])
+      }
+    },
+    [dispatch]
+  )
+
+  useEffect(() => {
+    window.organization.onChangeSelectedParticipant((participant) => {
+      if (participant) {
+        dispatch(setSelectedParticipant(participant))
+      } else {
+        dispatch(clearSelectedParticipant())
+      }
+    })
+  }, [dispatch])
 
   useEffect(() => {
     window.organization.onReloadParticipants(() => {
@@ -48,7 +67,7 @@ export default function Participants() {
     return () => {
       window.organization.removeReloadParticipants()
     }
-  }, [selectedProject])
+  }, [selectedProject, fetchParticipants])
 
   const handleAdd = () => {
     if (!selectedProject) {

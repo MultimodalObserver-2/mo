@@ -45,8 +45,12 @@ export default function UpdateParticipantPage() {
     }
 
     try {
-      await participantService.update(projectName, participantCode, participant)
+      const response = await participantService.update(projectName, participantCode, participant)
       window.organization.reloadParticipants()
+      if (participantCode !== participant.code) {
+        window.organization.changeSelectedParticipant(response.data)
+      }
+
       window.close()
     } catch (error) {
       let errorMessage = error as string
