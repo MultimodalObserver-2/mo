@@ -63,6 +63,14 @@ export default function Participants() {
   }
 
   const handleEdit = (participant: Participant) => {
+    if (participant.locked) {
+      window.core.dialog.showErrorBox(
+        "Edit error",
+        "You cannot edit a locked participant, please unlock it first"
+      )
+      return
+    }
+
     window.core.openModalWindow(
       { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Update Participant" },
       `organization/${selectedProject?.name}/update-participant/${participant.code}`
@@ -70,7 +78,13 @@ export default function Participants() {
   }
 
   const handleDelete = async (participant: Participant) => {
-    if (!selectedProject) {
+    if (!selectedProject) return
+
+    if (participant.locked) {
+      window.core.dialog.showErrorBox(
+        "Delete error",
+        "You cannot delete a locked participant, please unlock it first"
+      )
       return
     }
 
@@ -105,6 +119,22 @@ export default function Participants() {
     }
   }
 
+  const handleLock = async (participant: Participant) => {
+    if (!selectedProject) return
+
+    try {
+      if (participant.locked) {
+        await participantService.unlock(selectedProject.name, participant.code)
+      } else {
+        await participantService.lock(selectedProject.name, participant.code)
+      }
+
+      await fetchParticipants(selectedProject)
+    } catch {
+      window.core.dialog.showErrorBox("Lock error", "An unexpected error occurred")
+    }
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -124,8 +154,9 @@ export default function Participants() {
             label={`[${participant.code}] ${participant.name}`}
             isLocked={participant.locked}
             isSelected={participant.code === selectedParticipant?.code}
-            showActions={{ info: false, lock: false, edit: true, delete: true }}
+            showActions={{ info: false, lock: true, edit: true, delete: true }}
             onClick={() => dispatch(setSelectedParticipant(participant))}
+            onLock={() => handleLock(participant)}
             onEdit={() => handleEdit(participant)}
             onDelete={() => handleDelete(participant)}
           />

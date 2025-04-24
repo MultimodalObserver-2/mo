@@ -60,3 +60,23 @@ async def delete_participant(
     project_name: str, participant_code: str, service: ParticipantService = Depends()
 ):
     return service.delete_participant(project_name, participant_code)
+
+@participant_router.post(
+    "/{participant_code}/lock",
+    response_model=ParticipantRes,
+    description="Lock a project participant.",
+)
+async def lock_participant(
+    project_name: str, participant_code: str, service: ParticipantService = Depends()
+):
+    return service.lock_participant(project_name, participant_code)
+
+@participant_router.post(
+    "/{participant_code}/unlock",
+    response_model=ParticipantRes,
+    description="Unlock a project participant.",
+)
+async def unlock_participant(
+    project_name: str, participant_code: str, service: ParticipantService = Depends()
+):
+    return service.unlock_participant(project_name, participant_code)

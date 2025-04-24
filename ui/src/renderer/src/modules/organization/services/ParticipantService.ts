@@ -37,6 +37,20 @@ class ParticipantService {
   ): Promise<AxiosResponse<void, unknown>> {
     return axios.delete(`${this.endpoint}/${projectName}/participants/${participantCode}`)
   }
+
+  async lock(
+    projectName: string,
+    participantCode: string
+  ): Promise<AxiosResponse<Participant, unknown>> {
+    return axios.post(`${this.endpoint}/${projectName}/participants/${participantCode}/lock`)
+  }
+
+  async unlock(
+    projectName: string,
+    participantCode: string
+  ): Promise<AxiosResponse<Participant, unknown>> {
+    return axios.post(`${this.endpoint}/${projectName}/participants/${participantCode}/unlock`)
+  }
 }
 
 const participantService = new ParticipantService()

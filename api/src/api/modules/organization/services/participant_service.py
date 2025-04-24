@@ -91,6 +91,11 @@ class ParticipantService:
         self, project_name: str, participant_code: str, participant: ParticipantPutReq
     ) -> ParticipantRes:
         new_participant = self.get_participant(project_name, participant_code)
+        if self.is_participant_locked(project_name, participant_code):
+            raise BadRequestException(
+                f"Participant with code {participant_code} in project {project_name} is locked."
+            )
+        
         new_participant.code = participant.code if participant.code else new_participant.code
         new_participant.name = participant.name if participant.name else new_participant.name
         new_participant.notes = (
@@ -123,12 +128,48 @@ class ParticipantService:
             raise BadRequestException(
                 f"Participant with code {participant_code} doesn’t exist in project {project_name}."
             )
+        
+        if self.is_participant_locked(project_name, participant_code):
+            raise BadRequestException(
+                f"Participant with code {participant_code} in project {project_name} is locked."
+            )
 
         dir_name = self._get_participant_dir_name(participant_code)
         self.file_management.delete_directory(dir_name, rel_path=project_name)
 
         participants_storage = self._get_participants_storage(project_name)
         participants_storage.delete_one({"code": participant_code})
+
+    def lock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
+        participant = self.get_participant(project_name, participant_code)
+        if participant is None:
+            raise BadRequestException(
+                f"Participant with code {participant_code} doesn’t exist in project {project_name}.")
+
+        participant.locked = True
+        participants_storage = self._get_participants_storage(project_name)
+        participants_storage.update({"code": participant_code}, participant.model_dump())
+        return participant
+    
+    def unlock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
+        participant = self.get_participant(project_name, participant_code)
+        if participant is None:
+            raise BadRequestException(
+                f"Participant with code {participant_code} doesn’t exist in project {project_name}.")
+
+        participant.locked = False
+        participants_storage = self._get_participants_storage(project_name)
+        participants_storage.update(
+            {"code": participant_code}, participant.model_dump())
+        return participant
+
+    def is_participant_locked(self, project_name: str, participant_code: str) -> bool:
+        participant = self.get_participant(project_name, participant_code)
+        if participant is None:
+            raise BadRequestException(
+                f"Participant with code {participant_code} doesn’t exist in project {project_name}.")
+
+        return participant.locked
 
     def exists(self, project_name: str, participant_code: str) -> bool:
         if not self.project_service.exists(project_name):
