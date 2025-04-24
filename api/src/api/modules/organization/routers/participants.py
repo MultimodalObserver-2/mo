@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter, Depends, status
 
 from api.modules.organization.schemas.participant import (ParticipantPostReq,
                                                           ParticipantPutReq,
@@ -49,3 +49,14 @@ async def get_participant(
     project_name: str, participant_code: str, service: ParticipantService = Depends()
 ):
     return service.get_participant(project_name, participant_code)
+
+
+@participant_router.delete(
+    "/{participant_code}",
+    description="Delete a project participant.",
+    status_code=status.HTTP_204_NO_CONTENT,
+)
+async def delete_participant(
+    project_name: str, participant_code: str, service: ParticipantService = Depends()
+):
+    return service.delete_participant(project_name, participant_code)

@@ -30,6 +30,13 @@ class ParticipantService {
   ): Promise<AxiosResponse<Participant, unknown>> {
     return axios.put(`${this.endpoint}/${projectName}/participants/${participantCode}`, data)
   }
+
+  async delete(
+    projectName: string,
+    participantCode: string
+  ): Promise<AxiosResponse<void, unknown>> {
+    return axios.delete(`${this.endpoint}/${projectName}/participants/${participantCode}`)
+  }
 }
 
 const participantService = new ParticipantService()

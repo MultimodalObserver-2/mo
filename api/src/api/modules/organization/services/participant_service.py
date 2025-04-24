@@ -118,6 +118,18 @@ class ParticipantService:
         participants_storage.update({"code": participant_code}, new_participant.model_dump())
         return new_participant
 
+    def delete_participant(self, project_name: str, participant_code) -> None:
+        if not self.exists(project_name, participant_code):
+            raise BadRequestException(
+                f"Participant with code {participant_code} doesn’t exist in project {project_name}."
+            )
+
+        dir_name = self._get_participant_dir_name(participant_code)
+        self.file_management.delete_directory(dir_name, rel_path=project_name)
+
+        participants_storage = self._get_participants_storage(project_name)
+        participants_storage.delete_one({"code": participant_code})
+
     def exists(self, project_name: str, participant_code: str) -> bool:
         if not self.project_service.exists(project_name):
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")

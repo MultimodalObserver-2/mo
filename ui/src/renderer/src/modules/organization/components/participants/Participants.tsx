@@ -12,6 +12,8 @@ import ElementList from "@renderer/core/components/panel/panel-element/element-l
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import { selectSelectedProject } from "../../store/projectsSlice"
 import { selectSelectedParticipant, setSelectedParticipant } from "../../store/participantsSlice"
+import { MessageBoxOptions } from "electron"
+import { AxiosError } from "axios"
 
 export default function Participants() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -67,6 +69,42 @@ export default function Participants() {
     )
   }
 
+  const handleDelete = async (participant: Participant) => {
+    if (!selectedProject) {
+      return
+    }
+
+    const buttons = ["Accept", "Cancel"]
+    const acceptId = 0
+    const cancelId = 1
+    const options: MessageBoxOptions = {
+      title: "Delete Project",
+      message:
+        `Are you sure you want to delete the participant ${participant.name}` +
+        ` (code: ${participant.code}) from the project ${selectedProject?.name}?` +
+        `\nThis will delete all data related to this participant`,
+      type: "warning",
+      buttons: buttons,
+      defaultId: acceptId,
+      cancelId: cancelId,
+      noLink: true
+    }
+
+    const response = await window.core.dialog.showMessageBox(options)
+    if (response.response === acceptId) {
+      try {
+        await participantService.delete(selectedProject?.name, participant.code)
+        await fetchParticipants(selectedProject)
+      } catch (error) {
+        let errorMessage = "An unexpected error occurred"
+        if (error instanceof AxiosError && error.response && error.response.data.detail) {
+          errorMessage = error.response.data.detail
+        }
+        window.core.dialog.showErrorBox("Delete error", errorMessage)
+      }
+    }
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -86,9 +124,10 @@ export default function Participants() {
             label={`[${participant.code}] ${participant.name}`}
             isLocked={participant.locked}
             isSelected={participant.code === selectedParticipant?.code}
-            showActions={{ info: false, lock: false, edit: true, delete: false }}
+            showActions={{ info: false, lock: false, edit: true, delete: true }}
             onClick={() => dispatch(setSelectedParticipant(participant))}
             onEdit={() => handleEdit(participant)}
+            onDelete={() => handleDelete(participant)}
           />
         ))}
       </ElementList>
