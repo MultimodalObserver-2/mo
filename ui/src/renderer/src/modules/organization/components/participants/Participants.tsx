@@ -60,6 +60,13 @@ export default function Participants() {
     )
   }
 
+  const handleEdit = (participant: Participant) => {
+    window.core.openModalWindow(
+      { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Update Participant" },
+      `organization/${selectedProject?.name}/update-participant/${participant.code}`
+    )
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -79,8 +86,9 @@ export default function Participants() {
             label={`[${participant.code}] ${participant.name}`}
             isLocked={participant.locked}
             isSelected={participant.code === selectedParticipant?.code}
-            showActions={false}
+            showActions={{ info: false, lock: false, edit: true, delete: false }}
             onClick={() => dispatch(setSelectedParticipant(participant))}
+            onEdit={() => handleEdit(participant)}
           />
         ))}
       </ElementList>
