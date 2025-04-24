@@ -67,7 +67,7 @@ export default function UpdateParticipantPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="New Participant" Icon={EditIcon} />
+        <ModalTitle title="Update Participant" Icon={EditIcon} />
       </ModalHeader>
       <ModalBody type="form" id="update" onSubmit={updateParticipant}>
         <Suspense>
