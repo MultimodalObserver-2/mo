@@ -25,7 +25,7 @@ export default function ListInput({
   defaultValue = [""],
   onChange = () => {}
 }: ListInputProps) {
-  const [inputValues, setInputValues] = useState(defaultValue)
+  const [inputValues, setInputValues] = useState(defaultValue.length > 0 ? defaultValue : [""])
 
   const handleAddNote = () => {
     setInputValues((prev) => [...prev, ""])
@@ -46,8 +46,8 @@ export default function ListInput({
     onChange(newValues)
   }
 
-  const renderInputs = () =>
-    inputValues.map((val, idx) => (
+  const renderInputs = () => {
+    return inputValues.map((val, idx) => (
       <li className={styles.item} key={idx}>
         <input
           id={`${name}-${idx}`}
@@ -62,12 +62,18 @@ export default function ListInput({
         <DeleteIcon className={styles["delete-button"]} onClick={() => handleDeleteNote(idx)} />
       </li>
     ))
+  }
+
+  const clearInputValue = (values: string[]) => {
+    const newValues = values.filter((val) => val.replace(/\s/g, "").length > 0)
+    return newValues
+  }
 
   if (label == undefined) {
     return (
       <ul className={`${boxClassName} ${styles.list}`}>
         {renderInputs()}
-        <input type="hidden" name={name} value={JSON.stringify(inputValues)} />
+        <input type="hidden" name={name} value={JSON.stringify(clearInputValue(inputValues))} />
       </ul>
     )
   }
@@ -84,7 +90,7 @@ export default function ListInput({
       </div>
       <ul className={styles.list}>
         {renderInputs()}
-        <input type="hidden" name={name} value={JSON.stringify(inputValues)} />
+        <input type="hidden" name={name} value={JSON.stringify(clearInputValue(inputValues))} />
       </ul>
     </div>
   )
