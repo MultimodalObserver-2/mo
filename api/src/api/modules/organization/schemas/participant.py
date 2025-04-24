@@ -18,3 +18,9 @@ class ParticipantPostReq(BaseModel):
     code: str
     name: str
     notes: Optional[list[str]] = []
+
+
+class ParticipantPutReq(BaseModel):
+    code: Optional[str] = None
+    name: Optional[str] = None
+    notes: Optional[list[str]] = None

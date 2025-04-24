@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Depends
 
 from api.modules.organization.schemas.participant import (ParticipantPostReq,
+                                                          ParticipantPutReq,
                                                           ParticipantRes)
 from api.modules.organization.services.participant_service import \
     ParticipantService
@@ -25,3 +26,17 @@ async def create_participant(
 )
 async def get_all_participants(project_name: str, service: ParticipantService = Depends()):
     return service.get_all_participants(project_name)
+
+
+@participant_router.put(
+    "/{participant_code}",
+    response_model=ParticipantRes,
+    description="Update a project participant.",
+)
+async def update_participant(
+    project_name: str,
+    participant_code: str,
+    participant: ParticipantPutReq,
+    service: ParticipantService = Depends(),
+):
+    return service.update_participant(project_name, participant_code, participant)
