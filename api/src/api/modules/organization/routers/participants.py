@@ -40,3 +40,12 @@ async def update_participant(
     service: ParticipantService = Depends(),
 ):
     return service.update_participant(project_name, participant_code, participant)
+
+
+@participant_router.get(
+    "/{participant_code}", response_model=ParticipantRes, description="Get a project participant."
+)
+async def get_participant(
+    project_name: str, participant_code: str, service: ParticipantService = Depends()
+):
+    return service.get_participant(project_name, participant_code)
