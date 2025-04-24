@@ -34,6 +34,7 @@ export default function AddParticipantPage() {
 
     try {
       await participantService.create(projectName, newParticipant)
+      window.organization.reloadParticipants()
       window.close()
     } catch (error) {
       let errorMessage = error as string

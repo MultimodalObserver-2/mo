@@ -19,6 +19,9 @@ declare global {
     organization: {
       reloadProjects: () => void
       onReloadProjects: (callback: () => void) => void
+      reloadParticipants: () => void
+      onReloadParticipants: (callback: () => void) => void
+      removeReloadParticipants: () => void
     }
   }
 }

@@ -1,7 +1,15 @@
-import { BrowserWindow, ipcMain } from "electron"
+import { app, BrowserWindow, ipcMain } from "electron"
 
-ipcMain.on("organization:reload-projects", async () => {
-  BrowserWindow.getAllWindows().forEach((window) => {
-    window.webContents.send("organization:on-reload-projects")
+app.whenReady().then(() => {
+  ipcMain.on("organization:reload-projects", async () => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-reload-projects")
+    })
+  })
+
+  ipcMain.on("organization:reload-participants", async () => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-reload-participants")
+    })
   })
 })

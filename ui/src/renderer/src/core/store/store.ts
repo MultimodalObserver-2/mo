@@ -1,9 +1,9 @@
-import { configureStore } from "@reduxjs/toolkit"
-import organizationReducer from "@renderer/modules/organization/store/organizationSlice"
+import { combineReducers, configureStore } from "@reduxjs/toolkit"
+import organizationReducers from "@renderer/modules/organization/store/reducers"
 
 const store = configureStore({
   reducer: {
-    organization: organizationReducer
+    organization: combineReducers(organizationReducers)
   }
 })
 

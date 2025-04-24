@@ -9,7 +9,11 @@ class ParticipantService {
     projectName: string,
     data: ParticipantCreate
   ): Promise<AxiosResponse<Participant, unknown>> {
-    return axios.post(`${this.endpoint}/${projectName}/participants`, data)
+    return axios.post(`${this.endpoint}/${projectName}/participants/`, data)
+  }
+
+  async getAll(projectName: string): Promise<AxiosResponse<Participant[], unknown>> {
+    return axios.get(`${this.endpoint}/${projectName}/participants/`)
   }
 }
 

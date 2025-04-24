@@ -65,6 +65,14 @@ class ParticipantService:
 
         return ParticipantRes(**participant_data)
 
+    def get_all_participants(self, project_name: str) -> list[ParticipantRes]:
+        if not self.project_service.exists(project_name):
+            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+
+        participant_storage = self._get_participant_storage(project_name)
+        participants = participant_storage.find_all()
+        return [ParticipantRes(**participant) for participant in participants]
+
     def exists(self, project_name: str, participant_code: str) -> bool:
         if not self.project_service.exists(project_name):
             raise BadRequestException(f"Project with name {project_name} doesn’t exist.")

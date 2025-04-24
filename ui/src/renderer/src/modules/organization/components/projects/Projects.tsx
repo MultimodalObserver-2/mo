@@ -12,7 +12,8 @@ import ElementListItem from "@renderer/core/components/panel/panel-element/eleme
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
 import { AxiosError } from "axios"
 import { useDispatch, useSelector } from "react-redux"
-import { selectSelectedProject, setSelectedProject } from "../../store/organizationSlice"
+import { selectSelectedProject, setSelectedProject } from "../../store/projectsSlice"
+import { clearSelectedParticipant } from "../../store/participantsSlice"
 
 export default function Projects() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -138,7 +139,10 @@ export default function Projects() {
             isLocked={project.locked}
             isSelected={project.name === selectedProject?.name}
             showActions={true}
-            onClick={() => dispatch(setSelectedProject(project))}
+            onClick={() => {
+              dispatch(setSelectedProject(project))
+              dispatch(clearSelectedParticipant())
+            }}
             onInfo={() => handleShowInfo(project)}
             onLock={() => handleLock(project)}
             onEdit={() => handleEdit(project)}

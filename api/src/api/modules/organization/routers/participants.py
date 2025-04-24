@@ -18,3 +18,10 @@ async def create_participant(
     project_name: str, participant: ParticipantPostReq, service: ParticipantService = Depends()
 ):
     return service.create_participant(project_name, participant)
+
+
+@participant_router.get(
+    "/", response_model=list[ParticipantRes], description="Get all participants of a project."
+)
+async def get_all_participants(project_name: str, service: ParticipantService = Depends()):
+    return service.get_all_participants(project_name)

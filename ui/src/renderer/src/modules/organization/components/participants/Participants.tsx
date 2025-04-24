@@ -4,11 +4,49 @@ import PanelElement from "@renderer/core/components/panel/panel-element/PanelEle
 import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
 import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
-import { useSelector } from "react-redux"
-import { selectSelectedProject } from "../../store/organizationSlice"
+import { useDispatch, useSelector } from "react-redux"
+import { useEffect, useState } from "react"
+import participantService from "../../services/ParticipantService"
+import { Participant } from "../../types/Participant"
+import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
+import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
+import { selectSelectedProject } from "../../store/projectsSlice"
+import { selectSelectedParticipant, setSelectedParticipant } from "../../store/participantsSlice"
 
 export default function Participants() {
   const selectedProject = useSelector(selectSelectedProject)
+  const selectedParticipant = useSelector(selectSelectedParticipant)
+  const dispatch = useDispatch()
+  const [participants, setParticipants] = useState<Participant[]>([])
+
+  const fetchParticipants = async (project) => {
+    if (!project) {
+      setParticipants([])
+      return
+    }
+
+    try {
+      const response = await participantService.getAll(project.name)
+      setParticipants(response.data)
+    } catch {
+      window.core.dialog.showErrorBox(
+        "Error",
+        "An unexpected error occurred, please relaunch the app"
+      )
+      setParticipants([])
+    }
+  }
+
+  useEffect(() => {
+    window.organization.onReloadParticipants(() => {
+      fetchParticipants(selectedProject)
+    })
+
+    fetchParticipants(selectedProject)
+    return () => {
+      window.organization.removeReloadParticipants()
+    }
+  }, [selectedProject])
 
   const handleAdd = () => {
     if (!selectedProject) {
@@ -34,6 +72,18 @@ export default function Participants() {
           )}
         </ElementActions>
       </ElementHeader>
+      <ElementList>
+        {participants.map((participant) => (
+          <ElementListItem
+            key={participant.code}
+            label={`[${participant.code}] ${participant.name}`}
+            isLocked={participant.locked}
+            isSelected={participant.code === selectedParticipant?.code}
+            showActions={false}
+            onClick={() => dispatch(setSelectedParticipant(participant))}
+          />
+        ))}
+      </ElementList>
     </PanelElement>
   )
 }
