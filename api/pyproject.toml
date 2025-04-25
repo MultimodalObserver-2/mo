@@ -19,6 +19,7 @@ packages = [{include = "api", from = "src"}]
 [tool.poetry.scripts]
 dev = "scripts.dev:start"
 format = "scripts.format:format_code"
+sonar = "scripts.sonar:scan"
 
 [tool.black]
 line-length = 100
@@ -27,6 +28,8 @@ line-length = 100
 pyinstaller = "^6.13.0"
 black = "^25.1.0"
 isort = "^6.0.1"
+pysonar = "^1.0.1.1548"
+python-dotenv = "^1.1.0"
 
 [build-system]
 requires = ["poetry-core>=2.0.0,<3.0.0"]

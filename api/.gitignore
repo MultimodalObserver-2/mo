@@ -32,3 +32,6 @@ pip-wheel-metadata/
 
 # Data files
 data
+
+# SonarQube files
+.sonar/
