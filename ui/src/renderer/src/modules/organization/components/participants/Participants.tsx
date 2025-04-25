@@ -156,7 +156,7 @@ export default function Participants() {
 
   const handleInfo = (participant: Participant) => {
     window.core.openModalWindow(
-      { width: 720, height: 510, minWidth: 650, minHeight: 500, title: "Participant Info" },
+      { width: 720, height: 510, minWidth: 650, minHeight: 500, title: "Participant Information" },
       `organization/${selectedProject?.name}/participants/${participant.code}`
     )
   }

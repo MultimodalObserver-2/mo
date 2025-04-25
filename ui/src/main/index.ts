@@ -6,10 +6,13 @@ import icon from "../../resources/icon.png?asset"
 function createWindow(): void {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 900,
-    height: 670,
+    width: 1600,
+    height: 900,
+    minWidth: 1024,
+    minHeight: 768,
     show: false,
     autoHideMenuBar: true,
+    title: "Multimodal Observer",
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
