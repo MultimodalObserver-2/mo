@@ -6,6 +6,10 @@ from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException)
+from api.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
+                                                     PROJECT_DOES_NOT_EXIST,
+                                                     PROJECT_IS_LOCKED,
+                                                     PROJECT_NAME_NOT_ALLOWED)
 from api.modules.organization.schemas.project import (ProjectPostReq,
                                                       ProjectPutReq,
                                                       ProjectRes)
@@ -29,10 +33,10 @@ class ProjectService:
 
     def create_project(self, project: ProjectPostReq) -> ProjectRes:
         if self.exists(project.name):
-            raise AlreadyExistsException(f"Project with name {project.name} already exists.")
+            raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
         if not FileValidators.is_valid_directory_name(project.name):
-            raise BadRequestException(f"Project name {project.name} isn’t allowed.")
+            raise BadRequestException(PROJECT_NAME_NOT_ALLOWED.format(name=project.name))
 
         dir_path = self.file_management.create_directory(project.name)
 
@@ -57,10 +61,10 @@ class ProjectService:
     def update_project(self, project_name: str, project: ProjectPutReq) -> ProjectRes:
         new_project = self.projects_storage.find_one({"name": project_name})
         if new_project is None:
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         if self.is_project_locked(project_name):
-            raise BadRequestException(f"Project with name {project_name} is locked.")
+            raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
 
         new_project["name"] = project.name if project.name else new_project["name"]
         new_project["description"] = (
@@ -70,10 +74,10 @@ class ProjectService:
 
         if project.name != None and new_project["name"] != project_name:
             if not FileValidators.is_valid_directory_name(project.name):
-                raise BadRequestException(f"Project name {project.name} isn’t allowed.")
+                raise BadRequestException(PROJECT_NAME_NOT_ALLOWED.format(name=project.name))
 
             if self.exists(project.name):
-                raise AlreadyExistsException(f"Project with name {project.name} already exists.")
+                raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
             new_location = self.file_management.rename_directory(
                 old_name=project_name, new_name=project.name
@@ -86,15 +90,15 @@ class ProjectService:
     def get_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         return ProjectRes(**project)
 
     def delete_project(self, project_name: str) -> None:
         if not self.exists(project_name):
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         if self.is_project_locked(project_name):
-            raise BadRequestException(f"Project with name {project_name} is locked.")
+            raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
 
         self.file_management.delete_directory(project_name)
         self.projects_storage.delete_one({"name": project_name})
@@ -102,7 +106,7 @@ class ProjectService:
     def lock_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         project["locked"] = True
         self.projects_storage.update({"name": project_name}, project)
@@ -111,7 +115,7 @@ class ProjectService:
     def unlock_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         project["locked"] = False
         self.projects_storage.update({"name": project_name}, project)
@@ -120,7 +124,7 @@ class ProjectService:
     def is_project_locked(self, project_name: str) -> bool:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise BadRequestException(f"Project with name {project_name} doesn’t exist.")
+            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         return project["locked"]
 
     def exists(self, project_name: str) -> bool:
