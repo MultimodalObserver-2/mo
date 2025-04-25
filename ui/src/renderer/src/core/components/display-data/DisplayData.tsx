@@ -12,12 +12,12 @@ export default function DisplayData({
   childrenClass?: string
 }) {
   return (
-    <div className={styles.box}>
+    <div className={`${styles.box}  ${Array.isArray(value) ? styles["list-label-container"] : ""}`}>
       <div className={styles.label}>
         <span className={styles.bullet}></span>
         <h4 className={styles.name}>{name}</h4>
       </div>
-      <div className={childrenClass}>
+      <div className={`${childrenClass} ${Array.isArray(value) ? styles["list-container"] : ""}`}>
         {Array.isArray(value) ? (
           <ul className={styles.list}>
             {value.map((item, idx) => (

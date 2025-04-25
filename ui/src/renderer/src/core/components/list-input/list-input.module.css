@@ -3,6 +3,7 @@
   flex-direction: column;
   width: 100%;
   gap: 6px;
+  overflow-y: hidden;
 }
 
 .top {
@@ -38,6 +39,9 @@
   flex-direction: column;
   gap: 8px;
   overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-color: var(--color-primary-500) var(--color-primary-100);
+  scrollbar-width: thin;
 }
 
 .item {

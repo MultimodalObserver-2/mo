@@ -1,6 +1,7 @@
 .box {
   display: flex;
   flex-direction: column;
+  width: 100%;
   gap: 6px;
 }
 
@@ -23,6 +24,17 @@
   font-size: 1em;
   font-weight: 400;
   color: var(--color-text-light);
+}
+
+.list-label-container {
+  overflow: hidden;
+}
+
+.list-container {
+  overflow-y: auto;
+  scroll-snap-type: y mandatory;
+  scrollbar-color: var(--color-primary-500) var(--color-primary-100);
+  scrollbar-width: thin;
 }
 
 .list {
