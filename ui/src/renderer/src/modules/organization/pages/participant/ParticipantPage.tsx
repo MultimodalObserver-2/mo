@@ -17,6 +17,13 @@ import LockIcon from "@renderer/core/components/icons/LockIcon"
 import LockOpenIcon from "@renderer/core/components/icons/LockOpenIcon"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
+import {
+  showApiErrorMessage,
+  showLockedErrorMessage,
+  showUnexpectedErrorMessage
+} from "@renderer/core/utils/dialogMessages"
+import { showDeleteParticipantMessage } from "../../utils/dialogMessages"
+import { openUpdateParticipantModal } from "../../utils/modalWindows"
 
 export default function ParticipantPage() {
   const { projectName, participantCode } = useParams<{
@@ -48,55 +55,42 @@ export default function ParticipantPage() {
     }
 
     if (participant.locked) {
-      window.core.dialog.showErrorBox(
-        "Delete error",
-        "You cannot delete a locked participant, please unlock it first"
-      )
+      showLockedErrorMessage("delete", "participant")
       return
     }
 
-    const buttons = ["Accept", "Cancel"]
     const acceptId = 0
     const cancelId = 1
-    const options: Electron.MessageBoxOptions = {
-      title: "Delete Participant",
-      message:
-        `Are you sure you want to delete the participant ${participant.name}` +
-        ` (code: ${participant.code}) from the project ${projectName}?` +
-        `\nThis will delete all data related to this participant`,
-      type: "warning",
-      buttons: buttons,
-      defaultId: acceptId,
-      cancelId: cancelId,
-      noLink: true
-    }
-
-    const response = await window.core.dialog.showMessageBox(options)
+    const response = await showDeleteParticipantMessage(
+      participant.name,
+      participant.code,
+      projectName,
+      acceptId,
+      cancelId
+    )
     if (response.response === acceptId) {
       try {
         await participantService.delete(projectName, participant.code)
         window.organization.reloadParticipants()
         window.organization.changeSelectedParticipant(null)
         window.close()
-      } catch {
-        window.core.dialog.showErrorBox("Delete Error", "An unexpected error occurred")
+      } catch (error) {
+        showApiErrorMessage(error)
       }
     }
   }
 
   const handleEdit = (participant: Participant) => {
     if (participant.locked) {
-      window.core.dialog.showErrorBox(
-        "Update error",
-        "You cannot update a locked participant, please unlock it first"
-      )
+      showLockedErrorMessage("edit", "participant")
       return
     }
 
-    window.core.openModalWindow(
-      { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Update Participant" },
-      `organization/${projectName}/update-participant/${participant.code}`
-    )
+    if (!projectName) {
+      return
+    }
+
+    openUpdateParticipantModal(projectName, participant.code)
   }
 
   const handleLock = async (participant: Participant) => {
@@ -115,7 +109,7 @@ export default function ParticipantPage() {
 
       window.organization.reloadParticipants()
     } catch {
-      window.core.dialog.showErrorBox("Lock error", "An unexpected error occurred")
+      showUnexpectedErrorMessage()
     }
   }
 
@@ -125,10 +119,7 @@ export default function ParticipantPage() {
       participantCode: string | undefined
     ) {
       if (!projectName || !participantCode) {
-        window.core.dialog.showErrorBox(
-          "Error",
-          "An unexpected error occurred, please relaunch the app"
-        )
+        showUnexpectedErrorMessage()
         window.close()
         return
       }
@@ -137,11 +128,7 @@ export default function ParticipantPage() {
         const response = await participantService.get(projectName, participantCode)
         setParticipant(response.data)
       } catch (error) {
-        let errorMessage = "An unexpected error occurred"
-        if (error instanceof Error) {
-          errorMessage = error.message
-        }
-        window.core.dialog.showErrorBox("Participant error", errorMessage)
+        showApiErrorMessage(error)
         window.close()
       }
     }

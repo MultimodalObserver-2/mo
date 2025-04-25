@@ -7,11 +7,15 @@ import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import { Await, useParams } from "react-router"
-import { AxiosError } from "axios"
 import participantService from "../../services/ParticipantService"
 import ListInput from "@renderer/core/components/list-input/ListInput"
 import { Suspense } from "react"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
+import {
+  showParticipantCodeErrorMessage,
+  showSelectProjectErrorMessage
+} from "../../utils/dialogMessages"
+import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
 export default function UpdateParticipantPage() {
   const { projectName, participantCode } = useParams<{
@@ -20,13 +24,13 @@ export default function UpdateParticipantPage() {
   }>()
 
   if (!projectName) {
-    window.core.dialog.showErrorBox("Update error", "Please select a project first")
+    showSelectProjectErrorMessage()
     window.close()
     return null
   }
 
   if (!participantCode) {
-    window.core.dialog.showErrorBox("Update error", "Participant code error")
+    showParticipantCodeErrorMessage()
     window.close()
     return null
   }
@@ -53,11 +57,7 @@ export default function UpdateParticipantPage() {
 
       window.close()
     } catch (error) {
-      let errorMessage = error as string
-      if (error instanceof AxiosError && error.response && error.response.data.detail) {
-        errorMessage = error.response.data.detail
-      }
-      window.core.dialog.showErrorBox("Participant creation error", errorMessage)
+      showApiErrorMessage(error)
     }
   }
 

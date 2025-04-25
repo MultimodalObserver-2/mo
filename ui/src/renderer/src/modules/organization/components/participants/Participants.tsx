@@ -16,8 +16,21 @@ import {
   selectSelectedParticipant,
   setSelectedParticipant
 } from "../../store/participantsSlice"
-import { MessageBoxOptions } from "electron"
-import { AxiosError } from "axios"
+import { Project } from "../../types/Project"
+import {
+  showApiErrorMessage,
+  showLockedErrorMessage,
+  showUnexpectedErrorMessage
+} from "@renderer/core/utils/dialogMessages"
+import {
+  openAddParticipantModal,
+  openParticipantInfoModal,
+  openUpdateParticipantModal
+} from "../../utils/modalWindows"
+import {
+  showDeleteParticipantMessage,
+  showSelectProjectErrorMessage
+} from "../../utils/dialogMessages"
 
 export default function Participants() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -26,7 +39,7 @@ export default function Participants() {
   const [participants, setParticipants] = useState<Participant[]>([])
 
   const fetchParticipants = useCallback(
-    async (project) => {
+    async (project: Project | null) => {
       if (!project) {
         dispatch(clearSelectedParticipant())
         setParticipants([])
@@ -37,10 +50,7 @@ export default function Participants() {
         const response = await participantService.getAll(project.name)
         setParticipants(response.data)
       } catch {
-        window.core.dialog.showErrorBox(
-          "Error",
-          "An unexpected error occurred, please relaunch the app"
-        )
+        showUnexpectedErrorMessage()
         dispatch(clearSelectedParticipant())
         setParticipants([])
       }
@@ -71,69 +81,51 @@ export default function Participants() {
 
   const handleAdd = () => {
     if (!selectedProject) {
-      window.core.dialog.showErrorBox("Add error", "Please select a project first")
+      showSelectProjectErrorMessage()
       return
     }
 
-    window.core.openModalWindow(
-      { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Add Participant" },
-      `organization/${selectedProject?.name}/add-participant`
-    )
+    openAddParticipantModal(selectedProject.name)
   }
 
   const handleEdit = (participant: Participant) => {
     if (participant.locked) {
-      window.core.dialog.showErrorBox(
-        "Edit error",
-        "You cannot edit a locked participant, please unlock it first"
-      )
+      showLockedErrorMessage("edit", "participant")
       return
     }
 
-    window.core.openModalWindow(
-      { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Update Participant" },
-      `organization/${selectedProject?.name}/update-participant/${participant.code}`
-    )
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    openUpdateParticipantModal(selectedProject?.name, participant.code)
   }
 
   const handleDelete = async (participant: Participant) => {
     if (!selectedProject) return
 
     if (participant.locked) {
-      window.core.dialog.showErrorBox(
-        "Delete error",
-        "You cannot delete a locked participant, please unlock it first"
-      )
+      showLockedErrorMessage("delete", "participant")
       return
     }
 
-    const buttons = ["Accept", "Cancel"]
     const acceptId = 0
     const cancelId = 1
-    const options: MessageBoxOptions = {
-      title: "Delete Participant",
-      message:
-        `Are you sure you want to delete the participant ${participant.name}` +
-        ` (code: ${participant.code}) from the project ${selectedProject?.name}?` +
-        `\nThis will delete all data related to this participant`,
-      type: "warning",
-      buttons: buttons,
-      defaultId: acceptId,
-      cancelId: cancelId,
-      noLink: true
-    }
 
-    const response = await window.core.dialog.showMessageBox(options)
+    const response = await showDeleteParticipantMessage(
+      participant.name,
+      participant.code,
+      selectedProject.name,
+      acceptId,
+      cancelId
+    )
     if (response.response === acceptId) {
       try {
         await participantService.delete(selectedProject?.name, participant.code)
         await fetchParticipants(selectedProject)
       } catch (error) {
-        let errorMessage = "An unexpected error occurred"
-        if (error instanceof AxiosError && error.response && error.response.data.detail) {
-          errorMessage = error.response.data.detail
-        }
-        window.core.dialog.showErrorBox("Delete error", errorMessage)
+        showApiErrorMessage(error)
       }
     }
   }
@@ -150,15 +142,17 @@ export default function Participants() {
 
       await fetchParticipants(selectedProject)
     } catch {
-      window.core.dialog.showErrorBox("Lock error", "An unexpected error occurred")
+      showUnexpectedErrorMessage()
     }
   }
 
   const handleInfo = (participant: Participant) => {
-    window.core.openModalWindow(
-      { width: 720, height: 510, minWidth: 650, minHeight: 500, title: "Participant Information" },
-      `organization/${selectedProject?.name}/participants/${participant.code}`
-    )
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    openParticipantInfoModal(selectedProject?.name, participant.code)
   }
 
   return (

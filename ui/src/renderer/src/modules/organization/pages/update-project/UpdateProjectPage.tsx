@@ -1,6 +1,5 @@
 import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
-import { AxiosError } from "axios"
 import { Await, useParams } from "react-router"
 import { Suspense } from "react"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
@@ -11,6 +10,7 @@ import ModalHeader from "@renderer/core/components/page-modal/modal-header/Modal
 import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
+import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
 export default function UpdateProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()
@@ -32,11 +32,7 @@ export default function UpdateProjectPage() {
       }
       window.close()
     } catch (error) {
-      let errorMessage = error as string
-      if (error instanceof AxiosError && error.response && error.response.data.detail) {
-        errorMessage = error.response.data.detail
-      }
-      window.core.dialog.showErrorBox("Project update error", errorMessage)
+      showApiErrorMessage(error)
     }
   }
 

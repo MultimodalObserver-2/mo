@@ -8,13 +8,14 @@ import Button from "@renderer/core/components/button/Button"
 import PersonAddIcon from "@renderer/core/components/icons/PersonAddIcon"
 import participantService from "../../services/ParticipantService"
 import { useParams } from "react-router"
-import { AxiosError } from "axios"
 import ListInput from "@renderer/core/components/list-input/ListInput"
+import { showSelectProjectErrorMessage } from "../../utils/dialogMessages"
+import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
 export default function AddParticipantPage() {
   const { projectName } = useParams<{ projectName: string }>()
   if (!projectName) {
-    window.core.dialog.showErrorBox("Add error", "Please select a project first")
+    showSelectProjectErrorMessage()
     window.close()
     return null
   }
@@ -37,11 +38,7 @@ export default function AddParticipantPage() {
       window.organization.reloadParticipants()
       window.close()
     } catch (error) {
-      let errorMessage = error as string
-      if (error instanceof AxiosError && error.response && error.response.data.detail) {
-        errorMessage = error.response.data.detail
-      }
-      window.core.dialog.showErrorBox("Participant creation error", errorMessage)
+      showApiErrorMessage(error)
     }
   }
 

@@ -1,4 +1,3 @@
-import { AxiosError } from "axios"
 import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import CreateFolderIcon from "@renderer/core/components/icons/CreateFolderIcon"
@@ -8,6 +7,7 @@ import ModalHeader from "@renderer/core/components/page-modal/modal-header/Modal
 import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
+import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
 export default function CreateProjectPage() {
   const handleSubmit = async (e) => {
@@ -21,15 +21,11 @@ export default function CreateProjectPage() {
       window.organization.reloadProjects()
       window.close()
     } catch (error) {
-      let errorMessage = error as string
-      if (error instanceof AxiosError && error.response && error.response.data.detail) {
-        errorMessage = error.response.data.detail
-      }
-      window.core.dialog.showErrorBox("Project creation error", errorMessage)
+      showApiErrorMessage(error)
     }
   }
 
-  const handleClose = () => {
+  const closeModalWindow = () => {
     window.close()
   }
 
@@ -51,7 +47,7 @@ export default function CreateProjectPage() {
         <Button type="submit" form="create">
           CREATE
         </Button>
-        <Button styleType="danger" onClick={handleClose}>
+        <Button styleType="danger" onClick={closeModalWindow}>
           CLOSE
         </Button>
       </ModalFooter>
