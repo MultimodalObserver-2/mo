@@ -19,7 +19,8 @@
     "build:unpack": "npm run build && electron-builder --dir",
     "build:win": "npm run build && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
-    "build:linux": "electron-vite build && electron-builder --linux"
+    "build:linux": "electron-vite build && electron-builder --linux",
+    "sonar": "dotenv -- sonar"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",
@@ -33,10 +34,12 @@
     "@electron-toolkit/eslint-config-prettier": "^3.0.0",
     "@electron-toolkit/eslint-config-ts": "^3.0.0",
     "@electron-toolkit/tsconfig": "^1.0.1",
+    "@sonar/scan": "^4.3.0",
     "@types/node": "^22.14.1",
     "@types/react": "^19.1.1",
     "@types/react-dom": "^19.1.2",
     "@vitejs/plugin-react": "^4.3.4",
+    "dotenv-cli": "^8.0.0",
     "electron": "^35.1.5",
     "electron-builder": "^25.1.8",
     "electron-vite": "^3.1.0",
