@@ -5,6 +5,6 @@ interface ModalFooterProps {
   className?: string
 }
 
-export default function ModalFooter({ children, className }: ModalFooterProps) {
+export default function ModalFooter({ children, className }: Readonly<ModalFooterProps>) {
   return <section className={`${styles.footer} ${className}`}>{children}</section>
 }

@@ -8,7 +8,7 @@ interface SidebarItemProps {
   Icon: ComponentType<IconProps>
 }
 
-export default function SidebarItem({ path, Icon }: SidebarItemProps) {
+export default function SidebarItem({ path, Icon }: Readonly<SidebarItemProps>) {
   return (
     <NavLink
       className={({ isActive }) =>

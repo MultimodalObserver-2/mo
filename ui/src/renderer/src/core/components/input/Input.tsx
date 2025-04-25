@@ -11,7 +11,7 @@ export default function Input({
   className = "",
   required = false,
   ...rest
-}: InputProps) {
+}: Readonly<InputProps>) {
   return (
     <>
       {label != undefined ? (

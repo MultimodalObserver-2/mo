@@ -14,7 +14,7 @@ export default function ModalBody({
   type = "default",
   id,
   onSubmit
-}: ModalBodyProps) {
+}: Readonly<ModalBodyProps>) {
   if (type === "form") {
     return (
       <form id={id} className={`${styles.body} ${className}`} onSubmit={onSubmit}>

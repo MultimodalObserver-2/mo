@@ -13,12 +13,3 @@ main {
   box-sizing: border-box;
   min-height: 100vh;
 }
-
-@media (max-width: 720px) {
-}
-
-@media (max-width: 620px) {
-}
-
-@media (max-width: 350px) {
-}

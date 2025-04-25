@@ -80,3 +80,13 @@ input,
 button {
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
 }
+
+button {
+  background: none;
+  border: none;
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}

@@ -27,6 +27,9 @@
   align-items: center;
   padding: 8px 12px;
   cursor: pointer;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  text-align: start;
+  width: 100%;
 }
 
 .item:first-child {

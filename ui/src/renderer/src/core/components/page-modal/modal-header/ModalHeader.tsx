@@ -5,6 +5,6 @@ interface ModalHeaderProps {
   className?: string
 }
 
-export default function ModalHeader({ children, className }: ModalHeaderProps) {
+export default function ModalHeader({ children, className }: Readonly<ModalHeaderProps>) {
   return <section className={`${styles.header} ${className}`}>{children}</section>
 }

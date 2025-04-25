@@ -1,1 +1,1 @@
-export type IconProps = React.ComponentProps<"svg">
+export type IconProps = Readonly<React.ComponentProps<"svg">>

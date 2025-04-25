@@ -1,16 +1,18 @@
 import styles from "./display-data.module.css"
 
+interface DisplayDataProps {
+  name: string
+  value: string | number | string[]
+  children?: React.ReactNode
+  childrenClass?: string
+}
+
 export default function DisplayData({
   name,
   value,
   children,
   childrenClass
-}: {
-  name: string
-  value: string | number | string[]
-  children?: React.ReactNode
-  childrenClass?: string
-}) {
+}: Readonly<DisplayDataProps>) {
   return (
     <div className={`${styles.box}  ${Array.isArray(value) ? styles["list-label-container"] : ""}`}>
       <div className={styles.label}>
@@ -21,7 +23,7 @@ export default function DisplayData({
         {Array.isArray(value) ? (
           <ul className={styles.list}>
             {value.map((item, idx) => (
-              <li key={idx} className={styles.value}>
+              <li key={`${item}-${idx}`} className={styles.value}>
                 {item}
               </li>
             ))}

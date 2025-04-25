@@ -23,7 +23,7 @@ interface ModalProps {
   className?: string
 }
 
-export default function PageModal({ children, className }: ModalProps) {
+export default function PageModal({ children, className }: Readonly<ModalProps>) {
   const header = findComponentInChildren(children, ModalHeader)
   const body = findComponentInChildren(children, ModalBody)
   const footer = findComponentInChildren(children, ModalFooter)

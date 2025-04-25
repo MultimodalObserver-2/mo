@@ -11,7 +11,6 @@ interface ListInputProps {
   name?: string
   required?: boolean
   defaultValue?: string[]
-  value?: string[]
   onChange?: (value: string[]) => void
 }
 
@@ -24,7 +23,7 @@ export default function ListInput({
   required = false,
   defaultValue = [""],
   onChange = () => {}
-}: ListInputProps) {
+}: Readonly<ListInputProps>) {
   const [inputValues, setInputValues] = useState(defaultValue.length > 0 ? defaultValue : [""])
 
   const handleAddNote = () => {
@@ -48,7 +47,7 @@ export default function ListInput({
 
   const renderInputs = () => {
     return inputValues.map((val, idx) => (
-      <li className={styles.item} key={idx}>
+      <li className={styles.item} key={`${name}-${idx}`}>
         <input
           id={`${name}-${idx}`}
           className={`${className} ${styles.input}`}

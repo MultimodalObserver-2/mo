@@ -7,7 +7,12 @@ interface ModalTitleProps {
   iconClassName?: string
 }
 
-export default function ModalTitle({ title, className, Icon, iconClassName }: ModalTitleProps) {
+export default function ModalTitle({
+  title,
+  className,
+  Icon,
+  iconClassName
+}: Readonly<ModalTitleProps>) {
   return (
     <>
       {Icon && <Icon className={`${styles.icon} ${iconClassName}`} />}

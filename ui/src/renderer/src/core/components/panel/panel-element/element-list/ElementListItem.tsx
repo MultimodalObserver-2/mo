@@ -28,38 +28,36 @@ export default function ElementListItem({
   onLock,
   onEdit,
   onDelete
-}: ElementListItemProps) {
+}: Readonly<ElementListItemProps>) {
   const showAction = (action: string) => {
     return typeof showActions === "boolean" ? showActions : showActions[action]
   }
 
   return (
-    <li
-      className={`${styles.item} ${isSelected ? styles.active : ""}`}
-      tabIndex={0}
-      onClick={onClick}
-    >
-      <h4 className={styles.name}>{label}</h4>
-      <Show show={!!showActions}>
-        <div className={styles.actions}>
-          <Show show={showAction("info")}>
-            <InfoIcon className={`${styles.action} ${styles.normal}`} onClick={onInfo} />
-          </Show>
-          <Show show={showAction("lock")}>
-            {isLocked ? (
-              <LockIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
-            ) : (
-              <LockOpenIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
-            )}
-          </Show>
-          <Show show={showAction("edit")}>
-            <EditIcon className={`${styles.action} ${styles.normal}`} onClick={onEdit} />
-          </Show>
-          <Show show={showAction("delete")}>
-            <DeleteIcon className={`${styles.action} ${styles.danger}`} onClick={onDelete} />
-          </Show>
-        </div>
-      </Show>
+    <li>
+      <button className={`${styles.item} ${isSelected ? styles.active : ""}`} onClick={onClick}>
+        <h4 className={styles.name}>{label}</h4>
+        <Show show={!!showActions}>
+          <div className={styles.actions}>
+            <Show show={showAction("info")}>
+              <InfoIcon className={`${styles.action} ${styles.normal}`} onClick={onInfo} />
+            </Show>
+            <Show show={showAction("lock")}>
+              {isLocked ? (
+                <LockIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
+              ) : (
+                <LockOpenIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
+              )}
+            </Show>
+            <Show show={showAction("edit")}>
+              <EditIcon className={`${styles.action} ${styles.normal}`} onClick={onEdit} />
+            </Show>
+            <Show show={showAction("delete")}>
+              <DeleteIcon className={`${styles.action} ${styles.danger}`} onClick={onDelete} />
+            </Show>
+          </div>
+        </Show>
+      </button>
     </li>
   )
 }

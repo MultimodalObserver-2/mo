@@ -1,6 +1,10 @@
 import { useAsyncError } from "react-router"
 
-export default function ErrorElement({ name }: { name: string }) {
+interface ErrorElementProps {
+  name: string
+}
+
+export default function ErrorElement({ name }: Readonly<ErrorElementProps>) {
   const error = useAsyncError()
   if (error instanceof Error) {
     return (
