@@ -35,3 +35,10 @@ data
 
 # SonarQube files
 .sonar/
+
+# Test files
+.pytest_cache/
+.coverage
+.coverage.*
+coverage.*
+htmlcov/
