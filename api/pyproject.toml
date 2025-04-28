@@ -3,7 +3,7 @@ name = "api"
 version = "0.1.0"
 description = ""
 authors = [
-    {name = "Matías Figueroa Contreras",email = "matias.figueroa.c@usach.cl"}
+    { name = "Matías Figueroa Contreras", email = "matias.figueroa.c@usach.cl" },
 ]
 readme = "README.md"
 requires-python = ">=3.12,<3.14"
@@ -14,13 +14,14 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{include = "api", from = "src"}]
+packages = [{ include = "api", from = "src" }]
 
 [tool.poetry.scripts]
 dev = "scripts.dev:start"
 format = "scripts.format:format_code"
 sonar = "scripts.sonar:scan"
 test = "scripts.test:run_tests"
+build = "scripts.build:build"
 
 [tool.black]
 line-length = 100
