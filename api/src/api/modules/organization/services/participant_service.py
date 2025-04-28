@@ -7,7 +7,7 @@ from api.core.file_management.json_storage import JsonStorage
 from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException)
+                                            BadRequestException, NotFoundException)
 from api.modules.organization.errors.participant import (
     PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
     PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)
@@ -74,7 +74,7 @@ class ParticipantService:
 
     def get_all_participants(self, project_name: str) -> list[ParticipantRes]:
         if not self.project_service.exists(project_name):
-            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participants = participants_storage.find_all()
@@ -82,12 +82,12 @@ class ParticipantService:
 
     def get_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
         if not self.project_service.exists(project_name):
-            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participant = participants_storage.find_one({"code": participant_code})
         if not participant:
-            raise BadRequestException(
+            raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
@@ -135,7 +135,7 @@ class ParticipantService:
 
     def delete_participant(self, project_name: str, participant_code) -> None:
         if not self.exists(project_name, participant_code):
-            raise BadRequestException(
+            raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
@@ -153,7 +153,7 @@ class ParticipantService:
     def lock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
-            raise BadRequestException(
+            raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
@@ -165,7 +165,7 @@ class ParticipantService:
     def unlock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
-            raise BadRequestException(
+            raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
@@ -177,7 +177,7 @@ class ParticipantService:
     def is_participant_locked(self, project_name: str, participant_code: str) -> bool:
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
-            raise BadRequestException(
+            raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
@@ -185,7 +185,7 @@ class ParticipantService:
 
     def exists(self, project_name: str, participant_code: str) -> bool:
         if not self.project_service.exists(project_name):
-            raise BadRequestException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         return participants_storage.exists({"code": participant_code})

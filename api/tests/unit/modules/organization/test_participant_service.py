@@ -1,7 +1,8 @@
 
 from datetime import datetime
+from tkinter import N
 from unittest.mock import MagicMock, patch
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException
+from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
 from api.modules.organization.schemas.participant import ParticipantPostReq, ParticipantPutReq, ParticipantRes
 from api.modules.organization.services.participant_service import ParticipantService
 from fastapi.background import P
@@ -85,7 +86,7 @@ def test_get_all_participants_success(participant_service):
 def test_get_all_participants_not_found(participant_service):
     participant_service.project_service.exists.return_value = False
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.get_all_participants("UnknownProject")
 
 
@@ -119,13 +120,13 @@ def test_get_participant_not_found(participant_service):
         mock_storage.find_one.return_value = None
         MockStorage.return_value = mock_storage
 
-        with pytest.raises(BadRequestException):
+        with pytest.raises(NotFoundException):
             participant_service.get_participant("TestProject", "UnknownParticipant")
     
 def test_get_participant_project_not_found(participant_service):
     participant_service.project_service.exists.return_value = False
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.get_participant("UnknownProject", "P001")
 
 
@@ -230,7 +231,7 @@ def test_delete_participant_success(participant_service):
 def test_delete_participant_not_found(participant_service):
     participant_service.exists = MagicMock(return_value=False)
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.delete_participant("TestProject", "UnknownParticipant")
 
 def test_delete_participant_locked(participant_service):
@@ -266,7 +267,7 @@ def test_lock_participant(participant_service):
 def test_lock_participant_not_found(participant_service):
     participant_service.get_participant = MagicMock(return_value=None)
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.lock_participant("TestProject", "UnknownParticipant")
 
 def test_unlock_participant(participant_service):
@@ -296,7 +297,7 @@ def test_unlock_participant(participant_service):
 def test_unlock_participant_not_found(participant_service):
     participant_service.get_participant = MagicMock(return_value=None)
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.unlock_participant("TestProject", "UnknownParticipant")
 
 
@@ -320,13 +321,13 @@ def test_is_participant_locked(participant_service):
 def test_is_participant_locked_not_found(participant_service):
     participant_service.get_participant = MagicMock(return_value=None)
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.is_participant_locked("TestProject", "UnknownParticipant")
 
 def test_is_participant_locked_project_not_found(participant_service):
     participant_service.project_service.exists.return_value = False
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.is_participant_locked("UnknownProject", "P001")
 
 def test_exists(participant_service):
@@ -346,5 +347,5 @@ def test_exists_not_found(participant_service):
 def test_exists_project_not_found(participant_service):
     participant_service.project_service.exists = MagicMock(return_value=False)
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         participant_service.exists("UnknownProject", "P001")
