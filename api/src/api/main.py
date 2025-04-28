@@ -12,11 +12,6 @@ app = FastAPI(
 )
 
 
-@app.get("/")
-async def root():
-    return {"message": "Hello World"}
-
-
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
     return JSONResponse(

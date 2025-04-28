@@ -7,7 +7,8 @@ from api.core.file_management.json_storage import JsonStorage
 from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException, NotFoundException)
+                                            BadRequestException,
+                                            NotFoundException)
 from api.modules.organization.errors.participant import (
     PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
     PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)

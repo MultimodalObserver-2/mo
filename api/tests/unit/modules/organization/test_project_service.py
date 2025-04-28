@@ -1,9 +1,14 @@
-from api.core.file_management.json_storage import JsonStorage
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
-from api.modules.organization.schemas.project import ProjectPostReq, ProjectPutReq
-from api.modules.organization.services.project_service import ProjectService
-import pytest
 from unittest.mock import MagicMock, patch
+
+import pytest
+
+from api.core.file_management.json_storage import JsonStorage
+from api.core.utils.http_exceptions import (AlreadyExistsException,
+                                            BadRequestException,
+                                            NotFoundException)
+from api.modules.organization.schemas.project import (ProjectPostReq,
+                                                      ProjectPutReq)
+from api.modules.organization.services.project_service import ProjectService
 
 
 @pytest.fixture
@@ -16,15 +21,14 @@ def project_service():
 
 
 def test_create_project_success(project_service):
-    project_data = {
-        "name": "Test Project",
-        "description": "A test project"
-    }
+    project_data = {"name": "Test Project", "description": "A test project"}
     project_service.projects_storage.exists.return_value = False
     project_service.file_management.create_directory.return_value = "/path/to/Test Project"
     project_service.projects_storage.insert_one.return_value = None
     project_req = ProjectPostReq(**project_data)
-    with patch("api.core.file_management.json_storage.JsonStorage.create_storage") as mock_create_storage:
+    with patch(
+        "api.core.file_management.json_storage.JsonStorage.create_storage"
+    ) as mock_create_storage:
         mock_create_storage.return_value = None
         result = project_service.create_project(project_req)
         assert result.name == "Test Project"
@@ -36,10 +40,7 @@ def test_create_project_success(project_service):
 
 
 def test_create_project_already_exists(project_service):
-    project_data = {
-        "name": "Existing Project",
-        "description": "A test project"
-    }
+    project_data = {"name": "Existing Project", "description": "A test project"}
     project_service.exists = MagicMock(return_value=True)
 
     project_req = ProjectPostReq(**project_data)
@@ -48,10 +49,7 @@ def test_create_project_already_exists(project_service):
 
 
 def test_create_project_invalid_name(project_service):
-    project_data = {
-        "name": "Invalid/Project",
-        "description": "A test project"
-    }
+    project_data = {"name": "Invalid/Project", "description": "A test project"}
     project_service.exists = MagicMock(return_value=False)
     project_service.file_management.create_directory.return_value = "/path/to/project"
 
@@ -59,12 +57,25 @@ def test_create_project_invalid_name(project_service):
     with pytest.raises(BadRequestException):
         project_service.create_project(project_req)
 
+
 def test_get_all_projects_success(project_service):
     project_service.projects_storage.find_all.return_value = [
-        {"name": "Project 1", "description": "First project", "location": "/path/to/Project 1",
-            "locked": False, "created_at": "2025-04-23 10:00:45.687379", "updated_at": "2025-04-23 10:00:45.687379"},
-        {"name": "Project 2", "description": "Second project", "location": "/path/to/Project 2",
-            "locked": False, "created_at": "2025-04-23 10:00:45.687379", "updated_at": "2025-04-23 10:00:45.687379"}
+        {
+            "name": "Project 1",
+            "description": "First project",
+            "location": "/path/to/Project 1",
+            "locked": False,
+            "created_at": "2025-04-23 10:00:45.687379",
+            "updated_at": "2025-04-23 10:00:45.687379",
+        },
+        {
+            "name": "Project 2",
+            "description": "Second project",
+            "location": "/path/to/Project 2",
+            "locked": False,
+            "created_at": "2025-04-23 10:00:45.687379",
+            "updated_at": "2025-04-23 10:00:45.687379",
+        },
     ]
 
     result = project_service.get_all_projects()
@@ -77,17 +88,14 @@ def test_get_all_projects_success(project_service):
 
 def test_update_project_success(project_service):
     project_name = "Test Project"
-    project_data = {
-        "name": "Updated Project",
-        "description": "Updated description"
-    }
+    project_data = {"name": "Updated Project", "description": "Updated description"}
     existing_project = {
         "name": project_name,
         "description": "A test project",
         "location": "/path/to/project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
 
     project_service.projects_storage.find_one.return_value = existing_project
@@ -107,10 +115,7 @@ def test_update_project_success(project_service):
 
 def test_update_project_not_found(project_service):
     project_name = "Nonexistent Project"
-    project_data = {
-        "name": "Updated Project",
-        "description": "Updated description"
-    }
+    project_data = {"name": "Updated Project", "description": "Updated description"}
     project_service.projects_storage.find_one.return_value = None
 
     project_req = ProjectPutReq(**project_data)
@@ -120,58 +125,50 @@ def test_update_project_not_found(project_service):
 
 def test_update_project_locked(project_service):
     project_name = "Locked Project"
-    project_data = {
-        "name": "Updated Project",
-        "description": "Updated description"
-    }
+    project_data = {"name": "Updated Project", "description": "Updated description"}
     existing_project = {
         "name": project_name,
         "description": "A test project",
         "location": "/path/to/Updated Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 
     project_req = ProjectPutReq(**project_data)
     with pytest.raises(BadRequestException):
         project_service.update_project(project_name, project_req)
+
 
 def test_update_project_invalid_name(project_service):
     project_name = "Updated Project"
-    project_data = {
-        "name": "Invalid/Project*",
-        "description": "Updated description"
-    }
+    project_data = {"name": "Invalid/Project*", "description": "Updated description"}
     existing_project = {
         "name": project_name,
         "description": "A test project",
         "location": "/path/to/Updated Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
-
 
     project_req = ProjectPutReq(**project_data)
     with pytest.raises(BadRequestException):
         project_service.update_project(project_name, project_req)
 
+
 def test_update_project_already_exists(project_service):
     project_name = "Existing Project"
-    project_data = {
-        "name": "Updated Project",
-        "description": "Updated description"
-    }
+    project_data = {"name": "Updated Project", "description": "Updated description"}
     existing_project = {
         "name": project_name,
         "description": "A test project",
         "location": "/path/to/Updated Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
     project_service.projects_storage.exists.return_value = True
@@ -189,7 +186,7 @@ def test_get_project_success(project_service):
         "location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 
@@ -218,7 +215,7 @@ def test_delete_project_success(project_service):
         "location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
     project_service.file_management.delete_directory.return_value = None
@@ -247,7 +244,7 @@ def test_delete_project_locked(project_service):
         "location": "/path/to/Locked Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 
@@ -263,7 +260,7 @@ def test_lock_project_success(project_service):
         "location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 
@@ -289,7 +286,7 @@ def test_unlock_project_success(project_service):
         "location": "/path/to/Test Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 
@@ -315,7 +312,7 @@ def test_is_project_locked_success(project_service):
         "location": "/path/to/Test Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
-        "updated_at": "2025-04-23 10:00:45.687379"
+        "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
 

@@ -1,22 +1,26 @@
-
 import json
-from api.core.file_management.file_management import FileManagement
-from api.core.file_management.json_storage import JsonStorage
-from api.modules.organization.errors.project import PROJECT_ALREADY_EXISTS, PROJECT_DOES_NOT_EXIST, PROJECT_IS_LOCKED, PROJECT_NAME_NOT_ALLOWED
-from api.modules.organization.services.project_service import ProjectService
-from api.main import app
-from httpx import ASGITransport, AsyncClient
+
 import pytest
 from fastapi import status
+from httpx import ASGITransport, AsyncClient
+
+from api.core.file_management.file_management import FileManagement
+from api.core.file_management.json_storage import JsonStorage
+from api.main import app
+from api.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
+                                                     PROJECT_DOES_NOT_EXIST,
+                                                     PROJECT_IS_LOCKED,
+                                                     PROJECT_NAME_NOT_ALLOWED)
+from api.modules.organization.services.project_service import ProjectService
 
 
 @pytest.fixture
 def temp_service(tmp_path):
     tmp_data_path = tmp_path / "data"
-    file_management = FileManagement(
-        rel_path="projects", base_path=tmp_data_path, make_dirs=True)
+    file_management = FileManagement(rel_path="projects", base_path=tmp_data_path, make_dirs=True)
     json_storage = JsonStorage(
-        file_name="projects.json", rel_path="projects", base_path=tmp_data_path)
+        file_name="projects.json", rel_path="projects", base_path=tmp_data_path
+    )
 
     project_service = ProjectService()
     project_service.file_management = file_management
@@ -28,17 +32,11 @@ def temp_service(tmp_path):
 @pytest.mark.asyncio
 async def test_create_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
-        response = await client.post(
-            "/projects/",
-            json=data
-        )
+        response = await client.post("/projects/", json=data)
 
     # Check api response
     assert response.status_code == status.HTTP_200_OK
@@ -64,10 +62,7 @@ async def test_create_project_api(temp_service):
 @pytest.mark.asyncio
 async def test_create_project_already_exists(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -85,17 +80,13 @@ async def test_create_project_already_exists(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS.format(
-        name=data["name"])
+    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS.format(name=data["name"])
 
 
 @pytest.mark.asyncio
 async def test_create_project_invalid_data(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "/*Invalid Name*/",
-        "description": "This is a test project."
-    }
+    data = {"name": "/*Invalid Name*/", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -106,17 +97,13 @@ async def test_create_project_invalid_data(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED.format(
-        name=data["name"])
+    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED.format(name=data["name"])
 
 
 @pytest.mark.asyncio
 async def test_get_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -151,21 +138,14 @@ async def test_get_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(
-        name=project_name)
+    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(name=project_name)
 
 
 @pytest.mark.asyncio
 async def test_get_all_projects_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data1 = {
-        "name": "Test Project 1",
-        "description": "This is a test project 1."
-    }
-    data2 = {
-        "name": "Test Project 2",
-        "description": "This is a test project 2."
-    }
+    data1 = {"name": "Test Project 1", "description": "This is a test project 1."}
+    data2 = {"name": "Test Project 2", "description": "This is a test project 2."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -195,10 +175,7 @@ async def test_get_all_projects_api(temp_service):
 @pytest.mark.asyncio
 async def test_update_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -230,7 +207,8 @@ async def test_update_project_api(temp_service):
     with open(projects_file, "r") as f:
         projects_data = json.load(f)
         assert any(
-            project["name"] == update_data["name"] and project["description"] == update_data["description"]
+            project["name"] == update_data["name"]
+            and project["description"] == update_data["description"]
             for project in projects_data
         )
 
@@ -248,9 +226,7 @@ async def test_update_project_not_found(temp_service):
     project_service, tmp_data_path = temp_service
     app.dependency_overrides[ProjectService] = lambda: project_service
     project_name = "NonExistingProject"
-    update_data = {
-        "description": "Updated description."
-    }
+    update_data = {"description": "Updated description."}
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
         # Try to update a non-existing project
         response = await client.put(
@@ -260,17 +236,13 @@ async def test_update_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(
-        name=project_name)
+    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(name=project_name)
 
 
 @pytest.mark.asyncio
 async def test_update_project_invalid_data(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -292,21 +264,14 @@ async def test_update_project_invalid_data(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED.format(
-        name=update_data["name"])
-    
+    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED.format(name=update_data["name"])
+
 
 @pytest.mark.asyncio
 async def test_update_project_already_exists(temp_service):
     project_service, tmp_data_path = temp_service
-    data1 = {
-        "name": "Test Project 1",
-        "description": "This is a test project 1."
-    }
-    data2 = {
-        "name": "Test Project 2",
-        "description": "This is a test project 2."
-    }
+    data1 = {"name": "Test Project 1", "description": "This is a test project 1."}
+    data2 = {"name": "Test Project 2", "description": "This is a test project 2."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -332,17 +297,13 @@ async def test_update_project_already_exists(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS.format(
-        name=update_data["name"])
+    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS.format(name=update_data["name"])
 
 
 @pytest.mark.asyncio
 async def test_update_project_locked(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -368,17 +329,13 @@ async def test_update_project_locked(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_IS_LOCKED.format(
-        name=data["name"])
+    assert response.json()["detail"] == PROJECT_IS_LOCKED.format(name=data["name"])
 
 
 @pytest.mark.asyncio
 async def test_delete_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -401,8 +358,7 @@ async def test_delete_project_api(temp_service):
     assert projects_file.exists()
     with open(projects_file, "r") as f:
         projects_data = json.load(f)
-        assert not any(project["name"] == data["name"]
-                       for project in projects_data)
+        assert not any(project["name"] == data["name"] for project in projects_data)
 
     # Check if the project directory is deleted
     project_path = tmp_data_path / "projects" / data["name"]
@@ -422,17 +378,13 @@ async def test_delete_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(
-        name=project_name)
+    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(name=project_name)
 
 
 @pytest.mark.asyncio
 async def test_delete_project_locked(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -454,17 +406,13 @@ async def test_delete_project_locked(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_IS_LOCKED.format(
-        name=data["name"])
+    assert response.json()["detail"] == PROJECT_IS_LOCKED.format(name=data["name"])
 
 
 @pytest.mark.asyncio
 async def test_lock_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -510,17 +458,13 @@ async def test_lock_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(
-        name=project_name)
+    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(name=project_name)
 
 
 @pytest.mark.asyncio
 async def test_unlock_project_api(temp_service):
     project_service, tmp_data_path = temp_service
-    data = {
-        "name": "Test Project",
-        "description": "This is a test project."
-    }
+    data = {"name": "Test Project", "description": "This is a test project."}
     app.dependency_overrides[ProjectService] = lambda: project_service
 
     async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
@@ -571,5 +515,4 @@ async def test_unlock_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(
-        name=project_name)
+    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST.format(name=project_name)

@@ -5,7 +5,8 @@ from api.core.file_management.json_storage import JsonStorage
 from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException, NotFoundException)
+                                            BadRequestException,
+                                            NotFoundException)
 from api.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
                                                      PROJECT_DOES_NOT_EXIST,
                                                      PROJECT_IS_LOCKED,
@@ -95,8 +96,7 @@ class ProjectService:
 
     def delete_project(self, project_name: str) -> None:
         if not self.exists(project_name):
-            raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         if self.is_project_locked(project_name):
             raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
@@ -107,8 +107,7 @@ class ProjectService:
     def lock_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         project["locked"] = True
         self.projects_storage.update({"name": project_name}, project)
@@ -117,8 +116,7 @@ class ProjectService:
     def unlock_project(self, project_name: str) -> ProjectRes:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         project["locked"] = False
         self.projects_storage.update({"name": project_name}, project)
@@ -127,8 +125,7 @@ class ProjectService:
     def is_project_locked(self, project_name: str) -> bool:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         return project["locked"]
 
     def exists(self, project_name: str) -> bool:

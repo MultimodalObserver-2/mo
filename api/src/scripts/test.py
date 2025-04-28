@@ -11,8 +11,7 @@ def get_modules_services():
     for root, dirs, files in os.walk(MODULES_PATH):
         if "services" in dirs:
             path_norm = os.path.normpath(root)
-            cov_path = path_norm.replace(
-                "\\", ".").replace("src.", "") + ".services"
+            cov_path = path_norm.replace("\\", ".").replace("src.", "") + ".services"
             module_service_paths.append(f"--cov={cov_path}")
     return module_service_paths
 
@@ -20,14 +19,14 @@ def get_modules_services():
 def get_args():
     parser = argparse.ArgumentParser(
         description="Run unit, integration, or all tests with optional pytest arguments.",
-        usage="poetry run test [--help] [--help-pytest] [--type {unit,integration,all}] [PYTEST_ARGS...]"
+        usage="poetry run test [--help] [--help-pytest] [--type {unit,integration,all}] [PYTEST_ARGS...]",
     )
 
     parser.add_argument(
         "--type",
         choices=["unit", "integration", "all"],
         default="all",
-        help="Specify the type of tests to run (default: all)."
+        help="Specify the type of tests to run (default: all).",
     )
 
     if "--help-pytest" in sys.argv:
@@ -51,15 +50,15 @@ def run_tests():
     core_path = ["--cov=api.core"]
     module_service_paths = get_modules_services()
 
-    test_cmd = ["pytest"] + core_path + module_service_paths + \
-        [f"tests/{test_filter}"] + extra_args
+    test_cmd = ["pytest"] + core_path + module_service_paths + [f"tests/{test_filter}"] + extra_args
 
     try:
         subprocess.run(test_cmd, check=True)
     except subprocess.CalledProcessError:
         print("\nERROR: pytest execution failed. Correct usage:")
         print(
-            "   poetry run test [--help] [--help-pytest] [--type {unit,integration,all}] [--cov-report {html,xml,json}] [PYTEST_ARGS...]")
+            "   poetry run test [--help] [--help-pytest] [--type {unit,integration,all}] [--cov-report {html,xml,json}] [PYTEST_ARGS...]"
+        )
         sys.exit(1)
 
 
