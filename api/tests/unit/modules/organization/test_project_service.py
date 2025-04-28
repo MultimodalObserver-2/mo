@@ -1,5 +1,5 @@
 from api.core.file_management.json_storage import JsonStorage
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException
+from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
 from api.modules.organization.schemas.project import ProjectPostReq, ProjectPutReq
 from api.modules.organization.services.project_service import ProjectService
 import pytest
@@ -114,7 +114,7 @@ def test_update_project_not_found(project_service):
     project_service.projects_storage.find_one.return_value = None
 
     project_req = ProjectPutReq(**project_data)
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.update_project(project_name, project_req)
 
 
@@ -206,7 +206,7 @@ def test_get_project_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.find_one.return_value = None
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.get_project(project_name)
 
 
@@ -235,7 +235,7 @@ def test_delete_project_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.exists.return_value = False
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.delete_project(project_name)
 
 
@@ -277,7 +277,7 @@ def test_lock_project_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.find_one.return_value = None
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.lock_project(project_name)
 
 
@@ -303,7 +303,7 @@ def test_unlock_project_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.find_one.return_value = None
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.unlock_project(project_name)
 
 
@@ -329,7 +329,7 @@ def test_is_project_locked_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.find_one.return_value = None
 
-    with pytest.raises(BadRequestException):
+    with pytest.raises(NotFoundException):
         project_service.is_project_locked(project_name)
 
 
