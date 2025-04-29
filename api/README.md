@@ -5,6 +5,7 @@ It includes installation steps, development commands, and project structure note
 
 - For detailed information about the available API endpoints, refer to the [📚 API Reference](./docs/API_DOCS.md).
 - For an overview of the directory layout and source code structure, see the [📁 Project Structure Overview](./docs/STRUCTURE.md).
+- For user interface-related information, refer to the [💻 MO UI Documentation](../ui/README.md).
 
 The MO API is developed using **FastAPI** and managed with **Poetry**.
 
