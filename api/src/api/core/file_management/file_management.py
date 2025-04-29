@@ -9,9 +9,20 @@ from api.core.file_management.validators import FileValidators
 
 
 class FileManagement:
+    """Class for managing file system operations such as creating,
+    renaming, and deleting files and directories.
+    """
+
     def __init__(
         self, rel_path: str = "", base_path: Optional[str] = None, make_dirs: bool = False
     ):
+        """Initializes a FileManagement instance.
+
+        Args:
+            rel_path (str, optional): Relative path from the base path. Defaults to "".
+            base_path (Optional[str], optional): Base path for operations. Defaults to current working directory.
+            make_dirs (bool, optional): Whether to create directories if they don't exist. Defaults to False.
+        """
         base_path = base_path or os.getcwd()
         self._path = os.path.join(base_path, rel_path)
         self._path = os.path.normpath(self._path)
@@ -19,7 +30,20 @@ class FileManagement:
         if make_dirs:
             os.makedirs(self._path, exist_ok=True)
 
-    def create_directory(self, dir_name: str, rel_path: str = ""):
+    def create_directory(self, dir_name: str, rel_path: str = "") -> str:
+        """Creates a new directory.
+
+        Args:
+            dir_name (str): Name of the directory to create.
+            rel_path (str, optional): Subdirectory path where the new directory will be created. Defaults to "".
+
+        Returns:
+            str: Path of the created directory.
+
+        Raises:
+            InvalidDirectoryNameError: If the directory name is invalid.
+            FileExistsError: If the directory already exists.
+        """
         if not FileValidators.is_valid_directory_name(dir_name):
             raise InvalidDirectoryNameError(dir_name)
         dir_path = os.path.join(self._path, rel_path, dir_name)
@@ -29,7 +53,20 @@ class FileManagement:
         os.mkdir(dir_path)
         return dir_path
 
-    def create_file(self, file_name: str, rel_path: str = "", content: str = ""):
+    def create_file(self, file_name: str, rel_path: str = "", content: str = "") -> str:
+        """Creates a new file with optional content.
+
+        Args:
+            file_name (str): Name of the file to create.
+            rel_path (str, optional): Subdirectory path where the file will be created. Defaults to "".
+            content (str, optional): Content to write into the file. Defaults to empty string.
+
+        Returns:
+            str: Path of the created file.
+
+        Raises:
+            InvalidFileNameError: If the file name is invalid.
+        """
         if not FileValidators.is_valid_file_name(file_name):
             raise InvalidFileNameError(file_name)
         file_path = os.path.join(self._path, rel_path, file_name)
@@ -39,9 +76,30 @@ class FileManagement:
         return file_path
 
     def exists(self, rel_path: str) -> bool:
+        """Checks if a file or directory exists at a relative path.
+
+        Args:
+            rel_path (str): Relative path to check.
+
+        Returns:
+            bool: True if path exists, False otherwise.
+        """
         return os.path.exists(os.path.join(self._path, rel_path))
 
-    def rename_directory(self, old_name: str, new_name: str, rel_path: str = ""):
+    def rename_directory(self, old_name: str, new_name: str, rel_path: str = "") -> str:
+        """Renames an existing directory.
+
+        Args:
+            old_name (str): Current name of the directory.
+            new_name (str): New name for the directory.
+            rel_path (str, optional): Subdirectory path where the directory is located. Defaults to "".
+
+        Returns:
+            str: New path of the renamed directory.
+
+        Raises:
+            InvalidDirectoryNameError: If the new directory name is invalid.
+        """
         if not FileValidators.is_valid_directory_name(new_name):
             raise InvalidDirectoryNameError(new_name)
         old_path = os.path.join(self._path, rel_path, old_name)
@@ -51,7 +109,19 @@ class FileManagement:
         os.rename(old_path, new_path)
         return new_path
 
-    def delete_directory(self, dir_name: str, rel_path: str = ""):
+    def delete_directory(self, dir_name: str, rel_path: str = "") -> str:
+        """Deletes a directory and its contents.
+
+        Args:
+            dir_name (str): Name of the directory to delete.
+            rel_path (str, optional): Subdirectory path where the directory is located. Defaults to "".
+
+        Returns:
+            str: Path of the deleted directory.
+
+        Raises:
+            NotFoundError: If the directory does not exist.
+        """
         dir_path = os.path.join(self._path, rel_path, dir_name)
         dir_path = os.path.normpath(dir_path)
         if not os.path.exists(dir_path):
