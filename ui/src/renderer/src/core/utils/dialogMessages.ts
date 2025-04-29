@@ -1,3 +1,7 @@
+/**
+ * Utility functions to display error dialogs using Electron's dialog API.
+ * Includes generic errors, API error parsing, and locked item warnings.
+ */
 import { AxiosError } from "axios"
 
 export function showUnexpectedErrorMessage() {

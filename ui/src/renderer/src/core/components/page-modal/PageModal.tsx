@@ -4,6 +4,7 @@ import ModalHeader from "./modal-header/ModalHeader"
 import ModalBody from "./modal-body/ModalBody"
 import ModalFooter from "./modal-footer/ModalFooter"
 
+/** Searches recursively for a specific component type within a React children tree. **/
 const findComponentInChildren = (children: React.ReactNode, componentType: React.ElementType) => {
   return Children.toArray(children).find((child) => {
     if (isValidElement(child)) {
@@ -11,7 +12,6 @@ const findComponentInChildren = (children: React.ReactNode, componentType: React
         const child_props = child.props as React.FragmentProps
         return findComponentInChildren(child_props.children, componentType)
       }
-
       return child.type === componentType
     }
     return false
@@ -19,10 +19,13 @@ const findComponentInChildren = (children: React.ReactNode, componentType: React
 }
 
 interface ModalProps {
+  /** Modal content: should include ModalHeader, ModalBody, ModalFooter */
   children: React.ReactNode
+  /** Optional class name for custom modal styling */
   className?: string
 }
 
+/** Layout wrapper for modal content composed of header, body, and footer components */
 export default function PageModal({ children, className }: Readonly<ModalProps>) {
   const header = findComponentInChildren(children, ModalHeader)
   const body = findComponentInChildren(children, ModalBody)

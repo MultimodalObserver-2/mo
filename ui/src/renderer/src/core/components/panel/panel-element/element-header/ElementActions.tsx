@@ -1,5 +1,11 @@
 import styles from "./element-header.module.css"
 
-export default function ElementActions({ children }: { readonly children: React.ReactNode }) {
+interface ElementActionsProps {
+  /** Action elements such as buttons or icons */
+  readonly children: React.ReactNode
+}
+
+/** Container for action buttons or icons within a list header */
+export default function ElementActions({ children }: ElementActionsProps) {
   return <div className={styles.actions}>{children}</div>
 }

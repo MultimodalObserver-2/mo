@@ -1,10 +1,13 @@
 import styles from "./input.module.css"
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  /** Optional label displayed above the input */
   label?: string
+  /** Optional custom class for the label container */
   boxClassName?: string
 }
 
+/** Reusable input component with optional label and styling support */
 export default function Input({
   label,
   boxClassName = "",

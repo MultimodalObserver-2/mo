@@ -1,12 +1,17 @@
 import styles from "./display-data.module.css"
 
 interface DisplayDataProps {
+  /** Label shown above the value */
   name: string
+  /** Value to display; can be string, number or list of strings */
   value: string | number | string[]
+  /** Optional children rendered below the value */
   children?: React.ReactNode
+  /** Optional CSS class for the value container */
   childrenClass?: string
 }
 
+/** Displays a labeled value (string, number or list) with optional children */
 export default function DisplayData({
   name,
   value,

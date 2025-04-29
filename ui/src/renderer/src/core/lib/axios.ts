@@ -1,3 +1,8 @@
+/**
+ * Exports a preconfigured Axios instance with dynamic port selection
+ * based on the environment (dev or prod). Used for making HTTP requests
+ * to the application's API.
+ */
 import axios from "axios"
 
 const DEV_API_PORT = import.meta.env.VITE_DEV_API_PORT || "8000"

@@ -4,16 +4,25 @@ import AddCircleIcon from "../icons/AddCircleIcon"
 import DeleteIcon from "../icons/DeleteIcon"
 
 interface ListInputProps {
+  /** Optional label displayed above the list */
   label?: string
+  /** Placeholder for the first input field */
   placeholder?: string
+  /** Optional class for the outer container */
   boxClassName?: string
+  /** Optional class for each input element */
   className?: string
+  /** Name used in hidden input for form serialization */
   name?: string
+  /** Whether at least one input is required */
   required?: boolean
+  /** Initial list of values */
   defaultValue?: string[]
+  /** Callback when any input changes */
   onChange?: (value: string[]) => void
 }
 
+/** Renders a dynamic list of input fields with add/remove capabilities */
 export default function ListInput({
   label,
   placeholder = "",
