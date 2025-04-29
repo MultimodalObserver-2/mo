@@ -1,35 +1,35 @@
 .container {
-    text-align: center;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    gap: 50px;
-    width: 100vw;
-    height: 100vh;
-    background-color: var(--color-primary-800);
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-primary-800);
 }
 
 .message {
-    font-size: 2em;
-    font-weight: 600;
-    margin-bottom: 20px;
+  font-size: 2em;
+  font-weight: 600;
+  margin-bottom: 20px;
 }
 
 .spinner {
-    width: 120px;
-    height: 120px;
-    border-radius: 50%;
-    border-top: 20px solid var(--color-background);
-    animation: spin 1.5s ease infinite;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  border-top: 20px solid var(--color-background);
+  animation: spin 1.5s ease infinite;
 }
 
 @keyframes spin {
-    0% {
-        transform: rotate(0deg);
-    }
+  0% {
+    transform: rotate(0deg);
+  }
 
-    100% {
-        transform: rotate(360deg);
-    }
+  100% {
+    transform: rotate(360deg);
+  }
 }
