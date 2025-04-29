@@ -15,6 +15,9 @@ declare global {
       shell: {
         openPath: (path: string) => void
       }
+      prod: {
+        getApiPort: () => Promise<number>
+      }
     }
     organization: {
       reloadProjects: () => void

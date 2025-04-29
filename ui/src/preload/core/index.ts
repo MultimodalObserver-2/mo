@@ -27,6 +27,11 @@ const core = {
     openPath: (path: string) => {
       return ipcRenderer.send("core:shell:open-path", path)
     }
+  },
+  prod: {
+    getApiPort: () => {
+      return ipcRenderer.invoke("core:get-api-port")
+    }
   }
 }
 

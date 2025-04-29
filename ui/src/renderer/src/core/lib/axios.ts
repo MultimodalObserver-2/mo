@@ -1,6 +1,14 @@
 import axios from "axios"
 
-const BASE_URL = "http://localhost:8000/"
+const DEV_API_PORT = import.meta.env.VITE_DEV_API_PORT || "8000"
+let API_PORT = DEV_API_PORT
+try {
+  API_PORT = import.meta.env.DEV ? DEV_API_PORT : await window.core.prod.getApiPort()
+} catch (error) {
+  console.error("Error getting API port:", error)
+}
+
+const BASE_URL = `http://localhost:${API_PORT}/`
 
 export default axios.create({
   baseURL: BASE_URL,

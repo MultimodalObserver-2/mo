@@ -2,7 +2,7 @@ import "./core/assets/main.css"
 
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
-import { BrowserRouter, Route, Routes } from "react-router"
+import { HashRouter, Route, Routes } from "react-router"
 import MainLayout from "./core/layouts/MainLayout"
 import Home from "./core/pages/home/Home"
 import CreateProjectPage from "./modules/organization/pages/create-project/CreateProjectPage"
@@ -13,17 +13,25 @@ import store from "./core/store/store"
 import AddParticipantPage from "./modules/organization/pages/add-participant/AddParticipantPage"
 import UpdateParticipantPage from "./modules/organization/pages/update-participant/UpdateParticipantPage"
 import ParticipantPage from "./modules/organization/pages/participant/ParticipantPage"
+import LoadingPage from "./core/pages/loading/Loading"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <BrowserRouter>
+      <HashRouter>
         <Routes>
           <Route element={<MainLayout />}>
             <Route index path="/" element={<Home />} />
-            <Route path="/plugins" element={<div>Plugins</div>} />
-            <Route path="/settings" element={<div>Settings</div>} />
+            <Route
+              path="/plugins"
+              element={<div style={{ color: "black" }}>Plugins Not Implemented Yet</div>}
+            />
+            <Route
+              path="/settings"
+              element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}
+            />
           </Route>
+          <Route path="/loading" element={<LoadingPage />} />
           <Route path="/organization/create-project" element={<CreateProjectPage />} />
           <Route path="/organization/update-project/:projectName" element={<UpdateProjectPage />} />
           <Route path="/organization/projects/:projectName" element={<ProjectPage />} />
@@ -40,7 +48,7 @@ createRoot(document.getElementById("root")!).render(
             element={<ParticipantPage />}
           />
         </Routes>
-      </BrowserRouter>
+      </HashRouter>
     </Provider>
   </StrictMode>
 )

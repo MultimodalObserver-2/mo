@@ -1,3 +1,4 @@
+import { is } from "@electron-toolkit/utils"
 import { app, BrowserWindow, ipcMain } from "electron"
 import { join } from "path"
 
@@ -15,7 +16,13 @@ function createModalWindow(
   }
   const win = new BrowserWindow(options)
 
-  win.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/${endpoint}`)
+  if (is.dev && process.env["ELECTRON_RENDERER_URL"]) {
+    win.loadURL(`${process.env["ELECTRON_RENDERER_URL"]}/#/${endpoint}`)
+  } else {
+    win.loadFile(join(__dirname, "../renderer/index.html"), {
+      hash: "#" + endpoint
+    })
+  }
 
   win.once("ready-to-show", () => modalWindow?.show())
   win.on("closed", () => {
