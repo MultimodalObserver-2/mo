@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, Path, status
 
 from api.modules.organization.schemas.participant import (ParticipantPostReq,
                                                           ParticipantPutReq,
@@ -13,51 +13,92 @@ participant_router = APIRouter(
 
 
 @participant_router.post(
-    "/", response_model=ParticipantRes, description="Add a new participant to a project."
+    "/",
+    response_model=ParticipantRes,
+    summary="Create a participant",
+    description="Add a new participant to a project.",
+    status_code=status.HTTP_201_CREATED,
+    responses={
+        409: {"description": "Participant already exists"},
+        400: {"description": "Invalid participant code"},
+        404: {"description": "Project not found"},
+    },
 )
 async def create_participant(
-    project_name: str, participant: ParticipantPostReq, service: ParticipantService = Depends()
+    participant: ParticipantPostReq,
+    project_name: str = Path(..., description="Name of the project"),
+    service: ParticipantService = Depends(),
 ):
     return service.create_participant(project_name, participant)
 
 
 @participant_router.get(
-    "/", response_model=list[ParticipantRes], description="Get all participants of a project."
+    "/",
+    response_model=list[ParticipantRes],
+    summary="Get all participants",
+    description="Retrieve a list of all participants for a project.",
+    responses={
+        404: {"description": "Project not found"},
+    },
 )
-async def get_all_participants(project_name: str, service: ParticipantService = Depends()):
+async def get_all_participants(
+    project_name: str = Path(..., description="Name of the project"),
+    service: ParticipantService = Depends(),
+):
     return service.get_all_participants(project_name)
 
 
 @participant_router.put(
     "/{participant_code}",
     response_model=ParticipantRes,
-    description="Update a project participant.",
+    summary="Update a participant",
+    description="Update an existing participant in a project.",
+    responses={
+        404: {"description": "Participant or project not found"},
+        400: {"description": "Participant is locked or invalid new code"},
+        409: {"description": "New participant code already exists"},
+    },
 )
 async def update_participant(
-    project_name: str,
-    participant_code: str,
     participant: ParticipantPutReq,
+    project_name: str = Path(..., description="Name of the project"),
+    participant_code: str = Path(..., description="Current code of the participant"),
     service: ParticipantService = Depends(),
 ):
     return service.update_participant(project_name, participant_code, participant)
 
 
 @participant_router.get(
-    "/{participant_code}", response_model=ParticipantRes, description="Get a project participant."
+    "/{participant_code}",
+    response_model=ParticipantRes,
+    summary="Get a participant",
+    description="Retrieve details of a specific participant by code.",
+    responses={
+        404: {"description": "Participant or project not found"},
+    },
 )
 async def get_participant(
-    project_name: str, participant_code: str, service: ParticipantService = Depends()
+    project_name: str = Path(..., description="Name of the project"),
+    participant_code: str = Path(..., description="Code of the participant"),
+    service: ParticipantService = Depends(),
 ):
     return service.get_participant(project_name, participant_code)
 
 
 @participant_router.delete(
     "/{participant_code}",
-    description="Delete a project participant.",
+    summary="Delete a participant",
+    description="Delete a participant from a project.",
     status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        404: {"description": "Participant or project not found"},
+        400: {"description": "Participant is locked"},
+    },
 )
 async def delete_participant(
-    project_name: str, participant_code: str, service: ParticipantService = Depends()
+    project_name: str = Path(..., description="Name of the project"),
+    participant_code: str = Path(..., description="Code of the participant"),
+    service: ParticipantService = Depends(),
 ):
     return service.delete_participant(project_name, participant_code)
 
@@ -65,10 +106,16 @@ async def delete_participant(
 @participant_router.post(
     "/{participant_code}/lock",
     response_model=ParticipantRes,
-    description="Lock a project participant.",
+    summary="Lock a participant",
+    description="Lock a participant to prevent modifications.",
+    responses={
+        404: {"description": "Participant or project not found"},
+    },
 )
 async def lock_participant(
-    project_name: str, participant_code: str, service: ParticipantService = Depends()
+    project_name: str = Path(..., description="Name of the project"),
+    participant_code: str = Path(..., description="Code of the participant"),
+    service: ParticipantService = Depends(),
 ):
     return service.lock_participant(project_name, participant_code)
 
@@ -76,9 +123,15 @@ async def lock_participant(
 @participant_router.post(
     "/{participant_code}/unlock",
     response_model=ParticipantRes,
-    description="Unlock a project participant.",
+    summary="Unlock a participant",
+    description="Unlock a participant to allow modifications.",
+    responses={
+        404: {"description": "Participant or project not found"},
+    },
 )
 async def unlock_participant(
-    project_name: str, participant_code: str, service: ParticipantService = Depends()
+    project_name: str = Path(..., description="Name of the project"),
+    participant_code: str = Path(..., description="Code of the participant"),
+    service: ParticipantService = Depends(),
 ):
     return service.unlock_participant(project_name, participant_code)

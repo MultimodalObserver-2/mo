@@ -1,14 +1,21 @@
-# MO API - Documentation
+# 📦 MO API - General Documentation
 
-This documentation corresponds to the API of the **Multimodal Observer (MO)** desktop application, developed using **FastAPI** and managed with **Poetry**.  
-Below are the instructions for initial setup and the most common commands used during development.
+This document provides the **general setup, usage, and management instructions** for the API of the **Multimodal Observer (MO)** desktop application.  
+It includes installation steps, development commands, and project structure notes.  
+For detailed information about the available API endpoints, refer to the [📚 API Reference](./docs/API_DOCS.md).
 
-## Requirements
+The MO API is developed using **FastAPI** and managed with **Poetry**.
+
+---
+
+## ⚙️ Requirements
 
 - [Python 3.12](https://www.python.org/)
 - [Poetry 2.1](https://python-poetry.org/docs/)
 
-## Initial Setup
+---
+
+## 🚀 Initial Setup
 
 1. Clone the repository and navigate to the `api` folder:
 
@@ -37,7 +44,9 @@ Below are the instructions for initial setup and the most common commands used d
     poetry shell
     ```
 
-## Common Commands
+---
+
+## 🛠️ Common Commands
 
 The following custom scripts are defined in `pyproject.toml` to simplify common tasks:
 
@@ -49,7 +58,7 @@ The following custom scripts are defined in `pyproject.toml` to simplify common 
 | `poetry run test`   | Execute the project's automated tests.                               |
 | `poetry run build`  | Build the API for production.                                        |
 
-### Notes about the commands
+### 🔹 Notes about the commands
 
 - **Running SonarQube**:
   - The environment variable `SONAR_TOKEN` must be defined.
@@ -80,7 +89,9 @@ The following custom scripts are defined in `pyproject.toml` to simplify common 
 
   - **Important**: To properly integrate test coverage into SonarQube analysis, you must generate the coverage report in **XML** format.
 
-## Useful Poetry Commands
+---
+
+## 📦 Useful Poetry Commands
 
 Below are some additional useful Poetry commands for managing dependencies:
 
@@ -91,3 +102,5 @@ Below are some additional useful Poetry commands for managing dependencies:
 | `poetry remove <package>`          | Remove a package from the project.              |
 
 For more information, see the [Poetry documentation](https://python-poetry.org/docs/cli/).
+
+---
