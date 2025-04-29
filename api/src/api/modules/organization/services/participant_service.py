@@ -1,7 +1,5 @@
 from datetime import datetime
 
-from fastapi.background import P
-
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
 from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
@@ -22,7 +20,14 @@ from api.modules.organization.services.project_service import ProjectService
 
 
 class ParticipantService:
+    """Service class for managing participants within projects,
+    including creation, updating, deletion, locking, and unlocking of participants.
+
+    Participants are stored as directories and their metadata is managed in JSON storage files inside each project.
+    """
+
     def __init__(self):
+        """Initializes the ParticipantService, setting up paths and services for projects and participants."""
         self._data_path = RELATIVE_APP_DATA_PATH
         self._projects_dir_name = PROJECTS_DIR_NAME
         self._projects_storage_name = PROJECTS_DATA_FILE_NAME
@@ -34,18 +39,55 @@ class ParticipantService:
         self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
 
     def _get_project_dir_path(self, project_name: str):
+        """Generates the directory path for a given project.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            str: Full directory path for the project.
+        """
         return f"{self._data_path}/{self._projects_dir_name}/{project_name}"
 
     def _get_participants_storage(self, project_name: str):
+        """Retrieves the JSON storage handler for participants of a specific project.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            JsonStorage: JSON storage instance for managing participants.
+        """
         dir_path = self._get_project_dir_path(project_name)
         return JsonStorage(file_name=self._participants_storage_name, rel_path=dir_path)
 
     def _get_participant_dir_name(self, code: str):
+        """Generates the directory name for a participant based on their code.
+
+        Args:
+            code (str): Participant's unique code.
+
+        Returns:
+            str: Directory name for the participant.
+        """
         return f"participant[{code}]"
 
     def create_participant(
         self, project_name: str, participant: ParticipantPostReq
     ) -> ParticipantRes:
+        """Creates a new participant within a project.
+
+        Args:
+            project_name (str): Name of the project.
+            participant (ParticipantPostReq): Participant data to create.
+
+        Returns:
+            ParticipantRes: The created participant details.
+
+        Raises:
+            AlreadyExistsException: If a participant with the same code already exists.
+            BadRequestException: If the participant code is invalid.
+        """
         if self.exists(project_name, participant.code):
             raise AlreadyExistsException(
                 PARTICIPANT_ALREADY_EXISTS.format(code=participant.code, project_name=project_name)
@@ -74,6 +116,17 @@ class ParticipantService:
         return ParticipantRes(**participant_data)
 
     def get_all_participants(self, project_name: str) -> list[ParticipantRes]:
+        """Retrieves all participants from a project.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            list[ParticipantRes]: List of all participants.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
@@ -82,6 +135,18 @@ class ParticipantService:
         return [ParticipantRes(**participant) for participant in participants]
 
     def get_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
+        """Retrieves a participant by their code from a project.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            ParticipantRes: The participant details.
+
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
@@ -97,6 +162,20 @@ class ParticipantService:
     def update_participant(
         self, project_name: str, participant_code: str, participant: ParticipantPutReq
     ) -> ParticipantRes:
+        """Updates a participant's information.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Current code of the participant.
+            participant (ParticipantPutReq): New participant data.
+
+        Returns:
+            ParticipantRes: Updated participant details.
+
+        Raises:
+            BadRequestException: If the participant is locked or the new code is invalid.
+            AlreadyExistsException: If a participant with the new code already exists.
+        """
         new_participant = self.get_participant(project_name, participant_code)
         if self.is_participant_locked(project_name, participant_code):
             raise BadRequestException(
@@ -135,6 +214,16 @@ class ParticipantService:
         return new_participant
 
     def delete_participant(self, project_name: str, participant_code) -> None:
+        """Deletes a participant from a project.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant to delete.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+            BadRequestException: If the participant is locked.
+        """
         if not self.exists(project_name, participant_code):
             raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
@@ -152,6 +241,18 @@ class ParticipantService:
         participants_storage.delete_one({"code": participant_code})
 
     def lock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
+        """Locks a participant, preventing modifications.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            ParticipantRes: The locked participant details.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+        """
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
@@ -164,6 +265,18 @@ class ParticipantService:
         return participant
 
     def unlock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
+        """Unlocks a participant, allowing modifications.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            ParticipantRes: The unlocked participant details.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+        """
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
@@ -176,6 +289,18 @@ class ParticipantService:
         return participant
 
     def is_participant_locked(self, project_name: str, participant_code: str) -> bool:
+        """Checks if a participant is locked.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            bool: True if the participant is locked, False otherwise.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+        """
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
@@ -185,6 +310,18 @@ class ParticipantService:
         return participant.locked
 
     def exists(self, project_name: str, participant_code: str) -> bool:
+        """Checks if a participant exists within a project.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            bool: True if the participant exists, False otherwise.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 

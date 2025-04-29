@@ -19,7 +19,15 @@ from api.modules.organization.services.paths import (
 
 
 class ProjectService:
+    """Service class for managing projects, including creation, updating,
+    deletion, locking, and unlocking of projects.
+
+    Projects are stored as directories on the filesystem and their metadata
+    is maintained in a JSON storage file.
+    """
+
     def __init__(self):
+        """Initializes the ProjectService, setting up paths and storages."""
         self._data_path = RELATIVE_APP_DATA_PATH
         self._projects_dir_name = PROJECTS_DIR_NAME
         self._data_file_name = PROJECTS_DATA_FILE_NAME
@@ -33,6 +41,18 @@ class ProjectService:
         )
 
     def create_project(self, project: ProjectPostReq) -> ProjectRes:
+        """Creates a new project with the given details.
+
+        Args:
+            project (ProjectPostReq): Project data to create.
+
+        Returns:
+            ProjectRes: The created project details.
+
+        Raises:
+            AlreadyExistsException: If a project with the same name already exists.
+            BadRequestException: If the project name is invalid.
+        """
         if self.exists(project.name):
             raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
@@ -56,10 +76,29 @@ class ProjectService:
         return ProjectRes(**project_data)
 
     def get_all_projects(self) -> list[ProjectRes]:
+        """Retrieves all projects.
+
+        Returns:
+            list[ProjectRes]: A list of all existing projects.
+        """
         projects = self.projects_storage.find_all()
         return [ProjectRes(**project) for project in projects]
 
     def update_project(self, project_name: str, project: ProjectPutReq) -> ProjectRes:
+        """Updates the details of an existing project.
+
+        Args:
+            project_name (str): Name of the project to update.
+            project (ProjectPutReq): New project data.
+
+        Returns:
+            ProjectRes: The updated project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+            BadRequestException: If the project is locked or if the new name is invalid.
+            AlreadyExistsException: If a project with the new name already exists.
+        """
         new_project = self.projects_storage.find_one({"name": project_name})
         if new_project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
@@ -89,12 +128,32 @@ class ProjectService:
         return ProjectRes(**new_project)
 
     def get_project(self, project_name: str) -> ProjectRes:
+        """Retrieves a project by its name.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            ProjectRes: The project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         return ProjectRes(**project)
 
     def delete_project(self, project_name: str) -> None:
+        """Deletes a project by its name.
+
+        Args:
+            project_name (str): Name of the project to delete.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+            BadRequestException: If the project is locked.
+        """
         if not self.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
@@ -105,6 +164,17 @@ class ProjectService:
         self.projects_storage.delete_one({"name": project_name})
 
     def lock_project(self, project_name: str) -> ProjectRes:
+        """Locks a project, preventing modifications.
+
+        Args:
+            project_name (str): Name of the project to lock.
+
+        Returns:
+            ProjectRes: The locked project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
@@ -114,6 +184,17 @@ class ProjectService:
         return ProjectRes(**project)
 
     def unlock_project(self, project_name: str) -> ProjectRes:
+        """Unlocks a project, allowing modifications.
+
+        Args:
+            project_name (str): Name of the project to unlock.
+
+        Returns:
+            ProjectRes: The unlocked project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
@@ -123,10 +204,29 @@ class ProjectService:
         return ProjectRes(**project)
 
     def is_project_locked(self, project_name: str) -> bool:
+        """Checks if a project is locked.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            bool: True if the project is locked, False otherwise.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         return project["locked"]
 
     def exists(self, project_name: str) -> bool:
+        """Checks if a project exists by its name.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            bool: True if the project exists, False otherwise.
+        """
         return self.projects_storage.exists({"name": project_name})
