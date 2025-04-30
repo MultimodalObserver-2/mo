@@ -1,13 +1,13 @@
 import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import CreateFolderIcon from "@renderer/core/components/icons/CreateFolderIcon"
-import projectService from "../../services/ProjectService"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import projectService from "@renderer/modules/organization/services/ProjectService"
 
 export default function CreateProjectPage() {
   const handleSubmit = async (e) => {

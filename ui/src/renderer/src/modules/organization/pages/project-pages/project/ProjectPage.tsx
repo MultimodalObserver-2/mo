@@ -1,6 +1,5 @@
 import { useParams } from "react-router"
 import styles from "./project.module.css"
-import projectService from "../../services/ProjectService"
 import { useEffect, useRef, useState } from "react"
 import Button from "@renderer/core/components/button/Button"
 import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
@@ -14,7 +13,6 @@ import PageModal from "@renderer/core/components/page-modal/PageModal"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
-import { Project } from "../../types/Project"
 import LockIcon from "@renderer/core/components/icons/LockIcon"
 import LockOpenIcon from "@renderer/core/components/icons/LockOpenIcon"
 import {
@@ -22,8 +20,10 @@ import {
   showLockedErrorMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
-import { showDeleteProjectMessage } from "../../utils/dialogMessages"
-import { openUpdateProjectModal } from "../../utils/modalWindows"
+import { Project } from "@renderer/modules/organization/types/Project"
+import { showDeleteProjectMessage } from "@renderer/modules/organization/utils/dialogMessages"
+import projectService from "@renderer/modules/organization/services/ProjectService"
+import { openUpdateProjectModal } from "@renderer/modules/organization/utils/modalWindows"
 
 export default function ProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()

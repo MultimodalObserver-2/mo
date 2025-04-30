@@ -6,11 +6,11 @@ import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalT
 import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import PersonAddIcon from "@renderer/core/components/icons/PersonAddIcon"
-import participantService from "../../services/ParticipantService"
 import { useParams } from "react-router"
 import ListInput from "@renderer/core/components/list-input/ListInput"
-import { showSelectProjectErrorMessage } from "../../utils/dialogMessages"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import { showSelectProjectErrorMessage } from "@renderer/modules/organization/utils/dialogMessages"
+import participantService from "@renderer/modules/organization/services/ParticipantService"
 
 export default function AddParticipantPage() {
   const { projectName } = useParams<{ projectName: string }>()

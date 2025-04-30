@@ -7,9 +7,7 @@ import InfoIcon from "@renderer/core/components/icons/InfoIcon"
 import DisplayData from "@renderer/core/components/display-data/DisplayData"
 import { useEffect, useRef, useState } from "react"
 import { useParams } from "react-router"
-import participantService from "../../services/ParticipantService"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
-import { Participant } from "../../types/Participant"
 import Button from "@renderer/core/components/button/Button"
 import ContentCopyIcon from "@renderer/core/components/icons/ContentCopyIcon"
 import DocumentSearchIcon from "@renderer/core/components/icons/DocumentSearchIcon"
@@ -22,8 +20,10 @@ import {
   showLockedErrorMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
-import { showDeleteParticipantMessage } from "../../utils/dialogMessages"
-import { openUpdateParticipantModal } from "../../utils/modalWindows"
+import { Participant } from "@renderer/modules/organization/types/Participant"
+import { showDeleteParticipantMessage } from "@renderer/modules/organization/utils/dialogMessages"
+import participantService from "@renderer/modules/organization/services/ParticipantService"
+import { openUpdateParticipantModal } from "@renderer/modules/organization/utils/modalWindows"
 
 export default function ParticipantPage() {
   const { projectName, participantCode } = useParams<{

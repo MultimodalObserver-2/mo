@@ -7,15 +7,16 @@ import Input from "@renderer/core/components/input/Input"
 import Button from "@renderer/core/components/button/Button"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import { Await, useParams } from "react-router"
-import participantService from "../../services/ParticipantService"
 import ListInput from "@renderer/core/components/list-input/ListInput"
 import { Suspense } from "react"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
+
+import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import {
   showParticipantCodeErrorMessage,
   showSelectProjectErrorMessage
-} from "../../utils/dialogMessages"
-import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+} from "@renderer/modules/organization/utils/dialogMessages"
+import participantService from "@renderer/modules/organization/services/ParticipantService"
 
 export default function UpdateParticipantPage() {
   const { projectName, participantCode } = useParams<{

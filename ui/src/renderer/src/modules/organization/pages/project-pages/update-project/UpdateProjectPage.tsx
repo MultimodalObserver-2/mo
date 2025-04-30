@@ -3,7 +3,6 @@ import Button from "@renderer/core/components/button/Button"
 import { Await, useParams } from "react-router"
 import { Suspense } from "react"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
-import projectService from "../../services/ProjectService"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
@@ -11,6 +10,7 @@ import ModalFooter from "@renderer/core/components/page-modal/modal-footer/Modal
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import projectService from "@renderer/modules/organization/services/ProjectService"
 
 export default function UpdateProjectPage() {
   const { projectName } = useParams<{ projectName: string }>()
