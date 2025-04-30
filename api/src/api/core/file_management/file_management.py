@@ -84,7 +84,23 @@ class FileManagement:
         Returns:
             bool: True if path exists, False otherwise.
         """
-        return os.path.exists(os.path.join(self._path, rel_path))
+        path = os.path.join(self._path, rel_path)
+        path = os.path.normpath(path)
+        return os.path.exists(path)
+    
+    @staticmethod
+    def is_file(path: str) -> bool:
+        """Checks if a given path is a file.
+
+        Args:
+            path (str): Path to check.
+
+        Returns:
+            bool: True if path is a file, False otherwise.
+        """
+        norm_path = os.path.normpath(path)
+        return os.path.isfile(norm_path)
+       
 
     def rename_directory(self, old_name: str, new_name: str, rel_path: str = "") -> str:
         """Renames an existing directory.

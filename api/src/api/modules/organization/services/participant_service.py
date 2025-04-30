@@ -38,17 +38,6 @@ class ParticipantService:
         self.project_service = ProjectService()
         self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
 
-    def _get_project_dir_path(self, project_name: str):
-        """Generates the directory path for a given project.
-
-        Args:
-            project_name (str): Name of the project.
-
-        Returns:
-            str: Full directory path for the project.
-        """
-        return f"{self._data_path}/{self._projects_dir_name}/{project_name}"
-
     def _get_participants_storage(self, project_name: str):
         """Retrieves the JSON storage handler for participants of a specific project.
 
@@ -58,7 +47,7 @@ class ParticipantService:
         Returns:
             JsonStorage: JSON storage instance for managing participants.
         """
-        dir_path = self._get_project_dir_path(project_name)
+        dir_path = self.project_service.get_project_dir_path(project_name)
         return JsonStorage(file_name=self._participants_storage_name, rel_path=dir_path)
 
     def _get_participant_dir_name(self, code: str):
