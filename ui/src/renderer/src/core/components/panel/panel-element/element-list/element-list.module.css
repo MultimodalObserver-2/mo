@@ -32,8 +32,12 @@
   width: 100%;
 }
 
-.item:first-child {
+.item-box:first-child .item {
   border-radius: 4px 4px 0 0;
+}
+
+.item-box:last-child .item {
+  border-radius: 0 0 4px 4px;
 }
 
 .item:hover {
@@ -42,6 +46,18 @@
 
 .item.active {
   background-color: var(--color-primary-400);
+}
+
+.dragging .item  {
+  background-color: var(--color-primary-400);
+}
+
+.drag-over-top .item  {
+  border-top: 3px solid var(--color-accent-500);
+}
+
+.drag-over-bottom .item  {
+  border-bottom: 3px solid var(--color-accent-500);
 }
 
 .item .name {

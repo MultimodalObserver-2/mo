@@ -6,16 +6,18 @@ import ElementActions from "./ElementActions"
 interface ElementHeaderProps {
   /** Children should include an ElementTitle and optionally ElementActions */
   readonly children: React.ReactNode
+  /** Optional class name for additional styling */
+  readonly className?: string
 }
 
 /** Header section for list elements; displays title and optional actions */
-export default function ElementHeader({ children }: ElementHeaderProps) {
+export default function ElementHeader({ children, className }: ElementHeaderProps) {
   const elements = Children.toArray(children)
   const title = elements.find((child) => isValidElement(child) && child.type === ElementTitle)
   const actions = elements.find((child) => isValidElement(child) && child.type === ElementActions)
 
   return (
-    <section className={styles.header}>
+    <section className={`${styles.header} ${className}`}>
       {title}
       {actions}
     </section>

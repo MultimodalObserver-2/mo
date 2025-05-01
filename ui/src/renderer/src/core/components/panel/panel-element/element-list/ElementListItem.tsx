@@ -5,6 +5,7 @@ import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import Show from "@renderer/core/components/show/Show"
 import LockIcon from "@renderer/core/components/icons/LockIcon"
 import LockOpenIcon from "@renderer/core/components/icons/LockOpenIcon"
+import useDraggable from "./useDraggable"
 
 interface ElementListItemProps {
   /** Label displayed as the item title */
@@ -25,6 +26,14 @@ interface ElementListItemProps {
   onEdit?: () => void
   /** Handler for delete icon click */
   onDelete?: () => void
+  /** Indicates if the item is draggable */
+  draggable?: boolean
+  /** Indicates the order */
+  index?: number
+  /** Dropzone for the item */
+  dropzoneId?: string
+  /** Handler for item drop event */
+  onDropItem?: (order: number) => void
 }
 
 /** List item with optional action icons like info, lock, edit, and delete */
@@ -33,19 +42,39 @@ export default function ElementListItem({
   showActions = false,
   isSelected = false,
   isLocked = false,
+  draggable = false,
+  index,
+  onDropItem = () => {},
   onClick,
   onInfo,
   onLock,
   onEdit,
   onDelete
 }: Readonly<ElementListItemProps>) {
+  const draggableProps = useDraggable(
+    onDropItem,
+    styles.dragging,
+    styles["drag-over-top"],
+    styles["drag-over-bottom"]
+  )
+  const appliedDraggableProps = draggable ? draggableProps : {}
+
   const showAction = (action: string) => {
     return typeof showActions === "boolean" ? showActions : showActions[action]
   }
 
   return (
-    <li>
-      <button className={`${styles.item} ${isSelected ? styles.active : ""}`} onClick={onClick}>
+    <li
+      className={styles["item-box"]}
+      id={index?.toString()}
+      draggable={draggable}
+      {...appliedDraggableProps}
+    >
+      <button
+        type="button"
+        className={`${styles.item} ${isSelected ? styles.active : ""}`}
+        onClick={onClick}
+      >
         <h4 className={styles.name}>{label}</h4>
         <Show show={!!showActions}>
           <div className={styles.actions}>
