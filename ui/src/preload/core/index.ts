@@ -1,10 +1,17 @@
 import { contextBridge, ipcRenderer, MessageBoxOptions } from "electron"
 
 const core = {
-  openModalWindow: (options: Electron.BrowserWindowConstructorOptions, endpoint: string) => {
+  openModalWindow: (
+    options: Electron.BrowserWindowConstructorOptions,
+    endpoint: string,
+    parent?: string,
+    child?: string
+  ) => {
     ipcRenderer.send("core:open-modal-window", {
       options,
-      endpoint
+      endpoint,
+      parent,
+      child
     })
   },
   dialog: {

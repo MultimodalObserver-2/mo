@@ -2,11 +2,13 @@ import { is } from "@electron-toolkit/utils"
 import { app, BrowserWindow, ipcMain } from "electron"
 import { join } from "path"
 
-let modalWindow: BrowserWindow | null = null
+const modalWindows: Map<string, BrowserWindow> = new Map()
 
 function createModalWindow(
   options: Electron.BrowserWindowConstructorOptions,
-  endpoint: string
+  endpoint: string,
+  parent: string,
+  child?: string
 ): BrowserWindow {
   options.show = false
   options.autoHideMenuBar = true
@@ -24,23 +26,43 @@ function createModalWindow(
     })
   }
 
-  win.once("ready-to-show", () => modalWindow?.show())
+  win.once("ready-to-show", () => modalWindows.get(parent)?.show())
+  if (child) {
+    win.on("close", () => {
+      if (modalWindows.has(child)) {
+        const childWindow = modalWindows.get(child)
+        childWindow?.close()
+      }
+    })
+  }
+
   win.on("closed", () => {
-    modalWindow = null
+    modalWindows.delete(parent)
   })
 
   return win
 }
 
+interface OpenModalWindow {
+  options: Electron.BrowserWindowConstructorOptions
+  endpoint: string
+  parent?: string
+  child?: string
+}
+
 app.whenReady().then(() => {
-  ipcMain.on("core:open-modal-window", (_event, { options, endpoint }) => {
-    if (modalWindow) {
-      modalWindow.once("closed", () => {
-        modalWindow = createModalWindow(options, endpoint)
-      })
-      modalWindow.close()
-    } else {
-      modalWindow = createModalWindow(options, endpoint)
+  ipcMain.on(
+    "core:open-modal-window",
+    (_event, { options, endpoint, parent = "main", child }: OpenModalWindow) => {
+      if (modalWindows.has(parent)) {
+        const modalWindow = modalWindows.get(parent)
+        modalWindow?.once("closed", () => {
+          modalWindows.set(parent, createModalWindow(options, endpoint, parent, child))
+        })
+        modalWindow?.close()
+      } else {
+        modalWindows.set(parent, createModalWindow(options, endpoint, parent, child))
+      }
     }
-  })
+  )
 })
