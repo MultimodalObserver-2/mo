@@ -1,14 +1,19 @@
-
 from datetime import datetime
 from typing import Any
+
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
 from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
+from api.core.utils.http_exceptions import (AlreadyExistsException,
+                                            BadRequestException,
+                                            NotFoundException)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from api.modules.organization.errors.protocols import PROTOCOL_ALREADY_EXISTS
-from api.modules.organization.schemas.protocol import ProtocolPostReq, ProtocolRes
-from api.modules.organization.services.paths import PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME, PROTOCOLS_DATA_FILE_NAME
+from api.modules.organization.schemas.protocol import (ProtocolPostReq,
+                                                       ProtocolRes)
+from api.modules.organization.services.paths import (PROJECTS_DATA_FILE_NAME,
+                                                     PROJECTS_DIR_NAME,
+                                                     PROTOCOLS_DATA_FILE_NAME)
 from api.modules.organization.services.project_service import ProjectService
 
 
@@ -21,8 +26,7 @@ class ProtocolService:
 
         relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
         self.project_service = ProjectService()
-        self.file_management = FileManagement(
-            rel_path=relative_projects_path, make_dirs=False)
+        self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
 
     def _get_protocols_storage(self, project_name: str):
         project_path = self.project_service.get_project_dir_path(project_name)
@@ -30,18 +34,23 @@ class ProtocolService:
 
     def create_protocol(self, project_name: str, protocol: ProtocolPostReq) -> ProtocolRes:
         if self.exists(project_name, protocol.name):
-            raise AlreadyExistsException(PROTOCOL_ALREADY_EXISTS.format(
-                protocol_name=protocol.name, project_name=project_name))
+            raise AlreadyExistsException(
+                PROTOCOL_ALREADY_EXISTS.format(
+                    protocol_name=protocol.name, project_name=project_name
+                )
+            )
 
         activities_data = []
         for idx, activity in enumerate(protocol.activities):
             if activity.path and not FileManagement.is_file(activity.path):
                 raise BadRequestException(
-                    f"Activity {activity.name} (n°{idx+1}) has an invalid file path: {activity.path}")
+                    f"Activity {activity.name} (n°{idx+1}) has an invalid file path: {activity.path}"
+                )
 
             if activity.has_time_limit and activity.time_limit <= 0:
                 raise BadRequestException(
-                    f"Activity {activity.name} (n°{idx+1}) has an invalid time limit: {activity.time_limit}")
+                    f"Activity {activity.name} (n°{idx+1}) has an invalid time limit: {activity.time_limit}"
+                )
             activity_data = {
                 "order": idx + 1,
                 "name": activity.name,
@@ -51,7 +60,7 @@ class ProtocolService:
                 "start_message": activity.start_message,
                 "end_message": activity.end_message,
                 "close_activity": activity.close_activity,
-                "show_timer": activity.show_timer
+                "show_timer": activity.show_timer,
             }
             activities_data.append(activity_data)
 
@@ -60,16 +69,22 @@ class ProtocolService:
             "activities": activities_data,
             "locked": False,
             "created_at": datetime.now(),
-            "updated_at": datetime.now()
+            "updated_at": datetime.now(),
         }
 
         protocols_storage = self._get_protocols_storage(project_name)
         protocols_storage.insert_one(protocol_data)
         return ProtocolRes(**protocol_data)
 
+    def get_all_protocols(self, project_name: str) -> list[ProtocolRes]:
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+        protocols_storage = self._get_protocols_storage(project_name)
+        protocols = protocols_storage.find_all()
+        return [ProtocolRes(**protocol) for protocol in protocols]
+
     def exists(self, project_name: str, protocol_name: str) -> bool:
         if not self.project_service.exists(project_name):
-            raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         return protocols_storage.exists({"name": protocol_name})

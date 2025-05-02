@@ -87,7 +87,7 @@ class FileManagement:
         path = os.path.join(self._path, rel_path)
         path = os.path.normpath(path)
         return os.path.exists(path)
-    
+
     @staticmethod
     def is_file(path: str) -> bool:
         """Checks if a given path is a file.
@@ -100,7 +100,6 @@ class FileManagement:
         """
         norm_path = os.path.normpath(path)
         return os.path.isfile(norm_path)
-       
 
     def rename_directory(self, old_name: str, new_name: str, rel_path: str = "") -> str:
         """Renames an existing directory.

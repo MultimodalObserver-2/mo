@@ -230,7 +230,7 @@ class ProjectService:
             bool: True if the project exists, False otherwise.
         """
         return self.projects_storage.exists({"name": project_name})
-    
+
     def get_project_dir_path(self, project_name: str) -> str:
         """Generates the directory path for a given project.
 

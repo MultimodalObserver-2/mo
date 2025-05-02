@@ -8,9 +8,41 @@ import { selectSelectedProject } from "../../store/projectsSlice"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { showSelectProjectErrorMessage } from "../../utils/dialogMessages"
 import { openAddProtocolModal } from "../../utils/modalWindows"
+import { showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
+import { Project } from "../../types/Project"
+import protocolService from "../../services/ProtocolService"
+import { useCallback, useEffect, useState } from "react"
+import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
+import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
+import { Protocol } from "../../types/Protocol"
 
 export default function Protocols() {
   const selectedProject = useSelector(selectSelectedProject)
+  const [protocols, setProtocols] = useState<Protocol[]>([])
+
+  const fetchProtocols = useCallback(async (project: Project | null) => {
+    if (!project) {
+      setProtocols([])
+      return
+    }
+    try {
+      const response = await protocolService.getAll(project.name)
+      setProtocols(response.data)
+    } catch {
+      showUnexpectedErrorMessage()
+      setProtocols([])
+    }
+  }, [])
+
+  useEffect(() => {
+    window.organization.onReloadProtocols(() => {
+      fetchProtocols(selectedProject)
+    })
+    fetchProtocols(selectedProject)
+    return () => {
+      window.organization.removeReloadProtocols()
+    }
+  }, [selectedProject, fetchProtocols])
 
   const handleAdd = () => {
     if (!selectedProject) {
@@ -33,6 +65,16 @@ export default function Protocols() {
           )}
         </ElementActions>
       </ElementHeader>
+      <ElementList>
+        {protocols.map((protocol) => (
+          <ElementListItem
+            key={protocol.name}
+            label={protocol.name}
+            showActions={false}
+            onClick={() => {}}
+          />
+        ))}
+      </ElementList>
     </PanelElement>
   )
 }

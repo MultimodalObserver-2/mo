@@ -49,6 +49,15 @@ const organization = {
   },
   removeUpdateActivity: () => {
     ipcRenderer.removeAllListeners("organization:on-update-activity")
+  },
+  reloadProtocols: () => {
+    ipcRenderer.send("organization:reload-protocols")
+  },
+  onReloadProtocols: (callback: () => void) => {
+    ipcRenderer.on("organization:on-reload-protocols", () => callback())
+  },
+  removeReloadProtocols: () => {
+    ipcRenderer.removeAllListeners("organization:on-reload-protocols")
   }
 }
 

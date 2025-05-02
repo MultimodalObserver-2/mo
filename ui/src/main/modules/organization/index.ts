@@ -36,4 +36,10 @@ app.whenReady().then(() => {
       window.webContents.send("organization:on-update-activity", originalName, activity)
     })
   })
+
+  ipcMain.on("organization:reload-protocols", async () => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-reload-protocols")
+    })
+  })
 })

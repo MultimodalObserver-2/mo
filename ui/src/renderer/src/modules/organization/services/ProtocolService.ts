@@ -1,7 +1,6 @@
 import axios from "@renderer/core/lib/axios"
-import { ProtocolCreate } from "../types/Protocol"
+import { Protocol, ProtocolCreate } from "../types/Protocol"
 import { AxiosResponse } from "axios"
-import { Protocol } from "electron"
 
 class ProtocolService {
   readonly endpoint = "/projects"
@@ -12,6 +11,10 @@ class ProtocolService {
     data: ProtocolCreate
   ): Promise<AxiosResponse<Protocol, unknown>> {
     return axios.post(`${this.endpoint}/${projectName}${this.protocolEndpoint}/`, data)
+  }
+
+  async getAll(projectName: string): Promise<AxiosResponse<Protocol[], unknown>> {
+    return axios.get(`${this.endpoint}/${projectName}${this.protocolEndpoint}/`)
   }
 }
 

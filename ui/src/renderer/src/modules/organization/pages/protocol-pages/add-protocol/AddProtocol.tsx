@@ -77,6 +77,7 @@ export default function AddProtocolPage() {
     }
     try {
       await protocolService.create(projectName, protocol)
+      window.organization.reloadProtocols()
       window.close()
     } catch (error) {
       showApiErrorMessage(error)

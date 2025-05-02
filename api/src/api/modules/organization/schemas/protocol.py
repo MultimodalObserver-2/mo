@@ -1,6 +1,6 @@
-
 from datetime import datetime
 from typing import Optional
+
 from pydantic import BaseModel
 
 
@@ -33,6 +33,7 @@ class ActivityPostReq(BaseModel):
     end_message: Optional[str] = ""
     close_activity: bool
     show_timer: bool
+
 
 class ProtocolPostReq(BaseModel):
     name: str

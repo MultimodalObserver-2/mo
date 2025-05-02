@@ -41,6 +41,9 @@ declare global {
       updateActivity: (originalName, activity) => void
       onUpdateActivity: (callback: (originalName, activity) => void) => void
       removeUpdateActivity: () => void
+      reloadProtocols: () => void
+      onReloadProtocols: (callback: () => void) => void
+      removeReloadProtocols: () => void
     }
   }
 }
