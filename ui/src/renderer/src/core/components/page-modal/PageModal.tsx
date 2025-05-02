@@ -6,16 +6,19 @@ import ModalFooter from "./modal-footer/ModalFooter"
 
 /** Searches recursively for a specific component type within a React children tree. **/
 const findComponentInChildren = (children: React.ReactNode, componentType: React.ElementType) => {
-  return Children.toArray(children).find((child) => {
+  const childrenArray = Children.toArray(children)
+  for (let i = 0; i < childrenArray.length; i++) {
+    const child = childrenArray[i]
     if (isValidElement(child)) {
       if (child.type === Fragment) {
         const child_props = child.props as React.FragmentProps
         return findComponentInChildren(child_props.children, componentType)
       }
-      return child.type === componentType
+      if (child.type === componentType) {
+        return child
+      }
     }
-    return false
-  })
+  }
 }
 
 interface ModalProps {
