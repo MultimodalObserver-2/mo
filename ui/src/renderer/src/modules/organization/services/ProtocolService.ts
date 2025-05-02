@@ -38,6 +38,21 @@ class ProtocolService {
   ): Promise<AxiosResponse<unknown, unknown>> {
     return axios.delete(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/`)
   }
+
+  async lock(projectName: string, protocolName: string): Promise<AxiosResponse<Protocol, unknown>> {
+    return axios.post(
+      `${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/lock`
+    )
+  }
+
+  async unlock(
+    projectName: string,
+    protocolName: string
+  ): Promise<AxiosResponse<Protocol, unknown>> {
+    return axios.post(
+      `${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/unlock`
+    )
+  }
 }
 
 const protocolService = new ProtocolService()

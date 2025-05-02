@@ -105,3 +105,40 @@ async def delete_protocol(
     service: ProtocolService = Depends(),
 ):
     return service.delete_protocol(project_name, protocol_name)
+
+
+@protocols_router.post(
+    "/{protocol_name}/lock",
+    response_model=ProtocolRes,
+    summary="Lock a protocol",
+    description="Prevent modifications to a protocol.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is already locked"},
+    },
+)
+async def lock_protocol(
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description="Name of the project"),
+    service: ProtocolService = Depends(),
+):
+    return service.lock_protocol(project_name, protocol_name)
+
+@protocols_router.post(
+    "/{protocol_name}/unlock",
+    response_model=ProtocolRes,
+    summary="Unlock a protocol",
+    description="Allow modifications to a protocol.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is already unlocked"},
+    },
+)
+async def unlock_protocol(
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description="Name of the project"),
+    service: ProtocolService = Depends(),
+):
+    return service.unlock_protocol(project_name, protocol_name)

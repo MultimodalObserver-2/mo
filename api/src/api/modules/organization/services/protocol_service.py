@@ -9,7 +9,7 @@ from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             NotFoundException)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from api.modules.organization.errors.protocols import (PROTOCOL_ALREADY_EXISTS,
-                                                       PROTOCOL_DOES_NOT_EXIST)
+                                                       PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
                                                        ProtocolPutReq,
                                                        ProtocolRes)
@@ -102,6 +102,9 @@ class ProtocolService:
         self, project_name: str, protocol_name: str, protocol: ProtocolPutReq
     ) -> ProtocolRes:
         new_protocol = self.get_protocol(project_name, protocol_name)
+        if self.is_protocol_locked(project_name, protocol_name):
+            raise BadRequestException(
+                PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name))
 
         new_protocol.name = protocol.name if protocol.name else new_protocol.name
         if protocol.activities:
@@ -153,8 +156,48 @@ class ProtocolService:
                     protocol_name=protocol_name, project_name=project_name
                 )
             )
+        
+        if self.is_protocol_locked(project_name, protocol_name):
+            raise BadRequestException(PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name))
+        
         protocols_storage = self._get_protocols_storage(project_name)
         protocols_storage.delete_one({"name": protocol_name})
+    
+    def lock_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        protocol = self.get_protocol(project_name, protocol_name)
+        if protocol is None:
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_name, project_name=project_name
+                )
+            )
+        protocol.locked = True
+        protocol_storage = self._get_protocols_storage(project_name)
+        protocol_storage.update({"name": protocol_name}, protocol.model_dump())
+        return protocol
+
+    def unlock_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        protocol = self.get_protocol(project_name, protocol_name)
+        if protocol is None:
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_name, project_name=project_name
+                )
+            )
+        protocol.locked = False
+        protocol_storage = self._get_protocols_storage(project_name)
+        protocol_storage.update({"name": protocol_name}, protocol.model_dump())
+        return protocol
+    
+    def is_protocol_locked(self, project_name: str, protocol_name: str) -> bool:
+        protocol = self.get_protocol(project_name, protocol_name)
+        if protocol is None:
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_name, project_name=project_name
+                )
+            )
+        return protocol.locked
 
     def exists(self, project_name: str, protocol_name: str) -> bool:
         if not self.project_service.exists(project_name):

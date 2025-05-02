@@ -13,6 +13,7 @@ import {
 import { openAddProtocolModal, openUpdateProtocolModal } from "../../utils/modalWindows"
 import {
   showApiErrorMessage,
+  showLockedErrorMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
 import { Project } from "../../types/Project"
@@ -65,12 +66,22 @@ export default function Protocols() {
       return
     }
 
+    if (protocol.locked) {
+      showLockedErrorMessage("edit", "protocol")
+      return
+    }
+
     openUpdateProtocolModal(selectedProject.name, protocol.name)
   }
 
   const handleDelete = async (protocol: Protocol) => {
     if (!selectedProject) {
       showSelectProjectErrorMessage()
+      return
+    }
+
+    if (protocol.locked) {
+      showLockedErrorMessage("delete", "protocol")
       return
     }
 
@@ -91,6 +102,24 @@ export default function Protocols() {
     }
   }
 
+  const handleLock = async (protocol: Protocol) => {
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    try {
+      if (protocol.locked) {
+        await protocolService.unlock(selectedProject.name, protocol.name)
+      } else {
+        await protocolService.lock(selectedProject.name, protocol.name)
+      }
+      await fetchProtocols(selectedProject)
+    } catch {
+      showUnexpectedErrorMessage()
+    }
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -108,10 +137,12 @@ export default function Protocols() {
           <ElementListItem
             key={protocol.name}
             label={protocol.name}
-            showActions={{ info: false, delete: true, edit: true, lock: false }}
+            isLocked={protocol.locked}
+            showActions={{ info: false, delete: true, edit: true, lock: true }}
             onClick={() => {}}
             onEdit={() => handleEdit(protocol)}
             onDelete={() => handleDelete(protocol)}
+            onLock={() => handleLock(protocol)}
           />
         ))}
       </ElementList>
