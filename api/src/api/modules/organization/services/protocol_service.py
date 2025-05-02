@@ -83,6 +83,17 @@ class ProtocolService:
         protocols = protocols_storage.find_all()
         return [ProtocolRes(**protocol) for protocol in protocols]
     
+    def get_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+        protocols_storage = self._get_protocols_storage(project_name)
+        protocol = protocols_storage.find_one({"name": protocol_name})
+        if not protocol:
+            raise NotFoundException(PROTOCOL_DOES_NOT_EXIST.format(
+                protocol_name=protocol_name, project_name=project_name
+            ))
+        return ProtocolRes(**protocol)
+    
     def delete_protocol(self, project_name: str, protocol_name: str) -> None:
         if not self.exists(project_name, protocol_name):
             raise NotFoundException(PROTOCOL_DOES_NOT_EXIST.format(

@@ -46,6 +46,25 @@ async def get_all_protocols(
     return service.get_all_protocols(project_name)
 
 
+@protocols_router.get(
+    "/{protocol_name}",
+    response_model=None,
+    summary="Get a protocol",
+    description="Retrieve details of a specific protocol by name.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is locked"},
+    },
+)
+async def get_protocol(
+    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    service: ProtocolService = Depends(),
+):
+    return service.get_protocol(project_name, protocol_name)
+
+
 @protocols_router.delete(
     "/{protocol_name}",
     response_model=None,
