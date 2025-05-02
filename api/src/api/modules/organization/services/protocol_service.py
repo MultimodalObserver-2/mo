@@ -8,7 +8,7 @@ from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.errors.protocols import PROTOCOL_ALREADY_EXISTS
+from api.modules.organization.errors.protocols import PROTOCOL_ALREADY_EXISTS, PROTOCOL_DOES_NOT_EXIST
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
                                                        ProtocolRes)
 from api.modules.organization.services.paths import (PROJECTS_DATA_FILE_NAME,
@@ -82,6 +82,14 @@ class ProtocolService:
         protocols_storage = self._get_protocols_storage(project_name)
         protocols = protocols_storage.find_all()
         return [ProtocolRes(**protocol) for protocol in protocols]
+    
+    def delete_protocol(self, project_name: str, protocol_name: str) -> None:
+        if not self.exists(project_name, protocol_name):
+            raise NotFoundException(PROTOCOL_DOES_NOT_EXIST.format(
+                protocol_name=protocol_name, project_name=project_name
+            ))
+        protocols_storage = self._get_protocols_storage(project_name)
+        protocols_storage.delete_one({"name": protocol_name})
 
     def exists(self, project_name: str, protocol_name: str) -> bool:
         if not self.project_service.exists(project_name):

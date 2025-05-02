@@ -43,6 +43,29 @@ export async function showDeleteParticipantMessage(
   return await window.core.dialog.showMessageBox(options)
 }
 
+export async function showDeleteProtocolMessage(
+  protocolName: string,
+  projectName: string,
+  acceptId: number,
+  cancelId: number
+) {
+  const buttons = ["Accept", "Cancel"]
+  const options: Electron.MessageBoxOptions = {
+    title: "Delete Protocol",
+    message:
+      `Are you sure you want to delete the protocol ${protocolName}` +
+      ` from the project ${projectName}?` +
+      `\nThis will delete all data related to this protocol`,
+    type: "warning",
+    buttons: buttons,
+    defaultId: acceptId,
+    cancelId: cancelId,
+    noLink: true
+  }
+
+  return await window.core.dialog.showMessageBox(options)
+}
+
 export function showSelectProjectErrorMessage() {
   window.core.dialog.showErrorBox(
     "Select Project",

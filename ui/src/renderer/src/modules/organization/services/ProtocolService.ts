@@ -16,6 +16,13 @@ class ProtocolService {
   async getAll(projectName: string): Promise<AxiosResponse<Protocol[], unknown>> {
     return axios.get(`${this.endpoint}/${projectName}${this.protocolEndpoint}/`)
   }
+
+  async delete(
+    projectName: string,
+    protocolName: string
+  ): Promise<AxiosResponse<unknown, unknown>> {
+    return axios.delete(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/`)
+  }
 }
 
 const protocolService = new ProtocolService()

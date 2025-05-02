@@ -39,8 +39,27 @@ async def create_protocol(
         404: {"description": "Project not found"},
     },
 )
-async def get_protocols(
+async def get_all_protocols(
     project_name: str = Path(..., description="Name of the project"),
     service: ProtocolService = Depends(),
 ):
     return service.get_all_protocols(project_name)
+
+
+@protocols_router.delete(
+    "/{protocol_name}",
+    response_model=None,
+    summary="Delete a protocol",
+    description="Remove a protocol from a project.",
+    status_code=status.HTTP_204_NO_CONTENT,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is locked"},
+    }
+)
+async def delete_protocol(
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description="Name of the project"),
+    service: ProtocolService = Depends(),
+):
+    return service.delete_protocol(project_name, protocol_name)

@@ -6,9 +6,15 @@ import ElementActions from "@renderer/core/components/panel/panel-element/elemen
 import { useSelector } from "react-redux"
 import { selectSelectedProject } from "../../store/projectsSlice"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
-import { showSelectProjectErrorMessage } from "../../utils/dialogMessages"
+import {
+  showDeleteProtocolMessage,
+  showSelectProjectErrorMessage
+} from "../../utils/dialogMessages"
 import { openAddProtocolModal } from "../../utils/modalWindows"
-import { showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
+import {
+  showApiErrorMessage,
+  showUnexpectedErrorMessage
+} from "@renderer/core/utils/dialogMessages"
 import { Project } from "../../types/Project"
 import protocolService from "../../services/ProtocolService"
 import { useCallback, useEffect, useState } from "react"
@@ -53,6 +59,29 @@ export default function Protocols() {
     openAddProtocolModal(selectedProject.name)
   }
 
+  const handleDelete = async (protocol: Protocol) => {
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    const [acceptId, cancelId] = [0, 1]
+    const response = await showDeleteProtocolMessage(
+      protocol.name,
+      selectedProject.name,
+      acceptId,
+      cancelId
+    )
+    if (response.response === acceptId) {
+      try {
+        await protocolService.delete(selectedProject.name, protocol.name)
+        await fetchProtocols(selectedProject)
+      } catch (error) {
+        showApiErrorMessage(error)
+      }
+    }
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -70,8 +99,9 @@ export default function Protocols() {
           <ElementListItem
             key={protocol.name}
             label={protocol.name}
-            showActions={false}
+            showActions={{ info: false, delete: true, edit: false, lock: false }}
             onClick={() => {}}
+            onDelete={() => handleDelete(protocol)}
           />
         ))}
       </ElementList>
