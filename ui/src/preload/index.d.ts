@@ -13,6 +13,7 @@ declare global {
       dialog: {
         showErrorBox: (title: string, content: string) => void
         showMessageBox: (options: MessageBoxOptions) => Promise<MessageBoxReturnValue>
+        showOpenDialog: (options: Electron.OpenDialogOptions) => Promise<OpenDialogReturnValue>
       }
       clipboard: {
         writeText: (text: string) => void
@@ -34,6 +35,12 @@ declare global {
       onChangeSelectedProject: (callback: (project) => void) => void
       changeSelectedParticipant: (participant) => void
       onChangeSelectedParticipant: (callback: (participant) => void) => void
+      addActivity: (activity) => void
+      onAddActivity: (callback: (activity) => void) => void
+      removeAddActivity: () => void
+      updateActivity: (originalName, activity) => void
+      onUpdateActivity: (callback: (originalName, activity) => void) => void
+      removeUpdateActivity: () => void
     }
   }
 }

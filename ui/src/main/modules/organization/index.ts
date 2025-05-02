@@ -24,4 +24,16 @@ app.whenReady().then(() => {
       window.webContents.send("organization:on-change-selected-participant", participant)
     })
   })
+
+  ipcMain.on("organization:add-activity", async (_event, activity) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-add-activity", activity)
+    })
+  })
+
+  ipcMain.on("organization:update-activity", async (_event, originalName, activity) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-update-activity", originalName, activity)
+    })
+  })
 })

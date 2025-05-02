@@ -2,6 +2,7 @@ import Projects from "@renderer/modules/organization/components/projects/Project
 import styles from "./home.module.css"
 import Panel from "@renderer/core/components/panel/Panel"
 import Participants from "@renderer/modules/organization/components/participants/Participants"
+import Protocols from "@renderer/modules/organization/components/protocols/Protocols"
 
 export default function Home() {
   return (
@@ -10,6 +11,7 @@ export default function Home() {
       <Panel>
         <Projects />
         <Participants />
+        <Protocols />
       </Panel>
     </main>
   )

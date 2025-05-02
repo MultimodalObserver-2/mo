@@ -29,6 +29,26 @@ const organization = {
     ipcRenderer.on("organization:on-change-selected-participant", (_, participant) =>
       callback(participant)
     )
+  },
+  addActivity: (activity) => {
+    ipcRenderer.send("organization:add-activity", activity)
+  },
+  onAddActivity: (callback: (activity) => void) => {
+    ipcRenderer.on("organization:on-add-activity", (_, activity) => callback(activity))
+  },
+  removeAddActivity: () => {
+    ipcRenderer.removeAllListeners("organization:on-add-activity")
+  },
+  updateActivity: (originalName, activity) => {
+    ipcRenderer.send("organization:update-activity", originalName, activity)
+  },
+  onUpdateActivity: (callback: (originalName, activity) => void) => {
+    ipcRenderer.on("organization:on-update-activity", (_, originalName, activity) =>
+      callback(originalName, activity)
+    )
+  },
+  removeUpdateActivity: () => {
+    ipcRenderer.removeAllListeners("organization:on-update-activity")
   }
 }
 

@@ -23,6 +23,9 @@ const core = {
     },
     showMessageBox: (options: MessageBoxOptions) => {
       return ipcRenderer.invoke("core:show-message-box", options)
+    },
+    showOpenDialog: (options: Electron.OpenDialogOptions) => {
+      return ipcRenderer.invoke("core:show-open-dialog", options)
     }
   },
   clipboard: {

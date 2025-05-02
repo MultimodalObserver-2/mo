@@ -13,19 +13,27 @@ export default function Input({
   boxClassName = "",
   className = "",
   required = false,
+  disabled = false,
   ...rest
 }: Readonly<InputProps>) {
   return (
     <>
       {label != undefined ? (
-        <label className={`${boxClassName} ${styles["label-box"]}`}>
+        <label
+          className={`${boxClassName} ${styles["label-box"]} ${disabled ? styles.disabled : ""}`}
+        >
           <h4 className={styles.label}>
             {label} {required && <b className={styles.required}>*</b>}
           </h4>
-          <input className={`${className} ${styles.input}`} required={required} {...rest} />
+          <input
+            className={`${className} ${styles.input}`}
+            required={required}
+            disabled={disabled}
+            {...rest}
+          />
         </label>
       ) : (
-        <input className={`${className} ${styles.input}`} {...rest} />
+        <input className={`${className} ${styles.input}`} disabled={disabled} {...rest} />
       )}
     </>
   )

@@ -7,7 +7,7 @@
 .label {
   font-size: 1em;
   font-weight: 400;
-  color: var(--color-text);
+  color: var(--color-text-light);
 }
 
 .label .required {
@@ -20,7 +20,7 @@
   border: 2px solid var(--color-primary-500);
   border-radius: 4px;
   padding: 6px 8px;
-  color: var(--color-text);
+  color: var(--color-text-light);
   font-size: 0.9em;
   font-weight: 400;
   outline: none;
@@ -32,4 +32,12 @@
 
 .input::placeholder {
   color: var(--color-gray-200);
+}
+
+.label-box.disabled {
+  opacity: 0.7;
+}
+
+.input:disabled {
+  opacity: 0.7;
 }

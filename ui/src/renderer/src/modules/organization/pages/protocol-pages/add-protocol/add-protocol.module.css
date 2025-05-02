@@ -1,0 +1,44 @@
+.add-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    margin: 5px 0 0 0;
+    cursor: pointer;
+}
+
+.add-button .svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-primary-100);
+    transition: all 150ms ease-in-out;
+}
+
+.add-button .svg:hover {
+    transform: scale(1.1);
+    fill: var(--color-primary-200);
+}
+
+.activities-panel {
+    width: 100% !important;
+    overflow: hidden;
+}
+
+.activities-title {
+    font-size: 16px;
+    font-weight: 400;
+}
+
+.activity-index {
+    width: 18px;
+    height: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    border-radius: 50%;
+    background-color: var(--color-primary-300);
+    color: var(--color-text-light);
+    font-size: 14px;
+    font-weight: 700;
+}

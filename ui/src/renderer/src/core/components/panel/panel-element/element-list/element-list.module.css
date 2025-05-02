@@ -32,6 +32,12 @@
   width: 100%;
 }
 
+.item-content {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
 .item-box:first-child .item {
   border-radius: 4px 4px 0 0;
 }
