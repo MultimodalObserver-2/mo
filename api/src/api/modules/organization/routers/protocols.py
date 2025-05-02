@@ -1,6 +1,8 @@
 from fastapi import APIRouter, Depends, Path, status
 
-from api.modules.organization.schemas.protocol import ProtocolPostReq
+from api.modules.organization.schemas.protocol import (ProtocolPostReq,
+                                                       ProtocolPutReq,
+                                                       ProtocolRes)
 from api.modules.organization.services.protocol_service import ProtocolService
 
 protocols_router = APIRouter(
@@ -11,7 +13,7 @@ protocols_router = APIRouter(
 
 @protocols_router.post(
     "/",
-    response_model=None,
+    response_model=ProtocolRes,
     summary="Create a protocol",
     description="Add a new protocol to a project.",
     status_code=status.HTTP_201_CREATED,
@@ -31,7 +33,7 @@ async def create_protocol(
 
 @protocols_router.get(
     "/",
-    response_model=None,
+    response_model=list[ProtocolRes],
     summary="Get all protocols",
     description="Retrieve a list of all protocols for a project.",
     status_code=status.HTTP_200_OK,
@@ -48,7 +50,7 @@ async def get_all_protocols(
 
 @protocols_router.get(
     "/{protocol_name}",
-    response_model=None,
+    response_model=ProtocolRes,
     summary="Get a protocol",
     description="Retrieve details of a specific protocol by name.",
     status_code=status.HTTP_200_OK,
@@ -65,6 +67,27 @@ async def get_protocol(
     return service.get_protocol(project_name, protocol_name)
 
 
+@protocols_router.put(
+    "/{protocol_name}",
+    response_model=ProtocolRes,
+    summary="Update a protocol",
+    description="Modify an existing protocol.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is locked or invalid data"},
+        409: {"description": "New protocol name already exists"},
+    },
+)
+async def update_protocol(
+    protocol: ProtocolPutReq,
+    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    service: ProtocolService = Depends(),
+):
+    return service.update_protocol(project_name, protocol_name, protocol)
+
+
 @protocols_router.delete(
     "/{protocol_name}",
     response_model=None,
@@ -74,7 +97,7 @@ async def get_protocol(
     responses={
         404: {"description": "Protocol not found"},
         400: {"description": "Protocol is locked"},
-    }
+    },
 )
 async def delete_protocol(
     protocol_name: str = Path(..., description="Name of the protocol"),

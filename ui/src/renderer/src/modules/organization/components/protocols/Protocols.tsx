@@ -10,7 +10,7 @@ import {
   showDeleteProtocolMessage,
   showSelectProjectErrorMessage
 } from "../../utils/dialogMessages"
-import { openAddProtocolModal } from "../../utils/modalWindows"
+import { openAddProtocolModal, openUpdateProtocolModal } from "../../utils/modalWindows"
 import {
   showApiErrorMessage,
   showUnexpectedErrorMessage
@@ -59,6 +59,15 @@ export default function Protocols() {
     openAddProtocolModal(selectedProject.name)
   }
 
+  const handleEdit = (protocol: Protocol) => {
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    openUpdateProtocolModal(selectedProject.name, protocol.name)
+  }
+
   const handleDelete = async (protocol: Protocol) => {
     if (!selectedProject) {
       showSelectProjectErrorMessage()
@@ -99,8 +108,9 @@ export default function Protocols() {
           <ElementListItem
             key={protocol.name}
             label={protocol.name}
-            showActions={{ info: false, delete: true, edit: false, lock: false }}
+            showActions={{ info: false, delete: true, edit: true, lock: false }}
             onClick={() => {}}
+            onEdit={() => handleEdit(protocol)}
             onDelete={() => handleDelete(protocol)}
           />
         ))}

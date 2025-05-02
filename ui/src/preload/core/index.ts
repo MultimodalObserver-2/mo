@@ -5,13 +5,13 @@ const core = {
     options: Electron.BrowserWindowConstructorOptions,
     endpoint: string,
     parent?: string,
-    child?: string
+    name?: string
   ) => {
     ipcRenderer.send("core:open-modal-window", {
       options,
       endpoint,
       parent,
-      child
+      name
     })
   },
   dialog: {

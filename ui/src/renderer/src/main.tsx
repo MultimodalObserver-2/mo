@@ -14,9 +14,10 @@ import AddParticipantPage from "./modules/organization/pages/participant-pages/a
 import UpdateParticipantPage from "./modules/organization/pages/participant-pages/update-participant/UpdateParticipantPage"
 import ParticipantPage from "./modules/organization/pages/participant-pages/participant/ParticipantPage"
 import LoadingPage from "./core/pages/loading/Loading"
-import AddProtocolPage from "./modules/organization/pages/protocol-pages/add-protocol/AddProtocol"
+import AddProtocolPage from "./modules/organization/pages/protocol-pages/add-protocol/AddProtocolPage"
 import AddActivity from "./modules/organization/pages/protocol-pages/add-activity/AddActivity"
 import EditActivity from "./modules/organization/pages/protocol-pages/edit-activity/EditAcitivity"
+import UpdateProtocolPage from "./modules/organization/pages/protocol-pages/update-protocol/UpdateProtocolPage"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -53,6 +54,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/organization/:projectName/add-protocol" element={<AddProtocolPage />} />
           <Route path="/organization/add-activity" element={<AddActivity />} />
           <Route path="/organization/edit-activity" element={<EditActivity />} />
+          <Route
+            path="/organization/:projectName/update-protocol/:protocolName"
+            element={<UpdateProtocolPage />}
+          />
         </Routes>
       </HashRouter>
     </Provider>

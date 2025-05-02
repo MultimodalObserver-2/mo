@@ -72,7 +72,7 @@ export default function EditActivity() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Add Activity" Icon={EditIcon} />
+        <ModalTitle title="Edit Activity" Icon={EditIcon} />
       </ModalHeader>
       <ModalBody type="form" id="update" onSubmit={handleSubmit}>
         <Input

@@ -8,8 +8,10 @@ from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.errors.protocols import PROTOCOL_ALREADY_EXISTS, PROTOCOL_DOES_NOT_EXIST
+from api.modules.organization.errors.protocols import (PROTOCOL_ALREADY_EXISTS,
+                                                       PROTOCOL_DOES_NOT_EXIST)
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
+                                                       ProtocolPutReq,
                                                        ProtocolRes)
 from api.modules.organization.services.paths import (PROJECTS_DATA_FILE_NAME,
                                                      PROJECTS_DIR_NAME,
@@ -82,23 +84,75 @@ class ProtocolService:
         protocols_storage = self._get_protocols_storage(project_name)
         protocols = protocols_storage.find_all()
         return [ProtocolRes(**protocol) for protocol in protocols]
-    
+
     def get_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocol = protocols_storage.find_one({"name": protocol_name})
         if not protocol:
-            raise NotFoundException(PROTOCOL_DOES_NOT_EXIST.format(
-                protocol_name=protocol_name, project_name=project_name
-            ))
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_name, project_name=project_name
+                )
+            )
         return ProtocolRes(**protocol)
-    
+
+    def update_protocol(
+        self, project_name: str, protocol_name: str, protocol: ProtocolPutReq
+    ) -> ProtocolRes:
+        new_protocol = self.get_protocol(project_name, protocol_name)
+
+        new_protocol.name = protocol.name if protocol.name else new_protocol.name
+        if protocol.activities:
+            new_activities = []
+            for idx, activity in enumerate(protocol.activities):
+                if activity.path and not FileManagement.is_file(activity.path):
+                    raise BadRequestException(
+                        f"Activity {activity.name} (n°{idx+1}) has an invalid file path: {activity.path}"
+                    )
+
+                if activity.has_time_limit and activity.time_limit <= 0:
+                    raise BadRequestException(
+                        f"Activity {activity.name} (n°{idx+1}) has an invalid time limit: {activity.time_limit}"
+                    )
+                activity_data = {
+                    "order": idx + 1,
+                    "name": activity.name,
+                    "path": activity.path,
+                    "has_time_limit": activity.has_time_limit,
+                    "time_limit": activity.time_limit if activity.has_time_limit else 0,
+                    "start_message": activity.start_message,
+                    "end_message": activity.end_message,
+                    "close_activity": activity.close_activity,
+                    "show_timer": activity.show_timer,
+                }
+                new_activities.append(activity_data)
+            new_protocol.activities = new_activities
+
+        new_protocol.updated_at = datetime.now()
+        if (
+            protocol.name != None
+            and new_protocol.name != protocol_name
+            and self.exists(project_name, new_protocol.name)
+        ):
+            raise AlreadyExistsException(
+                PROTOCOL_ALREADY_EXISTS.format(
+                    protocol_name=new_protocol.name, project_name=project_name
+                )
+            )
+
+        protocol_storage = self._get_protocols_storage(project_name)
+        protocol_storage.update({"name": protocol_name}, new_protocol.model_dump())
+        return new_protocol
+
     def delete_protocol(self, project_name: str, protocol_name: str) -> None:
         if not self.exists(project_name, protocol_name):
-            raise NotFoundException(PROTOCOL_DOES_NOT_EXIST.format(
-                protocol_name=protocol_name, project_name=project_name
-            ))
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_name, project_name=project_name
+                )
+            )
         protocols_storage = self._get_protocols_storage(project_name)
         protocols_storage.delete_one({"name": protocol_name})
 

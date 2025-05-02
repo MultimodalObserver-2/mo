@@ -38,3 +38,19 @@ class ActivityPostReq(BaseModel):
 class ProtocolPostReq(BaseModel):
     name: str
     activities: list[ActivityPostReq]
+
+
+class ActivityPutReq(BaseModel):
+    name: str
+    path: Optional[str] = ""
+    has_time_limit: bool
+    time_limit: int = 0
+    start_message: Optional[str] = ""
+    end_message: Optional[str] = ""
+    close_activity: bool
+    show_timer: bool
+
+
+class ProtocolPutReq(BaseModel):
+    name: Optional[str] = None
+    activities: Optional[list[ActivityPutReq]] = None

@@ -8,7 +8,7 @@ declare global {
         options: Electron.BrowserWindowConstructorOptions,
         endpoint: string,
         parent?: string,
-        child?: string
+        name?: string
       ) => void
       dialog: {
         showErrorBox: (title: string, content: string) => void

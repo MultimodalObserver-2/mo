@@ -1,14 +1,15 @@
 import { is } from "@electron-toolkit/utils"
-import { app, BrowserWindow, ipcMain } from "electron"
+import { app, BrowserWindow, dialog, ipcMain } from "electron"
 import { join } from "path"
 
 const modalWindows: Map<string, BrowserWindow> = new Map()
+const modalWindowsParents: Map<string, string> = new Map()
 
 function createModalWindow(
   options: Electron.BrowserWindowConstructorOptions,
   endpoint: string,
   parent: string,
-  child?: string
+  name: string
 ): BrowserWindow {
   options.show = false
   options.autoHideMenuBar = true
@@ -26,18 +27,15 @@ function createModalWindow(
     })
   }
 
-  win.once("ready-to-show", () => modalWindows.get(parent)?.show())
-  if (child) {
-    win.on("close", () => {
-      if (modalWindows.has(child)) {
-        const childWindow = modalWindows.get(child)
-        childWindow?.close()
-      }
-    })
-  }
+  win.once("ready-to-show", () => modalWindows.get(name)?.show())
+  modalWindows.get(parent)?.on("close", () => {
+    win.close()
+  })
 
   win.on("closed", () => {
-    modalWindows.delete(parent)
+    modalWindows.get(parent)?.removeAllListeners("close")
+    modalWindowsParents.delete(parent)
+    modalWindows.delete(name)
   })
 
   return win
@@ -47,21 +45,34 @@ interface OpenModalWindow {
   options: Electron.BrowserWindowConstructorOptions
   endpoint: string
   parent?: string
-  child?: string
+  name?: string
 }
 
 app.whenReady().then(() => {
   ipcMain.on(
     "core:open-modal-window",
-    (_event, { options, endpoint, parent = "main", child }: OpenModalWindow) => {
-      if (modalWindows.has(parent)) {
-        const modalWindow = modalWindows.get(parent)
+    (_event, { options, endpoint, parent = "main", name = "child" }: OpenModalWindow) => {
+      if (name === "main") {
+        dialog.showErrorBox(
+          "Dev Error",
+          "Modal window name cannot be 'main'. Please use a different name."
+        )
+        return
+      }
+
+      const windowName = modalWindowsParents.get(parent)
+      if (windowName) {
+        const modalWindow = modalWindows.get(windowName)
         modalWindow?.once("closed", () => {
-          modalWindows.set(parent, createModalWindow(options, endpoint, parent, child))
+          const window = createModalWindow(options, endpoint, parent, name)
+          modalWindowsParents.set(parent, name)
+          modalWindows.set(name, window)
         })
         modalWindow?.close()
       } else {
-        modalWindows.set(parent, createModalWindow(options, endpoint, parent, child))
+        const window = createModalWindow(options, endpoint, parent, name)
+        modalWindowsParents.set(parent, name)
+        modalWindows.set(name, window)
       }
     }
   )

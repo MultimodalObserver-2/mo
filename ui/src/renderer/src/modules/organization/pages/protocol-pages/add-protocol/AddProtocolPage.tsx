@@ -84,7 +84,7 @@ export default function AddProtocolPage() {
     }
   }
 
-  const handleAdd = () => {
+  const handleAddActivity = () => {
     openAddActivityModal()
   }
 
@@ -107,7 +107,7 @@ export default function AddProtocolPage() {
           <ElementHeader>
             <ElementTitle className={styles["activities-title"]}>Activities</ElementTitle>
             <ElementActions>
-              <button type="button" className={styles["add-button"]} onClick={handleAdd}>
+              <button type="button" className={styles["add-button"]} onClick={handleAddActivity}>
                 <AddCircleIcon className={styles.svg} />
               </button>
             </ElementActions>
@@ -141,7 +141,7 @@ export default function AddProtocolPage() {
               <ElementListItem
                 label="Add activities to the research protocol"
                 showActions={false}
-                onClick={handleAdd}
+                onClick={handleAddActivity}
               />
             )}
           </ElementList>
