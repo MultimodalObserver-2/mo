@@ -42,4 +42,10 @@ app.whenReady().then(() => {
       window.webContents.send("organization:on-reload-protocols")
     })
   })
+
+  ipcMain.on("organization:change-selected-protocol", async (_event, protocol) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("organization:on-change-selected-protocol", protocol)
+    })
+  })
 })

@@ -18,6 +18,7 @@ import AddProtocolPage from "./modules/organization/pages/protocol-pages/add-pro
 import AddActivity from "./modules/organization/pages/protocol-pages/add-activity/AddActivity"
 import EditActivity from "./modules/organization/pages/protocol-pages/edit-activity/EditAcitivity"
 import UpdateProtocolPage from "./modules/organization/pages/protocol-pages/update-protocol/UpdateProtocolPage"
+import ProtocolPage from "./modules/organization/pages/protocol-pages/protocol/ProtocolPage"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -57,6 +58,10 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/organization/:projectName/update-protocol/:protocolName"
             element={<UpdateProtocolPage />}
+          />
+          <Route
+            path="/organization/:projectName/protocols/:protocolName"
+            element={<ProtocolPage />}
           />
         </Routes>
       </HashRouter>

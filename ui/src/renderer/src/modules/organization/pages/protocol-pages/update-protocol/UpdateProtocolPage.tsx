@@ -97,8 +97,11 @@ export default function UpdateProtocolPage() {
       activities: activities
     }
     try {
-      await protocolService.update(projectName, protocolName, protocol)
+      const response = await protocolService.update(projectName, protocolName, protocol)
       window.organization.reloadProtocols()
+      if (protocolName !== protocol.name) {
+        window.organization.changeSelectedProtocol(response.data)
+      }
       window.close()
     } catch (error) {
       showApiErrorMessage(error)

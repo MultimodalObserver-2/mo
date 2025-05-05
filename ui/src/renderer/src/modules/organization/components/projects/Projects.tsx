@@ -27,6 +27,7 @@ import {
   showLockedErrorMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
+import { clearSelectedProtocol } from "../../store/protocolsSlice"
 
 export default function Projects() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -97,6 +98,7 @@ export default function Projects() {
       } else {
         dispatch(clearSelectedProject())
         dispatch(clearSelectedParticipant())
+        dispatch(clearSelectedProtocol())
       }
     })
 
@@ -125,6 +127,7 @@ export default function Projects() {
               if (selectedProject?.name !== project.name) {
                 dispatch(setSelectedProject(project))
                 dispatch(clearSelectedParticipant())
+                dispatch(clearSelectedProtocol())
               }
             }}
             onInfo={() => openProjectInfoModal(project.name)}

@@ -53,6 +53,7 @@
   font-weight: 400;
   overflow-x: auto;
   white-space: nowrap;
+  user-select: text;
 }
 
 .value::-webkit-scrollbar {

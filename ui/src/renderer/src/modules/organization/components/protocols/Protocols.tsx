@@ -3,14 +3,18 @@ import styles from "./protocols.module.css"
 import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
 import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
 import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
-import { useSelector } from "react-redux"
+import { useDispatch, useSelector } from "react-redux"
 import { selectSelectedProject } from "../../store/projectsSlice"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import {
   showDeleteProtocolMessage,
   showSelectProjectErrorMessage
 } from "../../utils/dialogMessages"
-import { openAddProtocolModal, openUpdateProtocolModal } from "../../utils/modalWindows"
+import {
+  openAddProtocolModal,
+  openProtocolInfoModal,
+  openUpdateProtocolModal
+} from "../../utils/modalWindows"
 import {
   showApiErrorMessage,
   showLockedErrorMessage,
@@ -22,34 +26,37 @@ import { useCallback, useEffect, useState } from "react"
 import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import { Protocol } from "../../types/Protocol"
+import {
+  clearSelectedProtocol,
+  selectSelectedProtocol,
+  setSelectedProtocol
+} from "../../store/protocolsSlice"
 
 export default function Protocols() {
   const selectedProject = useSelector(selectSelectedProject)
+  const selectedProtocol = useSelector(selectSelectedProtocol)
+  const dispatch = useDispatch()
   const [protocols, setProtocols] = useState<Protocol[]>([])
 
-  const fetchProtocols = useCallback(async (project: Project | null) => {
-    if (!project) {
-      setProtocols([])
-      return
-    }
-    try {
-      const response = await protocolService.getAll(project.name)
-      setProtocols(response.data)
-    } catch {
-      showUnexpectedErrorMessage()
-      setProtocols([])
-    }
-  }, [])
+  const fetchProtocols = useCallback(
+    async (project: Project | null) => {
+      if (!project) {
+        dispatch(clearSelectedProtocol())
+        setProtocols([])
+        return
+      }
 
-  useEffect(() => {
-    window.organization.onReloadProtocols(() => {
-      fetchProtocols(selectedProject)
-    })
-    fetchProtocols(selectedProject)
-    return () => {
-      window.organization.removeReloadProtocols()
-    }
-  }, [selectedProject, fetchProtocols])
+      try {
+        const response = await protocolService.getAll(project.name)
+        setProtocols(response.data)
+      } catch {
+        showUnexpectedErrorMessage()
+        dispatch(clearSelectedProtocol())
+        setProtocols([])
+      }
+    },
+    [dispatch]
+  )
 
   const handleAdd = () => {
     if (!selectedProject) {
@@ -96,6 +103,9 @@ export default function Protocols() {
       try {
         await protocolService.delete(selectedProject.name, protocol.name)
         await fetchProtocols(selectedProject)
+        if (protocol.name === selectedProtocol?.name) {
+          dispatch(clearSelectedProtocol())
+        }
       } catch (error) {
         showApiErrorMessage(error)
       }
@@ -120,6 +130,35 @@ export default function Protocols() {
     }
   }
 
+  const handleInfo = (protocol: Protocol) => {
+    if (!selectedProject) {
+      showSelectProjectErrorMessage()
+      return
+    }
+
+    openProtocolInfoModal(selectedProject.name, protocol.name)
+  }
+
+  useEffect(() => {
+    window.organization.onChangeSelectedProtocol((protocol) => {
+      if (protocol) {
+        dispatch(setSelectedProtocol(protocol))
+      } else {
+        dispatch(clearSelectedProtocol())
+      }
+    })
+  }, [dispatch])
+
+  useEffect(() => {
+    window.organization.onReloadProtocols(() => {
+      fetchProtocols(selectedProject)
+    })
+    fetchProtocols(selectedProject)
+    return () => {
+      window.organization.removeReloadProtocols()
+    }
+  }, [selectedProject, fetchProtocols])
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -138,8 +177,10 @@ export default function Protocols() {
             key={protocol.name}
             label={protocol.name}
             isLocked={protocol.locked}
-            showActions={{ info: false, delete: true, edit: true, lock: true }}
-            onClick={() => {}}
+            isSelected={protocol.name === selectedProtocol?.name}
+            showActions={true}
+            onClick={() => dispatch(setSelectedProtocol(protocol))}
+            onInfo={() => handleInfo(protocol)}
             onEdit={() => handleEdit(protocol)}
             onDelete={() => handleDelete(protocol)}
             onLock={() => handleLock(protocol)}

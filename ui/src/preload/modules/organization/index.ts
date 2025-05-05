@@ -58,6 +58,12 @@ const organization = {
   },
   removeReloadProtocols: () => {
     ipcRenderer.removeAllListeners("organization:on-reload-protocols")
+  },
+  changeSelectedProtocol: (protocol) => {
+    ipcRenderer.send("organization:change-selected-protocol", protocol)
+  },
+  onChangeSelectedProtocol: (callback: (protocol) => void) => {
+    ipcRenderer.on("organization:on-change-selected-protocol", (_, protocol) => callback(protocol))
   }
 }
 

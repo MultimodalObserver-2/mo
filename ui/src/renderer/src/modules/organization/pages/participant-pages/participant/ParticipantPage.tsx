@@ -5,12 +5,10 @@ import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import InfoIcon from "@renderer/core/components/icons/InfoIcon"
 import DisplayData from "@renderer/core/components/display-data/DisplayData"
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 import Button from "@renderer/core/components/button/Button"
-import ContentCopyIcon from "@renderer/core/components/icons/ContentCopyIcon"
-import DocumentSearchIcon from "@renderer/core/components/icons/DocumentSearchIcon"
 import LockIcon from "@renderer/core/components/icons/LockIcon"
 import LockOpenIcon from "@renderer/core/components/icons/LockOpenIcon"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
@@ -24,30 +22,14 @@ import { Participant } from "@renderer/modules/organization/types/Participant"
 import { showDeleteParticipantMessage } from "@renderer/modules/organization/utils/dialogMessages"
 import participantService from "@renderer/modules/organization/services/ParticipantService"
 import { openUpdateParticipantModal } from "@renderer/modules/organization/utils/modalWindows"
+import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
 
 export default function ParticipantPage() {
   const { projectName, participantCode } = useParams<{
     projectName: string
     participantCode: string
   }>()
-  const copyMessage = useRef<HTMLSpanElement>(null)
   const [participant, setParticipant] = useState<Participant | null>(null)
-
-  const handleCopy = (text: string) => {
-    window.core.clipboard.writeText(text)
-    if (copyMessage.current) {
-      copyMessage.current.style.opacity = "1"
-      setTimeout(() => {
-        if (copyMessage.current) {
-          copyMessage.current.style.opacity = "0"
-        }
-      }, 1000)
-    }
-  }
-
-  const handleOpenPath = (path: string) => {
-    window.core.shell.openPath(path)
-  }
 
   const handleDelete = async (participant: Participant) => {
     if (!projectName) {
@@ -184,31 +166,7 @@ export default function ParticipantPage() {
           name="Notes"
           value={participant.notes.length != 0 ? participant.notes : "No notes registered"}
         />
-        <DisplayData
-          name="Location"
-          value={participant.location}
-          childrenClass={styles["location-box"]}
-        >
-          <span className={styles["copy-container"]}>
-            <Button
-              className={styles["location-button"]}
-              styleType="soft"
-              onClick={() => handleCopy(participant.location)}
-            >
-              <ContentCopyIcon className={styles["button-icon"]} />
-            </Button>
-            <span ref={copyMessage} className={styles["copy-message"]}>
-              Copied!
-            </span>
-          </span>
-          <Button
-            className={styles["location-button"]}
-            styleType="soft"
-            onClick={() => handleOpenPath(participant.location)}
-          >
-            <DocumentSearchIcon className={styles["button-icon"]} />
-          </Button>
-        </DisplayData>
+        <DisplayPath name="Location" value={participant.location} />
         <div className={styles.dates}>
           <DisplayData
             name="Created At"

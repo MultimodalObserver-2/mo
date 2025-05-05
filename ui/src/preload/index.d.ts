@@ -44,6 +44,8 @@ declare global {
       reloadProtocols: () => void
       onReloadProtocols: (callback: () => void) => void
       removeReloadProtocols: () => void
+      changeSelectedProtocol: (protocol) => void
+      onChangeSelectedProtocol: (callback: (protocol) => void) => void
     }
   }
 }

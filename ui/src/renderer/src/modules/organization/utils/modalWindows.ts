@@ -45,6 +45,13 @@ export function openUpdateParticipantModal(projectName: string, participantCode:
 }
 
 // Protocols Modal Windows
+export function openProtocolInfoModal(projectName: string, protocolName: string) {
+  window.core.openModalWindow(
+    { width: 800, height: 750, minWidth: 800, minHeight: 730, title: "Protocol Information" },
+    `organization/${projectName}/protocols/${protocolName}`
+  )
+}
+
 export function openAddProtocolModal(projectName: string) {
   window.core.openModalWindow(
     { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Add Protocol" },
