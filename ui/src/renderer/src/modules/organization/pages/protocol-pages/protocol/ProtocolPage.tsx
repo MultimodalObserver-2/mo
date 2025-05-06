@@ -26,6 +26,7 @@ import ElementList from "@renderer/core/components/panel/panel-element/element-l
 import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
+import PlayCircleIcon from "@renderer/core/components/icons/PlayCircleIcon"
 
 export default function ProtocolPage() {
   const { projectName, protocolName } = useParams<{
@@ -92,6 +93,18 @@ export default function ProtocolPage() {
     }
   }
 
+  const handleExec = async () => {
+    if (!projectName || !protocolName) {
+      return
+    }
+
+    window.organization.execProtocol(projectName, protocolName)
+    window.organization.onExecProtocolFinished(() => {
+      window.organization.removeExecProtocolFinished()
+    })
+    window.close()
+  }
+
   useEffect(() => {
     async function fetchProtocol() {
       if (!projectName || !protocolName) {
@@ -122,6 +135,14 @@ export default function ProtocolPage() {
           <ModalTitle title="Protocol Information" Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
+          <Button
+            styleType="soft"
+            borderRadius="xl"
+            className={styles["action-button"]}
+            onClick={handleExec}
+          >
+            <PlayCircleIcon className={styles["action-icon"]} />
+          </Button>
           <Button
             styleType="soft"
             borderRadius="xl"
@@ -220,7 +241,11 @@ export default function ProtocolPage() {
                   <div className={styles["activity-info-boolean"]}>
                     <DisplayData
                       name="Close Activity"
-                      value={protocol.activities[selectedActivityIdx].close_activity ? "Yes" : "No"}
+                      value={
+                        protocol.activities[selectedActivityIdx].close_activity
+                          ? protocol.activities[selectedActivityIdx].process_name
+                          : "No"
+                      }
                     />
                     <DisplayData
                       name="Show Timer"

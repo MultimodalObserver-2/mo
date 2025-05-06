@@ -18,6 +18,7 @@ export default function EditActivity() {
   const [activity, setActivity] = useState<ActivityCreate | null>(null)
   const [hasTimeLimit, setHasTimeLimit] = useState(true)
   const [closeActivity, setCloseActivity] = useState(false)
+  const [showTimer, setShowTimer] = useState(false)
   const [filePath, setFilePath] = useState("")
 
   useEffect(() => {
@@ -32,10 +33,13 @@ export default function EditActivity() {
       process_name: searchParams.get("process_name") || "",
       show_timer: searchParams.get("show_timer") === "true"
     }
+    console.log("Search Params", searchParams)
+    console.log("activityData", activityData)
     setActivity(activityData)
     setFilePath(activityData.path)
     setHasTimeLimit(activityData.has_time_limit)
     setCloseActivity(activityData.close_activity)
+    setShowTimer(activityData.show_timer)
   }, [searchParams])
 
   const handleSubmit = async (e) => {
@@ -167,7 +171,7 @@ export default function EditActivity() {
               />
             </div>
           </div>
-          <Checkbox id="showTimer" defaultChecked={activity?.show_timer}>
+          <Checkbox id="showTimer" checked={showTimer} onChange={() => setShowTimer(!showTimer)}>
             Display a timer during the activity
           </Checkbox>
         </div>

@@ -29,9 +29,9 @@ export async function runApi() {
     })
 
     ipcMain.handle("core:get-api-port", async () => apiPort)
-    return apiProcess
+    return { apiProcess, apiPort }
   } catch (error) {
     console.error("Error getting free port:", error)
-    return null
+    return { apiProcess: null, apiPort: null }
   }
 }

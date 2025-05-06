@@ -30,6 +30,7 @@ export default function AddActivity() {
       process_name: form.processName.value,
       show_timer: form.showTimer.checked
     }
+    console.log("Activity Data", activityData)
     window.organization.addActivity(activityData)
     setFilePath("")
     setHasTimeLimit(true)
@@ -70,7 +71,7 @@ export default function AddActivity() {
               placeholder="Enter the path to the file to be opened or search for it"
               type="text"
               value={filePath}
-              required
+              required={closeActivity}
               onChange={(e) => setFilePath(e.target.value)}
             />
             <Button

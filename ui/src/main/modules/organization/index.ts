@@ -49,3 +49,5 @@ app.whenReady().then(() => {
     })
   })
 })
+
+import "./execProtocol"

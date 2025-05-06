@@ -1,5 +1,7 @@
 import os
+import platform
 import shutil
+import psutil
 from typing import Optional
 
 from api.core.file_management.exceptions import (InvalidDirectoryNameError,
@@ -143,3 +145,22 @@ class FileManagement:
             raise NotFoundError(f"Directory {dir_path} does not exist.")
         shutil.rmtree(dir_path)
         return dir_path
+
+    @staticmethod
+    def open_file(file_path: str):
+        operating_system = platform.system()
+        if operating_system == "Windows":
+            os.startfile(file_path)
+        elif operating_system == "Darwin": # macOS
+            os.system(f"open {file_path}")
+        else: # Linux and other Unix-like systems
+            os.system(f"xdg-open {file_path}")
+    
+    @staticmethod
+    def close_process(process_name: str):
+        for proc in psutil.process_iter(['pid', 'name']):
+            if proc.info['name'] == process_name:
+                try:
+                    proc.kill()
+                except (psutil.NoSuchProcess, psutil.AccessDenied):
+                    pass

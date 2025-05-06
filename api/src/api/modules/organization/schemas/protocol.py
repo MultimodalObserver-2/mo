@@ -59,3 +59,12 @@ class ProtocolPutReq(BaseModel):
     name: Optional[str] = None
     activities: Optional[list[ActivityPutReq]] = None
 
+
+class ProtocolExecMsg(BaseModel):
+    activity_name: Optional[str] = None
+    activity_num: Optional[int] = None
+    message: str
+    message_type: str
+    total_activities: Optional[int] = None
+    has_time_limit: Optional[bool] = None
+    show_timer: Optional[bool] = None

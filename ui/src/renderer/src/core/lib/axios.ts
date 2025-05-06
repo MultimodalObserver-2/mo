@@ -6,7 +6,7 @@
 import axios from "axios"
 
 const DEV_API_PORT = import.meta.env.VITE_DEV_API_PORT || "8000"
-let API_PORT = DEV_API_PORT
+let API_PORT: string | number = DEV_API_PORT
 try {
   API_PORT = import.meta.env.DEV ? DEV_API_PORT : await window.core.prod.getApiPort()
 } catch (error) {

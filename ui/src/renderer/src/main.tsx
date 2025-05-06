@@ -19,6 +19,8 @@ import AddActivity from "./modules/organization/pages/protocol-pages/add-activit
 import EditActivity from "./modules/organization/pages/protocol-pages/edit-activity/EditAcitivity"
 import UpdateProtocolPage from "./modules/organization/pages/protocol-pages/update-protocol/UpdateProtocolPage"
 import ProtocolPage from "./modules/organization/pages/protocol-pages/protocol/ProtocolPage"
+import ActivityMessagePage from "./modules/organization/pages/protocol-pages/activity-message/ActivityMessagePage"
+import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activity-timer/ActivityTimerPage"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -63,6 +65,11 @@ createRoot(document.getElementById("root")!).render(
             path="/organization/:projectName/protocols/:protocolName"
             element={<ProtocolPage />}
           />
+          <Route
+            path="/organization/activity-message/:activityName"
+            element={<ActivityMessagePage />}
+          />
+          <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
         </Routes>
       </HashRouter>
     </Provider>

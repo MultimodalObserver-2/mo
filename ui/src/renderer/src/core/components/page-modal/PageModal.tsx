@@ -19,6 +19,7 @@ const findComponentInChildren = (children: React.ReactNode, componentType: React
       }
     }
   }
+  return null
 }
 
 interface ModalProps {

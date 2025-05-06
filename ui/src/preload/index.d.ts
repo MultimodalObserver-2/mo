@@ -46,6 +46,14 @@ declare global {
       removeReloadProtocols: () => void
       changeSelectedProtocol: (protocol) => void
       onChangeSelectedProtocol: (callback: (protocol) => void) => void
+      execProtocol: (projectName: string, protocolName: string) => void
+      onExecProtocolFinished: (callback: () => void) => void
+      removeExecProtocolFinished: () => void
+      activityMessageButtonClicked: (idx) => void
+      setActivityMessageHeight: (height) => void
+      onActivityTimerChange: (callback: (seconds: number) => void) => void
+      onActivityTimerStart: (callback: (initialSeconds) => void) => void
+      onActivityTimerStop: (callback: () => void) => void
     }
   }
 }

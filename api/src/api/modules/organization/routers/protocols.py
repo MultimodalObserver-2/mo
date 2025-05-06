@@ -1,4 +1,6 @@
-from fastapi import APIRouter, Depends, Path, status
+import asyncio
+from api.modules.organization.services.protocol_exec_service import ProtocolExecService
+from fastapi import APIRouter, Depends, Path, WebSocket, status
 
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
                                                        ProtocolPutReq,
@@ -125,6 +127,7 @@ async def lock_protocol(
 ):
     return service.lock_protocol(project_name, protocol_name)
 
+
 @protocols_router.post(
     "/{protocol_name}/unlock",
     response_model=ProtocolRes,
@@ -142,3 +145,15 @@ async def unlock_protocol(
     service: ProtocolService = Depends(),
 ):
     return service.unlock_protocol(project_name, protocol_name)
+
+
+@protocols_router.websocket("/{protocol_name}/execute")
+async def websocket_protocol(
+    websocket: WebSocket,
+    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description="Name of the project"),
+    service: ProtocolExecService = Depends(),
+):
+    await websocket.accept()
+    await service.run(websocket, protocol_name, project_name)
+    await websocket.close()

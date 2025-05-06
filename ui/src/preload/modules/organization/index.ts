@@ -64,7 +64,33 @@ const organization = {
   },
   onChangeSelectedProtocol: (callback: (protocol) => void) => {
     ipcRenderer.on("organization:on-change-selected-protocol", (_, protocol) => callback(protocol))
-  }
+  },
+  execProtocol: (projectName, protocolName) => {
+    ipcRenderer.send("organization:exec-protocol", projectName, protocolName)
+  },
+  onExecProtocolFinished: (callback: () => void) => {
+    ipcRenderer.on("organization:on-exec-protocol-finished", () => callback())
+  },
+  removeExecProtocolFinished: () => {
+    ipcRenderer.removeAllListeners("organization:on-exec-protocol-finished")
+  },
+  activityMessageButtonClicked: (idx) => {
+    ipcRenderer.send("organization:activity-message:button-clicked", idx)
+  },
+  setActivityMessageHeight: (height) => {
+    ipcRenderer.send("organization:activity-message:set-height", height)
+  },
+  onActivityTimerChange: (callback: (seconds: number) => void) => {
+    ipcRenderer.on("organization:on-activity-timer-change", (_, seconds) => callback(seconds))
+  },
+  onActivityTimerStart: (callback: (initialSeconds: number) => void) => {
+    ipcRenderer.on("organization:on-activity-timer-start", (_, initialSeconds) =>
+      callback(initialSeconds)
+    )
+  },
+  onActivityTimerStop: (callback: () => void) => {
+    ipcRenderer.on("organization:on-activity-timer-stop", () => callback())
+  },
 }
 
 contextBridge.exposeInMainWorld("organization", organization)

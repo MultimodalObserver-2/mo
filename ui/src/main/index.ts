@@ -54,6 +54,7 @@ function createWindow(): void {
 }
 
 let apiProcess: ChildProcess | null = null
+let apiPort: number | null = null
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -70,7 +71,9 @@ app.whenReady().then(async () => {
   })
 
   if (!is.dev) {
-    apiProcess = await runApi()
+    const apiInfo = await runApi()
+    apiProcess = apiInfo.apiProcess
+    apiPort = apiInfo.apiPort
   }
 
   createWindow()
@@ -93,6 +96,10 @@ app.on("window-all-closed", () => {
     app.quit()
   }
 })
+
+export function getApiPort(): number | null {
+  return apiPort
+}
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and require them here.
