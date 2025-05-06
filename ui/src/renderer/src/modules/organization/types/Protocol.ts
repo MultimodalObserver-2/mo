@@ -7,6 +7,7 @@ export type Activity = {
   start_message: string
   end_message: string
   close_activity: boolean
+  process_name: string
   show_timer: boolean
 }
 
@@ -26,6 +27,7 @@ export type ActivityCreate = {
   start_message: string
   end_message: string
   close_activity: boolean
+  process_name: string
   show_timer: boolean
 }
 

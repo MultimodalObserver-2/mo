@@ -73,7 +73,7 @@ export function openUpdateProtocolModal(projectName: string, protocolName: strin
 // Activities Modal Windows
 export function openAddActivityModal() {
   window.core.openModalWindow(
-    { width: 650, height: 630, minWidth: 620, minHeight: 630, title: "Protocol: Add Activity" },
+    { width: 650, height: 648, minWidth: 620, minHeight: 648, title: "Protocol: Add Activity" },
     `organization/add-activity`,
     "protocol",
     "add-activity"
@@ -82,8 +82,8 @@ export function openAddActivityModal() {
 
 export function openEditActivityModal(activity: ActivityCreate) {
   window.core.openModalWindow(
-    { width: 650, height: 630, minWidth: 620, minHeight: 630, title: "Protocol: Edit Activity" },
-    `organization/edit-activity?name=${activity.name}&path=${activity.path}&has_time_limit=${activity.has_time_limit}&time_limit=${activity.time_limit}&start_message=${activity.start_message}&end_message=${activity.end_message}&close_activity=${activity.close_activity}&show_timer=${activity.show_timer}`,
+    { width: 650, height: 648, minWidth: 620, minHeight: 648, title: "Protocol: Edit Activity" },
+    `organization/edit-activity?name=${activity.name}&path=${activity.path}&has_time_limit=${activity.has_time_limit}&time_limit=${activity.time_limit}&start_message=${activity.start_message}&end_message=${activity.end_message}&close_activity=${activity.close_activity}&process_name=${activity.process_name}&show_timer=${activity.show_timer}`,
     "protocol",
     "edit-activity"
   )

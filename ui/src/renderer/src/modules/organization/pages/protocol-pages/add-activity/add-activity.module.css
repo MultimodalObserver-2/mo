@@ -9,6 +9,23 @@
     grid-template-columns: 2fr 5fr;
 }
 
+.required {
+    color: var(--color-red-500);
+    font-weight: 700;
+}
+
+.close-activity-box {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.close-activity-inputs {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+}
+
 .location-label {
     display: flex;
     flex-direction: column;

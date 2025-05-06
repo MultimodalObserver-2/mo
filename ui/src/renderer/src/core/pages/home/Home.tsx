@@ -10,8 +10,8 @@ export default function Home() {
       <section className={styles.workspace}></section>
       <Panel>
         <Projects />
-        <Participants />
         <Protocols />
+        <Participants />
       </Panel>
     </main>
   )

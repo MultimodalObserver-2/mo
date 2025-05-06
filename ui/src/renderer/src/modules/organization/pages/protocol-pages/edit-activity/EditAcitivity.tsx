@@ -17,6 +17,7 @@ export default function EditActivity() {
   const [searchParams] = useSearchParams()
   const [activity, setActivity] = useState<ActivityCreate | null>(null)
   const [hasTimeLimit, setHasTimeLimit] = useState(true)
+  const [closeActivity, setCloseActivity] = useState(false)
   const [filePath, setFilePath] = useState("")
 
   useEffect(() => {
@@ -28,11 +29,13 @@ export default function EditActivity() {
       start_message: searchParams.get("start_message") || "",
       end_message: searchParams.get("end_message") || "",
       close_activity: searchParams.get("close_activity") === "true",
+      process_name: searchParams.get("process_name") || "",
       show_timer: searchParams.get("show_timer") === "true"
     }
     setActivity(activityData)
     setFilePath(activityData.path)
     setHasTimeLimit(activityData.has_time_limit)
+    setCloseActivity(activityData.close_activity)
   }, [searchParams])
 
   const handleSubmit = async (e) => {
@@ -46,6 +49,7 @@ export default function EditActivity() {
       start_message: form.startMessage.value,
       end_message: form.endMessage.value,
       close_activity: form.closeActivity.checked,
+      process_name: form.processName.value,
       show_timer: form.showTimer.checked
     }
     window.organization.updateActivity(activity?.name, activityData)
@@ -84,12 +88,15 @@ export default function EditActivity() {
           defaultValue={activity?.name}
         />
         <div className={styles["location-label"]}>
-          <label htmlFor="path">Path</label>
+          <label htmlFor="path">
+            Path {closeActivity ? <b className={styles.required}>*</b> : ""}
+          </label>
           <div className={styles["location-input"]}>
             <Input
               id="path"
               placeholder="Enter the path to the file to be opened or search for it"
               type="text"
+              required={closeActivity}
               value={filePath}
               onChange={(e) => setFilePath(e.target.value)}
             />
@@ -133,16 +140,33 @@ export default function EditActivity() {
               type="number"
               disabled={!hasTimeLimit}
               defaultValue={activity?.time_limit}
-              min={0}
+              min={1}
               step={1}
             />
           </div>
         </div>
         <div className={styles["additional-options"]}>
           <span>Additional options</span>
-          <Checkbox id="closeActivity" defaultChecked={activity?.close_activity}>
-            Close when the activity has finished
-          </Checkbox>
+          <div className={styles["close-activity-box"]}>
+            <span></span>
+            <div className={styles["close-activity-inputs"]}>
+              <Checkbox
+                id="closeActivity"
+                checked={closeActivity}
+                onChange={() => setCloseActivity(!closeActivity)}
+              >
+                Close when activity has finished
+              </Checkbox>
+              <Input
+                id="processName"
+                placeholder={`Enter the process name to be closed ${closeActivity ? "(*)" : ""}`}
+                type="text"
+                required={closeActivity}
+                disabled={!closeActivity}
+                defaultValue={activity?.process_name}
+              />
+            </div>
+          </div>
           <Checkbox id="showTimer" defaultChecked={activity?.show_timer}>
             Display a timer during the activity
           </Checkbox>

@@ -8,7 +8,7 @@ from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.errors.protocols import (PROTOCOL_ALREADY_EXISTS,
+from api.modules.organization.errors.protocols import (ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT, ACTIVITY_PROCESS_NAME_REQUIRED, PROTOCOL_ALREADY_EXISTS,
                                                        PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
                                                        ProtocolPutReq,
@@ -45,14 +45,21 @@ class ProtocolService:
         activities_data = []
         for idx, activity in enumerate(protocol.activities):
             if activity.path and not FileManagement.is_file(activity.path):
-                raise BadRequestException(
-                    f"Activity {activity.name} (n°{idx+1}) has an invalid file path: {activity.path}"
-                )
+                raise BadRequestException(ACTIVITY_INVALID_FILE_PATH.format(
+                    activity_name=activity.name,
+                    protocol_name=protocol.name,
+                ))
 
             if activity.has_time_limit and activity.time_limit <= 0:
-                raise BadRequestException(
-                    f"Activity {activity.name} (n°{idx+1}) has an invalid time limit: {activity.time_limit}"
-                )
+                raise BadRequestException(ACTIVITY_INVALID_TIME_LIMIT.format(
+                    activity_name=activity.name,
+                    protocol_name=protocol.name))
+            if activity.close_activity and not activity.process_name:
+                raise BadRequestException(ACTIVITY_PROCESS_NAME_REQUIRED.format(
+                    activity_name=activity.name,
+                    protocol_name=protocol.name,
+                ))
+
             activity_data = {
                 "order": idx + 1,
                 "name": activity.name,
@@ -62,6 +69,7 @@ class ProtocolService:
                 "start_message": activity.start_message,
                 "end_message": activity.end_message,
                 "close_activity": activity.close_activity,
+                "process_name": activity.process_name,
                 "show_timer": activity.show_timer,
             }
             activities_data.append(activity_data)
@@ -111,14 +119,21 @@ class ProtocolService:
             new_activities = []
             for idx, activity in enumerate(protocol.activities):
                 if activity.path and not FileManagement.is_file(activity.path):
-                    raise BadRequestException(
-                        f"Activity {activity.name} (n°{idx+1}) has an invalid file path: {activity.path}"
-                    )
+                    raise BadRequestException(ACTIVITY_INVALID_FILE_PATH.format(
+                        activity_name=activity.name,
+                        protocol_name=new_protocol.name,
+                    ))
 
                 if activity.has_time_limit and activity.time_limit <= 0:
-                    raise BadRequestException(
-                        f"Activity {activity.name} (n°{idx+1}) has an invalid time limit: {activity.time_limit}"
-                    )
+                    raise BadRequestException(ACTIVITY_INVALID_TIME_LIMIT.format(
+                        activity_name=activity.name,
+                        protocol_name=new_protocol.name))
+
+                if activity.close_activity and not activity.process_name:
+                    raise BadRequestException(ACTIVITY_PROCESS_NAME_REQUIRED.format(
+                        activity_name=activity.name,
+                        protocol_name=protocol.name,
+                    ))
                 activity_data = {
                     "order": idx + 1,
                     "name": activity.name,
@@ -128,6 +143,7 @@ class ProtocolService:
                     "start_message": activity.start_message,
                     "end_message": activity.end_message,
                     "close_activity": activity.close_activity,
+                    "process_name": activity.process_name,
                     "show_timer": activity.show_timer,
                 }
                 new_activities.append(activity_data)

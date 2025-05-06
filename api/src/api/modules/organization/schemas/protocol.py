@@ -1,4 +1,5 @@
 from datetime import datetime
+from email import message
 from typing import Optional
 
 from pydantic import BaseModel
@@ -13,6 +14,7 @@ class Activity(BaseModel):
     start_message: str
     end_message: str
     close_activity: bool
+    process_name: str
     show_timer: bool
 
 
@@ -32,6 +34,7 @@ class ActivityPostReq(BaseModel):
     start_message: Optional[str] = ""
     end_message: Optional[str] = ""
     close_activity: bool
+    process_name: Optional[str] = ""
     show_timer: bool
 
 
@@ -48,9 +51,11 @@ class ActivityPutReq(BaseModel):
     start_message: Optional[str] = ""
     end_message: Optional[str] = ""
     close_activity: bool
+    process_name: Optional[str] = ""
     show_timer: bool
 
 
 class ProtocolPutReq(BaseModel):
     name: Optional[str] = None
     activities: Optional[list[ActivityPutReq]] = None
+

@@ -33,7 +33,12 @@ export default function Input({
           />
         </label>
       ) : (
-        <input className={`${className} ${styles.input}`} disabled={disabled} {...rest} />
+        <input
+          className={`${className} ${styles.input}`}
+          required={required}
+          disabled={disabled}
+          {...rest}
+        />
       )}
     </>
   )
