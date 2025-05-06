@@ -53,6 +53,7 @@ class ProjectService:
             AlreadyExistsException: If a project with the same name already exists.
             BadRequestException: If the project name is invalid.
         """
+        project.name = project.name.strip()
         if self.exists(project.name):
             raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
@@ -106,6 +107,7 @@ class ProjectService:
         if self.is_project_locked(project_name):
             raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
 
+        project.name = project.name.strip() if project.name else project_name
         new_project["name"] = project.name if project.name else new_project["name"]
         new_project["description"] = (
             project.description if project.description else new_project["description"]

@@ -77,6 +77,7 @@ class ParticipantService:
             AlreadyExistsException: If a participant with the same code already exists.
             BadRequestException: If the participant code is invalid.
         """
+        participant.code = participant.code.strip()
         if self.exists(project_name, participant.code):
             raise AlreadyExistsException(
                 PARTICIPANT_ALREADY_EXISTS.format(code=participant.code, project_name=project_name)
@@ -171,6 +172,7 @@ class ParticipantService:
                 PARTICIPANT_IS_LOCKED.format(code=participant_code, project_name=project_name)
             )
 
+        participant.code = participant.code.strip() if participant.code else participant_code
         new_participant.code = participant.code if participant.code else new_participant.code
         new_participant.name = participant.name if participant.name else new_participant.name
         new_participant.notes = (

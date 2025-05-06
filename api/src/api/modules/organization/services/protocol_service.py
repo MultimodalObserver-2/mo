@@ -35,6 +35,7 @@ class ProtocolService:
         return JsonStorage(file_name=self._protocols_storage_name, rel_path=project_path)
 
     def create_protocol(self, project_name: str, protocol: ProtocolPostReq) -> ProtocolRes:
+        protocol.name = protocol.name.strip()
         if self.exists(project_name, protocol.name):
             raise AlreadyExistsException(
                 PROTOCOL_ALREADY_EXISTS.format(
@@ -44,6 +45,7 @@ class ProtocolService:
 
         activities_data = []
         for idx, activity in enumerate(protocol.activities):
+            activity.name = activity.name.strip()
             if activity.path and not FileManagement.is_file(activity.path):
                 raise BadRequestException(ACTIVITY_INVALID_FILE_PATH.format(
                     activity_name=activity.name,
@@ -114,10 +116,13 @@ class ProtocolService:
             raise BadRequestException(
                 PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name))
 
+        protocol.name = protocol.name.strip() if protocol.name else new_protocol.name
         new_protocol.name = protocol.name if protocol.name else new_protocol.name
+        
         if protocol.activities:
             new_activities = []
             for idx, activity in enumerate(protocol.activities):
+                activity.name = activity.name.strip()
                 if activity.path and not FileManagement.is_file(activity.path):
                     raise BadRequestException(ACTIVITY_INVALID_FILE_PATH.format(
                         activity_name=activity.name,
