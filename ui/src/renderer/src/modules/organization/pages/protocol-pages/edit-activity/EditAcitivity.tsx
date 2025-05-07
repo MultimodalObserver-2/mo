@@ -140,8 +140,9 @@ export default function EditActivity() {
             </Checkbox>
             <Input
               id="timeLimit"
-              placeholder="Enter the time limit for the activity in seconds"
+              placeholder={`Enter the time limit for the activity in seconds ${hasTimeLimit ? "(*)" : ""}`}
               type="number"
+              required={hasTimeLimit}
               disabled={!hasTimeLimit}
               defaultValue={activity?.time_limit}
               min={1}
