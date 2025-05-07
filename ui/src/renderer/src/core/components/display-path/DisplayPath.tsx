@@ -6,12 +6,23 @@ import DocumentSearchIcon from "../icons/DocumentSearchIcon"
 import { useRef } from "react"
 
 interface DisplayPathProps {
+  /** The name of the path to be displayed */
   name: string
+  /** The path to be displayed */
   value: string
+  /** Whether the buttons should be disabled */
   disabled?: boolean
+  /** Additional class name for styling */
   className?: string
 }
 
+/**
+ * A component that displays a file path with buttons to copy the path and open it in the file explorer.
+ * @param {string} name - The name of the path to be displayed.
+ * @param {string} value - The path to be displayed.
+ * @param {boolean} [disabled=false] - Whether the buttons should be disabled.
+ * @param {string} [className] - Additional class name for styling.
+ */
 export default function DisplayPath({
   name,
   value,

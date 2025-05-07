@@ -3,6 +3,10 @@ import styles from "./checkbox.module.css"
 
 interface CheckboxProps extends Omit<React.InputHTMLAttributes<HTMLInputElement>, "type"> {}
 
+/**
+ * A component that renders a checkbox input with a label.
+ * @param {React.PropsWithChildren<CheckboxProps>} props - The props for the Checkbox component.
+ */
 export default function Checkbox({ children, className, ...rest }: Readonly<CheckboxProps>) {
   return (
     <label className={`${styles.label} ${className}`}>
