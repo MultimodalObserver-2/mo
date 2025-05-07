@@ -336,3 +336,13 @@ def test_exists_success(project_service):
     result = project_service.exists(project_name)
 
     assert result == True
+
+
+def test_get_project_dir_path_success(project_service):
+    project_name = "Test Project"
+    project_service._data_path = "/data/path"
+    project_service._projects_dir_name = "projects"
+
+    result = project_service.get_project_dir_path(project_name)
+
+    assert result == f"{project_service._data_path}/{project_service._projects_dir_name}/{project_name}"
