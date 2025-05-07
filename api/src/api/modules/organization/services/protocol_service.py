@@ -24,7 +24,14 @@ from api.modules.organization.services.project_service import ProjectService
 
 
 class ProtocolService:
+    """Service for managing protocols in projects,
+    including creating, updating, deleting, and locking protocols.
+
+    Protocols are stored in JSON files within the project's directory.
+    """
+
     def __init__(self):
+        """Initialize the ProtocolService, setting up paths and services."""
         self._data_path = RELATIVE_APP_DATA_PATH
         self._projects_dir_name = PROJECTS_DIR_NAME
         self._projects_storage_name = PROJECTS_DATA_FILE_NAME
@@ -35,10 +42,25 @@ class ProtocolService:
         self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
 
     def _get_protocols_storage(self, project_name: str):
+        """Get the storage for protocols of a specific project.
+        Args:
+            project_name (str): The name of the project.
+        """
         project_path = self.project_service.get_project_dir_path(project_name)
         return JsonStorage(file_name=self._protocols_storage_name, rel_path=project_path)
 
     def create_protocol(self, project_name: str, protocol: ProtocolPostReq) -> ProtocolRes:
+        """Create a new protocol within a project.
+        Args:
+            project_name (str): The name of the project.
+            protocol (ProtocolPostReq): The protocol data to create.
+        Returns:
+            ProtocolRes: The created protocol.
+        Raises:
+            NotFoundException: If the project does not exist.
+            AlreadyExistsException: If a protocol with the same name already exists.
+            BadRequestException: If the protocol data is invalid.
+        """
         protocol.name = protocol.name.strip()
         if self.exists(project_name, protocol.name):
             raise AlreadyExistsException(
@@ -62,6 +84,14 @@ class ProtocolService:
         return ProtocolRes(**protocol_data)
 
     def get_all_protocols(self, project_name: str) -> list[ProtocolRes]:
+        """Retrieves all protocols from a project.
+        Args:
+            project_name (str): Name of the project.
+        Returns:
+            list[ProtocolRes]: List of all protocols for the project.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
@@ -69,6 +99,15 @@ class ProtocolService:
         return [ProtocolRes(**protocol) for protocol in protocols]
 
     def get_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        """Retrieves a specific protocol from a project.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol.
+        Returns:
+            ProtocolRes: The requested protocol.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
@@ -84,6 +123,18 @@ class ProtocolService:
     def update_protocol(
         self, project_name: str, protocol_name: str, protocol: ProtocolPutReq
     ) -> ProtocolRes:
+        """Update an existing protocol in a project.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol to update.
+            protocol (ProtocolPutReq): The updated protocol data.
+        Returns:
+            ProtocolRes: The updated protocol.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+            AlreadyExistsException: If a protocol with the new name already exists.
+            BadRequestException: If the protocol data is invalid.
+        """
         existing_protocol = self.get_protocol(project_name, protocol_name)
         if self.is_protocol_locked(project_name, protocol_name):
             raise BadRequestException(
@@ -117,6 +168,14 @@ class ProtocolService:
         return updated_protocol
 
     def delete_protocol(self, project_name: str, protocol_name: str) -> None:
+        """Delete a protocol from a project.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol to delete.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+            BadRequestException: If the protocol is locked.
+        """
         if not self.exists(project_name, protocol_name):
             raise NotFoundException(
                 PROTOCOL_DOES_NOT_EXIST.format(
@@ -133,14 +192,43 @@ class ProtocolService:
         protocols_storage.delete_one({"name": protocol_name})
 
     def lock_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        """Lock a protocol to prevent further modifications.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol to lock.
+        Returns:
+            ProtocolRes: The locked protocol.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+        """
         return self._set_protocol_lock(project_name, protocol_name, True)
 
     def unlock_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
+        """Unlock a protocol to allow modifications.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol to unlock.
+        Returns:
+            ProtocolRes: The unlocked protocol.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+        """
         return self._set_protocol_lock(project_name, protocol_name, False)
 
     def _set_protocol_lock(
         self, project_name: str, protocol_name: str, locked: bool
     ) -> ProtocolRes:
+        """Set the lock status of a protocol.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol.
+            locked (bool): Lock status to set.
+        Returns:
+            ProtocolRes: The protocol with updated lock status.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+            BadRequestException: If the protocol is already in the desired lock state.
+        """
         protocol = self.get_protocol(project_name, protocol_name)
         protocol.locked = locked
         storage = self._get_protocols_storage(project_name)
@@ -148,6 +236,15 @@ class ProtocolService:
         return protocol
 
     def is_protocol_locked(self, project_name: str, protocol_name: str) -> bool:
+        """Check if a protocol is locked.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol.
+        Returns:
+            bool: True if the protocol is locked, False otherwise.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+        """
         protocol = self.get_protocol(project_name, protocol_name)
         if protocol is None:
             raise NotFoundException(
@@ -158,6 +255,15 @@ class ProtocolService:
         return protocol.locked
 
     def exists(self, project_name: str, protocol_name: str) -> bool:
+        """Check if a protocol exists within a project.
+        Args:
+            project_name (str): Name of the project.
+            protocol_name (str): Name of the protocol.
+        Returns:
+            bool: True if the protocol exists, False otherwise.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
@@ -166,6 +272,15 @@ class ProtocolService:
     def _validate_and_format_activities(
         self, activities: list[ActivityPostReq] | list[ActivityPutReq], protocol_name: str
     ) -> list[Activity]:
+        """Validate and format activities for a protocol.
+        Args:
+            activities (list[ActivityPostReq] | list[ActivityPutReq]): List of activities to validate and format.
+            protocol_name (str): Name of the protocol for error messages.
+        Returns:
+            list[Activity]: List of formatted activities.
+        Raises:
+            BadRequestException: If any activity has invalid data.
+        """
         formatted = []
         for idx, activity in enumerate(activities):
             activity.name = activity.name.strip()
