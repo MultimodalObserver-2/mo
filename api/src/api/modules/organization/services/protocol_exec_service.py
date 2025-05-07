@@ -1,7 +1,6 @@
 import asyncio
 
 from fastapi import WebSocket
-from fastapi.background import P
 
 from api.core.file_management.file_management import FileManagement
 from api.core.utils.http_exceptions import BadRequestException
@@ -11,10 +10,21 @@ from api.modules.organization.services.protocol_service import ProtocolService
 
 
 class ProtocolExecService:
+    """Service to handle protocol execution logic."""
+
     def __init__(self):
+        """Initialize the ProtocolExecService."""
         self.protocol_service = ProtocolService()
 
     async def run(self, websocket: WebSocket, protocol_name: str, project_name: str):
+        """Run the protocol execution process.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            protocol_name (str): The name of the protocol to execute.
+            project_name (str): The name of the project.
+        Raises:
+            BadRequestException: If the execution request is invalid.
+        """
         protocol = self.protocol_service.get_protocol(project_name, protocol_name)
         activities = protocol.activities
         for activity in activities:
@@ -23,11 +33,27 @@ class ProtocolExecService:
         await websocket.send_json(finish_msg.model_dump())
 
     async def run_activity(self, websocket: WebSocket, activity: Activity, total_activities: int):
+        """Run a single activity in the protocol.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            activity (Activity): The activity to execute
+            total_activities (int): The total number of activities in the protocol.
+        Raises:
+            BadRequestException: If the execution request is invalid.
+        """
         await self.handle_start(websocket, activity, total_activities)
         await self.handle_activity_execution(websocket, activity)
         await self.handle_end(websocket, activity)
 
     async def handle_start(self, websocket: WebSocket, activity: Activity, total_activities: int):
+        """Handle the start of an activity, including opening any processes.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            activity (Activity): The activity to execute
+            total_activities (int): The total number of activities in the protocol.
+        Raises:
+            BadRequestException: If the execution request is invalid.
+        """
         msg = ProtocolExecMsg(
             activity_name=activity.name,
             activity_num=activity.order,
@@ -43,6 +69,13 @@ class ProtocolExecService:
             raise BadRequestException(INVALID_EXECUTION_REQUEST.format(activity_name=activity.name))
 
     async def handle_activity_execution(self, websocket: WebSocket, activity: Activity):
+        """Handle the execution of an activity.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            activity (Activity): The activity to execute
+        Raises:
+            BadRequestException: If the execution request is invalid.
+        """
         if activity.path:
             FileManagement().open_file(activity.path)
 
@@ -58,6 +91,11 @@ class ProtocolExecService:
                 )
 
     async def send_timer(self, websocket: WebSocket, activity: Activity):
+        """Send a countdown timer to the WebSocket.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            activity (Activity): The activity in which the timer is running.
+        """
         msg = ProtocolExecMsg(
             activity_name=activity.name,
             activity_num=activity.order,
@@ -73,6 +111,13 @@ class ProtocolExecService:
             await asyncio.sleep(1)
 
     async def handle_end(self, websocket: WebSocket, activity: Activity):
+        """Handle the end of an activity, including closing any processes.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+            activity (Activity): The activity to execute
+        Raises:
+            BadRequestException: If the execution request is invalid.
+        """
         msg = ProtocolExecMsg(
             activity_name=activity.name,
             activity_num=activity.order,
