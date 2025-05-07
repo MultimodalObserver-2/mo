@@ -8,10 +8,16 @@ import { useRef } from "react"
 interface DisplayPathProps {
   name: string
   value: string
+  disabled?: boolean
   className?: string
 }
 
-export default function DisplayPath({ name, value, className }: DisplayPathProps) {
+export default function DisplayPath({
+  name,
+  value,
+  disabled = false,
+  className
+}: DisplayPathProps) {
   const copyMessage = useRef<HTMLSpanElement>(null)
 
   const handleCopy = (text: string) => {
@@ -34,6 +40,7 @@ export default function DisplayPath({ name, value, className }: DisplayPathProps
     <DisplayData name={name} value={value} childrenClass={`${styles["location-box"]} ${className}`}>
       <span className={styles["copy-container"]}>
         <Button
+          disabled={disabled}
           className={styles["location-button"]}
           styleType="soft"
           onClick={() => handleCopy(value)}
@@ -45,6 +52,7 @@ export default function DisplayPath({ name, value, className }: DisplayPathProps
         </span>
       </span>
       <Button
+        disabled={disabled}
         className={styles["location-button"]}
         styleType="soft"
         onClick={() => handleOpenPath(value)}

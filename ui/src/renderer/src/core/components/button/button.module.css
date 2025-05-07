@@ -6,6 +6,11 @@
   font-weight: 600;
 }
 
+.button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 /* Styles */
 /* default */
 .button.default {

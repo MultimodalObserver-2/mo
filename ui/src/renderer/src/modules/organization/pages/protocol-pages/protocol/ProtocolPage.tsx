@@ -221,7 +221,15 @@ export default function ProtocolPage() {
                     name="Activity"
                     value={protocol.activities[selectedActivityIdx].name}
                   />
-                  <DisplayPath name="Path" value={protocol.activities[selectedActivityIdx].path} />
+                  <DisplayPath
+                    name="Path"
+                    value={
+                      protocol.activities[selectedActivityIdx].path
+                        ? protocol.activities[selectedActivityIdx].path
+                        : "No path defined"
+                    }
+                    disabled={!protocol.activities[selectedActivityIdx].path}
+                  />
                   <DisplayData
                     name="Time Limit"
                     value={
