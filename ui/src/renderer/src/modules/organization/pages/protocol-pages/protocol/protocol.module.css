@@ -98,10 +98,11 @@
     flex-direction: column;
     gap: 8px;
     width: 100%;
+    overflow: hidden;
 }
 
 .activity-info-boolean {
     display: flex;
     align-items: center;
-    gap: 6px;
+    gap: 20px;
 }
