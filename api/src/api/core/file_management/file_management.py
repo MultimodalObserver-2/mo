@@ -1,8 +1,9 @@
 import os
 import platform
 import shutil
-import psutil
 from typing import Optional
+
+import psutil
 
 from api.core.file_management.exceptions import (InvalidDirectoryNameError,
                                                  InvalidFileNameError,
@@ -151,15 +152,15 @@ class FileManagement:
         operating_system = platform.system()
         if operating_system == "Windows":
             os.startfile(file_path)
-        elif operating_system == "Darwin": # macOS
+        elif operating_system == "Darwin":  # macOS
             os.system(f"open {file_path}")
-        else: # Linux and other Unix-like systems
+        else:  # Linux and other Unix-like systems
             os.system(f"xdg-open {file_path}")
-    
+
     @staticmethod
     def close_process(process_name: str):
-        for proc in psutil.process_iter(['pid', 'name']):
-            if proc.info['name'] == process_name:
+        for proc in psutil.process_iter(["pid", "name"]):
+            if proc.info["name"] == process_name:
                 try:
                     proc.kill()
                 except (psutil.NoSuchProcess, psutil.AccessDenied):

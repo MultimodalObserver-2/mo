@@ -1,10 +1,10 @@
-import asyncio
-from api.modules.organization.services.protocol_exec_service import ProtocolExecService
 from fastapi import APIRouter, Depends, Path, WebSocket, status
 
 from api.modules.organization.schemas.protocol import (ProtocolPostReq,
                                                        ProtocolPutReq,
                                                        ProtocolRes)
+from api.modules.organization.services.protocol_exec_service import \
+    ProtocolExecService
 from api.modules.organization.services.protocol_service import ProtocolService
 
 protocols_router = APIRouter(
@@ -14,6 +14,7 @@ protocols_router = APIRouter(
 
 PROJECT_NAME_DESC = "Name of the project."
 PROTOCOL_NAME_DESC = "Name of the protocol."
+
 
 @protocols_router.post(
     "/",

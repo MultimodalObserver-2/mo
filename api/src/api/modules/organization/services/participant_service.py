@@ -260,8 +260,10 @@ class ParticipantService:
             NotFoundException: If the participant does not exist.
         """
         return self._set_participant_lock(project_name, participant_code, False)
-    
-    def _set_participant_lock(self, project_name: str, participant_code: str, locked: bool) -> ParticipantRes:
+
+    def _set_participant_lock(
+        self, project_name: str, participant_code: str, locked: bool
+    ) -> ParticipantRes:
         """Sets the lock status of a participant.
 
         Args:

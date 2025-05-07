@@ -15,6 +15,7 @@ The UI is built using **React**, **TypeScript**, and packaged with **Electron + 
 - [electron-vite](https://electron-vite.org/) (included as a dependency)
 
 > 💡 Recommended IDE setup:
+>
 > - [Visual Studio Code](https://code.visualstudio.com/)
 > - Extensions: [ESLint](https://marketplace.visualstudio.com/items?itemName=dbaeumer.vscode-eslint), [Prettier](https://marketplace.visualstudio.com/items?itemName=esbenp.prettier-vscode)
 
@@ -24,28 +25,28 @@ The UI is built using **React**, **TypeScript**, and packaged with **Electron + 
 
 1. Clone the repository and navigate to the `ui` folder:
 
-    ```bash
-    git clone https://github.com/MultimodalObserver-2/mo
-    cd ui
-    ```
+   ```bash
+   git clone https://github.com/MultimodalObserver-2/mo
+   cd ui
+   ```
 
 2. Install project dependencies:
 
-    ```bash
-    npm install
-    ```
+   ```bash
+   npm install
+   ```
 
 3. Copy the `.env.example` file and create your own `.env` file:
 
-    ```bash
-    cp .env.example .env
-    ```
+   ```bash
+   cp .env.example .env
+   ```
 
-    Edit the `.env` file to set up your environment variables.  
-    The following variables must be configured:
-    
-    - `SONAR_TOKEN`: Your SonarQube authentication token.
-    - `VITE_DEV_API_PORT`: The port where the API is served during development (default: `8000`).
+   Edit the `.env` file to set up your environment variables.  
+   The following variables must be configured:
+
+   - `SONAR_TOKEN`: Your SonarQube authentication token.
+   - `VITE_DEV_API_PORT`: The port where the API is served during development (default: `8000`).
 
 ---
 
@@ -72,7 +73,6 @@ The following scripts are defined in `package.json` to simplify development and 
 
 - **SonarQube Integration**:
   - The `SONAR_TOKEN` must be set in the `.env` file before running `npm run sonar`.
-  
 - **Build targets**:
   - Ensure you're on the correct operating system when running platform-specific builds (e.g., `build:mac` on macOS).
   - You can use `build:unpack` for raw builds without creating platform installers.

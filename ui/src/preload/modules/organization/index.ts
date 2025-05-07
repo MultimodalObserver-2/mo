@@ -90,7 +90,7 @@ const organization = {
   },
   onActivityTimerStop: (callback: () => void) => {
     ipcRenderer.on("organization:on-activity-timer-stop", () => callback())
-  },
+  }
 }
 
 contextBridge.exposeInMainWorld("organization", organization)

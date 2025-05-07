@@ -54,15 +54,15 @@
   background-color: var(--color-primary-400);
 }
 
-.dragging .item  {
+.dragging .item {
   background-color: var(--color-primary-400);
 }
 
-.drag-over-top .item  {
+.drag-over-top .item {
   border-top: 3px solid var(--color-accent-500);
 }
 
-.drag-over-bottom .item  {
+.drag-over-bottom .item {
   border-bottom: 3px solid var(--color-accent-500);
 }
 

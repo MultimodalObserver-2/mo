@@ -14,6 +14,7 @@ participant_router = APIRouter(
 PROJECT_NAME_DESC = "Name of the project."
 PARTICIPANT_CODE_DESC = "Code of the participant."
 
+
 @participant_router.post(
     "/",
     response_model=ParticipantRes,

@@ -11,7 +11,6 @@ from api.modules.organization.errors.participant import (
     PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
     PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.services import project_service
 from api.modules.organization.services.participant_service import \
     ParticipantService
 from api.modules.organization.services.project_service import ProjectService

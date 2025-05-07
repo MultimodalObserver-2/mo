@@ -1,9 +1,7 @@
 from datetime import datetime
-from tkinter import N
 from unittest.mock import MagicMock, patch
 
 import pytest
-from fastapi.background import P
 
 from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,

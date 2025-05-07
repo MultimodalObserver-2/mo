@@ -1,56 +1,56 @@
 .time-limit-box {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .time-limit-inputs {
-    display: grid;
-    grid-template-columns: 2fr 5fr;
+  display: grid;
+  grid-template-columns: 2fr 5fr;
 }
 
 .required {
-    color: var(--color-red-500);
-    font-weight: 700;
+  color: var(--color-red-500);
+  font-weight: 700;
 }
 
 .close-activity-box {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .close-activity-inputs {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 6px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
 }
 
 .location-label {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
 }
 
 .location-input {
-    display: grid;
-    grid-template-columns: 1fr auto;
-    gap: 6px;
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
 }
 
 .location-button {
-    height: 100%;
-    box-shadow: -2px 1px 3px var(--color-primary-800) !important;
+  height: 100%;
+  box-shadow: -2px 1px 3px var(--color-primary-800) !important;
 }
 
 .button-icon {
-    width: 20px;
-    height: 20px;
-    fill: var(--color-text-light);
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
 }
 
 .additional-options {
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
 }

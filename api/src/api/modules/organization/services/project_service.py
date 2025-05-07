@@ -192,7 +192,7 @@ class ProjectService:
             NotFoundException: If the project does not exist.
         """
         return self._set_project_lock(project_name, False)
-    
+
     def _set_project_lock(self, project_name: str, locked: bool) -> ProjectRes:
         """Sets the lock status of a project.
 

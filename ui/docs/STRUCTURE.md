@@ -17,6 +17,7 @@ All major code is located under the `src/` folder, which is divided into three t
 ---
 
 ### `src/main/`
+
 Responsible for the Electron main process logic.
 
 - **`core/`**: Common services or helpers for the Electron app.
@@ -26,6 +27,7 @@ Responsible for the Electron main process logic.
 ---
 
 ### `src/preload/`
+
 Contains preload scripts that safely expose APIs to the renderer process.
 
 - **`core/`**: Shared logic for context bridging.
@@ -35,12 +37,15 @@ Contains preload scripts that safely expose APIs to the renderer process.
 ---
 
 ### `src/renderer/`
+
 Frontend logic implemented with React.
 
 #### `src/renderer/src/`
+
 Main React app source directory.
 
 - **`core/`**: Global resources shared across the app.
+
   - `assets/`: Static images or fonts.
   - `components/`: Reusable UI components (buttons, inputs, etc.).
   - `layouts/`: Layout containers used to wrap pages.
@@ -50,6 +55,7 @@ Main React app source directory.
   - `utils/`: Utility functions.
 
 - **`modules/`**: Feature-specific logic organized by domain.
+
   - `organization/`: Example module with subfolders:
     - `components/`: Module-specific UI components.
     - `pages/`: Pages related to this feature.
@@ -76,8 +82,8 @@ Main React app source directory.
 | `tsconfig*.json`           | TypeScript project configurations (shared, node, web contexts).      |
 | `package.json`             | Project metadata, scripts, and dependencies.                         |
 | `sonar-project.properties` | Configuration for SonarQube static code analysis.                    |
-| `README.md`                | 📖 General setup, development, and build instructions.                |
-| `docs/STRUCTURE.md`        | 📁 This file: directory and architecture overview.                    |
+| `README.md`                | 📖 General setup, development, and build instructions.               |
+| `docs/STRUCTURE.md`        | 📁 This file: directory and architecture overview.                   |
 
 ---
 
