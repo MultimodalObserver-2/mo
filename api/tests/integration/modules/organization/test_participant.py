@@ -26,6 +26,8 @@ def temp_service(tmp_path):
     project_service = ProjectService()
     project_service.file_management = file_management
     project_service.projects_storage = projects_storage
+    project_service._data_path = tmp_data_path
+    project_service._projects_dir_name = "projects"
     participant_service = ParticipantService()
     participant_service.file_management = file_management
     participant_service.project_service = project_service
@@ -55,7 +57,7 @@ async def test_create_participant(temp_service):
         response = await client.post(f"/projects/{project_name}/participants/", json=participant)
 
     # Check the response
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
     response_data = response.json()
     assert response_data["code"] == participant["code"]
     assert response_data["name"] == participant["name"]

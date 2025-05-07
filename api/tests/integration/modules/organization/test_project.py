@@ -39,7 +39,7 @@ async def test_create_project_api(temp_service):
         response = await client.post("/projects/", json=data)
 
     # Check api response
-    assert response.status_code == status.HTTP_200_OK
+    assert response.status_code == status.HTTP_201_CREATED
     response_data = response.json()
     assert response_data["name"] == data["name"]
     assert response_data["description"] == data["description"]
