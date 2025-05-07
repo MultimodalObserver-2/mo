@@ -23,14 +23,14 @@ export default function EditActivity() {
 
   useEffect(() => {
     const activityData = {
-      name: searchParams.get("name") || "",
-      path: searchParams.get("path") || "",
+      name: searchParams.get("name") ?? "",
+      path: searchParams.get("path") ?? "",
       has_time_limit: searchParams.get("has_time_limit") === "true",
-      time_limit: parseInt(searchParams.get("time_limit") || "0", 10),
-      start_message: searchParams.get("start_message") || "",
-      end_message: searchParams.get("end_message") || "",
+      time_limit: parseInt(searchParams.get("time_limit") ?? "0", 10),
+      start_message: searchParams.get("start_message") ?? "",
+      end_message: searchParams.get("end_message") ?? "",
       close_activity: searchParams.get("close_activity") === "true",
-      process_name: searchParams.get("process_name") || "",
+      process_name: searchParams.get("process_name") ?? "",
       show_timer: searchParams.get("show_timer") === "true"
     }
     console.log("Search Params", searchParams)
@@ -49,7 +49,7 @@ export default function EditActivity() {
       name: form.name.value,
       path: filePath,
       has_time_limit: hasTimeLimit,
-      time_limit: form.timeLimit.value || 0,
+      time_limit: form.timeLimit.value ?? 0,
       start_message: form.startMessage.value,
       end_message: form.endMessage.value,
       close_activity: form.closeActivity.checked,

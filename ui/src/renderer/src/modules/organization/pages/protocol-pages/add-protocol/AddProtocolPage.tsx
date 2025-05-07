@@ -24,39 +24,23 @@ import {
 } from "@renderer/modules/organization/utils/modalWindows"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
+import { addActivity, updateActivity } from "../protocolUtils"
 
 export default function AddProtocolPage() {
   const { projectName } = useParams<{ projectName: string }>()
   const [activities, setActivities] = useState<ActivityCreate[]>([])
 
   useEffect(() => {
-    const getFinalActivityName = (acts, realName: string, name = realName, num = 1) => {
-      const nameExists = acts.some((activity) => activity.name === name)
-      if (nameExists) {
-        const newName = `${realName} (${num})`
-        return getFinalActivityName(acts, realName, newName, num + 1)
-      }
-
-      return name
+    const handleWinAddActivity = (activity: ActivityCreate) => {
+      addActivity(activity, activities, setActivities)
     }
 
-    const addActivity = (activity) => {
-      const newName = getFinalActivityName(activities, activity.name)
-      activity.name = newName
-      setActivities((prevActivities) => [...prevActivities, activity])
+    const handleWinUpdateActivity = (originalName: string, activity: ActivityCreate) => {
+      updateActivity(activities, setActivities, originalName, activity)
     }
 
-    const updateActivity = (originalName: string, activity: ActivityCreate) => {
-      const acts = activities.filter((act) => act.name !== originalName)
-      const newName = getFinalActivityName(acts, activity.name)
-      activity.name = newName
-      setActivities((prevActivities) =>
-        prevActivities.map((act) => (act.name === originalName ? { ...act, ...activity } : act))
-      )
-    }
-
-    window.organization.onAddActivity(addActivity)
-    window.organization.onUpdateActivity(updateActivity)
+    window.organization.onAddActivity(handleWinAddActivity)
+    window.organization.onUpdateActivity(handleWinUpdateActivity)
     return () => {
       window.organization.removeAddActivity()
       window.organization.removeUpdateActivity()

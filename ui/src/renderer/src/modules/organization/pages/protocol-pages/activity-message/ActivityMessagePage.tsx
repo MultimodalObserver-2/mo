@@ -32,16 +32,16 @@ export default function ActivityMessagePage() {
         <ModalTitle
           className={styles.title}
           iconClassName={styles.icon}
-          title={activityName || ""}
+          title={activityName ?? ""}
           Icon={InfoIcon}
         />
       </ModalHeader>
       <ModalBody>
-        <p ref={messageRef}>{searchParams.get("message") || ""}</p>
+        <p ref={messageRef}>{searchParams.get("message") ?? ""}</p>
       </ModalBody>
       <ModalFooter>
         {buttons?.map((button, index) => (
-          <Button key={index} onClick={() => handleClick(index)}>
+          <Button key={button + index} onClick={() => handleClick(index)}>
             {button}
           </Button>
         ))}

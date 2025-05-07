@@ -17,7 +17,7 @@ export default function DisplayPath({
   value,
   disabled = false,
   className
-}: DisplayPathProps) {
+}: Readonly<DisplayPathProps>) {
   const copyMessage = useRef<HTMLSpanElement>(null)
 
   const handleCopy = (text: string) => {

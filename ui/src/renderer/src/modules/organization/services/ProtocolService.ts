@@ -18,7 +18,7 @@ class ProtocolService {
   }
 
   async get(projectName: string, protocolName: string): Promise<AxiosResponse<Protocol, unknown>> {
-    return axios.get(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/`)
+    return axios.get(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}`)
   }
 
   async update(
@@ -27,7 +27,7 @@ class ProtocolService {
     data: ProtocolCreate
   ): Promise<AxiosResponse<Protocol, unknown>> {
     return axios.put(
-      `${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/`,
+      `${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}`,
       data
     )
   }
@@ -36,7 +36,7 @@ class ProtocolService {
     projectName: string,
     protocolName: string
   ): Promise<AxiosResponse<unknown, unknown>> {
-    return axios.delete(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/`)
+    return axios.delete(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}`)
   }
 
   async lock(projectName: string, protocolName: string): Promise<AxiosResponse<Protocol, unknown>> {

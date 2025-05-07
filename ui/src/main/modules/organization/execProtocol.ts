@@ -13,11 +13,7 @@ type ProtocolExecMsg = {
   show_timer: boolean
 }
 
-function createMessageBrowserWindow(
-  name: string,
-  message: string,
-  buttons: string[]
-): Promise<number> {
+function showMessageWindow(name: string, message: string, buttons: string[]): Promise<number> {
   return new Promise((resolve) => {
     const msgWin = new BrowserWindow({
       width: 350,
@@ -122,11 +118,11 @@ app.whenReady().then(() => {
       )
       return
     }
-    let API_PORT: string | number = 8000
+    let API_PORT: string | number
     if (is.dev) {
       API_PORT = import.meta.env.VITE_DEV_API_PORT || "8000"
     } else {
-      API_PORT = getApiPort() || 8000
+      API_PORT = getApiPort() ?? 8000
     }
 
     const socket = new WebSocket(
@@ -143,62 +139,77 @@ app.whenReady().then(() => {
       timerWindow.destroy()
     }
 
-    socket.onerror = (error) => {
+    socket.onerror = () => {
       isProtocolRunning = false
       timerWindow.destroy()
       dialog.showErrorBox(
         "Protocol Execution Error",
-        "An error occurred while executing the protocol." + error
+        "An error occurred while executing the protocol."
       )
     }
 
     socket.onmessage = async (event) => {
       const data: ProtocolExecMsg = JSON.parse(event.data)
-      if (data.message_type === "start") {
-        const response = await createMessageBrowserWindow(data.activity_name, data.message, [
-          "Start"
-        ])
-        if (response === 0) {
-          socket.send("start")
-          if (data.show_timer) {
-            timerWindow.show()
-          }
-        }
-
-        if (!data.has_time_limit) {
-          if (data.show_timer) {
-            timerWindow.webContents.send("organization:on-activity-timer-start", 0)
-            timerWindow.show()
-          }
-          const response = await createMessageBrowserWindow(data.activity_name, data.message, [
-            "Completed"
-          ])
-          if (response === 0) {
-            if (data.show_timer) {
-              timerWindow.webContents.send("organization:on-activity-timer-stop")
-              timerWindow.hide()
-            }
-            socket.send("completed")
-          }
-        }
-      } else if (data.message_type === "end") {
-        const button = data.total_activities === data.activity_num ? "Finish" : "Next"
-        const response = await createMessageBrowserWindow(data.activity_name, data.message, [
-          button
-        ])
+      const stopTimer = () => {
         if (data.show_timer) {
           timerWindow.webContents.send("organization:on-activity-timer-stop")
           timerWindow.hide()
         }
-        if (response === 0) {
+      }
+
+      const showTimer = () => {
+        if (data.show_timer) {
+          timerWindow.show()
+        }
+      }
+
+      const startTimer = () => {
+        if (data.show_timer) {
+          timerWindow.webContents.send("organization:on-activity-timer-start", 0)
+          timerWindow.show()
+        }
+      }
+
+      const handleCompleteActivity = async () => {
+        startTimer()
+        const completeResponse = await showMessageWindow(data.activity_name, data.message, [
+          "Completed"
+        ])
+        if (completeResponse === 0) {
+          stopTimer()
+          socket.send("completed")
+        }
+      }
+
+      if (data.message_type === "start") {
+        const startResponse = await showMessageWindow(data.activity_name, data.message, ["Start"])
+        if (startResponse === 0) {
+          socket.send("start")
+          showTimer()
+        }
+
+        if (!data.has_time_limit) {
+          await handleCompleteActivity()
+        }
+      }
+
+      if (data.message_type === "end") {
+        const button = data.total_activities === data.activity_num ? "Finish" : "Next"
+        const endResponse = await showMessageWindow(data.activity_name, data.message, [button])
+        stopTimer()
+        if (endResponse === 0) {
           socket.send("next")
         }
-      } else if (data.show_timer && data.message_type === "timer") {
+      }
+
+      if (data.show_timer && data.message_type === "timer") {
         timerWindow.webContents.send(
           "organization:on-activity-timer-change",
           parseInt(data.message)
         )
-      } else if (data.message_type === "finish") {
+      }
+
+      if (data.message_type === "finish") {
         socket.close()
         isProtocolRunning = false
       }

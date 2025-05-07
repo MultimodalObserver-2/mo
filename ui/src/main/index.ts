@@ -90,7 +90,7 @@ app.whenReady().then(async () => {
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
-    if (!is.dev && apiProcess && apiProcess.pid) {
+    if (!is.dev && apiProcess?.pid) {
       treeKill(apiProcess.pid)
     }
     app.quit()
