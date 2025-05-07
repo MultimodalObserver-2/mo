@@ -4,3 +4,4 @@ PROTOCOL_IS_LOCKED = "Protocol '{protocol_name}' in project '{project_name}' is 
 ACTIVITY_INVALID_FILE_PATH = "Invalid file path for activity '{activity_name}' in protocol '{protocol_name}'."
 ACTIVITY_INVALID_TIME_LIMIT = "Invalid time limit for activity '{activity_name}' in protocol '{protocol_name}'."
 ACTIVITY_PROCESS_NAME_REQUIRED = "Process name is required for activity '{activity_name}' in protocol '{protocol_name}'."
+INVALID_EXECUTION_REQUEST = "Invalid execution request for activity '{activity_name}'."

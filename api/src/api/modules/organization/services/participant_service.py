@@ -244,16 +244,7 @@ class ParticipantService:
         Raises:
             NotFoundException: If the participant does not exist.
         """
-        participant = self.get_participant(project_name, participant_code)
-        if participant is None:
-            raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
-            )
-
-        participant.locked = True
-        participants_storage = self._get_participants_storage(project_name)
-        participants_storage.update({"code": participant_code}, participant.model_dump())
-        return participant
+        return self._set_participant_lock(project_name, participant_code, True)
 
     def unlock_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
         """Unlocks a participant, allowing modifications.
@@ -268,13 +259,29 @@ class ParticipantService:
         Raises:
             NotFoundException: If the participant does not exist.
         """
+        return self._set_participant_lock(project_name, participant_code, False)
+    
+    def _set_participant_lock(self, project_name: str, participant_code: str, locked: bool) -> ParticipantRes:
+        """Sets the lock status of a participant.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+            locked (bool): Lock status to set.
+
+        Returns:
+            ParticipantRes: The updated participant details.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+        """
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
             )
 
-        participant.locked = False
+        participant.locked = locked
         participants_storage = self._get_participants_storage(project_name)
         participants_storage.update({"code": participant_code}, participant.model_dump())
         return participant

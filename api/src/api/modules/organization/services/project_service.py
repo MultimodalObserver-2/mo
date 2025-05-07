@@ -177,13 +177,7 @@ class ProjectService:
         Raises:
             NotFoundException: If the project does not exist.
         """
-        project = self.projects_storage.find_one({"name": project_name})
-        if project is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
-
-        project["locked"] = True
-        self.projects_storage.update({"name": project_name}, project)
-        return ProjectRes(**project)
+        return self._set_project_lock(project_name, True)
 
     def unlock_project(self, project_name: str) -> ProjectRes:
         """Unlocks a project, allowing modifications.
@@ -197,11 +191,26 @@ class ProjectService:
         Raises:
             NotFoundException: If the project does not exist.
         """
+        return self._set_project_lock(project_name, False)
+    
+    def _set_project_lock(self, project_name: str, locked: bool) -> ProjectRes:
+        """Sets the lock status of a project.
+
+        Args:
+            project_name (str): Name of the project.
+            locked (bool): Lock status to set.
+
+        Returns:
+            ProjectRes: The updated project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        project["locked"] = False
+        project["locked"] = locked
         self.projects_storage.update({"name": project_name}, project)
         return ProjectRes(**project)
 

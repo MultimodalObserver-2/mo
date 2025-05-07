@@ -11,6 +11,8 @@ participant_router = APIRouter(
     tags=["participants"],
 )
 
+PROJECT_NAME_DESC = "Name of the project."
+PARTICIPANT_CODE_DESC = "Code of the participant."
 
 @participant_router.post(
     "/",
@@ -26,7 +28,7 @@ participant_router = APIRouter(
 )
 async def create_participant(
     participant: ParticipantPostReq,
-    project_name: str = Path(..., description="Name of the project"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.create_participant(project_name, participant)
@@ -42,7 +44,7 @@ async def create_participant(
     },
 )
 async def get_all_participants(
-    project_name: str = Path(..., description="Name of the project"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.get_all_participants(project_name)
@@ -61,8 +63,8 @@ async def get_all_participants(
 )
 async def update_participant(
     participant: ParticipantPutReq,
-    project_name: str = Path(..., description="Name of the project"),
-    participant_code: str = Path(..., description="Current code of the participant"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.update_participant(project_name, participant_code, participant)
@@ -78,8 +80,8 @@ async def update_participant(
     },
 )
 async def get_participant(
-    project_name: str = Path(..., description="Name of the project"),
-    participant_code: str = Path(..., description="Code of the participant"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.get_participant(project_name, participant_code)
@@ -96,8 +98,8 @@ async def get_participant(
     },
 )
 async def delete_participant(
-    project_name: str = Path(..., description="Name of the project"),
-    participant_code: str = Path(..., description="Code of the participant"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.delete_participant(project_name, participant_code)
@@ -113,8 +115,8 @@ async def delete_participant(
     },
 )
 async def lock_participant(
-    project_name: str = Path(..., description="Name of the project"),
-    participant_code: str = Path(..., description="Code of the participant"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.lock_participant(project_name, participant_code)
@@ -130,8 +132,8 @@ async def lock_participant(
     },
 )
 async def unlock_participant(
-    project_name: str = Path(..., description="Name of the project"),
-    participant_code: str = Path(..., description="Code of the participant"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
     return service.unlock_participant(project_name, participant_code)

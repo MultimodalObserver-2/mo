@@ -12,6 +12,8 @@ protocols_router = APIRouter(
     tags=["protocols"],
 )
 
+PROJECT_NAME_DESC = "Name of the project."
+PROTOCOL_NAME_DESC = "Name of the protocol."
 
 @protocols_router.post(
     "/",
@@ -27,7 +29,7 @@ protocols_router = APIRouter(
 )
 async def create_protocol(
     protocol: ProtocolPostReq,
-    project_name: str = Path(..., description="Name of the project"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.create_protocol(project_name, protocol)
@@ -44,7 +46,7 @@ async def create_protocol(
     },
 )
 async def get_all_protocols(
-    project_name: str = Path(..., description="Name of the project"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.get_all_protocols(project_name)
@@ -62,8 +64,8 @@ async def get_all_protocols(
     },
 )
 async def get_protocol(
-    project_name: str = Path(..., description="Name of the project"),
-    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.get_protocol(project_name, protocol_name)
@@ -83,8 +85,8 @@ async def get_protocol(
 )
 async def update_protocol(
     protocol: ProtocolPutReq,
-    project_name: str = Path(..., description="Name of the project"),
-    protocol_name: str = Path(..., description="Name of the protocol"),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.update_protocol(project_name, protocol_name, protocol)
@@ -102,8 +104,8 @@ async def update_protocol(
     },
 )
 async def delete_protocol(
-    protocol_name: str = Path(..., description="Name of the protocol"),
-    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.delete_protocol(project_name, protocol_name)
@@ -121,8 +123,8 @@ async def delete_protocol(
     },
 )
 async def lock_protocol(
-    protocol_name: str = Path(..., description="Name of the protocol"),
-    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.lock_protocol(project_name, protocol_name)
@@ -140,8 +142,8 @@ async def lock_protocol(
     },
 )
 async def unlock_protocol(
-    protocol_name: str = Path(..., description="Name of the protocol"),
-    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolService = Depends(),
 ):
     return service.unlock_protocol(project_name, protocol_name)
@@ -150,8 +152,8 @@ async def unlock_protocol(
 @protocols_router.websocket("/{protocol_name}/execute")
 async def websocket_protocol(
     websocket: WebSocket,
-    protocol_name: str = Path(..., description="Name of the protocol"),
-    project_name: str = Path(..., description="Name of the project"),
+    protocol_name: str = Path(..., description=PROTOCOL_NAME_DESC),
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
     service: ProtocolExecService = Depends(),
 ):
     await websocket.accept()
