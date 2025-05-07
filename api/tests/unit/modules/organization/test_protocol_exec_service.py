@@ -1,8 +1,11 @@
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import pytest
-from unittest.mock import AsyncMock, patch, MagicMock
+
 from api.core.utils.http_exceptions import BadRequestException
 from api.modules.organization.schemas.protocol import Activity, ProtocolExecMsg
-from api.modules.organization.services.protocol_exec_service import ProtocolExecService
+from api.modules.organization.services.protocol_exec_service import \
+    ProtocolExecService
 
 
 @pytest.fixture
@@ -28,9 +31,13 @@ async def test_run_activity_success(activity_example):
 
     service = ProtocolExecService()
 
-    with patch.object(service, "handle_start", wraps=service.handle_start) as mock_start, \
-            patch.object(service, "handle_activity_execution", wraps=service.handle_activity_execution) as mock_exec, \
-            patch.object(service, "handle_end", wraps=service.handle_end) as mock_end:
+    with (
+        patch.object(service, "handle_start", wraps=service.handle_start) as mock_start,
+        patch.object(
+            service, "handle_activity_execution", wraps=service.handle_activity_execution
+        ) as mock_exec,
+        patch.object(service, "handle_end", wraps=service.handle_end) as mock_end,
+    ):
 
         await service.run_activity(websocket, activity_example, total_activities=1)
 
@@ -60,7 +67,9 @@ async def test_handle_activity_execution_with_file(activity_example):
 
     service = ProtocolExecService()
 
-    with patch("api.modules.organization.services.protocol_exec_service.FileManagement.open_file") as mock_open_file:
+    with patch(
+        "api.modules.organization.services.protocol_exec_service.FileManagement.open_file"
+    ) as mock_open_file:
         await service.handle_activity_execution(websocket, activity_example)
         mock_open_file.assert_called_once_with(activity_example.path)
 
@@ -74,7 +83,10 @@ async def test_handle_activity_execution_with_timer(activity_example):
 
     service = ProtocolExecService()
 
-    with patch("api.modules.organization.services.protocol_exec_service.asyncio.sleep", new_callable=AsyncMock):
+    with patch(
+        "api.modules.organization.services.protocol_exec_service.asyncio.sleep",
+        new_callable=AsyncMock,
+    ):
         await service.handle_activity_execution(websocket, activity_example)
         assert websocket.send_json.await_count == 3
 
@@ -84,9 +96,16 @@ async def test_handle_activity_execution_with_time_limit_and_no_timer():
     websocket = AsyncMock()
 
     activity = Activity(
-        name="TimedActivity", order=1, path="", has_time_limit=True,
-        time_limit=1, start_message="", end_message="", close_activity=False,
-        process_name="", show_timer=False
+        name="TimedActivity",
+        order=1,
+        path="",
+        has_time_limit=True,
+        time_limit=1,
+        start_message="",
+        end_message="",
+        close_activity=False,
+        process_name="",
+        show_timer=False,
     )
 
     service = ProtocolExecService()
@@ -102,9 +121,16 @@ async def test_handle_activity_execution_raises_if_not_completed():
     websocket.receive_text.return_value = "invalid_response"
 
     activity = Activity(
-        name="TestActivity", order=1, path="", has_time_limit=False,
-        time_limit=0, start_message="", end_message="", close_activity=False,
-        process_name="", show_timer=False
+        name="TestActivity",
+        order=1,
+        path="",
+        has_time_limit=False,
+        time_limit=0,
+        start_message="",
+        end_message="",
+        close_activity=False,
+        process_name="",
+        show_timer=False,
     )
 
     service = ProtocolExecService()
@@ -134,7 +160,9 @@ async def test_handle_end_with_close_process(activity_example):
 
     service = ProtocolExecService()
 
-    with patch("api.modules.organization.services.protocol_exec_service.FileManagement.close_process") as mock_close:
+    with patch(
+        "api.modules.organization.services.protocol_exec_service.FileManagement.close_process"
+    ) as mock_close:
         await service.handle_end(websocket, activity_example)
         mock_close.assert_called_once_with("some_process")
 
@@ -145,9 +173,16 @@ async def test_run_full_protocol():
     websocket.receive_text.side_effect = ["start", "completed", "next"]
 
     activity = Activity(
-        name="A1", order=1, path="", has_time_limit=False, time_limit=0,
-        start_message="Start", end_message="End", close_activity=False,
-        process_name="", show_timer=False
+        name="A1",
+        order=1,
+        path="",
+        has_time_limit=False,
+        time_limit=0,
+        start_message="Start",
+        end_message="End",
+        close_activity=False,
+        process_name="",
+        show_timer=False,
     )
 
     mock_protocol = MagicMock()
@@ -158,5 +193,6 @@ async def test_run_full_protocol():
         await service.run(websocket, protocol_name="TestProtocol", project_name="TestProject")
 
     assert websocket.send_json.await_count == 3
-    websocket.send_json.assert_any_call(ProtocolExecMsg(
-        message="Protocol finished", message_type="finish").model_dump())
+    websocket.send_json.assert_any_call(
+        ProtocolExecMsg(message="Protocol finished", message_type="finish").model_dump()
+    )

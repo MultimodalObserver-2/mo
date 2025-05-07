@@ -21,8 +21,7 @@ def test_create_directory_success(file_mgmt):
             "api.core.file_management.file_management.FileValidators.is_valid_directory_name",
             return_value=True,
         ),
-        patch("api.core.file_management.file_management.os.path.exists",
-              return_value=False),
+        patch("api.core.file_management.file_management.os.path.exists", return_value=False),
         patch("api.core.file_management.file_management.os.mkdir") as mock_mkdir,
     ):
 
@@ -46,8 +45,7 @@ def test_create_directory_already_exists(file_mgmt):
             "api.core.file_management.file_management.FileValidators.is_valid_directory_name",
             return_value=True,
         ),
-        patch("api.core.file_management.file_management.os.path.exists",
-              return_value=True),
+        patch("api.core.file_management.file_management.os.path.exists", return_value=True),
     ):
 
         with pytest.raises(FileExistsError):
@@ -111,8 +109,7 @@ def test_rename_directory_invalid_name(file_mgmt):
 
 def test_delete_directory_success(file_mgmt):
     with (
-        patch("api.core.file_management.file_management.os.path.exists",
-              return_value=True),
+        patch("api.core.file_management.file_management.os.path.exists", return_value=True),
         patch("api.core.file_management.file_management.shutil.rmtree") as mock_rmtree,
     ):
 
@@ -137,8 +134,7 @@ def test_is_file(file_mgmt):
 
 def test_open_file_linux(file_mgmt):
     with (
-        patch("api.core.file_management.file_management.platform.system",
-              return_value="Linux"),
+        patch("api.core.file_management.file_management.platform.system", return_value="Linux"),
         patch("api.core.file_management.file_management.os.system") as mock_system,
     ):
         file_mgmt.open_file("file.txt")
@@ -147,8 +143,7 @@ def test_open_file_linux(file_mgmt):
 
 def test_open_file_windows(file_mgmt):
     with (
-        patch("api.core.file_management.file_management.platform.system",
-              return_value="Windows"),
+        patch("api.core.file_management.file_management.platform.system", return_value="Windows"),
         patch("api.core.file_management.file_management.os.startfile") as mock_startfile,
     ):
         file_mgmt.open_file("file.txt")
@@ -157,8 +152,7 @@ def test_open_file_windows(file_mgmt):
 
 def test_open_file_mac(file_mgmt):
     with (
-        patch("api.core.file_management.file_management.platform.system",
-              return_value="Darwin"),
+        patch("api.core.file_management.file_management.platform.system", return_value="Darwin"),
         patch("api.core.file_management.file_management.os.system") as mock_system,
     ):
         file_mgmt.open_file("file.txt")

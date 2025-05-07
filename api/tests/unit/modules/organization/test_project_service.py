@@ -345,4 +345,7 @@ def test_get_project_dir_path_success(project_service):
 
     result = project_service.get_project_dir_path(project_name)
 
-    assert result == f"{project_service._data_path}/{project_service._projects_dir_name}/{project_name}"
+    assert (
+        result
+        == f"{project_service._data_path}/{project_service._projects_dir_name}/{project_name}"
+    )

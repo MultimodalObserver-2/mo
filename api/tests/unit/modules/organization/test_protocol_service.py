@@ -1,17 +1,20 @@
 from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from api.core.file_management.file_management import FileManagement
 import pytest
 
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
+from api.core.file_management.file_management import FileManagement
+from api.core.utils.http_exceptions import (AlreadyExistsException,
+                                            BadRequestException,
+                                            NotFoundException)
 from api.modules.organization.errors.protocols import (
-    PROTOCOL_ALREADY_EXISTS, PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED,
-    ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT, ACTIVITY_PROCESS_NAME_REQUIRED
-)
-from api.modules.organization.schemas.protocol import (
-    ProtocolPostReq, ProtocolPutReq, ProtocolRes, ActivityPostReq
-)
+    ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT,
+    ACTIVITY_PROCESS_NAME_REQUIRED, PROTOCOL_ALREADY_EXISTS,
+    PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
+from api.modules.organization.schemas.protocol import (ActivityPostReq,
+                                                       ProtocolPostReq,
+                                                       ProtocolPutReq,
+                                                       ProtocolRes)
 from api.modules.organization.services.protocol_service import ProtocolService
 
 
@@ -25,8 +28,7 @@ def protocol_service():
 
 def test_create_protocol_success(protocol_service):
     protocol_service.exists = MagicMock(return_value=False)
-    protocol_service._validate_and_format_activities = MagicMock(
-        return_value=[])
+    protocol_service._validate_and_format_activities = MagicMock(return_value=[])
 
     with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
@@ -52,13 +54,15 @@ def test_create_protocol_already_exists(protocol_service):
 def test_get_all_protocols_success(protocol_service):
     protocol_service.project_service.exists.return_value = True
 
-    data = [{
-        "name": "Protocol A",
-        "activities": [],
-        "locked": False,
-        "created_at": datetime.now(),
-        "updated_at": datetime.now(),
-    }]
+    data = [
+        {
+            "name": "Protocol A",
+            "activities": [],
+            "locked": False,
+            "created_at": datetime.now(),
+            "updated_at": datetime.now(),
+        }
+    ]
 
     with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
@@ -121,8 +125,7 @@ def test_get_protocol_project_not_found(protocol_service):
 def test_update_protocol_success(protocol_service):
     protocol_service.get_protocol = MagicMock()
     protocol_service.exists = MagicMock(return_value=False)
-    protocol_service._validate_and_format_activities = MagicMock(
-        return_value=[])
+    protocol_service._validate_and_format_activities = MagicMock(return_value=[])
     protocol_service.is_protocol_locked = MagicMock(return_value=False)
 
     mock_protocol = ProtocolRes(
@@ -130,7 +133,7 @@ def test_update_protocol_success(protocol_service):
         activities=[],
         locked=False,
         created_at=datetime.now(),
-        updated_at=datetime.now()
+        updated_at=datetime.now(),
     )
     protocol_service.get_protocol.return_value = mock_protocol
 
@@ -140,8 +143,7 @@ def test_update_protocol_success(protocol_service):
         MockStorage.return_value = mock_storage
 
         req = ProtocolPutReq(name="Protocol A", activities=[])
-        result = protocol_service.update_protocol(
-            "TestProject", "Protocol A", req)
+        result = protocol_service.update_protocol("TestProject", "Protocol A", req)
 
         assert result.name == "Protocol A"
         mock_storage.update.assert_called()
@@ -153,7 +155,8 @@ def test_update_protocol_locked(protocol_service):
 
     with pytest.raises(BadRequestException):
         protocol_service.update_protocol(
-            "TestProject", "Protocol A", ProtocolPutReq(name="New", activities=[]))
+            "TestProject", "Protocol A", ProtocolPutReq(name="New", activities=[])
+        )
 
 
 def test_update_protocol_already_exists(protocol_service):
@@ -163,7 +166,8 @@ def test_update_protocol_already_exists(protocol_service):
 
     with pytest.raises(AlreadyExistsException):
         protocol_service.update_protocol(
-            "TestProject", "Protocol A", ProtocolPutReq(name="New name", activities=[]))
+            "TestProject", "Protocol A", ProtocolPutReq(name="New name", activities=[])
+        )
 
 
 def test_delete_protocol_success(protocol_service):
@@ -296,13 +300,12 @@ def test_validate_and_format_activities_success(protocol_service):
         end_message="end",
         close_activity=False,
         process_name=None,
-        show_timer=True
+        show_timer=True,
     )
 
     FileManagement.is_file = MagicMock(return_value=True)
 
-    result = protocol_service._validate_and_format_activities(
-        [activity], "Protocol A")
+    result = protocol_service._validate_and_format_activities([activity], "Protocol A")
 
     assert result[0]["name"] == "TestActivity"
     assert result[0]["order"] == 1
@@ -318,14 +321,13 @@ def test_validate_and_format_activities_invalid_path(protocol_service):
         end_message="end",
         close_activity=False,
         process_name=None,
-        show_timer=True
+        show_timer=True,
     )
 
     FileManagement.is_file = MagicMock(return_value=False)
 
     with pytest.raises(BadRequestException) as exc:
-        protocol_service._validate_and_format_activities(
-            [activity], "Protocol X")
+        protocol_service._validate_and_format_activities([activity], "Protocol X")
     assert ACTIVITY_INVALID_FILE_PATH.split("{")[0] in str(exc.value)
 
 
@@ -339,14 +341,13 @@ def test_validate_and_format_activities_invalid_time(protocol_service):
         end_message="end",
         close_activity=False,
         process_name=None,
-        show_timer=True
+        show_timer=True,
     )
 
     FileManagement.is_file = MagicMock(return_value=True)
 
     with pytest.raises(BadRequestException) as exc:
-        protocol_service._validate_and_format_activities(
-            [activity], "Protocol X")
+        protocol_service._validate_and_format_activities([activity], "Protocol X")
     assert ACTIVITY_INVALID_TIME_LIMIT.split("{")[0] in str(exc.value)
 
 
@@ -360,12 +361,11 @@ def test_validate_and_format_activities_missing_process_name(protocol_service):
         end_message="end",
         close_activity=True,
         process_name=None,
-        show_timer=True
+        show_timer=True,
     )
 
     FileManagement.is_file = MagicMock(return_value=True)
 
     with pytest.raises(BadRequestException) as exc:
-        protocol_service._validate_and_format_activities(
-            [activity], "Protocol X")
+        protocol_service._validate_and_format_activities([activity], "Protocol X")
     assert ACTIVITY_PROCESS_NAME_REQUIRED.split("{")[0] in str(exc.value)

@@ -1,19 +1,20 @@
 import json
+
+import pytest
 from fastapi import status
+from httpx import ASGITransport, AsyncClient
+
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
+from api.main import app
 from api.modules.organization.services.project_service import ProjectService
 from api.modules.organization.services.protocol_service import ProtocolService
-from httpx import ASGITransport, AsyncClient
-import pytest
-from api.main import app
 
 
 @pytest.fixture
 def temp_service(tmp_path):
     tmp_data_path = tmp_path / "data"
-    file_management = FileManagement(
-        rel_path="projects", base_path=tmp_data_path, make_dirs=True)
+    file_management = FileManagement(rel_path="projects", base_path=tmp_data_path, make_dirs=True)
     projects_storage = JsonStorage(
         file_name="projects.json", rel_path="projects", base_path=tmp_data_path
     )
@@ -66,7 +67,7 @@ async def test_create_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -137,7 +138,7 @@ async def test_get_all_protocols(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -165,7 +166,7 @@ async def test_get_all_protocols(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -188,9 +189,7 @@ async def test_get_all_protocols(temp_service):
         )
 
         # Now get all protocols
-        response = await client.get(
-            f"/projects/{project_name}/protocols/"
-        )
+        response = await client.get(f"/projects/{project_name}/protocols/")
 
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()
@@ -237,7 +236,7 @@ async def test_get_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -255,9 +254,7 @@ async def test_get_protocol(temp_service):
         )
 
         # Now get the protocol
-        response = await client.get(
-            f"/projects/{project_name}/protocols/{protocol['name']}"
-        )
+        response = await client.get(f"/projects/{project_name}/protocols/{protocol['name']}")
 
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()
@@ -303,7 +300,7 @@ async def test_update_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -346,8 +343,7 @@ async def test_update_protocol(temp_service):
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()
     assert response_data["name"] == updated_protocol["name"]
-    assert len(response_data["activities"]) == len(
-        updated_protocol["activities"])
+    assert len(response_data["activities"]) == len(updated_protocol["activities"])
     assert response_data["activities"][0]["name"] == updated_protocol["activities"][0]["name"]
 
     # Check if the protocols data is updated in the file
@@ -356,8 +352,7 @@ async def test_update_protocol(temp_service):
         protocols = json.load(f)
         assert len(protocols) == 1
         assert protocols[0]["name"] == updated_protocol["name"]
-        assert len(protocols[0]["activities"]) == len(
-            updated_protocol["activities"])
+        assert len(protocols[0]["activities"]) == len(updated_protocol["activities"])
         assert protocols[0]["activities"][0]["name"] == updated_protocol["activities"][0]["name"]
 
 
@@ -397,7 +392,7 @@ async def test_delete_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -415,9 +410,7 @@ async def test_delete_protocol(temp_service):
         )
 
         # Now delete the protocol
-        response = await client.delete(
-            f"/projects/{project_name}/protocols/{protocol['name']}"
-        )
+        response = await client.delete(f"/projects/{project_name}/protocols/{protocol['name']}")
 
     assert response.status_code == status.HTTP_204_NO_CONTENT
 
@@ -464,7 +457,7 @@ async def test_lock_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -482,9 +475,7 @@ async def test_lock_protocol(temp_service):
         )
 
         # Now lock the protocol
-        response = await client.post(
-            f"/projects/{project_name}/protocols/{protocol['name']}/lock"
-        )
+        response = await client.post(f"/projects/{project_name}/protocols/{protocol['name']}/lock")
 
     assert response.status_code == status.HTTP_200_OK
     response_data = response.json()
@@ -534,7 +525,7 @@ async def test_unlock_protocol(temp_service):
                 "close_activity": False,
                 "process_name": "",
                 "show_timer": False,
-            }
+            },
         ],
     }
 
@@ -552,9 +543,7 @@ async def test_unlock_protocol(temp_service):
         )
 
         # Now lock the protocol
-        await client.post(
-            f"/projects/{project_name}/protocols/{protocol['name']}/lock"
-        )
+        await client.post(f"/projects/{project_name}/protocols/{protocol['name']}/lock")
 
         # Now unlock the protocol
         response = await client.post(
