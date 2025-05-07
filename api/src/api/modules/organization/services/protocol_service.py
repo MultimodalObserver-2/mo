@@ -86,7 +86,7 @@ class ProtocolService:
     ) -> ProtocolRes:
         existing_protocol = self.get_protocol(project_name, protocol_name)
         if self.is_protocol_locked(project_name, protocol_name):
-            raise BadRequestException(PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name))
+            raise BadRequestException(PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name, project_name=project_name))
 
         new_name = protocol.name.strip() if protocol.name else existing_protocol.name
 
@@ -123,7 +123,7 @@ class ProtocolService:
             )
 
         if self.is_protocol_locked(project_name, protocol_name):
-            raise BadRequestException(PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name))
+            raise BadRequestException(PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name, project_name=project_name))
 
         protocols_storage = self._get_protocols_storage(project_name)
         protocols_storage.delete_one({"name": protocol_name})
