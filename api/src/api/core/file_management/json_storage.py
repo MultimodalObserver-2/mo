@@ -4,6 +4,7 @@ from typing import Any, Optional
 
 from filelock import FileLock
 
+from api.core.config.constants import APP_DATA_DIR
 from api.core.file_management.exceptions import (InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.validators import FileValidators
@@ -40,7 +41,7 @@ class JsonStorage:
         """
         if (not file_name.endswith(".json")) or (not FileValidators.is_valid_file_name(file_name)):
             raise InvalidFileNameError(file_name=file_name)
-        base_path = base_path or os.getcwd()
+        base_path = base_path or APP_DATA_DIR
         path = os.path.join(base_path, rel_path, file_name)
         if not os.path.isfile(path):
             with open(path, "w") as file:

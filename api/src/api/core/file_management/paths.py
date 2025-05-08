@@ -1,1 +1,0 @@
-RELATIVE_APP_DATA_PATH = "data"

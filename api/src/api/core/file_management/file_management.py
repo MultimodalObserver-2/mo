@@ -5,6 +5,7 @@ from typing import Optional
 
 import psutil
 
+from api.core.config.constants import APP_DATA_DIR
 from api.core.file_management.exceptions import (InvalidDirectoryNameError,
                                                  InvalidFileNameError,
                                                  NotFoundError)
@@ -25,7 +26,7 @@ class FileManagement:
             base_path (Optional[str], optional): Base path for operations. Defaults to current working directory.
             make_dirs (bool, optional): Whether to create directories if they don't exist. Defaults to False.
         """
-        base_path = base_path or os.getcwd()
+        base_path = base_path or APP_DATA_DIR
         self._path = os.path.join(base_path, rel_path)
         self._path = os.path.normpath(self._path)
 

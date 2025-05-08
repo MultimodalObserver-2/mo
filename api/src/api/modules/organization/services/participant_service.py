@@ -1,8 +1,8 @@
 from datetime import datetime
 
+from api.core.config.constants import RELATIVE_APP_DATA_PATH
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
-from api.core.file_management.paths import RELATIVE_APP_DATA_PATH
 from api.core.file_management.validators import FileValidators
 from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
