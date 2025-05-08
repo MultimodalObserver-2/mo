@@ -19,6 +19,7 @@ This directory contains the logic of the application.
 
 #### `api/core/`
 - Contains logic reused across all modules.
+  - `config/`: Configuration management, loading environment variables, setting constants and initial setup.
   - `file_management/`: File validation, creation, and access control.
   - `utils/`: Generic helper functions or shared logic.
 
