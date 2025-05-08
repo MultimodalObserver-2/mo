@@ -92,6 +92,11 @@ The following custom scripts are defined in `pyproject.toml` to simplify common 
 
   - **Important**: To properly integrate test coverage into SonarQube analysis, you must generate the coverage report in **XML** format.
 
+- **Building the API**:
+  - The build command will create a production-ready version of the API.
+  - The output will be stored in the `dist/` directory.
+  - The build will be generated for the operating system on which the build process is being executed.
+
 ---
 
 ## 📦 Useful Poetry Commands
