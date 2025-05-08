@@ -1,4 +1,4 @@
-import { app, shell, BrowserWindow } from "electron"
+import { app, shell, BrowserWindow, screen } from "electron"
 import { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset"
@@ -6,12 +6,19 @@ import { ChildProcess } from "child_process"
 import treeKill from "tree-kill"
 
 function createWindow(): void {
+  const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+  const height = Math.floor(screenHeight * 0.95)
+  const width = Math.floor(height * (16 / 9))
+  const adjustedWidth = Math.min(width, screenWidth)
+  const adjustedHeight = Math.floor(adjustedWidth * (9 / 16))
+  const minHeight = Math.floor(screenHeight * 0.8)
+  const minWidth = Math.floor(minHeight * (4 / 3))
   // Create the browser window.
   const mainWindow = new BrowserWindow({
-    width: 1600,
-    height: 900,
-    minWidth: 1024,
-    minHeight: 768,
+    width: adjustedWidth,
+    height: adjustedHeight,
+    minWidth: minWidth,
+    minHeight: minHeight,
     show: false,
     autoHideMenuBar: true,
     title: "Multimodal Observer",
