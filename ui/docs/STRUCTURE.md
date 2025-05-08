@@ -23,6 +23,7 @@ Responsible for the Electron main process logic.
 - **`core/`**: Common services or helpers for the Electron app.
 - **`modules/`**: Electron-level features organized by domain.
 - **`index.ts`**: Entry point for the Electron main process. Initializes the app window and event listeners.
+- **`env.d.ts`**: TypeScript declarations.
 
 ---
 
