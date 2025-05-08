@@ -43,7 +43,7 @@ class ProtocolExecService:
         """
         await self.handle_start(websocket, activity, total_activities)
         await self.handle_activity_execution(websocket, activity)
-        await self.handle_end(websocket, activity)
+        await self.handle_end(websocket, activity, total_activities)
 
     async def handle_start(self, websocket: WebSocket, activity: Activity, total_activities: int):
         """Handle the start of an activity, including opening any processes.
@@ -110,11 +110,12 @@ class ProtocolExecService:
             await websocket.send_json(msg.model_dump())
             await asyncio.sleep(1)
 
-    async def handle_end(self, websocket: WebSocket, activity: Activity):
+    async def handle_end(self, websocket: WebSocket, activity: Activity, total_activities: int):
         """Handle the end of an activity, including closing any processes.
         Args:
             websocket (WebSocket): The WebSocket connection.
             activity (Activity): The activity to execute
+            total_activities (int): The total number of activities in the protocol.
         Raises:
             BadRequestException: If the execution request is invalid.
         """
@@ -124,7 +125,7 @@ class ProtocolExecService:
             message=activity.end_message,
             message_type="end",
             show_timer=activity.show_timer,
-            total_activities=0,
+            total_activities=total_activities,
             has_time_limit=False,
         )
         await websocket.send_json(msg.model_dump())
