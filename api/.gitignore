@@ -31,8 +31,8 @@ pip-wheel-metadata/
 !.env.example
 
 # Data files
-data
-plugins
+/data/
+/plugins/
 
 # SonarQube files
 .sonar/
