@@ -1,5 +1,6 @@
 import os
 
+from api.core.plugin.plugins_dir_observer import start_plugins_dir_observer
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -41,6 +42,8 @@ app.add_middleware(
 app.include_router(project_router)
 app.include_router(participant_router)
 app.include_router(protocols_router)
+
+start_plugins_dir_observer()
 
 if __name__ == "__main__":
 
