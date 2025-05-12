@@ -83,11 +83,9 @@ class PluginManagement:
         
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
-        print(
-            f"Plugin {dir_name} loaded from {file_path}")
         return module
     
-    def get_plugin_instance(self, loaded_module: ModuleType) -> Plugin:
+    def get_plugin_instance_from_module(self, loaded_module: ModuleType) -> Plugin:
         instances = []
         for attr_name in dir(loaded_module):
             attr = getattr(loaded_module, attr_name)
@@ -102,7 +100,7 @@ class PluginManagement:
 
     def add_plugin(self, dir_name: str):
         module = self.load_plugin(dir_name)
-        instance = self.get_plugin_instance(module)
+        instance = self.get_plugin_instance_from_module(module)
         if not instance.platform.is_available():
             raise ImportError(f"Plugin {dir_name} is not available on this platform")
         instance.load()
@@ -124,3 +122,8 @@ class PluginManagement:
         del self.plugins[old_dir_name]
         self.plugins[new_dir_name] = instance
         instance.load()
+
+    def get_plugin(self, dir_name: str) -> Plugin:
+        if dir_name not in self.plugins:
+            raise ValueError(f"Plugin {dir_name} not found")
+        return self.plugins[dir_name]

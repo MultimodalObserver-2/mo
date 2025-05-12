@@ -25,6 +25,16 @@ class PluginsDirHandler(FileSystemEventHandler):
     def resume(self):
         self.suspended = False
 
+    def add_known_dir(self, dir_name: str) -> None:
+        if dir_name in self.known_dirs:
+            return
+        self.known_dirs.add(dir_name)
+
+    def remove_known_dir(self, dir_name: str) -> None:
+        if dir_name not in self.known_dirs:
+            return
+        self.known_dirs.remove(dir_name)
+
     def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
         if not event.is_directory or self.suspended:
             return

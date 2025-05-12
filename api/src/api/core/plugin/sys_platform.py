@@ -18,3 +18,17 @@ class SysPlatform:
             (self.windows and operating_system == "Windows") or
             (self.mac and operating_system == "Darwin")  # macOS
         )
+    
+    def get_platforms(self) -> list[str]:
+        platforms = []
+        if self.linux:
+            platforms.append("Linux")
+        if self.windows:
+            platforms.append("Windows")
+        if self.mac:
+            platforms.append("macOS")
+        return platforms
+    
+    def __str__(self) -> str:
+        return self.get_platforms().__str__()
+

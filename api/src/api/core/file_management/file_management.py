@@ -1,7 +1,8 @@
 import os
 import platform
 import shutil
-from typing import Optional
+from typing import BinaryIO, Optional
+import zipfile
 
 import psutil
 
@@ -52,7 +53,7 @@ class FileManagement:
             raise FileExistsError(f"Directory {dir_path} already exists.")
         os.mkdir(dir_path)
         return dir_path
-
+    
     def create_file(self, file_name: str, rel_path: str = "", content: str = "") -> str:
         """Creates a new file with optional content.
         Args:
@@ -130,6 +131,69 @@ class FileManagement:
             raise NotFoundError(f"Directory {dir_path} does not exist.")
         shutil.rmtree(dir_path)
         return dir_path
+    
+    def delete_file(self, file_name: str, rel_path: str = "") -> str:
+        """Deletes a file.
+        Args:
+            file_name (str): Name of the file to delete.
+            rel_path (str, optional): Subdirectory path where the file is located. Defaults to "".
+        Returns:
+            str: Path of the deleted file.
+        Raises:
+            NotFoundError: If the file does not exist.
+        """
+        file_path = os.path.join(self._path, rel_path, file_name)
+        file_path = os.path.normpath(file_path)
+        if not os.path.exists(file_path):
+            raise NotFoundError(f"File {file_path} does not exist.")
+        os.remove(file_path)
+        return file_path
+
+    def copy_file_obj(self, file_obj: BinaryIO, file_name: str, rel_path: str = "") -> str:
+        """Copies a file object to a specified location.
+        Args:
+            file_obj (BinaryIO): File object to copy.
+            file_name (str): Name of the new file.
+            rel_path (str): Relative path where the file will be copied.
+        """
+
+        file_path = os.path.join(self._path, rel_path, file_name)
+        file_path = os.path.normpath(file_path)
+        with open(file_path, "wb") as f:
+            shutil.copyfileobj(file_obj, f)
+        return file_path
+
+    def extract_zip(self, zip_path: str, extract_to: str = ""):
+        """Extracts a ZIP file to a specified directory.
+        Args:
+            zip_path (str): Path to the ZIP file.
+            extract_to (str): Directory where the contents will be extracted.
+        """
+        zip_path = os.path.join(self._path, zip_path)
+        zip_path = os.path.normpath(zip_path)
+        if not os.path.exists(zip_path):
+            raise NotFoundError(f"ZIP file {zip_path} does not exist.")
+        extract_to = os.path.join(self._path, extract_to)
+        extract_to = os.path.normpath(extract_to)
+        if not os.path.exists(extract_to):
+            os.makedirs(extract_to, exist_ok=True)
+        with zipfile.ZipFile(zip_path, "r") as zip_ref:
+            zip_ref.extractall(extract_to)
+    
+    def get_unique_name(self, name: str, rel_path: str = "") -> str:
+        """Generates a unique name by appending a number if the name already exists.
+        Args:
+            name (str): Base name to make unique.
+            rel_path (str): Relative path to check for existing names.
+        Returns:
+            str: Unique name.
+        """
+        base_name = name
+        counter = 1
+        while os.path.exists(os.path.join(self._path, rel_path, base_name)):
+            base_name = f"{name} ({counter})"
+            counter += 1
+        return base_name
 
     @staticmethod
     def open_file(file_path: str):
