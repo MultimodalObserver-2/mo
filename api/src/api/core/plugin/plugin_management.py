@@ -1,10 +1,10 @@
-
 import importlib
 import importlib.util
 import json
 import os
 import sys
 from types import ModuleType
+
 from api.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
 from api.core.plugin.plugin import Plugin
 
@@ -26,17 +26,17 @@ class PluginManagement:
         if cls._instance is None:
             cls._instance = super(PluginManagement, cls).__new__(cls)
         return cls._instance
-    
+
     def _get_plugin_dir_path(self, plugin_name: str) -> str:
         plugin_path = os.path.join(self.plugins_path, plugin_name)
         plugin_path = os.path.normpath(plugin_path)
         return plugin_path
-    
+
     def _get_plugin_metadata_path(self, plugin_name: str) -> str:
         metadata_path = os.path.join(self.plugins_path, plugin_name, self.plugin_metadata_name)
         metadata_path = os.path.normpath(metadata_path)
         return metadata_path
-    
+
     def _get_plugin_default_path(self, plugin_name: str) -> str:
         default_path = os.path.join(self.plugins_path, plugin_name, self.plugin_default_name)
         default_path = os.path.normpath(default_path)
@@ -44,7 +44,7 @@ class PluginManagement:
 
     def load_all_plugins(self):
         for plugin_dir_name in os.listdir(self.plugins_path):
-            try: 
+            try:
                 self.add_plugin(plugin_dir_name)
             except:
                 print(f"ERROR: Failed to load plugin {plugin_dir_name}")
@@ -61,30 +61,28 @@ class PluginManagement:
                 data = json.load(f)
 
             if data.get("class_dir_path"):
-                class_dir_path = class_dir_path + \
-                    "/" + data.get("class_dir_path")
+                class_dir_path = class_dir_path + "/" + data.get("class_dir_path")
                 class_dir_path = os.path.normpath(class_dir_path)
-            
+
             if data.get("class_file_name"):
                 class_file_name = data.get("class_file_name")
-        
+
         file_path = os.path.join(class_dir_path, class_file_name)
         file_path = os.path.normpath(file_path)
         if not os.path.exists(file_path):
             raise ImportError(f"Cannot find plugin at {dir_name}")
-        
-        spec = importlib.util.spec_from_file_location(
-            dir_name, file_path)
+
+        spec = importlib.util.spec_from_file_location(dir_name, file_path)
         if spec is None:
             raise ImportError(f"Cannot import plugin at {dir_name}")
 
         if spec.loader is None:
             raise ImportError(f"Cannot load plugin at {dir_name}")
-        
+
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
         return module
-    
+
     def get_plugin_instance_from_module(self, loaded_module: ModuleType) -> Plugin:
         instances = []
         for attr_name in dir(loaded_module):
@@ -95,7 +93,9 @@ class PluginManagement:
         if len(instances) == 0:
             raise ImportError(f"No plugin classes found in {loaded_module.__name__}")
         if len(instances) > 1:
-            raise ImportError(f"Multiple plugin classes found in {loaded_module.__name__} - {instances}")
+            raise ImportError(
+                f"Multiple plugin classes found in {loaded_module.__name__} - {instances}"
+            )
         return instances[0]
 
     def add_plugin(self, dir_name: str):

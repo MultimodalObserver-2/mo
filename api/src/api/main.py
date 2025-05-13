@@ -1,6 +1,5 @@
 import os
 
-from api.core.plugin.plugins_dir_observer import start_plugins_dir_observer
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,6 +7,7 @@ from fastapi.responses import JSONResponse
 
 from api.core.config.constants import IS_DEV
 from api.core.config.setup import app_setup
+from api.core.plugin.plugins_dir_observer import start_plugins_dir_observer
 from api.core.plugin.routers.plugins import plugin_router
 from api.modules.organization.routers.participants import participant_router
 from api.modules.organization.routers.projects import project_router

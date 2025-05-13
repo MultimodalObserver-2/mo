@@ -5,7 +5,7 @@ class SysPlatform:
     linux: bool = False
     windows: bool = False
     mac: bool = False
-    
+
     def __init__(self, linux: bool = False, windows: bool = False, mac: bool = False) -> None:
         self.linux = linux
         self.windows = windows
@@ -14,11 +14,11 @@ class SysPlatform:
     def is_available(self) -> bool:
         operating_system = platform.system()
         return (
-            (self.linux and operating_system == "Linux") or
-            (self.windows and operating_system == "Windows") or
-            (self.mac and operating_system == "Darwin")  # macOS
+            (self.linux and operating_system == "Linux")
+            or (self.windows and operating_system == "Windows")
+            or (self.mac and operating_system == "Darwin")  # macOS
         )
-    
+
     def get_platforms(self) -> list[str]:
         platforms = []
         if self.linux:
@@ -28,7 +28,6 @@ class SysPlatform:
         if self.mac:
             platforms.append("macOS")
         return platforms
-    
+
     def __str__(self) -> str:
         return self.get_platforms().__str__()
-

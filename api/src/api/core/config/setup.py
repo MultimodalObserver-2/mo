@@ -1,6 +1,7 @@
 import os
 
-from api.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH, RELATIVE_APP_DATA_PATH
+from api.core.config.constants import (APP_DATA_DIR, RELATIVE_APP_DATA_PATH,
+                                       RELATIVE_PLUGINS_DIR_PATH)
 
 
 def app_setup():

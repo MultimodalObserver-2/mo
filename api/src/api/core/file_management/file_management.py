@@ -1,8 +1,8 @@
 import os
 import platform
 import shutil
-from typing import BinaryIO, Optional
 import zipfile
+from typing import BinaryIO, Optional
 
 import psutil
 
@@ -53,7 +53,7 @@ class FileManagement:
             raise FileExistsError(f"Directory {dir_path} already exists.")
         os.mkdir(dir_path)
         return dir_path
-    
+
     def create_file(self, file_name: str, rel_path: str = "", content: str = "") -> str:
         """Creates a new file with optional content.
         Args:
@@ -131,7 +131,7 @@ class FileManagement:
             raise NotFoundError(f"Directory {dir_path} does not exist.")
         shutil.rmtree(dir_path)
         return dir_path
-    
+
     def delete_file(self, file_name: str, rel_path: str = "") -> str:
         """Deletes a file.
         Args:
@@ -179,7 +179,7 @@ class FileManagement:
             os.makedirs(extract_to, exist_ok=True)
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_to)
-    
+
     def get_unique_name(self, name: str, rel_path: str = "") -> str:
         """Generates a unique name by appending a number if the name already exists.
         Args:

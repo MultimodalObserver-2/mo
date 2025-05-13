@@ -1,6 +1,12 @@
 import os
+
+from watchdog.events import (DirCreatedEvent, DirDeletedEvent,
+                             DirModifiedEvent, DirMovedEvent, FileCreatedEvent,
+                             FileDeletedEvent, FileModifiedEvent,
+                             FileMovedEvent, FileSystemEventHandler)
+
 from api.core.plugin.plugin_management import PluginManagement
-from watchdog.events import DirCreatedEvent, DirDeletedEvent, DirModifiedEvent, DirMovedEvent, FileCreatedEvent, FileDeletedEvent, FileModifiedEvent, FileMovedEvent, FileSystemEventHandler
+
 
 class PluginsDirHandler(FileSystemEventHandler):
     _instance = None
@@ -12,13 +18,13 @@ class PluginsDirHandler(FileSystemEventHandler):
         self.plugins_path = self.plugin_management.plugins_path
         self.known_dirs = set(self.plugin_management.plugins.keys())
         self.suspended = False
-    
+
     def __new__(cls):
         """Singleton class."""
         if cls._instance is None:
             cls._instance = super(PluginsDirHandler, cls).__new__(cls)
         return cls._instance
-    
+
     def suspend(self):
         self.suspended = True
 
@@ -38,7 +44,7 @@ class PluginsDirHandler(FileSystemEventHandler):
     def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
         if not event.is_directory or self.suspended:
             return
-        
+
         src_path = event.src_path
         src_path = str(src_path)
         dir_name = os.path.relpath(src_path, self.plugins_path)
@@ -64,11 +70,11 @@ class PluginsDirHandler(FileSystemEventHandler):
         except Exception as e:
             print(f"ERROR: Failed to remove plugin {dir_name}")
             print(f"Traceback: {e}")
-    
+
     def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
         if not event.is_directory or self.suspended:
             return
-        
+
         src_path = event.src_path
         src_path = str(src_path)
         old_dir_name = os.path.relpath(src_path, self.plugins_path)
@@ -89,5 +95,9 @@ def start_plugins_dir_observer():
 
     plugins_dir_handler = PluginsDirHandler()
     observer = Observer()
-    observer.schedule(plugins_dir_handler, path=plugins_dir_handler.plugin_management.plugins_path, recursive=False)
+    observer.schedule(
+        plugins_dir_handler,
+        path=plugins_dir_handler.plugin_management.plugins_path,
+        recursive=False,
+    )
     observer.start()
