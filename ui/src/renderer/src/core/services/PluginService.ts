@@ -1,9 +1,11 @@
+import { AxiosResponse } from "axios"
 import axios from "../lib/axios"
+import { Plugin } from "../types/Plugin"
 
 class PluginService {
   readonly endpoint = "/plugins"
 
-  async register(pluginFile: File): Promise<unknown> {
+  async register(pluginFile: File): Promise<AxiosResponse<Plugin, unknown>> {
     const formData = new FormData()
     formData.append("file", pluginFile)
 
@@ -12,6 +14,10 @@ class PluginService {
         "Content-Type": "multipart/form-data"
       }
     })
+  }
+
+  async getAll(): Promise<AxiosResponse<Plugin[], unknown>> {
+    return axios.get(`${this.endpoint}/`)
   }
 }
 

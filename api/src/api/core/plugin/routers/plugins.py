@@ -9,3 +9,8 @@ plugin_router = APIRouter(prefix="/plugins", tags=["plugins"])
 @plugin_router.post("/", response_model=PluginRes, status_code=status.HTTP_201_CREATED)
 async def add_plugin(file: UploadFile, service: PluginService = Depends()):
     return service.add_plugin(file)
+
+
+@plugin_router.get("/", response_model=list[PluginRes], status_code=status.HTTP_200_OK)
+async def get_all_plugins(service: PluginService = Depends()):
+    return service.get_all_plugins()

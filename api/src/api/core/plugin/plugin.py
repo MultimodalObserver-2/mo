@@ -10,10 +10,12 @@ class Plugin(ABC):
     version: SemanticVersion
     description: str
     repo: str
+    icon_path: Optional[str] = None
     author: Optional[str]
     author_email: Optional[str]
     platform: SysPlatform
     _module: str = "core"
+    _location: Optional[str] = None
 
     @abstractmethod
     def load(self):

@@ -6,6 +6,7 @@ class PluginRes(BaseModel):
     version: str
     description: str
     repository: str
+    icon_path: str = ""
     author: str = ""
     author_email: str = ""
     platforms: list[str]

@@ -2,16 +2,18 @@
   display: flex;
   flex-direction: column;
   width: 100%;
+  max-width: 750px;
   height: 100vh;
   padding: 3vh 4vw;
+  gap: 24px;
 }
 
+/* Register */
 .upload-container {
   display: flex;
   flex-direction: column;
   width: 100%;
   gap: 22px;
-  max-width: 600px;
 }
 
 .button {
@@ -33,4 +35,97 @@
   width: 22px;
   height: 22px;
   fill: var(--color-primary-800);
+}
+
+/* Installed */
+.installed {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  width: 100%;
+  background-color: var(--color-primary-100);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.header .title {
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.header .num {
+  padding: 2px 8px;
+  background-color: var(--color-primary-50);
+  border-radius: 4px;  
+  color: var(--color-primary-800);
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.plugins {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  gap: 12px;
+  background-color: var(--color-primary-50);
+  border-radius: 6px;
+  padding: 8px 12px;
+}
+
+.plugins .plugin {
+  display: flex;
+  padding: 8px 12px;
+  border-radius: 6px;
+  gap: 18px;
+}
+
+.plugin .data {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  gap: 4px;
+}
+
+.plugin .icon {
+  max-width: 38px;
+  width: auto;
+  height: 100%;
+  object-fit: contain;
+}
+
+
+.plugin .top {
+  display: flex;
+  gap: 8px;
+}
+
+.plugin .top .name {
+  font-size: 1.2em;
+  font-weight: 600;
+  color: var(--color-primary-800);
+}
+
+.plugin .top .version {
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--color-text-light);
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-primary-300);
+}
+
+.plugin .description {
+  font-size: 1em;
+  font-weight: 500;
+  color: var(--color-primary-700);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

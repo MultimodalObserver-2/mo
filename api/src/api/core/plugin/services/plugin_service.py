@@ -1,3 +1,4 @@
+import os
 from fastapi import UploadFile
 
 from api.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
@@ -38,6 +39,7 @@ class PluginService:
             "name": plugin_instance.name,
             "version": str(plugin_instance.version),
             "description": plugin_instance.description,
+            "icon_path": plugin_instance.icon_path or "",
             "repository": plugin_instance.repo,
             "author": plugin_instance.author or "",
             "author_email": plugin_instance.author_email or "",
@@ -46,3 +48,21 @@ class PluginService:
             "location": dir_path,
         }
         return PluginRes(**plugin_dict)
+
+    def get_all_plugins(self) -> list[PluginRes]:
+        plugins = self.plugin_management.get_all_plugins()
+        return [
+            PluginRes(
+                name=plugin.name,
+                version=str(plugin.version),
+                description=plugin.description,
+                icon_path= os.path.join(plugin._location or "", plugin.icon_path or "") if plugin.icon_path else "",
+                repository=plugin.repo,
+                author=plugin.author or "",
+                author_email=plugin.author_email or "",
+                platforms=plugin.platform.get_platforms(),
+                module=plugin._module,
+                location=plugin._location or "",
+            )
+            for plugin in plugins
+        ]

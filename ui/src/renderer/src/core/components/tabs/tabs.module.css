@@ -1,0 +1,22 @@
+.tabs {
+    display: flex;
+    gap: 12px;
+    padding: 6px 9px;
+    border-radius: 6px;
+    background-color: var(--color-primary-50);
+}
+
+.tab {
+    padding: 6px 24px;
+    border-radius: 6px;
+    background-color: transparent;
+    color: var(--color-text-dark);
+    font-size: 1.1em;
+    font-weight: 600;
+    cursor: pointer;
+    width: 100%;
+}
+
+.tab.active {
+    background-color: var(--color-primary-200);
+}

@@ -104,6 +104,7 @@ class PluginManagement:
         if not instance.platform.is_available():
             raise ImportError(f"Plugin {dir_name} is not available on this platform")
         instance.load()
+        instance._location = self._get_plugin_dir_path(dir_name)
         self.plugins[dir_name] = instance
 
     def remove_plugin(self, dir_name: str):
@@ -127,3 +128,6 @@ class PluginManagement:
         if dir_name not in self.plugins:
             raise ValueError(f"Plugin {dir_name} not found")
         return self.plugins[dir_name]
+
+    def get_all_plugins(self) -> list[Plugin]:
+        return list(self.plugins.values())
