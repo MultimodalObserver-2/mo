@@ -1,13 +1,13 @@
 .header {
   display: flex;
-  align-items: center;
+  align-items: flex-end;
   gap: 10px;
 }
 
 .title {
   color: var(--color-text-light);
   font-weight: 500;
-  font-size: 1.2em;
+  font-size: 1.1em;
 }
 
 .actions {
@@ -25,5 +25,5 @@
 
 .actions svg:hover {
   transform: scale(1.1);
-  fill: var(--color-primary-200);
+  fill: var(--color-primary-100);
 }
