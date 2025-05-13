@@ -27,7 +27,12 @@ class PluginService:
             file.file, dir_name, dir_path)
         self.file_management.extract_zip(zip_path, dir_path)
         self.file_management.delete_file(zip_path)
-        self.plugin_management.add_plugin(dir_name)
+        try:
+            self.plugin_management.add_plugin(dir_name)
+        except Exception as e:
+            self.file_management.delete_directory(dir_name)
+            raise BadRequestException(
+                f"Failed to add plugin {file_name}. Error: {e}")
         self.plugins_dir_handler.add_known_dir(dir_name)
         self.plugins_dir_handler.resume()
         plugin_instance = self.plugin_management.get_plugin(dir_name)
