@@ -21,6 +21,7 @@ import UpdateProtocolPage from "./modules/organization/pages/protocol-pages/upda
 import ProtocolPage from "./modules/organization/pages/protocol-pages/protocol/ProtocolPage"
 import ActivityMessagePage from "./modules/organization/pages/protocol-pages/activity-message/ActivityMessagePage"
 import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activity-timer/ActivityTimerPage"
+import PluginsPage from "./core/pages/plugins/Plugins"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -29,10 +30,7 @@ createRoot(document.getElementById("root")!).render(
         <Routes>
           <Route element={<MainLayout />}>
             <Route index path="/" element={<Home />} />
-            <Route
-              path="/plugins"
-              element={<div style={{ color: "black" }}>Plugins Not Implemented Yet</div>}
-            />
+            <Route path="/plugins" element={<PluginsPage />} />
             <Route
               path="/settings"
               element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}

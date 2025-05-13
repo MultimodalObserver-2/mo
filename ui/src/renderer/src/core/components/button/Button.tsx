@@ -3,8 +3,8 @@ import styles from "./button.module.css"
 type ButtonProps = React.ComponentProps<"button"> & {
   /** Style variant: 'default' | 'danger' | 'soft' */
   styleType?: "default" | "danger" | "soft"
-  /** Border radius: 'sm' or 'xl' */
-  borderRadius?: "sm" | "xl"
+  /** Border radius: 'sm' | "md" | 'xl' */
+  borderRadius?: "sm" | "md" | "xl"
 }
 
 /** Reusable button component with customizable style and shape */
