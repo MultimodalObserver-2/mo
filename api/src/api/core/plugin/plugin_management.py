@@ -7,25 +7,18 @@ from types import ModuleType
 
 from api.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
 from api.core.plugin.plugin import Plugin
+from api.core.utils.singleton import singleton
 
 
+@singleton
 class PluginManagement:
-    _instance = None
-
     def __init__(self):
         self.plugins_dir = RELATIVE_PLUGINS_DIR_PATH
         self.plugin_metadata_name = "metadata.json"
         self.plugin_default_name = "main.py"
         self.plugins_path = os.path.join(APP_DATA_DIR, self.plugins_dir)
         self.plugins_path = os.path.normpath(self.plugins_path)
-        self.plugins = {} # type: dict[str, Plugin]
-        pass
-
-    def __new__(cls):
-        """Singleton class."""
-        if cls._instance is None:
-            cls._instance = super(PluginManagement, cls).__new__(cls)
-        return cls._instance
+        self.plugins = {}  # type: dict[str, Plugin]
 
     def _get_plugin_dir_path(self, plugin_name: str) -> str:
         plugin_path = os.path.join(self.plugins_path, plugin_name)
@@ -53,9 +46,9 @@ class PluginManagement:
 
     def load_plugin(self, dir_name: str) -> ModuleType:
         metadata_path = self._get_plugin_metadata_path(dir_name)
-
         class_dir_path = self._get_plugin_dir_path(dir_name)
         class_file_name = self.plugin_default_name
+
         if os.path.exists(metadata_path):
             with open(metadata_path, "r") as f:
                 data = json.load(f)
@@ -143,9 +136,7 @@ class PluginManagement:
     def get_all_plugins(self) -> list[Plugin]:
         return list(self.plugins.values())
 
-    def get_plugin_by_name_and_version(
-        self, name: str, version: str
-    ) -> Plugin | None:
+    def get_plugin_by_name_and_version(self, name: str, version: str) -> Plugin | None:
         for plugin in self.plugins.values():
             if plugin.name == name and str(plugin.version) == version:
                 return plugin
