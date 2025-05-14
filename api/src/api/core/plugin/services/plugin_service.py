@@ -1,4 +1,5 @@
 import os
+
 from fastapi import UploadFile
 
 from api.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
@@ -43,7 +44,11 @@ class PluginService:
             "repository": plugin.repository,
             "author": plugin.author or "",
             "author_email": plugin.author_email or "",
-            "platforms": PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
+            "platforms": PlatformsRes(
+                linux=plugin.platform.linux,
+                windows=plugin.platform.windows,
+                mac=plugin.platform.mac,
+            ),
             "module": plugin._module,
             "location": dir_path,
         }
@@ -56,11 +61,19 @@ class PluginService:
                 name=plugin.name,
                 version=str(plugin.version),
                 description=plugin.description,
-                icon_path= os.path.join(plugin._location or "", plugin.icon_path or "") if plugin.icon_path else "",
+                icon_path=(
+                    os.path.join(plugin._location or "", plugin.icon_path or "")
+                    if plugin.icon_path
+                    else ""
+                ),
                 repository=plugin.repository,
                 author=plugin.author or "",
                 author_email=plugin.author_email or "",
-                platforms=PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
+                platforms=PlatformsRes(
+                    linux=plugin.platform.linux,
+                    windows=plugin.platform.windows,
+                    mac=plugin.platform.mac,
+                ),
                 module=plugin._module,
                 location=plugin._location or "",
             )
@@ -75,11 +88,19 @@ class PluginService:
             "name": plugin.name,
             "version": str(plugin.version),
             "description": plugin.description,
-            "icon_path": os.path.join(plugin._location or "", plugin.icon_path or "") if plugin.icon_path else "",
+            "icon_path": (
+                os.path.join(plugin._location or "", plugin.icon_path or "")
+                if plugin.icon_path
+                else ""
+            ),
             "repository": plugin.repository,
             "author": plugin.author or "",
             "author_email": plugin.author_email or "",
-            "platforms": PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
+            "platforms": PlatformsRes(
+                linux=plugin.platform.linux,
+                windows=plugin.platform.windows,
+                mac=plugin.platform.mac,
+            ),
             "module": plugin._module,
             "location": plugin._location or "",
         }
@@ -90,6 +111,9 @@ class PluginService:
         if not plugin:
             raise BadRequestException(f"Plugin {plugin_name} v{plugin_version} not found.")
         self.plugins_dir_handler.suspend()
-        dir_name = self.plugin_management.remove_plugin_by_name_and_version(plugin_name, plugin_version)
+        dir_name = self.plugin_management.remove_plugin_by_name_and_version(
+            plugin_name, plugin_version
+        )
         self.file_management.delete_directory(dir_name)
+        self.plugins_dir_handler.remove_known_dir(dir_name)
         self.plugins_dir_handler.resume()

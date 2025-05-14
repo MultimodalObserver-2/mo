@@ -1,5 +1,7 @@
-from api.core.plugin.sys_platform import SysPlatform
 from pydantic import BaseModel
+
+from api.core.plugin.sys_platform import SysPlatform
+
 
 class PlatformsRes(BaseModel):
     linux: bool = False
