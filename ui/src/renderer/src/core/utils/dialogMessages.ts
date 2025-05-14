@@ -25,3 +25,21 @@ export function showLockedErrorMessage(action: string, item: string) {
     `You cannot ${action} a locked ${item}, please unlock it first`
   )
 }
+
+export async function showDeletePluginMessage(
+  pluginName: string,
+  pluginVersion: string,
+  acceptId: number
+) {
+  const buttons = ["Accept", "Cancel"]
+  const options: Electron.MessageBoxOptions = {
+    title: "Delete Participant",
+    message: `Are you sure you want to delete the plugin ${pluginName}` + ` (v${pluginVersion})?`,
+    type: "warning",
+    buttons: buttons,
+    defaultId: acceptId,
+    noLink: true
+  }
+
+  return await window.core.dialog.showMessageBox(options)
+}

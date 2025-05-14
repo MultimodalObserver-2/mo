@@ -117,7 +117,7 @@
   gap: 8px;
 }
 
-.plugin .actions .info-icon {
+.plugin .actions .action-icon {
   width: 22px;
   height: 22px;
   fill: var(--color-primary-800);
@@ -125,9 +125,16 @@
   cursor: pointer;
 }
 
-.plugin .actions .info-icon:hover {
-  fill: var(--color-accent-800);
+.plugin .actions .action-icon:hover {
   transform: scale(1.1);
+}
+
+.plugin .actions .normal-icon:hover {
+  fill: var(--color-accent-800);
+}
+
+.plugin .actions .danger-icon:hover {
+  fill: var(--color-red-500);
 }
 
 .plugin .info .name {

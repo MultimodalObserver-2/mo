@@ -1,9 +1,32 @@
 .group {
-    display: flex;
-    
-        gap: 20px;
+  display: flex;
+  gap: 20px;
 }
 
-.platforms {
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
+.title-box {
+  display: flex;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+.actions {
+  display: flex;
+  gap: 8px;
+}
+
+.action-button {
+  padding: 4px 10px 1px 10px;
+  box-shadow: none !important;
+}
+
+.action-icon {
+  fill: var(--color-text-light);
+  width: 18px;
+  height: 18px;
 }

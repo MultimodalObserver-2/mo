@@ -84,3 +84,12 @@ class PluginService:
             "location": plugin._location or "",
         }
         return PluginRes(**plugin_dict)
+
+    def remove_plugin(self, plugin_name: str, plugin_version: str) -> None:
+        plugin = self.plugin_management.get_plugin_by_name_and_version(plugin_name, plugin_version)
+        if not plugin:
+            raise BadRequestException(f"Plugin {plugin_name} v{plugin_version} not found.")
+        self.plugins_dir_handler.suspend()
+        dir_name = self.plugin_management.remove_plugin_by_name_and_version(plugin_name, plugin_version)
+        self.file_management.delete_directory(dir_name)
+        self.plugins_dir_handler.resume()

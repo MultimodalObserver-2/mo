@@ -1,32 +1,55 @@
 import pluginService from "@renderer/core/services/PluginService"
 import styles from "./plugins.module.css"
-import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import { showApiErrorMessage, showDeletePluginMessage } from "@renderer/core/utils/dialogMessages"
 import { useEffect, useState } from "react"
 import { Plugin } from "@renderer/core/types/Plugin"
 import fallbackimg from "@renderer/core/assets/images/plugin_fallback.svg"
 import InfoIcon from "@renderer/core/components/icons/InfoIcon"
 import { openPluginDetailsModal } from "@renderer/core/utils/modalWindows"
+import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 
 export default function Installed() {
   const [plugins, setPlugins] = useState<Plugin[]>([])
 
-  useEffect(() => {
-    const fetchPlugins = async () => {
-      try {
-        const response = await pluginService.getAll()
-        const plugins = response.data
-        console.log(plugins)
-        setPlugins(plugins)
-      } catch (error) {
-        showApiErrorMessage(error)
-      }
+  const fetchPlugins = async () => {
+    try {
+      const response = await pluginService.getAll()
+      const plugins = response.data
+      setPlugins(plugins)
+    } catch (error) {
+      showApiErrorMessage(error)
     }
+  }
+
+  useEffect(() => {
+    window.core.plugins.onReloadPlugins(() => {
+      fetchPlugins()
+    })
 
     fetchPlugins()
+
+    return () => {
+      window.core.plugins.removeReloadPlugins()
+    }
   }, [])
 
   const openDetails = (plugin: Plugin) => {
     openPluginDetailsModal(plugin.name, plugin.version)
+  }
+
+  const handleDelete = async (plugin: Plugin) => {
+    const acceptId = 0
+    const response = await showDeletePluginMessage(plugin.name, plugin.version, acceptId)
+    if (response.response != acceptId) {
+      return
+    }
+
+    try {
+      await pluginService.delete(plugin.name, plugin.version)
+      fetchPlugins()
+    } catch (error) {
+      showApiErrorMessage(error)
+    }
   }
 
   return (
@@ -54,7 +77,14 @@ export default function Installed() {
                   <div className={styles.version}>{plugin.version}</div>
                 </div>
                 <div className={styles.actions}>
-                  <InfoIcon className={styles["info-icon"]} onClick={() => openDetails(plugin)} />
+                  <InfoIcon
+                    className={`${styles["action-icon"]} ${styles["normal-icon"]}`}
+                    onClick={() => openDetails(plugin)}
+                  />
+                  <DeleteIcon
+                    className={`${styles["action-icon"]} ${styles["danger-icon"]}`}
+                    onClick={() => handleDelete(plugin)}
+                  />
                 </div>
               </section>
               <p className={styles.description}>{plugin.description}</p>

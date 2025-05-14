@@ -11,10 +11,13 @@ import pluginService from "@renderer/core/services/PluginService"
 import { Plugin } from "@renderer/core/types/Plugin"
 import {
   showApiErrorMessage,
+  showDeletePluginMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
+import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
+import Button from "@renderer/core/components/button/Button"
 
 export default function PluginDetails() {
   const { pluginName, pluginVersion } = useParams<{
@@ -43,14 +46,42 @@ export default function PluginDetails() {
     fetchPlugin()
   }, [pluginName, pluginVersion])
 
+  const handleDelete = async (plugin: Plugin) => {
+    const acceptId = 0
+    const response = await showDeletePluginMessage(plugin.name, plugin.version, acceptId)
+    if (response.response != acceptId) {
+      return
+    }
+
+    try {
+      await pluginService.delete(plugin.name, plugin.version)
+      window.core.plugins.reloadPlugins()
+      window.close()
+    } catch (error) {
+      showApiErrorMessage(error)
+    }
+  }
+
   if (!plugin) {
     return <ErrorElement name="Plugin" />
   }
 
   return (
     <PageModal>
-      <ModalHeader>
-        <ModalTitle title="Plugin details" Icon={InfoIcon} />
+      <ModalHeader className={styles.header}>
+        <div className={styles["title-box"]}>
+          <ModalTitle title="Plugin details" Icon={InfoIcon} />
+        </div>
+        <div className={styles.actions}>
+          <Button
+            styleType="danger"
+            borderRadius="xl"
+            className={styles["action-button"]}
+            onClick={() => handleDelete(plugin)}
+          >
+            <DeleteIcon className={styles["action-icon"]} />
+          </Button>
+        </div>
       </ModalHeader>
       <ModalBody>
         <section className={styles.group}>

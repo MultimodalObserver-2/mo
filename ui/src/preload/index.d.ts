@@ -24,6 +24,11 @@ declare global {
       prod: {
         getApiPort: () => Promise<number>
       }
+      plugins: {
+        reloadPlugins: () => void
+        onReloadPlugins: (callback: () => void) => void
+        removeReloadPlugins: () => void
+      }
     }
     organization: {
       reloadProjects: () => void

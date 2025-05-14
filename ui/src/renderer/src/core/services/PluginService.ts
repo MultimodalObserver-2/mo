@@ -23,6 +23,10 @@ class PluginService {
   async get(name: string, version: string): Promise<AxiosResponse<Plugin, unknown>> {
     return axios.get(`${this.endpoint}/${name}/${version}`)
   }
+
+  async delete(name: string, version: string): Promise<AxiosResponse<undefined, unknown>> {
+    return axios.delete(`${this.endpoint}/${name}/${version}`)
+  }
 }
 
 const pluginService = new PluginService()

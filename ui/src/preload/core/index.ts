@@ -42,6 +42,17 @@ const core = {
     getApiPort: () => {
       return ipcRenderer.invoke("core:get-api-port")
     }
+  },
+  plugins: {
+    reloadPlugins: () => {
+      ipcRenderer.send("core:reload-plugins")
+    },
+    onReloadPlugins: (callback: () => void) => {
+      ipcRenderer.on("core:on-reload-plugins", () => callback())
+    },
+    removeReloadPlugins: () => {
+      ipcRenderer.removeAllListeners("core:on-reload-plugins")
+    }
   }
 }
 

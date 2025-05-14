@@ -119,6 +119,13 @@ class PluginManagement:
         del self.plugins[dir_name]
         self.plugins.pop(dir_name, None)
 
+    def remove_plugin_by_name_and_version(self, name: str, version: str) -> str:
+        for dir_name, instance in list(self.plugins.items()):
+            if instance.name == name and str(instance.version) == version:
+                self.remove_plugin(dir_name)
+                return dir_name
+        raise ValueError(f"Plugin {name} version {version} not found")
+
     def rename_plugin_dir(self, old_dir_name: str, new_dir_name: str):
         if old_dir_name not in self.plugins:
             raise ValueError(f"Plugin {old_dir_name} not found")
