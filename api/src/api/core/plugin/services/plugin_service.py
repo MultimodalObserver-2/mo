@@ -5,7 +5,7 @@ from api.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
 from api.core.file_management.file_management import FileManagement
 from api.core.plugin.plugin_management import PluginManagement
 from api.core.plugin.plugins_dir_observer import PluginsDirHandler
-from api.core.plugin.schemas.plugin import PluginRes
+from api.core.plugin.schemas.plugin import PlatformsRes, PluginRes
 from api.core.utils.http_exceptions import BadRequestException
 
 
@@ -34,17 +34,17 @@ class PluginService:
             raise BadRequestException(f"Failed to add plugin {file_name}. Error: {e}")
         self.plugins_dir_handler.add_known_dir(dir_name)
         self.plugins_dir_handler.resume()
-        plugin_instance = self.plugin_management.get_plugin(dir_name)
+        plugin = self.plugin_management.get_plugin(dir_name)
         plugin_dict = {
-            "name": plugin_instance.name,
-            "version": str(plugin_instance.version),
-            "description": plugin_instance.description,
-            "icon_path": plugin_instance.icon_path or "",
-            "repository": plugin_instance.repo,
-            "author": plugin_instance.author or "",
-            "author_email": plugin_instance.author_email or "",
-            "platforms": plugin_instance.platform.get_platforms(),
-            "module": plugin_instance._module,
+            "name": plugin.name,
+            "version": str(plugin.version),
+            "description": plugin.description,
+            "icon_path": plugin.icon_path or "",
+            "repository": plugin.repository,
+            "author": plugin.author or "",
+            "author_email": plugin.author_email or "",
+            "platforms": PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
+            "module": plugin._module,
             "location": dir_path,
         }
         return PluginRes(**plugin_dict)
@@ -57,12 +57,30 @@ class PluginService:
                 version=str(plugin.version),
                 description=plugin.description,
                 icon_path= os.path.join(plugin._location or "", plugin.icon_path or "") if plugin.icon_path else "",
-                repository=plugin.repo,
+                repository=plugin.repository,
                 author=plugin.author or "",
                 author_email=plugin.author_email or "",
-                platforms=plugin.platform.get_platforms(),
+                platforms=PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
                 module=plugin._module,
                 location=plugin._location or "",
             )
             for plugin in plugins
         ]
+
+    def get_plugin(self, plugin_name: str, plugin_version: str) -> PluginRes:
+        plugin = self.plugin_management.get_plugin_by_name_and_version(plugin_name, plugin_version)
+        if not plugin:
+            raise BadRequestException(f"Plugin {plugin_name} v{plugin_version} not found.")
+        plugin_dict = {
+            "name": plugin.name,
+            "version": str(plugin.version),
+            "description": plugin.description,
+            "icon_path": os.path.join(plugin._location or "", plugin.icon_path or "") if plugin.icon_path else "",
+            "repository": plugin.repository,
+            "author": plugin.author or "",
+            "author_email": plugin.author_email or "",
+            "platforms": PlatformsRes(linux=plugin.platform.linux, windows=plugin.platform.windows, mac=plugin.platform.mac),
+            "module": plugin._module,
+            "location": plugin._location or "",
+        }
+        return PluginRes(**plugin_dict)

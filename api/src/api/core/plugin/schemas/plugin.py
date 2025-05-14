@@ -1,4 +1,10 @@
+from api.core.plugin.sys_platform import SysPlatform
 from pydantic import BaseModel
+
+class PlatformsRes(BaseModel):
+    linux: bool = False
+    windows: bool = False
+    mac: bool = False
 
 
 class PluginRes(BaseModel):
@@ -9,6 +15,6 @@ class PluginRes(BaseModel):
     icon_path: str = ""
     author: str = ""
     author_email: str = ""
-    platforms: list[str]
+    platforms: PlatformsRes
     module: str
     location: str

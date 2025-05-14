@@ -92,7 +92,7 @@
 
 .actions .action.normal:hover {
   transform: scale(1.15);
-  fill: var(--color-accent-200);
+  fill: var(--color-accent-400);
 }
 
 .actions .action.danger:hover {

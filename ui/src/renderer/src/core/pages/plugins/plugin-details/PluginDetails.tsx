@@ -1,0 +1,80 @@
+import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
+import styles from "./plugin-details.module.css"
+import DisplayData from "@renderer/core/components/display-data/DisplayData"
+import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
+import InfoIcon from "@renderer/core/components/icons/InfoIcon"
+import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
+import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
+import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
+import PageModal from "@renderer/core/components/page-modal/PageModal"
+import pluginService from "@renderer/core/services/PluginService"
+import { Plugin } from "@renderer/core/types/Plugin"
+import {
+  showApiErrorMessage,
+  showUnexpectedErrorMessage
+} from "@renderer/core/utils/dialogMessages"
+import { useEffect, useState } from "react"
+import { useParams } from "react-router"
+
+export default function PluginDetails() {
+  const { pluginName, pluginVersion } = useParams<{
+    pluginName: string
+    pluginVersion: string
+  }>()
+  const [plugin, setPlugin] = useState<Plugin | null>(null)
+
+  useEffect(() => {
+    async function fetchPlugin() {
+      if (!pluginName || !pluginVersion) {
+        showUnexpectedErrorMessage()
+        window.close()
+        return
+      }
+
+      try {
+        const response = await pluginService.get(pluginName, pluginVersion)
+        setPlugin(response.data)
+      } catch (error) {
+        showApiErrorMessage(error)
+        window.close()
+      }
+    }
+
+    fetchPlugin()
+  }, [pluginName, pluginVersion])
+
+  if (!plugin) {
+    return <ErrorElement name="Plugin" />
+  }
+
+  return (
+    <PageModal>
+      <ModalHeader>
+        <ModalTitle title="Plugin details" Icon={InfoIcon} />
+      </ModalHeader>
+      <ModalBody>
+        <section className={styles.group}>
+          <DisplayData name="Name" value={plugin.name} />
+          <DisplayData name="Version" value={plugin.version} />
+        </section>
+        <DisplayData name="Description" value={plugin.description} />
+        <section className={styles.group}>
+          <DisplayData name="Author Name" value={plugin.author ?? "Unknown"} />
+          <DisplayData name="Author Email" value={plugin.author_email ?? "Unknown"} />
+        </section>
+        <DisplayPath
+          name="Repository"
+          path_type="url"
+          value={plugin.repository == "" ? "Unknown" : plugin.repository}
+        />
+        <DisplayPath name="Location" value={plugin.location} />
+        <DisplayData name="Module" value={plugin.module} />
+        <section className={styles.group}>
+          <DisplayData name="Linux" value={plugin.platforms.linux ? "Yes" : "No"} />
+          <DisplayData name="Windows" value={plugin.platforms.windows ? "Yes" : "No"} />
+          <DisplayData name="MacOS" value={plugin.platforms.macos ? "Yes" : "No"} />
+        </section>
+      </ModalBody>
+    </PageModal>
+  )
+}

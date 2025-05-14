@@ -18,7 +18,7 @@ class PluginManagement:
         self.plugin_default_name = "main.py"
         self.plugins_path = os.path.join(APP_DATA_DIR, self.plugins_dir)
         self.plugins_path = os.path.normpath(self.plugins_path)
-        self.plugins = {}
+        self.plugins = {} # type: dict[str, Plugin]
         pass
 
     def __new__(cls):
@@ -103,6 +103,10 @@ class PluginManagement:
         instance = self.get_plugin_instance_from_module(module)
         if not instance.platform.is_available():
             raise ImportError(f"Plugin {dir_name} is not available on this platform")
+        if self.get_plugin_by_name_and_version(instance.name, str(instance.version)):
+            raise ImportError(
+                f"Plugin {instance.name} version {instance.version} is already loaded"
+            )
         instance.load()
         instance._location = self._get_plugin_dir_path(dir_name)
         self.plugins[dir_name] = instance
@@ -131,3 +135,11 @@ class PluginManagement:
 
     def get_all_plugins(self) -> list[Plugin]:
         return list(self.plugins.values())
+
+    def get_plugin_by_name_and_version(
+        self, name: str, version: str
+    ) -> Plugin | None:
+        for plugin in self.plugins.values():
+            if plugin.name == name and str(plugin.version) == version:
+                return plugin
+        return None

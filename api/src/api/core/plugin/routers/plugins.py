@@ -14,3 +14,7 @@ async def add_plugin(file: UploadFile, service: PluginService = Depends()):
 @plugin_router.get("/", response_model=list[PluginRes], status_code=status.HTTP_200_OK)
 async def get_all_plugins(service: PluginService = Depends()):
     return service.get_all_plugins()
+
+@plugin_router.get("/{plugin_name}/{plugin_version}", response_model=PluginRes, status_code=status.HTTP_200_OK)
+async def get_plugin(plugin_name: str, plugin_version: str, service: PluginService = Depends()):
+    return service.get_plugin(plugin_name, plugin_version)

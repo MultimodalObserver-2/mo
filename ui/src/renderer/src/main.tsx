@@ -22,6 +22,7 @@ import ProtocolPage from "./modules/organization/pages/protocol-pages/protocol/P
 import ActivityMessagePage from "./modules/organization/pages/protocol-pages/activity-message/ActivityMessagePage"
 import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activity-timer/ActivityTimerPage"
 import PluginsPage from "./core/pages/plugins/Plugins"
+import PluginDetails from "./core/pages/plugins/plugin-details/PluginDetails"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -68,6 +69,7 @@ createRoot(document.getElementById("root")!).render(
             element={<ActivityMessagePage />}
           />
           <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
+          <Route path="/plugins/:pluginName/:pluginVersion" element={<PluginDetails />} />
         </Routes>
       </HashRouter>
     </Provider>

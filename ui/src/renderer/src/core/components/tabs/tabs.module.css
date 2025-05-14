@@ -18,5 +18,6 @@
 }
 
 .tab.active {
-    background-color: var(--color-primary-200);
+    color: var(--color-text-light);
+    background-color: var(--color-primary-500);
 }

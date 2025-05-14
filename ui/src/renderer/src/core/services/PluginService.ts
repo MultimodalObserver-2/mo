@@ -19,6 +19,10 @@ class PluginService {
   async getAll(): Promise<AxiosResponse<Plugin[], unknown>> {
     return axios.get(`${this.endpoint}/`)
   }
+
+  async get(name: string, version: string): Promise<AxiosResponse<Plugin, unknown>> {
+    return axios.get(`${this.endpoint}/${name}/${version}`)
+  }
 }
 
 const pluginService = new PluginService()

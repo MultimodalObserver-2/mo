@@ -4,6 +4,7 @@ import DisplayData from "../display-data/DisplayData"
 import ContentCopyIcon from "../icons/ContentCopyIcon"
 import DocumentSearchIcon from "../icons/DocumentSearchIcon"
 import { useRef } from "react"
+import BrowserExploreIcon from "../icons/BrowserExploreIcon"
 
 interface DisplayPathProps {
   /** The name of the path to be displayed */
@@ -12,6 +13,8 @@ interface DisplayPathProps {
   value: string
   /** Whether the buttons should be disabled */
   disabled?: boolean
+  /** */
+  path_type?: "url" | "path"
   /** Additional class name for styling */
   className?: string
 }
@@ -21,12 +24,14 @@ interface DisplayPathProps {
  * @param {string} name - The name of the path to be displayed.
  * @param {string} value - The path to be displayed.
  * @param {boolean} [disabled=false] - Whether the buttons should be disabled.
+ * @param {string} [path_type="path"] - The type of the path, either "url" or "path".
  * @param {string} [className] - Additional class name for styling.
  */
 export default function DisplayPath({
   name,
   value,
   disabled = false,
+  path_type = "path",
   className
 }: Readonly<DisplayPathProps>) {
   const copyMessage = useRef<HTMLSpanElement>(null)
@@ -68,7 +73,11 @@ export default function DisplayPath({
         styleType="soft"
         onClick={() => handleOpenPath(value)}
       >
-        <DocumentSearchIcon className={styles["button-icon"]} />
+        {path_type === "path" ? (
+          <DocumentSearchIcon className={styles["button-icon"]} />
+        ) : (
+          <BrowserExploreIcon className={styles["button-icon"]} />
+        )}
       </Button>
     </DisplayData>
   )

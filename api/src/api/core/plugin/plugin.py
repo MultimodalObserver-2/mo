@@ -9,7 +9,7 @@ class Plugin(ABC):
     name: str
     version: SemanticVersion
     description: str
-    repo: str
+    repository: str
     icon_path: Optional[str] = None
     author: Optional[str]
     author_email: Optional[str]

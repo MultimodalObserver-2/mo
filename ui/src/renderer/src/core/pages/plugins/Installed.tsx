@@ -4,6 +4,8 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { useEffect, useState } from "react"
 import { Plugin } from "@renderer/core/types/Plugin"
 import fallbackimg from "@renderer/core/assets/images/plugin_fallback.svg"
+import InfoIcon from "@renderer/core/components/icons/InfoIcon"
+import { openPluginDetailsModal } from "@renderer/core/utils/modalWindows"
 
 export default function Installed() {
   const [plugins, setPlugins] = useState<Plugin[]>([])
@@ -22,6 +24,10 @@ export default function Installed() {
 
     fetchPlugins()
   }, [])
+
+  const openDetails = (plugin: Plugin) => {
+    openPluginDetailsModal(plugin.name, plugin.version)
+  }
 
   return (
     <div className={styles.installed}>
@@ -43,8 +49,13 @@ export default function Installed() {
             />
             <div className={styles.data}>
               <section className={styles.top}>
-                <h3 className={styles.name}>{plugin.name}</h3>
-                <div className={styles.version}>{plugin.version}</div>
+                <div className={styles.info}>
+                  <h3 className={styles.name}>{plugin.name}</h3>
+                  <div className={styles.version}>{plugin.version}</div>
+                </div>
+                <div className={styles.actions}>
+                  <InfoIcon className={styles["info-icon"]} onClick={() => openDetails(plugin)} />
+                </div>
               </section>
               <p className={styles.description}>{plugin.description}</p>
             </div>
