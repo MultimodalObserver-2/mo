@@ -1,15 +1,12 @@
 import platform
 
+from pydantic import BaseModel
 
-class SysPlatform:
+
+class SysPlatform(BaseModel):
     linux: bool = False
     windows: bool = False
     mac: bool = False
-
-    def __init__(self, linux: bool = False, windows: bool = False, mac: bool = False) -> None:
-        self.linux = linux
-        self.windows = windows
-        self.mac = mac
 
     def is_available(self) -> bool:
         operating_system = platform.system()

@@ -3,9 +3,9 @@ from typing import Optional
 
 from api.core.plugin.semantic_version import SemanticVersion
 from api.core.plugin.sys_platform import SysPlatform
+from pydantic import BaseModel, PrivateAttr
 
-
-class Plugin(ABC):
+class PluginMetadata(BaseModel):
     name: str
     version: SemanticVersion
     description: str
@@ -14,8 +14,14 @@ class Plugin(ABC):
     author: Optional[str]
     author_email: Optional[str]
     platform: SysPlatform
+    _location: Optional[str] = PrivateAttr(default=None)
+    _module: Optional[str] = PrivateAttr(default=None)
+    _is_loaded: bool = PrivateAttr(default=False)
+    _error: Optional[str] = PrivateAttr(default=None)
+
+class Plugin(ABC):
+    metadata: PluginMetadata
     _module: str = "core"
-    _location: Optional[str] = None
 
     @abstractmethod
     def load(self):

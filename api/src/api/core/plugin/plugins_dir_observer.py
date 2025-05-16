@@ -15,9 +15,8 @@ class PluginsDirHandler(FileSystemEventHandler):
     def __init__(self) -> None:
         super().__init__()
         self.plugin_management = PluginManagement()
-        self.plugin_management.load_all_plugins()
+        self.known_dirs = self.plugin_management.load_all_plugins()
         self.plugins_path = self.plugin_management.plugins_path
-        self.known_dirs = set(self.plugin_management.plugins.keys())
         self.suspended = False
 
     def suspend(self):
@@ -29,7 +28,7 @@ class PluginsDirHandler(FileSystemEventHandler):
     def add_known_dir(self, dir_name: str) -> None:
         if dir_name in self.known_dirs:
             return
-        self.known_dirs.add(dir_name)
+        self.known_dirs.append(dir_name)
 
     def remove_known_dir(self, dir_name: str) -> None:
         if dir_name not in self.known_dirs:
@@ -59,7 +58,7 @@ class PluginsDirHandler(FileSystemEventHandler):
             return
         try:
             self.plugin_management.add_plugin(dir_name)
-            self.known_dirs.add(dir_name)
+            self.known_dirs.append(dir_name)
         except Exception as e:
             print(f"ERROR: Failed to load plugin {dir_name}")
             print(f"Traceback: {e}")
@@ -75,7 +74,7 @@ class PluginsDirHandler(FileSystemEventHandler):
             return
 
         try:
-            self.plugin_management.remove_plugin(dir_name)
+            self.plugin_management.remove_plugin_by_dir(dir_name)
             self.known_dirs.remove(dir_name)
         except Exception as e:
             print(f"ERROR: Failed to remove plugin {dir_name}")
@@ -92,9 +91,9 @@ class PluginsDirHandler(FileSystemEventHandler):
         dest_path = str(dest_path)
         new_dir_name = os.path.relpath(dest_path, self.plugins_path)
         try:
-            self.plugin_management.rename_plugin_dir(old_dir_name, new_dir_name)
+            self.plugin_management.rename_plugin_dir(new_dir_name)
             self.known_dirs.remove(old_dir_name)
-            self.known_dirs.add(new_dir_name)
+            self.known_dirs.append(new_dir_name)
         except Exception as e:
             print(f"ERROR: Failed to rename plugin {old_dir_name} to {new_dir_name}")
             print(f"Traceback: {e}")

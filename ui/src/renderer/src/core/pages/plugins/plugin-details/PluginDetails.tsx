@@ -99,7 +99,7 @@ export default function PluginDetails() {
           value={plugin.repository == "" ? "Unknown" : plugin.repository}
         />
         <DisplayPath name="Location" value={plugin.location} />
-        <DisplayData name="Module" value={plugin.module} />
+        <DisplayData name="Module" value={plugin.module ?? "Unknown"} />
         <section className={styles.group}>
           <DisplayData name="Linux" value={plugin.platforms.linux ? "Yes" : "No"} />
           <DisplayData name="Windows" value={plugin.platforms.windows ? "Yes" : "No"} />

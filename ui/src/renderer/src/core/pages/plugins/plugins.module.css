@@ -160,3 +160,32 @@
   overflow: hidden;
   text-overflow: ellipsis;
 }
+
+.empty {
+  color: var(--color-primary-800);
+  font-size: 1.2em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.plugin .top .report {
+  display: flex;
+  justify-content: center;
+  padding: 2px 4px;
+  border-radius: 4px;
+  background-color: var(--color-red-300);
+}
+
+.plugin .top .report:hover {
+  background-color: var(--color-red-500);
+}
+
+.plugin .top .report .report-icon {
+  width: 22px;
+  height: 22px;
+  fill: var(--color-red-500);
+}
+
+.plugin .top .report:hover .report-icon {
+  fill: var(--color-text-light);
+}

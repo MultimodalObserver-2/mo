@@ -13,6 +13,8 @@ export type Plugin = {
   author?: string
   author_email?: string
   platforms: PluginPlatforms
-  module: string
+  module?: string
   location: string
+  error?: string
+  is_loaded?: boolean
 }

@@ -14,12 +14,21 @@ export default function Register() {
     const formData = new FormData(event.currentTarget)
     const fileInput = formData.get("plugins") as File
     try {
-      await pluginService.register(fileInput)
-      window.core.dialog.showMessageBox({
-        type: "info",
-        title: "Plugin Registration",
-        message: "Plugin registered successfully"
-      })
+      const response = await pluginService.register(fileInput)
+      const plugin = response.data
+      if (plugin.is_loaded) {
+        window.core.dialog.showMessageBox({
+          type: "info",
+          title: "Plugin Registration",
+          message: "Plugin registered successfully"
+        })
+      } else {
+        window.core.dialog.showMessageBox({
+          type: "warning",
+          title: "Plugin Registration",
+          message: `The plugin was registered but failed to load correctly: \n${plugin.error}`
+        })
+      }
     } catch (error) {
       showApiErrorMessage(error)
     }
