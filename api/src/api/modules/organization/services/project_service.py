@@ -33,11 +33,11 @@ class ProjectService:
         self._data_file_name = PROJECTS_DATA_FILE_NAME
         self._participants_data_file_name = PARTICIPANTS_DATA_FILE_NAME
 
-        relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
+        self.relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
 
-        self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=True)
+        self.file_management = FileManagement(rel_path=self.relative_projects_path, make_dirs=True)
         self.projects_storage = JsonStorage(
-            file_name=self._data_file_name, rel_path=relative_projects_path
+            file_name=self._data_file_name, rel_path=self.relative_projects_path
         )
 
     def create_project(self, project: ProjectPostReq) -> ProjectRes:
