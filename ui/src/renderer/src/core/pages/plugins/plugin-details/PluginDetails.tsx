@@ -35,7 +35,7 @@ export default function PluginDetails() {
       }
 
       try {
-        const response = await pluginService.get(pluginName, pluginVersion)
+        const response = await pluginService.get(pluginName)
         setPlugin(response.data)
       } catch (error) {
         showApiErrorMessage(error)
@@ -54,7 +54,7 @@ export default function PluginDetails() {
     }
 
     try {
-      await pluginService.delete(plugin.name, plugin.version)
+      await pluginService.delete(plugin.name)
       window.core.plugins.reloadPlugins()
       window.close()
     } catch (error) {

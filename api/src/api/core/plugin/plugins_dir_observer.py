@@ -57,7 +57,7 @@ class PluginsDirHandler(FileSystemEventHandler):
             print(f"ERROR: Metadata file not found for plugin {dir_name}")
             return
         try:
-            self.plugin_management.add_plugin(dir_name)
+            self.plugin_management.register_plugin(dir_name)
             self.known_dirs.append(dir_name)
         except Exception as e:
             print(f"ERROR: Failed to load plugin {dir_name}")

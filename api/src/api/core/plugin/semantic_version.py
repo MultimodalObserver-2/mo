@@ -8,7 +8,7 @@ class SemanticVersion(BaseModel):
 
     def __str__(self):
         return f"{self.major}.{self.minor}.{self.patch}"
-    
+
     @staticmethod
     def from_string(version_str: str):
         parts = version_str.split(".")

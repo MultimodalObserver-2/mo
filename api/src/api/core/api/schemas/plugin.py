@@ -1,7 +1,10 @@
 import os
-from typing import Optional
-from api.core.plugin.plugin import PluginMetadata
+from typing import Any, Optional
+
 from pydantic import BaseModel
+
+from api.core.plugin.plugin import PluginMetadata
+from api.core.plugin.properties import Property, PropertyType
 
 
 class PlatformsRes(BaseModel):
@@ -31,8 +34,7 @@ class PluginRes(BaseModel):
             version=str(plugin_metadata.version),
             description=plugin_metadata.description,
             icon_path=(
-                os.path.join(plugin_metadata._location or "",
-                             plugin_metadata.icon_path or "")
+                os.path.join(plugin_metadata._location or "", plugin_metadata.icon_path or "")
                 if plugin_metadata.icon_path
                 else ""
             ),
@@ -48,4 +50,30 @@ class PluginRes(BaseModel):
             location=plugin_metadata._location or "",
             error=plugin_metadata._error,
             is_loaded=plugin_metadata._is_loaded,
+        )
+
+
+class PropertyRes(BaseModel):
+    key: str
+    label: str
+    required: bool = True
+    visible: bool = True
+    enabled: bool = True
+    default: Optional[Any] = None
+    data: dict[str, Any] = {}
+    property_type: PropertyType
+    reactive: bool = False
+
+    @staticmethod
+    def from_property(prop: Property):
+        return PropertyRes(
+            key=prop.key,
+            label=prop.label,
+            required=prop.required,
+            visible=prop.visible,
+            enabled=prop.enabled,
+            default=prop.default,
+            data=prop.data,
+            property_type=prop._type,
+            reactive=prop._modified_callback is not None,
         )

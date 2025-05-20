@@ -47,7 +47,7 @@ export default function Installed() {
     }
 
     try {
-      await pluginService.delete(plugin.name, plugin.version)
+      await pluginService.delete(plugin.name)
       fetchPlugins()
     } catch (error) {
       showApiErrorMessage(error)

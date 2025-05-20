@@ -1,16 +1,17 @@
 import json
 import os
 from typing import Type
+
+from pydantic import ValidationError
+
 from api.core.plugin.plugin import Plugin, PluginMetadata
 from api.core.plugin.semantic_version import SemanticVersion
 from api.core.plugin.sys_platform import SysPlatform
-from pydantic import ValidationError
 
 
 def load_plugin_metadata(path: str) -> PluginMetadata:
     if not os.path.exists(path):
-        raise FileNotFoundError(
-            f"Metadata file not found at {path}")
+        raise FileNotFoundError(f"Metadata file not found at {path}")
 
     with open(path, "r") as f:
         data = json.load(f)
@@ -38,14 +39,16 @@ def load_metadata_json(rel_path: str = ""):
     """
     Load the metadata.json file navigating from the current class directory to the relative path
     """
+
     def decorator(cls: Type[Plugin]):
         if not issubclass(cls, Plugin):
             raise TypeError(f"{cls.__name__} must be a subclass of Plugin")
         import inspect
         import os
+
         stack = inspect.stack()
         for frame in stack:
-            if frame.function == '<module>':
+            if frame.function == "<module>":
                 base_file = frame.filename
                 break
         else:
@@ -61,4 +64,5 @@ def load_metadata_json(rel_path: str = ""):
         cls.metadata._is_loaded = True
         cls.metadata._location = base_plugin_dir
         return cls
+
     return decorator

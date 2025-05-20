@@ -1,9 +1,13 @@
 from abc import ABC, abstractmethod
 from typing import Optional
 
-from api.core.plugin.semantic_version import SemanticVersion
-from api.core.plugin.sys_platform import SysPlatform
 from pydantic import BaseModel, PrivateAttr
+
+from api.core.plugin.properties import Properties
+from api.core.plugin.semantic_version import SemanticVersion
+from api.core.plugin.settings import Settings
+from api.core.plugin.sys_platform import SysPlatform
+
 
 class PluginMetadata(BaseModel):
     name: str
@@ -19,8 +23,10 @@ class PluginMetadata(BaseModel):
     _is_loaded: bool = PrivateAttr(default=False)
     _error: Optional[str] = PrivateAttr(default=None)
 
+
 class Plugin(ABC):
     metadata: PluginMetadata
+    settings: Optional[Settings] = None
     _module: str = "core"
 
     @abstractmethod
@@ -30,3 +36,6 @@ class Plugin(ABC):
     @abstractmethod
     def unload(self):
         pass
+
+    def configure(self, settings: Settings):
+        self.settings = settings
