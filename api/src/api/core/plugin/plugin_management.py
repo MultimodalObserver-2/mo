@@ -244,3 +244,9 @@ class PluginManagement:
 
     def get_plugins_from_type(self, plugin_type: type) -> list[type[Plugin]]:
         return [plugin for plugin in self.plugins.values() if issubclass(plugin, plugin_type)]
+
+    def plugin_from_type_exists(self, name: str, plugin_type: type) -> bool:
+        return any(
+            plugin.metadata.name == name and issubclass(plugin, plugin_type)
+            for plugin in self.plugins.values()
+        )

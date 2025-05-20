@@ -6,6 +6,7 @@ from api.core.plugin.plugin_management import PluginManagement
 from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import (BadRequestException,
                                             NotFoundException)
+from api.modules.capture.plugins.capture_plugin import CapturePlugin
 from api.modules.capture.schemas.settings import SettingsPostReq, SettingsRes
 from api.modules.capture.services.paths import (CAPTURE_SETTINGS_DIR,
                                                 CAPTURE_SETTINGS_FILE)
@@ -33,8 +34,8 @@ class CaptureSettingService:
         if not self.project_service.exists(project_name):
             raise NotFoundException(f"Project {project_name} does not exist.")
 
-        if not self.plugin_management.plugin_exists(settings.plugin_name):
-            raise NotFoundException(f"Plugin {settings.plugin_name} does not exist.")
+        if not self.plugin_management.plugin_from_type_exists(settings.plugin_name, CapturePlugin):
+            raise NotFoundException(f"Capture plugin {settings.plugin_name} does not exist.")
 
         if not self.file_management.exists(self._get_settings_dir_path(project_name)):
             self.file_management.create_directory(

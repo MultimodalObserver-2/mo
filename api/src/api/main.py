@@ -9,6 +9,7 @@ from api.core.api.routers.plugins import plugin_router
 from api.core.config.constants import IS_DEV
 from api.core.config.setup import app_setup
 from api.core.plugin.plugins_dir_observer import start_plugins_dir_observer
+from api.modules.capture.routers.capture import capture_router
 from api.modules.capture.routers.settings import capture_settings_router
 from api.modules.organization.routers.participants import participant_router
 from api.modules.organization.routers.projects import project_router
@@ -49,6 +50,7 @@ app.include_router(participant_router)
 app.include_router(protocols_router)
 
 # Capture routers
+app.include_router(capture_router)
 app.include_router(capture_settings_router)
 
 start_plugins_dir_observer()
