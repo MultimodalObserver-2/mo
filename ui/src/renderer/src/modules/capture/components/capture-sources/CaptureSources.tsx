@@ -13,15 +13,29 @@ import {
 } from "@renderer/core/components/panel"
 import { useEffect, useState } from "react"
 import { CaptureSetting } from "../../types/CaptureSetting"
-import { showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
+import { showApiErrorMessage, showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
 import captureSettingsService from "../../services/CaptureSettingsService"
 import { Project } from "@renderer/modules/organization/types/Project"
 import { PluginIcons } from "@renderer/core/types/Plugin"
 import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
+import { showDeleteCaptureSettingsMessage } from "../../utils/dialogMessages"
 
 export default function CaptureSources() {
   const selectedProject = useSelector(selectSelectedProject)
   const [captureSettings, setCaptureSettings] = useState<CaptureSetting[]>([])
+
+  const fetchCaptureSettings = async (project: Project | null) => {
+    if (!project) {
+      setCaptureSettings([])
+      return
+    }
+    try {
+      const response = await captureSettingsService.getAll(project.name)
+      setCaptureSettings(response.data)
+    } catch {
+      showUnexpectedErrorMessage()
+    }
+  }
 
   const handleAdd = () => {
     if (!selectedProject) {
@@ -30,20 +44,28 @@ export default function CaptureSources() {
     openCaptureSourceModal(selectedProject.name)
   }
 
-  useEffect(() => {
-    const fetchCaptureSettings = async (project: Project | null) => {
-      if (!project) {
-        setCaptureSettings([])
-        return
-      }
-      try {
-        const response = await captureSettingsService.getAll(project.name)
-        setCaptureSettings(response.data)
-      } catch {
-        showUnexpectedErrorMessage()
-      }
+  const deleteSettings = async (setting: CaptureSetting) => {
+    if (!selectedProject) {
+      return
     }
 
+    const acceptId = 0
+    const response = await showDeleteCaptureSettingsMessage(
+      setting.name,
+      selectedProject.name,
+      acceptId
+    )
+    if (response.response === acceptId) {
+      try {
+        await captureSettingsService.delete(selectedProject.name, setting.name)
+        await fetchCaptureSettings(selectedProject)
+      } catch (error) {
+        showApiErrorMessage(error)
+      }
+    }
+  }
+
+  useEffect(() => {
     window.capture.onReloadSettings(() => {
       console.log("Reloading capture settings")
       fetchCaptureSettings(selectedProject)
@@ -83,12 +105,13 @@ export default function CaptureSources() {
         </ElementActions>
       </ElementHeader>
       <ElementList>
-        {captureSettings.map((setting) => (
+        {captureSettings.map((settings) => (
           <ElementListItem
-            key={setting.name}
-            label={setting.name}
-            leftElement={pluginImg(setting.plugin_icon, setting.plugin_name)}
-            showActions={false}
+            key={settings.name}
+            label={settings.name}
+            leftElement={pluginImg(settings.plugin_icon, settings.plugin_name)}
+            showActions={{ delete: true }}
+            onDelete={() => deleteSettings(settings)}
           />
         ))}
       </ElementList>

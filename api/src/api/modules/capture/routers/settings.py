@@ -32,3 +32,16 @@ async def get_all_capture_settings(
     project_name: str, service: CaptureSettingService = Depends()
 ) -> list[SettingsRes]:
     return service.get_all_capture_settings(project_name)
+
+@capture_settings_router.delete(
+    "/{setting_name}",
+    status_code=204,
+    summary="Delete capture settings",
+    description="Delete capture settings for the specified project."
+)
+async def delete_capture_settings(
+    project_name: str,
+    setting_name: str,
+    service: CaptureSettingService = Depends()
+) -> None:
+    service.delete_capture_settings(project_name, setting_name)

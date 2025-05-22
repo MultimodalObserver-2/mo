@@ -13,7 +13,7 @@ interface ElementListItemProps {
   /** Optional element to be displayed on the left side of the item */
   leftElement?: React.ReactNode
   /** Controls which action icons are shown (or all if boolean `true`) */
-  showActions?: boolean | { info: boolean; lock: boolean; edit: boolean; delete: boolean }
+  showActions?: boolean | { info?: boolean; lock?: boolean; edit?: boolean; delete?: boolean }
   /** Highlights the item as selected */
   isSelected?: boolean
   /** Indicates whether the item is currently locked */

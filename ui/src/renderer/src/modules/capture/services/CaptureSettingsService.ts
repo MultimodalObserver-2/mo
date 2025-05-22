@@ -19,6 +19,13 @@ class CaptureSettingsService {
   async getAll(projectName: string): Promise<AxiosResponse<CaptureSetting[], unknown>> {
     return axios.get(`/projects/${projectName}/capture/settings/`)
   }
+
+  async delete(
+    projectName: string,
+    settingName: string
+  ): Promise<AxiosResponse<CaptureSetting, unknown>> {
+    return axios.delete(`/projects/${projectName}/capture/settings/${settingName}`)
+  }
 }
 
 const captureSettingsService = new CaptureSettingsService()
