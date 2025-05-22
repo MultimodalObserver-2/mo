@@ -25,6 +25,10 @@ export default function PluginSettingProperty({
     return <></>
   }
 
+  if (value != undefined) {
+    property.default = undefined
+  }
+
   if (
     property.property_type === PluginPropertyTypes.INT ||
     property.property_type === PluginPropertyTypes.FLOAT

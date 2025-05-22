@@ -99,3 +99,15 @@
   transform: scale(1.15);
   fill: var(--color-red-500);
 }
+
+.actions svg:not(.action) {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+  transition: transform 150ms ease-in-out;
+}
+
+.actions svg:not(.action):hover {
+  transform: scale(1.15);
+  fill: var(--color-accent-400);
+}

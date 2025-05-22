@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Depends
 
-from api.modules.capture.schemas.settings import SettingsPostReq, SettingsRes
+from api.modules.capture.schemas.settings import SettingsPostReq, SettingsPutReq, SettingsRes
 from api.modules.capture.services.setting_service import CaptureSettingService
 
 capture_settings_router = APIRouter(
@@ -21,6 +21,7 @@ async def add_capture_settings(
 ) -> SettingsRes:
     return service.add_capture_settings(project_name, settings)
 
+
 @capture_settings_router.get(
     "/",
     response_model=list[SettingsRes],
@@ -32,6 +33,7 @@ async def get_all_capture_settings(
     project_name: str, service: CaptureSettingService = Depends()
 ) -> list[SettingsRes]:
     return service.get_all_capture_settings(project_name)
+
 
 @capture_settings_router.get(
     "/{setting_name}",
@@ -46,6 +48,23 @@ async def get_capture_settings(
     service: CaptureSettingService = Depends()
 ) -> SettingsRes:
     return service.get_capture_settings(project_name, setting_name)
+
+
+@capture_settings_router.put(
+    "/{setting_name}",
+    response_model=SettingsRes,
+    status_code=200,
+    summary="Update capture settings",
+    description="Update capture settings for the specified project.",
+)
+async def update_capture_settings(
+    project_name: str,
+    setting_name: str,
+    settings: SettingsPutReq,
+    service: CaptureSettingService = Depends()
+) -> SettingsRes:
+    return service.update_capture_settings(project_name, setting_name, settings)
+
 
 @capture_settings_router.delete(
     "/{setting_name}",

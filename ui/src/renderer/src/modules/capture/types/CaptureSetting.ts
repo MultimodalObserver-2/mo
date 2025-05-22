@@ -6,3 +6,14 @@ export type CaptureSetting = {
   plugin_icon: string | PluginIcons
   settings: Record<string, string | number | boolean>
 }
+
+export type CaptureSettingCreate = {
+  name: string
+  plugin_name: string
+  settings: Record<string, string | number | boolean>
+}
+
+export type CaptureSettingUpdate = {
+  name: string
+  settings: Record<string, string | number | boolean>
+}

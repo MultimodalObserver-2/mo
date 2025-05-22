@@ -14,16 +14,21 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 export default function ConfigurePlugin({
   pluginName,
   submitLabel = "CONFIGURE",
+  initialConfigName = "",
+  initialSettings = {},
   onSubmit,
   onClose
 }: {
   pluginName: string
   submitLabel?: string
-  onSubmit: (name: string, settings: Record<string, unknown>) => void
+  initialConfigName?: string
+  initialSettings?: Record<string, string | number | boolean>
+  onSubmit: (name: string, settings: Record<string, string | number | boolean>) => void
   onClose: () => void
 }) {
-  const [settings, setSettings] = useState<Record<string, string | number | boolean>>({})
-  const [configName, setConfigName] = useState<string>("")
+  const [settings, setSettings] =
+    useState<Record<string, string | number | boolean>>(initialSettings)
+  const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
@@ -55,22 +60,23 @@ export default function ConfigurePlugin({
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await pluginService.getSettingProperties(pluginName)
+        const response = await pluginService.getSettingProperties(pluginName, initialSettings)
         setProperties(response.data)
         const defaultSettings: Record<string, string | number | boolean> = {}
-        for (const property of response.data) {
-          if (property.default !== undefined) {
-            defaultSettings[property.key] = property.default
+        if (Object.keys(initialSettings).length > 0) {
+          for (const property of response.data) {
+            if (property.default !== undefined) {
+              defaultSettings[property.key] = property.default
+            }
           }
         }
-        setSettings(defaultSettings)
       } catch (error) {
         showApiErrorMessage(error)
       }
     }
 
     fetchProperties()
-  }, [pluginName])
+  }, [pluginName, initialSettings])
 
   return (
     <PageModal>

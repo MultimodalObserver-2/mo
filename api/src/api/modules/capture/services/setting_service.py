@@ -5,10 +5,10 @@ from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
 from api.core.plugin.plugin_management import PluginManagement
 from api.core.plugin.settings import Settings
-from api.core.utils.http_exceptions import (BadRequestException,
+from api.core.utils.http_exceptions import (AlreadyExistsException, BadRequestException,
                                             NotFoundException)
 from api.modules.capture.plugins.capture_plugin import CapturePlugin
-from api.modules.capture.schemas.settings import SettingsPostReq, SettingsRes
+from api.modules.capture.schemas.settings import SettingsPostReq, SettingsPutReq, SettingsRes
 from api.modules.capture.services.paths import (CAPTURE_SETTINGS_DIR,
                                                 CAPTURE_SETTINGS_FILE)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
@@ -59,7 +59,8 @@ class CaptureSettingService:
 
         settings_storage = self._get_settings_storage(project_name)
         if self.exists(project_name, settings.name):
-            raise BadRequestException(f"Settings with name {settings.name} already exists.")
+            raise AlreadyExistsException(
+                f"Settings with name {settings.name} already exists.")
 
         plugin_metadata = self.plugin_management.get_plugin_metadata(settings.plugin_name)
         if not plugin_metadata:
@@ -98,6 +99,37 @@ class CaptureSettingService:
         
         return SettingsRes(**settings)
     
+    def update_capture_settings(self, project_name: str, setting_name: str, settings: SettingsPutReq) -> SettingsRes:
+        existing_settings = self.get_capture_settings(project_name, setting_name)
+        
+        existing_settings.settings = settings.settings if settings.settings else existing_settings.settings
+        plugin_properties = self.plugin_management.get_plugin_properties(
+            existing_settings.plugin_name)
+        if not plugin_properties:
+            raise NotFoundException(
+                f"Plugin properties for {existing_settings.plugin_name} do not exist.")
+
+        try:
+            plugin_properties.validate(Settings(existing_settings.settings))
+        except Exception as e:
+            raise BadRequestException(
+                f"Invalid settings for plugin {existing_settings.plugin_name}: {str(e)}"
+            )
+        
+        if settings.name != None and settings.name != setting_name:
+            if self.exists(project_name, settings.name):
+                raise AlreadyExistsException(
+                    f"Settings with name {settings.name} already exists.")
+            existing_settings.name = settings.name
+
+        settings_storage = self._get_settings_storage(project_name)
+        settings_storage.update(
+            {"name": setting_name},
+            existing_settings.model_dump()
+        )
+
+        return existing_settings
+
     def delete_capture_settings(self, project_name: str, setting_name: str) -> None:
         if not self.exists(project_name, setting_name):
             raise NotFoundException(

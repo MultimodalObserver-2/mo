@@ -2,7 +2,7 @@ import styles from "./capture-sources.module.css"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
 import { useSelector } from "react-redux"
-import { openCaptureSourceModal } from "../../utils/modalWindows"
+import { openCaptureSourceModal, openUpdateCaptureSourceModal } from "../../utils/modalWindows"
 import {
   ElementActions,
   ElementHeader,
@@ -13,12 +13,16 @@ import {
 } from "@renderer/core/components/panel"
 import { useEffect, useState } from "react"
 import { CaptureSetting } from "../../types/CaptureSetting"
-import { showApiErrorMessage, showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
+import {
+  showApiErrorMessage,
+  showUnexpectedErrorMessage
+} from "@renderer/core/utils/dialogMessages"
 import captureSettingsService from "../../services/CaptureSettingsService"
 import { Project } from "@renderer/modules/organization/types/Project"
 import { PluginIcons } from "@renderer/core/types/Plugin"
 import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
 import { showDeleteCaptureSettingsMessage } from "../../utils/dialogMessages"
+import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
 
 export default function CaptureSources() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -92,6 +96,14 @@ export default function CaptureSources() {
     )
   }
 
+  const handleOpenSettings = (settings: CaptureSetting) => {
+    if (!selectedProject) {
+      return
+    }
+
+    openUpdateCaptureSourceModal(selectedProject.name, settings.name)
+  }
+
   return (
     <PanelElement>
       <ElementHeader>
@@ -112,6 +124,7 @@ export default function CaptureSources() {
             leftElement={pluginImg(settings.plugin_icon, settings.plugin_name)}
             showActions={{ delete: true }}
             onDelete={() => deleteSettings(settings)}
+            extraActions={<SettingsIcon onClick={() => handleOpenSettings(settings)} />}
           />
         ))}
       </ElementList>

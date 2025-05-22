@@ -36,6 +36,8 @@ interface ElementListItemProps {
   dropzoneId?: string
   /** Handler for item drop event */
   onDropItem?: (order: number) => void
+  /** Extra actions */
+  extraActions?: React.ReactNode
 }
 
 /** List item with optional action icons like info, lock, edit, and delete */
@@ -52,7 +54,8 @@ export default function ElementListItem({
   onInfo,
   onLock,
   onEdit,
-  onDelete
+  onDelete,
+  extraActions
 }: Readonly<ElementListItemProps>) {
   const draggableProps = useDraggable(
     onDropItem,
@@ -84,6 +87,7 @@ export default function ElementListItem({
         </section>
         <Show show={!!showActions}>
           <div className={styles.actions}>
+            {extraActions}
             <Show show={showAction("info")}>
               <InfoIcon className={`${styles.action} ${styles.normal}`} onClick={onInfo} />
             </Show>

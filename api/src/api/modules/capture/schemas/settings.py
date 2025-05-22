@@ -11,6 +11,7 @@ class SettingsPostReq(BaseModel):
 
 
 class SettingsPutReq(BaseModel):
+    name: str
     settings: dict[str, Any]
 
 

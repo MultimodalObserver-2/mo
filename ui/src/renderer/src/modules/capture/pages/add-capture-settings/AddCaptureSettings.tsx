@@ -2,6 +2,7 @@ import ConfigurePlugin from "@renderer/core/components/configure-plugin/Configur
 import { useParams } from "react-router"
 import captureSettingsService from "../../services/CaptureSettingsService"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import { CaptureSettingCreate } from "../../types/CaptureSetting"
 
 export default function AddCaptureSettings() {
   const { projectName, pluginName } = useParams<{ projectName: string; pluginName: string }>()
@@ -11,9 +12,14 @@ export default function AddCaptureSettings() {
     return
   }
 
-  const addSource = async (name: string, settings: Record<string, unknown>) => {
+  const addSource = async (name: string, settings: Record<string, string | number | boolean>) => {
+    const settingsData: CaptureSettingCreate = {
+      name: name,
+      plugin_name: pluginName,
+      settings: settings
+    }
     try {
-      await captureSettingsService.addSettings(projectName, name, pluginName, settings)
+      await captureSettingsService.create(projectName, settingsData)
       window.capture.reloadSettings()
       window.close()
     } catch (error) {
