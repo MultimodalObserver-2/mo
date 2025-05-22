@@ -2,13 +2,13 @@ import styles from "./add-activity.module.css"
 import Button from "@renderer/core/components/button/Button"
 import Checkbox from "@renderer/core/components/checkbox/Checkbox"
 import AddTaskIcon from "@renderer/core/components/icons/AddTaskIcon"
-import DocumentSearchIcon from "@renderer/core/components/icons/DocumentSearchIcon"
 import Input from "@renderer/core/components/input/Input"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalFooter from "@renderer/core/components/page-modal/modal-footer/ModalFooter"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
+import PathInput from "@renderer/core/components/path-input/PathInput"
 import { useState } from "react"
 
 export default function AddActivity() {
@@ -30,7 +30,6 @@ export default function AddActivity() {
       process_name: form.processName.value,
       show_timer: form.showTimer.checked
     }
-    console.log("Activity Data", activityData)
     window.organization.addActivity(activityData)
     setFilePath("")
     setHasTimeLimit(true)
@@ -41,19 +40,6 @@ export default function AddActivity() {
     window.close()
   }
 
-  const handleSearchLocation = async () => {
-    const result = await window.core.dialog.showOpenDialog({
-      title: "Search for a file",
-      defaultPath: filePath,
-      properties: ["openFile"]
-    })
-    if (result.canceled) {
-      return
-    }
-    const selectedPath = result.filePaths[0]
-    setFilePath(selectedPath)
-  }
-
   return (
     <PageModal>
       <ModalHeader>
@@ -61,29 +47,16 @@ export default function AddActivity() {
       </ModalHeader>
       <ModalBody type="form" id="create" onSubmit={handleSubmit}>
         <Input label="Name" id="name" required placeholder="Enter the activity name" type="text" />
-        <div className={styles["location-label"]}>
-          <label htmlFor="path">
-            Path {closeActivity ? <b className={styles.required}>*</b> : ""}
-          </label>
-          <div className={styles["location-input"]}>
-            <Input
-              id="path"
-              placeholder="Enter the path to the file to be opened or search for it"
-              type="text"
-              value={filePath}
-              required={closeActivity}
-              onChange={(e) => setFilePath(e.target.value)}
-            />
-            <Button
-              type="button"
-              className={styles["location-button"]}
-              styleType="soft"
-              onClick={handleSearchLocation}
-            >
-              <DocumentSearchIcon className={styles["button-icon"]} />
-            </Button>
-          </div>
-        </div>
+        <PathInput
+          label="Path"
+          id="path"
+          required={closeActivity}
+          placeholder="Enter the path to the file to be opened or search for it"
+          value={filePath}
+          onChange={(e) => {
+            setFilePath(e.target.value)
+          }}
+        />
         <Input
           label="Start Message"
           id="startMessage"

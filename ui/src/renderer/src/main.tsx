@@ -16,13 +16,15 @@ import ParticipantPage from "./modules/organization/pages/participant-pages/part
 import LoadingPage from "./core/pages/loading/Loading"
 import AddProtocolPage from "./modules/organization/pages/protocol-pages/add-protocol/AddProtocolPage"
 import AddActivity from "./modules/organization/pages/protocol-pages/add-activity/AddActivity"
-import EditActivity from "./modules/organization/pages/protocol-pages/edit-activity/EditAcitivity"
+import EditActivity from "./modules/organization/pages/protocol-pages/edit-activity/EditActivity"
 import UpdateProtocolPage from "./modules/organization/pages/protocol-pages/update-protocol/UpdateProtocolPage"
 import ProtocolPage from "./modules/organization/pages/protocol-pages/protocol/ProtocolPage"
 import ActivityMessagePage from "./modules/organization/pages/protocol-pages/activity-message/ActivityMessagePage"
 import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activity-timer/ActivityTimerPage"
 import PluginsPage from "./core/pages/plugins/Plugins"
 import PluginDetails from "./core/pages/plugins/plugin-details/PluginDetails"
+import SelectCaptureSource from "./modules/capture/pages/select-capture-source/SelectCaptureSource"
+import ConfigureCapturePlugin from "./modules/capture/pages/configure-capture-plugin/ConfigureCapturePlugin"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -70,6 +72,11 @@ createRoot(document.getElementById("root")!).render(
           />
           <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
           <Route path="/plugins/:pluginName/:pluginVersion" element={<PluginDetails />} />
+          <Route path="/capture/select-source/:projectName" element={<SelectCaptureSource />} />
+          <Route
+            path="/capture/:projectName/sources/:pluginName"
+            element={<ConfigureCapturePlugin />}
+          />
         </Routes>
       </HashRouter>
     </Provider>

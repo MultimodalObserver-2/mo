@@ -8,6 +8,9 @@ interface ElementActionsProps {
 }
 
 /** Container for action buttons or icons within a list header */
-export default function ElementActions({ children, className }: ElementActionsProps) {
+function ElementActions({ children, className }: ElementActionsProps) {
   return <div className={`${styles.actions} ${className}`}>{children}</div>
 }
+
+ElementActions.displayName = "ElementActions"
+export default ElementActions

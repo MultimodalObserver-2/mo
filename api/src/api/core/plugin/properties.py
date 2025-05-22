@@ -98,16 +98,16 @@ class Properties:
         self._add_property(key, label, PropertyType.BOOL)
         self.set_default(key, False)
 
-    def add_path(self, key: str, label: str, file_type: Optional[str] = None):
+    def add_path(self, key: str, label: str, file_types: Optional[list[str]] = None):
         data = {}
-        if file_type is not None:
-            data["file_type"] = file_type
+        if file_types is not None:
+            data["file_types"] = file_types
         self._add_property(key, label, PropertyType.PATH, data)
 
     def add_select(
-        self, key: str, label: str, options: list[str | int | float], multiple: bool = False
+        self, key: str, label: str, options: list[str | int | float]
     ):
-        data = {"options": options, "multiple": multiple}
+        data = {"options": options}
         self._add_property(key, label, PropertyType.SELECT, data)
 
     def _update_property_data(self, key: str, data: dict[str, Any], property_type: PropertyType):
@@ -179,6 +179,9 @@ class Properties:
                 defaults[key] = prop.default
         return defaults
 
+    def get_dict_properties(self) -> dict[str, Property]:
+        return self._properties
+
     def get_properties(self, settings: Optional[Settings] = None) -> list[Property]:
         if settings is None:
             return list(self._properties.values())
@@ -202,7 +205,7 @@ class Properties:
                 value = settings.get()[key]
                 if prop._type == PropertyType.INT and not isinstance(value, int):
                     raise ValueError(f"Property '{key}' must be an int.")
-                if prop._type == PropertyType.FLOAT and not isinstance(value, float):
+                if prop._type == PropertyType.FLOAT and not isinstance(value, float) and not isinstance(value, int):
                     raise ValueError(f"Property '{key}' must be a float.")
                 if prop._type == PropertyType.TEXT and not isinstance(value, str):
                     raise ValueError(f"Property '{key}' must be a string.")
@@ -212,27 +215,8 @@ class Properties:
                     raise ValueError(f"Property '{key}' must be a string.")
                 if (
                     prop._type == PropertyType.SELECT
-                    and prop.data["multiple"] == False
                     and not isinstance(value, (str, int, float))
+                    and value not in prop.data["options"]
                 ):
                     raise ValueError(f"Property '{key}' must be a string, int or float.")
-                if (
-                    prop._type == PropertyType.SELECT
-                    and prop.data["multiple"] == True
-                    and not isinstance(value, list)
-                ):
-                    raise ValueError(f"Property '{key}' must be a list of strings, ints or floats.")
-                # Validate select options
-                if prop._type == PropertyType.SELECT:
-                    if prop.data["multiple"] == False:
-                        if value not in prop.data["options"]:
-                            raise ValueError(f"Property '{key}' has invalid option '{value}'.")
-                    else:
-                        if not isinstance(value, list):
-                            raise ValueError(
-                                f"Property '{key}' must be a list of strings, ints or floats."
-                            )
-                        for item in value:
-                            if item not in prop.data["options"]:
-                                raise ValueError(f"Property '{key}' has invalid option '{item}'.")
         return True

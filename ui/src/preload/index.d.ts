@@ -4,12 +4,17 @@ declare global {
   interface Window {
     electron: ElectronAPI
     core: {
-      openModalWindow: (
-        options: Electron.BrowserWindowConstructorOptions,
-        endpoint: string,
-        parent?: string,
+      openModalWindow: (args: {
+        options: Electron.BrowserWindowConstructorOptions
+        endpoint: string
+        autoAdjustHeight?: {
+          elementId: string
+          extraHeight?: number
+          timeout?: number
+        }
+        parent?: string
         name?: string
-      ) => void
+      }) => void
       dialog: {
         showErrorBox: (title: string, content: string) => void
         showMessageBox: (options: MessageBoxOptions) => Promise<MessageBoxReturnValue>

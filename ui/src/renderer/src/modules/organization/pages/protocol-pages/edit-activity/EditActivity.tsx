@@ -1,7 +1,6 @@
 import styles from "./edit-activity.module.css"
 import Button from "@renderer/core/components/button/Button"
 import Checkbox from "@renderer/core/components/checkbox/Checkbox"
-import DocumentSearchIcon from "@renderer/core/components/icons/DocumentSearchIcon"
 import EditIcon from "@renderer/core/components/icons/EditIcon"
 import Input from "@renderer/core/components/input/Input"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
@@ -9,6 +8,7 @@ import ModalFooter from "@renderer/core/components/page-modal/modal-footer/Modal
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
+import PathInput from "@renderer/core/components/path-input/PathInput"
 import { ActivityCreate } from "@renderer/modules/organization/types/Protocol"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router"
@@ -33,8 +33,6 @@ export default function EditActivity() {
       process_name: searchParams.get("process_name") ?? "",
       show_timer: searchParams.get("show_timer") === "true"
     }
-    console.log("Search Params", searchParams)
-    console.log("activityData", activityData)
     setActivity(activityData)
     setFilePath(activityData.path)
     setHasTimeLimit(activityData.has_time_limit)
@@ -64,19 +62,6 @@ export default function EditActivity() {
     window.close()
   }
 
-  const handleSearchLocation = async () => {
-    const result = await window.core.dialog.showOpenDialog({
-      title: "Search for a file",
-      defaultPath: filePath,
-      properties: ["openFile"]
-    })
-    if (result.canceled) {
-      return
-    }
-    const selectedPath = result.filePaths[0]
-    setFilePath(selectedPath)
-  }
-
   return (
     <PageModal>
       <ModalHeader>
@@ -91,29 +76,16 @@ export default function EditActivity() {
           type="text"
           defaultValue={activity?.name}
         />
-        <div className={styles["location-label"]}>
-          <label htmlFor="path">
-            Path {closeActivity ? <b className={styles.required}>*</b> : ""}
-          </label>
-          <div className={styles["location-input"]}>
-            <Input
-              id="path"
-              placeholder="Enter the path to the file to be opened or search for it"
-              type="text"
-              required={closeActivity}
-              value={filePath}
-              onChange={(e) => setFilePath(e.target.value)}
-            />
-            <Button
-              type="button"
-              className={styles["location-button"]}
-              styleType="soft"
-              onClick={handleSearchLocation}
-            >
-              <DocumentSearchIcon className={styles["button-icon"]} />
-            </Button>
-          </div>
-        </div>
+        <PathInput
+          label="Path"
+          id="path"
+          required={closeActivity}
+          placeholder="Enter the path to the file to be opened or search for it"
+          value={filePath}
+          onChange={(e) => {
+            setFilePath(e.target.value)
+          }}
+        />
         <Input
           label="Start Message"
           id="startMessage"

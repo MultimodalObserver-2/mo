@@ -1,0 +1,37 @@
+.label-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-box.disabled {
+  opacity: 0.7;
+}
+
+.label {
+  font-size: 1em;
+  font-weight: 400;
+  color: var(--color-text-light);
+}
+
+.label .required {
+  color: var(--color-red-500);
+  font-weight: 700;
+}
+
+.inputs {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.button {
+  height: 100%;
+  box-shadow: -2px 1px 3px var(--color-primary-800) !important;
+}
+
+.icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+}

@@ -1,0 +1,44 @@
+.label-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.label-box.disabled {
+  opacity: 0.7;
+}
+
+.label {
+  font-size: 1em;
+  font-weight: 400;
+  color: var(--color-text-light);
+}
+
+.label .required {
+  color: var(--color-red-500);
+  font-weight: 700;
+}
+
+.select {
+    background-color: var(--color-primary-800);
+    border: 2px solid transparent;
+    border-radius: 4px;
+    color: var(--color-text-light);
+    font-size: 0.9em;
+    padding: 6px 4px;
+    font-weight: 500;
+    outline: none;
+    box-sizing: border-box;
+}
+
+.select::placeholder {
+    color: var(--color-gray-200);
+}
+
+.select:disabled {
+    opacity: 0.7;
+}
+
+.select:focus {
+    border-color: var(--color-primary-200);
+}

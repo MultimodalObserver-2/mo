@@ -1,8 +1,12 @@
-import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
 import styles from "./protocols.module.css"
-import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
-import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
-import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
+import {
+  ElementActions,
+  ElementHeader,
+  ElementList,
+  ElementListItem,
+  ElementTitle,
+  PanelElement
+} from "@renderer/core/components/panel"
 import { useDispatch, useSelector } from "react-redux"
 import { selectSelectedProject } from "../../store/projectsSlice"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
@@ -23,8 +27,6 @@ import {
 import { Project } from "../../types/Project"
 import protocolService from "../../services/ProtocolService"
 import { useCallback, useEffect, useState } from "react"
-import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
-import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import { Protocol } from "../../types/Protocol"
 import {
   clearSelectedProtocol,

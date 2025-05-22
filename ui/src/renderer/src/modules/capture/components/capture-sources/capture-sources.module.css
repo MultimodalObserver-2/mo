@@ -1,0 +1,21 @@
+.add-button {
+    width: 20px;
+    height: 20px;
+    border: none;
+    background-color: transparent;
+    padding: 0;
+    cursor: pointer;
+  }
+  
+  .add-button .svg {
+    width: 20px;
+    height: 20px;
+    fill: var(--color-primary-100);
+    transition: all 150ms ease-in-out;
+  }
+  
+  .add-button .svg:hover {
+    transform: scale(1.1);
+    fill: var(--color-primary-200);
+  }
+  

@@ -1,15 +1,17 @@
 import styles from "./participants.module.css"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
-import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
-import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
-import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
-import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
+import {
+  ElementActions,
+  ElementHeader,
+  ElementList,
+  ElementListItem,
+  ElementTitle,
+  PanelElement
+} from "@renderer/core/components/panel"
 import { useDispatch, useSelector } from "react-redux"
 import { useCallback, useEffect, useState } from "react"
 import participantService from "../../services/ParticipantService"
 import { Participant } from "../../types/Participant"
-import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
-import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import { selectSelectedProject } from "../../store/projectsSlice"
 import {
   clearSelectedParticipant,

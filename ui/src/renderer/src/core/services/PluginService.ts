@@ -1,6 +1,7 @@
 import { AxiosResponse } from "axios"
 import axios from "../lib/axios"
 import { Plugin } from "../types/Plugin"
+import { PluginProperty } from "../types/PluginProperty"
 
 class PluginService {
   readonly endpoint = "/plugins"
@@ -26,6 +27,15 @@ class PluginService {
 
   async delete(name: string): Promise<AxiosResponse<undefined, unknown>> {
     return axios.delete(`${this.endpoint}/${name}`)
+  }
+
+  async getSettingProperties(
+    name: string,
+    settings?: Record<string, unknown>
+  ): Promise<AxiosResponse<PluginProperty[], unknown>> {
+    return axios.get(`${this.endpoint}/${name}/settings/properties`, {
+      params: settings
+    })
   }
 }
 

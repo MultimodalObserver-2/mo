@@ -9,10 +9,13 @@ interface ElementListProps {
 }
 
 /** Unordered list container for grouping related elements */
-export default function ElementList({ children, className, id = "" }: ElementListProps) {
+function ElementList({ children, className, id = "" }: ElementListProps) {
   return (
     <ul id={id} className={`${styles.items} ${className}`}>
       {children}
     </ul>
   )
 }
+
+ElementList.displayName = "ElementList"
+export default ElementList

@@ -18,5 +18,5 @@ capture_settings_router = APIRouter(
 )
 async def add_capture_settings(
     project_name: str, settings: SettingsPostReq, service: CaptureSettingService = Depends()
-):
+) -> SettingsRes:
     return service.add_capture_settings(project_name, settings)

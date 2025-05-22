@@ -8,6 +8,9 @@ interface ElementTitleProps {
 }
 
 /** Title element for section headers inside list panels */
-export default function ElementTitle({ children, className }: ElementTitleProps) {
+function ElementTitle({ children, className }: ElementTitleProps) {
   return <h2 className={`${styles.title} ${className}`}>{children}</h2>
 }
+
+ElementTitle.displayName = "ElementTitle"
+export default ElementTitle

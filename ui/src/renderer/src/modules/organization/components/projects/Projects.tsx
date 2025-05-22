@@ -3,12 +3,14 @@ import { useEffect, useState } from "react"
 import AddCircleIcon from "@renderer/core/components/icons/AddCircleIcon"
 import { Project } from "../../types/Project"
 import projectService from "../../services/ProjectService"
-import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
-import ElementTitle from "@renderer/core/components/panel/panel-element/element-header/ElementTitle"
-import ElementActions from "@renderer/core/components/panel/panel-element/element-header/ElementActions"
-import ElementList from "@renderer/core/components/panel/panel-element/element-list/ElementList"
-import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
-import ElementHeader from "@renderer/core/components/panel/panel-element/element-header/ElementHeader"
+import {
+  ElementActions,
+  ElementHeader,
+  ElementList,
+  ElementListItem,
+  ElementTitle,
+  PanelElement
+} from "@renderer/core/components/panel"
 import { useDispatch, useSelector } from "react-redux"
 import {
   clearSelectedProject,

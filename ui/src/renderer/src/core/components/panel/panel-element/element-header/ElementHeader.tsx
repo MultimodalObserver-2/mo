@@ -1,7 +1,5 @@
 import styles from "./element-header.module.css"
-import { Children, isValidElement } from "react"
-import ElementTitle from "./ElementTitle"
-import ElementActions from "./ElementActions"
+import { findChildByDisplayName } from "@renderer/core/utils/findChildByDisplayName"
 
 interface ElementHeaderProps {
   /** Children should include an ElementTitle and optionally ElementActions */
@@ -11,10 +9,9 @@ interface ElementHeaderProps {
 }
 
 /** Header section for list elements; displays title and optional actions */
-export default function ElementHeader({ children, className }: ElementHeaderProps) {
-  const elements = Children.toArray(children)
-  const title = elements.find((child) => isValidElement(child) && child.type === ElementTitle)
-  const actions = elements.find((child) => isValidElement(child) && child.type === ElementActions)
+function ElementHeader({ children, className }: ElementHeaderProps) {
+  const title = findChildByDisplayName(children, "ElementTitle")
+  const actions = findChildByDisplayName(children, "ElementActions")
 
   return (
     <section className={`${styles.header} ${className}`}>
@@ -23,3 +20,6 @@ export default function ElementHeader({ children, className }: ElementHeaderProp
     </section>
   )
 }
+
+ElementHeader.displayName = "ElementHeader"
+export default ElementHeader
