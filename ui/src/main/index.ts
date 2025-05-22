@@ -113,4 +113,5 @@ export function getApiPort(): number | null {
 // code. You can also put them in separate files and require them here.
 import "./core/index"
 import "./modules/organization/index"
+import "./modules/capture/index"
 import { runApi } from "./core/runApi"

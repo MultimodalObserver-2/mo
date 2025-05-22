@@ -20,3 +20,15 @@ async def add_capture_settings(
     project_name: str, settings: SettingsPostReq, service: CaptureSettingService = Depends()
 ) -> SettingsRes:
     return service.add_capture_settings(project_name, settings)
+
+@capture_settings_router.get(
+    "/",
+    response_model=list[SettingsRes],
+    status_code=200,
+    summary="Get all capture settings",
+    description="Get all capture settings for the specified project.",
+)
+async def get_all_capture_settings(
+    project_name: str, service: CaptureSettingService = Depends()
+) -> list[SettingsRes]:
+    return service.get_all_capture_settings(project_name)

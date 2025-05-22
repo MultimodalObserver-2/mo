@@ -78,6 +78,14 @@ class CaptureSettingService:
 
         return final_settings
 
+    def get_all_capture_settings(self, project_name: str) -> list[SettingsRes]:
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+        
+        settings_storage = self._get_settings_storage(project_name)
+        settings_list = settings_storage.find_all()
+        return [SettingsRes(**settings) for settings in settings_list]
+
     def exists(self, project_name: str, setting_name: str) -> bool:
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))

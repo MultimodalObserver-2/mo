@@ -2,6 +2,7 @@ import { contextBridge } from "electron"
 import { electronAPI } from "@electron-toolkit/preload"
 import "./core/index"
 import "./modules/organization/index"
+import "./modules/capture/index"
 
 // Use `contextBridge` APIs to expose Electron APIs to
 // renderer only if context isolation is enabled, otherwise

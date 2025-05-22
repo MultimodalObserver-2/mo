@@ -1,7 +1,7 @@
 from abc import abstractmethod
-from typing import Any, Generator
 
 from api.core.plugin.plugin import Plugin
+
 
 
 class CapturePlugin(Plugin):
