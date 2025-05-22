@@ -33,6 +33,20 @@ async def get_all_capture_settings(
 ) -> list[SettingsRes]:
     return service.get_all_capture_settings(project_name)
 
+@capture_settings_router.get(
+    "/{setting_name}",
+    response_model=SettingsRes,
+    status_code=200,
+    summary="Get capture settings",
+    description="Get capture settings for the specified project.",
+)
+async def get_capture_settings(
+    project_name: str,
+    setting_name: str,
+    service: CaptureSettingService = Depends()
+) -> SettingsRes:
+    return service.get_capture_settings(project_name, setting_name)
+
 @capture_settings_router.delete(
     "/{setting_name}",
     status_code=204,
