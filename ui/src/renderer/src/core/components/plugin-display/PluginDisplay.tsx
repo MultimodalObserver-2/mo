@@ -17,6 +17,7 @@ export default function PluginDisplay({
 
   return (
     <div
+      id="plugin-display"
       className={`${styles["plugin-display"]} ${styles[style]} ${styles[`text-${textSize}`]} ${className}`}
     >
       {header}

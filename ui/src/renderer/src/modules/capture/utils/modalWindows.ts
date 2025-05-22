@@ -1,6 +1,15 @@
 export function openCaptureSourceModal(projectName: string) {
   window.core.openModalWindow({
-    options: { width: 550, minWidth: 550, minHeight: 235, title: "Capture sources" },
+    options: {
+      width: 550,
+      minWidth: 550,
+      minHeight: 235,
+      title: "Capture sources",
+      webPreferences: {
+        webSecurity: false,
+        allowRunningInsecureContent: true
+      }
+    },
     endpoint: `capture/select-source/${projectName}`,
     autoAdjustHeight: {
       elementId: "modal-body",

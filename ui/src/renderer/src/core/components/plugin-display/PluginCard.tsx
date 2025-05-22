@@ -1,5 +1,6 @@
 import styles from "./plugin-display.module.css"
 import fallbackimg from "@renderer/core/assets/images/plugin_fallback.svg"
+import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
 import ReportIcon from "../icons/ReportIcon"
 import InfoIcon from "../icons/InfoIcon"
 import DeleteIcon from "../icons/DeleteIcon"
@@ -11,12 +12,13 @@ import {
   WideCardHeader,
   WideCardIcon
 } from "../wide-card"
+import { PluginIcons } from "@renderer/core/types/Plugin"
 
 interface PluginCardProps {
   name: string
   version?: string
   description: string
-  iconPath: string
+  iconPath: string | PluginIcons
   isSelected?: boolean
   showReport?: boolean
   isLoaded?: boolean
@@ -45,6 +47,10 @@ export default function PluginCard({
     return typeof showActions === "boolean" ? showActions : showActions[action]
   }
 
+  const isDarkMode = document.getElementById("plugin-display")?.classList.contains(styles.dark)
+  const finalIconPath =
+    typeof iconPath === "string" ? iconPath : iconPath[isDarkMode ? "light" : "dark"]
+
   return (
     <WideCard
       key={name}
@@ -52,12 +58,16 @@ export default function PluginCard({
       onClick={onClick}
     >
       <WideCardIcon
-        src={iconPath}
+        src={finalIconPath}
         alt={name}
         className={styles.icon}
         onError={(e) => {
           e.currentTarget.onerror = null
-          e.currentTarget.src = fallbackimg
+          if (isDarkMode) {
+            e.currentTarget.src = fallbackimgLight
+          } else {
+            e.currentTarget.src = fallbackimg
+          }
         }}
       />
       <WideCardHeader>

@@ -3,18 +3,20 @@ from typing import Optional
 
 from pydantic import BaseModel, PrivateAttr
 
-from api.core.plugin.properties import Properties
 from api.core.plugin.semantic_version import SemanticVersion
 from api.core.plugin.settings import Settings
 from api.core.plugin.sys_platform import SysPlatform
 
+class PluginIcons(BaseModel):
+    dark: Optional[str] = None
+    light: Optional[str] = None
 
 class PluginMetadata(BaseModel):
     name: str
     version: SemanticVersion
     description: str
     repository: str
-    icon_path: Optional[str] = None
+    icon_path: Optional[str] | Optional[PluginIcons] = None
     author: Optional[str]
     author_email: Optional[str]
     platform: SysPlatform

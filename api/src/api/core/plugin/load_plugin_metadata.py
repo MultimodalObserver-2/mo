@@ -4,7 +4,7 @@ from typing import Type
 
 from pydantic import ValidationError
 
-from api.core.plugin.plugin import Plugin, PluginMetadata
+from api.core.plugin.plugin import Plugin, PluginIcons, PluginMetadata
 from api.core.plugin.semantic_version import SemanticVersion
 from api.core.plugin.sys_platform import SysPlatform
 
@@ -19,7 +19,6 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
             "name": data.get("name"),
             "description": data.get("description"),
             "repository": data.get("repository"),
-            "icon_path": data.get("icon_path"),
             "author": data.get("author"),
             "author_email": data.get("author_email"),
         }
@@ -27,6 +26,11 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
         version = data.get("version")
         metadata_dict["platform"] = SysPlatform(**platform)
         metadata_dict["version"] = SemanticVersion.from_string(version)
+        icon_path = data.get("icon_path")
+        if icon_path and isinstance(icon_path, dict):
+            metadata_dict["icon_path"] = PluginIcons(**icon_path)
+        else:
+            metadata_dict["icon_path"] = icon_path
         try:
             return PluginMetadata(**metadata_dict)
         except ValidationError as e:

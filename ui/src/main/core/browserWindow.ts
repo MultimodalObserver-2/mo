@@ -19,6 +19,7 @@ function createModalWindow(
   options.show = false
   options.autoHideMenuBar = true
   options.webPreferences = {
+    ...options.webPreferences,
     preload: join(__dirname, "../preload/index.js"),
     sandbox: false
   }

@@ -24,7 +24,7 @@ import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activ
 import PluginsPage from "./core/pages/plugins/Plugins"
 import PluginDetails from "./core/pages/plugins/plugin-details/PluginDetails"
 import SelectCaptureSource from "./modules/capture/pages/select-capture-source/SelectCaptureSource"
-import ConfigureCapturePlugin from "./modules/capture/pages/configure-capture-plugin/ConfigureCapturePlugin"
+import AddCaptureSettings from "./modules/capture/pages/add-capture-settings/AddCaptureSettings"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -75,7 +75,7 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/capture/select-source/:projectName" element={<SelectCaptureSource />} />
           <Route
             path="/capture/:projectName/sources/:pluginName"
-            element={<ConfigureCapturePlugin />}
+            element={<AddCaptureSettings />}
           />
         </Routes>
       </HashRouter>
