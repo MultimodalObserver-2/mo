@@ -1,3 +1,4 @@
+import copy
 from enum import Enum
 from typing import Any, Callable, Optional
 
@@ -185,11 +186,12 @@ class Properties:
     def get_properties(self, settings: Optional[Settings] = None) -> list[Property]:
         if settings is None:
             return list(self._properties.values())
-        props = self._properties
+        self_copy = copy.deepcopy(self)
+        props = self_copy._properties
         for key, _ in settings.get().items():
-            prop = self.get_property(key)
+            prop = self_copy.get_property(key)
             if prop and prop._modified_callback:
-                new_prop = prop._modified_callback(self, prop, settings)
+                new_prop = prop._modified_callback(self_copy, prop, settings)
                 if new_prop:
                     props = new_prop
         return list(props.values())
