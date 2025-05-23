@@ -21,8 +21,10 @@ import captureSettingsService from "../../services/CaptureSettingsService"
 import { Project } from "@renderer/modules/organization/types/Project"
 import { PluginIcons } from "@renderer/core/types/Plugin"
 import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
+import pluginOffimg from "@renderer/core/assets/images/plugin_off_light.svg"
 import { showDeleteCaptureSettingsMessage } from "../../utils/dialogMessages"
 import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
+import ReportIcon from "@renderer/core/components/icons/ReportIcon"
 
 export default function CaptureSources() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -71,7 +73,6 @@ export default function CaptureSources() {
 
   useEffect(() => {
     window.capture.onReloadSettings(() => {
-      console.log("Reloading capture settings")
       fetchCaptureSettings(selectedProject)
     })
 
@@ -121,10 +122,22 @@ export default function CaptureSources() {
           <ElementListItem
             key={settings.name}
             label={settings.name}
-            leftElement={pluginImg(settings.plugin_icon, settings.plugin_name)}
+            leftElement={pluginImg(settings.plugin_icon || pluginOffimg, settings.plugin_name)}
+            rightElement={
+              settings.plugin_is_loaded ? null : (
+                <abbr title="Plugin is not loaded">
+                  <ReportIcon className={styles.report} />
+                </abbr>
+              )
+            }
             showActions={{ delete: true }}
             onDelete={() => deleteSettings(settings)}
-            extraActions={<SettingsIcon onClick={() => handleOpenSettings(settings)} />}
+            extraActions={
+              <SettingsIcon
+                className={settings.plugin_is_loaded ? "" : styles.disabled}
+                onClick={() => handleOpenSettings(settings)}
+              />
+            }
           />
         ))}
       </ElementList>

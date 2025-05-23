@@ -10,8 +10,10 @@ import useDraggable from "./useDraggable"
 interface ElementListItemProps {
   /** Label displayed as the item title */
   label: string
-  /** Optional element to be displayed on the left side of the item */
+  /** Optional element to be displayed on the left side of the label */
   leftElement?: React.ReactNode
+  /** Optional element to be displayed on the right side of the label */
+  rightElement?: React.ReactNode
   /** Controls which action icons are shown (or all if boolean `true`) */
   showActions?: boolean | { info?: boolean; lock?: boolean; edit?: boolean; delete?: boolean }
   /** Highlights the item as selected */
@@ -44,6 +46,7 @@ interface ElementListItemProps {
 export default function ElementListItem({
   label,
   leftElement,
+  rightElement,
   showActions = false,
   isSelected = false,
   isLocked = false,
@@ -84,6 +87,7 @@ export default function ElementListItem({
         <section className={styles["item-content"]}>
           {leftElement}
           <h4 className={styles.name}>{label}</h4>
+          {rightElement}
         </section>
         <Show show={!!showActions}>
           <div className={styles.actions}>

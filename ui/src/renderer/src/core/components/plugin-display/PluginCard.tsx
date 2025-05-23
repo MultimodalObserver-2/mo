@@ -1,6 +1,8 @@
 import styles from "./plugin-display.module.css"
 import fallbackimg from "@renderer/core/assets/images/plugin_fallback.svg"
 import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
+import fallbackNotLoadedLight from "@renderer/core/assets/images/plugin_off_light.svg"
+import fallbackNotLoadedDark from "@renderer/core/assets/images/plugin_off_dark.svg"
 import ReportIcon from "../icons/ReportIcon"
 import InfoIcon from "../icons/InfoIcon"
 import DeleteIcon from "../icons/DeleteIcon"
@@ -64,9 +66,17 @@ export default function PluginCard({
         onError={(e) => {
           e.currentTarget.onerror = null
           if (isDarkMode) {
-            e.currentTarget.src = fallbackimgLight
+            if (isLoaded) {
+              e.currentTarget.src = fallbackimgLight
+            } else {
+              e.currentTarget.src = fallbackNotLoadedLight
+            }
           } else {
-            e.currentTarget.src = fallbackimg
+            if (isLoaded) {
+              e.currentTarget.src = fallbackimg
+            } else {
+              e.currentTarget.src = fallbackNotLoadedDark
+            }
           }
         }}
       />
