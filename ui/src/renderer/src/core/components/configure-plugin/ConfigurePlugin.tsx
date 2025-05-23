@@ -26,8 +26,7 @@ export default function ConfigurePlugin({
   onSubmit: (name: string, settings: Record<string, string | number | boolean>) => void
   onClose: () => void
 }) {
-  const [settings, setSettings] =
-    useState<Record<string, string | number | boolean>>(initialSettings)
+  const [settings, setSettings] = useState<Record<string, string | number | boolean>>({})
   const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])
 
@@ -48,10 +47,7 @@ export default function ConfigurePlugin({
       const setts = { ...settings, [property.key]: val }
       const response = await pluginService.getSettingProperties(pluginName, setts)
       setProperties(response.data)
-      setSettings((prev) => ({
-        ...prev,
-        [property.key]: val
-      }))
+      setSettings(setts)
     } catch (error) {
       showApiErrorMessage(error)
     }
@@ -63,20 +59,23 @@ export default function ConfigurePlugin({
         const response = await pluginService.getSettingProperties(pluginName, initialSettings)
         setProperties(response.data)
         const defaultSettings: Record<string, string | number | boolean> = {}
-        if (Object.keys(initialSettings).length > 0) {
-          for (const property of response.data) {
-            if (property.default !== undefined) {
-              defaultSettings[property.key] = property.default
-            }
+        for (const property of response.data) {
+          if (property.default !== undefined) {
+            defaultSettings[property.key] = property.default
           }
         }
+
+        setSettings({
+          ...defaultSettings,
+          ...initialSettings
+        })
       } catch (error) {
         showApiErrorMessage(error)
       }
     }
 
     fetchProperties()
-  }, [pluginName, initialSettings])
+  }, [pluginName])
 
   return (
     <PageModal>
@@ -97,7 +96,7 @@ export default function ConfigurePlugin({
           <PluginSettingProperty
             key={property.key}
             property={property}
-            value={settings[property.key]}
+            value={settings[property.key] || ""}
             onChange={(val) => handleChangeProperty(val, property)}
           />
         ))}
