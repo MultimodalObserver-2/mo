@@ -24,8 +24,13 @@ export type PropertyDataPath = {
   file_types?: string[]
 }
 
+export type PropertySelectOption = {
+  label: string
+  value: string | number | boolean
+}
+
 export type PropertyDataSelect = {
-  options: string[]
+  options: PropertySelectOption[]
 }
 
 export type PluginProperty = {

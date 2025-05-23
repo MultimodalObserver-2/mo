@@ -21,6 +21,10 @@ modified_callback_type = Callable[
 ]
 
 
+class PropertySelectOption(BaseModel):
+    label: str
+    value: str | int | float
+
 class Property(BaseModel):
     key: str
     label: str
@@ -106,7 +110,7 @@ class Properties:
         self._add_property(key, label, PropertyType.PATH, data)
 
     def add_select(
-        self, key: str, label: str, options: list[str | int | float]
+        self, key: str, label: str, options: list[PropertySelectOption]
     ):
         data = {"options": options}
         self._add_property(key, label, PropertyType.SELECT, data)
@@ -119,7 +123,7 @@ class Properties:
 
         self._properties[key].data.update(data)
 
-    def update_select_options(self, key: str, options: list[str | int | float]):
+    def update_select_options(self, key: str, options: list[PropertySelectOption]):
         self._update_property_data(key, {"options": options}, PropertyType.SELECT)
 
     def remove_property(self, key: str):
@@ -198,7 +202,6 @@ class Properties:
 
     def validate(self, settings: Settings) -> bool:
         props = self.get_properties(settings)
-
         for prop in props:
             key = prop.key
             if prop.required and key not in settings.get():
@@ -218,7 +221,7 @@ class Properties:
                 if (
                     prop._type == PropertyType.SELECT
                     and not isinstance(value, (str, int, float))
-                    and value not in prop.data["options"]
+                    and value not in [option.value for option in prop.data["options"]]
                 ):
                     raise ValueError(f"Property '{key}' must be a string, int or float.")
         return True

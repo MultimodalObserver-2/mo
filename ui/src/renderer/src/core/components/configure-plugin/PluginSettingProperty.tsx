@@ -19,7 +19,7 @@ export default function PluginSettingProperty({
 }: {
   readonly property: PluginProperty
   value?: string | number | boolean
-  onChange?: (newValue) => void
+  onChange?: (newValue: string | number | boolean) => void
 }) {
   if (!property.visible) {
     return <></>
@@ -107,21 +107,26 @@ export default function PluginSettingProperty({
   } else if (property.property_type === PluginPropertyTypes.SELECT) {
     const data = property.data as PropertyDataSelect
     const defaultValue = property.default as string | undefined
+    const valueMap = new Map<string, string | number | boolean>()
+    data.options.forEach((option) => {
+      valueMap.set(String(option.value), option.value)
+    })
+
     return (
       <Select
         id={property.key}
         label={property.label}
         required={property.required}
         disabled={!property.enabled}
-        value={typeof value === "boolean" ? "" : value}
+        value={typeof value === "boolean" ? String(value) : value}
         defaultValue={defaultValue}
         onChange={(e) => {
-          onChange?.(e.target.value)
+          onChange?.(valueMap.get(e.target.value) ?? e.target.value)
         }}
       >
         {data.options.map((option) => (
-          <option key={option} value={option}>
-            {option}
+          <option key={String(option.value)} value={String(option.value)}>
+            {option.label}
           </option>
         ))}
       </Select>
