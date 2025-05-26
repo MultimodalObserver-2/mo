@@ -194,3 +194,28 @@ class CaptureSettingService:
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
         settings_storage = self._get_settings_storage(project_name)
         return settings_storage.exists({"name": setting_name})
+    
+    def get_all_capture_settings_loaded(self, project_name: str) -> list[SettingsRes]:
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+
+        settings_storage = self._get_settings_storage(project_name)
+        settings_dict_list = settings_storage.find_all()
+        settings_list = []
+        for settings_dict in settings_dict_list:
+            settings_data = SettingsData(**settings_dict)
+            plugin_metadata = self.plugin_management.get_plugin_metadata(
+                settings_data.plugin_name)
+            if plugin_metadata and plugin_metadata._is_loaded:
+                settings = SettingsRes(
+                    name=settings_data.name,
+                    plugin_name=settings_data.plugin_name,
+                    settings=settings_data.settings,
+                )
+                plugin_icon = PluginRes.get_icon_path(
+                    plugin_metadata._location or "", plugin_metadata.icon_path or "")
+                settings.plugin_icon = plugin_icon
+                settings.plugin_is_loaded = plugin_metadata._is_loaded
+                settings_list.append(settings)
+        return settings_list

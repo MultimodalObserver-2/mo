@@ -1,6 +1,6 @@
 import json
 import os
-from typing import Type
+from typing import Type, TypeVar
 
 from pydantic import ValidationError
 
@@ -39,12 +39,14 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
             raise ValueError(f"Invalid JSON format: {e}")
 
 
+T = TypeVar("T", bound=Plugin)
+
 def load_metadata_json(rel_path: str = ""):
     """
     Load the metadata.json file navigating from the current class directory to the relative path
     """
 
-    def decorator(cls: Type[Plugin]):
+    def decorator(cls: Type[T]) -> Type[T]:
         if not issubclass(cls, Plugin):
             raise TypeError(f"{cls.__name__} must be a subclass of Plugin")
         import inspect

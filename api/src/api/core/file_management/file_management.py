@@ -1,6 +1,8 @@
 import os
 import platform
+import re
 import shutil
+import unicodedata
 import zipfile
 from typing import BinaryIO, Optional
 
@@ -221,3 +223,16 @@ class FileManagement:
                     proc.kill()
                 except (psutil.NoSuchProcess, psutil.AccessDenied):
                     pass
+
+    @staticmethod
+    def normalize_file_name(file_name: str) -> str:
+        """Normalizes a file name by removing invalid characters.
+        Args:
+            file_name (str): File name to normalize.
+        Returns:
+            str: Normalized file name.
+        """
+        file_name = unicodedata.normalize("NFKD", file_name)
+        file_name = "".join(c for c in file_name if not unicodedata.combining(c))
+        file_name = re.sub(r'[^a-z0-9_]', '', file_name)
+        return file_name

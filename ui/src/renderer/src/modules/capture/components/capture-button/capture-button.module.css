@@ -1,0 +1,14 @@
+.main-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em !important;
+  font-weight: 700 !important;
+  margin-bottom: 8px !important;
+}
+
+.main-button .icon {
+  width: 22px;
+  height: 22px;
+}

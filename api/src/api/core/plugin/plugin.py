@@ -28,7 +28,7 @@ class PluginMetadata(BaseModel):
 
 class Plugin(ABC):
     metadata: PluginMetadata
-    settings: Optional[Settings] = None
+    settings: Settings = Settings()
     _module: str = "core"
 
     @abstractmethod

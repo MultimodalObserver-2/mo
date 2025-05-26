@@ -22,6 +22,7 @@ class PluginManagement:
 
     def __init__(self):
         self.plugins_dir = RELATIVE_PLUGINS_DIR_PATH
+        self.dependencies_name = "dependencies"
         self.plugin_metadata_name = "metadata.json"
         self.metadata_entry_points_name = "entry_points"
         self.metadata_entry_points = {
@@ -41,7 +42,8 @@ class PluginManagement:
         return plugin_path
 
     def _get_plugin_metadata_path(self, dir_name: str) -> str:
-        metadata_path = os.path.join(self.plugins_path, dir_name, self.plugin_metadata_name)
+        metadata_path = os.path.join(
+            self.plugins_path, dir_name, self.plugin_metadata_name)
         metadata_path = os.path.normpath(metadata_path)
         return metadata_path
 
@@ -60,7 +62,8 @@ class PluginManagement:
     def load_metadata_file(self, dir_name: str) -> dict[str, Any]:
         metadata_path = self._get_plugin_metadata_path(dir_name)
         if not os.path.exists(metadata_path):
-            raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
+            raise FileNotFoundError(
+                f"Metadata file not found at {metadata_path}")
 
         with open(metadata_path, "r") as f:
             data = json.load(f)
@@ -84,17 +87,27 @@ class PluginManagement:
         entry_points = metadata_dict.get(self.metadata_entry_points_name, {})
         return group in entry_points
 
+    def load_dependencies(self, dir_name: str) -> None:
+        dependencies_path = os.path.join(
+            self._get_plugin_dir_path(dir_name), self.dependencies_name)
+        if os.path.exists(dependencies_path):
+            sys.path.append(dependencies_path)
+
     def load_symbol(self, dir_name: str, group: str) -> Any | None:
         entry_point = self.get_entry_point(dir_name, group)
         if entry_point is None:
             return None
         module_path, symbol_name = entry_point
-        full_module_path = os.path.join(self._get_plugin_dir_path(dir_name), module_path)
+        full_module_path = os.path.join(
+            self._get_plugin_dir_path(dir_name), module_path)
         full_module_path = os.path.normpath(full_module_path)
         if not os.path.exists(full_module_path):
             raise FileNotFoundError(f"Module file not found at {module_path}")
 
-        spec = importlib.util.spec_from_file_location(dir_name, full_module_path)
+        self.load_dependencies(dir_name)
+
+        spec = importlib.util.spec_from_file_location(
+            dir_name, full_module_path)
         if spec is None or spec.loader is None:
             return None
 
@@ -103,12 +116,15 @@ class PluginManagement:
         return getattr(module, symbol_name)
 
     def load_plugin(self, dir_name: str) -> type[Plugin]:
-        entry_point = self.get_entry_point(dir_name, self.metadata_entry_points["plugin"])
+        entry_point = self.get_entry_point(
+            dir_name, self.metadata_entry_points["plugin"])
         if entry_point is None:
-            raise ImportError(f"Plugin '{dir_name}' does not have an entry point defined")
+            raise ImportError(
+                f"Plugin '{dir_name}' does not have an entry point defined")
         module_path, symbol_name = entry_point
 
-        symbol = self.load_symbol(dir_name, self.metadata_entry_points["plugin"])
+        symbol = self.load_symbol(
+            dir_name, self.metadata_entry_points["plugin"])
         if (
             symbol is None
             or not isinstance(symbol, type)
@@ -122,12 +138,14 @@ class PluginManagement:
         return symbol
 
     def load_properties(self, dir_name: str) -> Properties | None:
-        entry_point = self.get_entry_point(dir_name, self.metadata_entry_points["properties"])
+        entry_point = self.get_entry_point(
+            dir_name, self.metadata_entry_points["properties"])
         if entry_point is None:
             return None
 
         module_path, symbol_name = entry_point
-        symbol = self.load_symbol(dir_name, self.metadata_entry_points["properties"])
+        symbol = self.load_symbol(
+            dir_name, self.metadata_entry_points["properties"])
         if symbol is None:
             raise ImportError(
                 f"Cannot load properties at {dir_name}: {module_path} for class {symbol_name}"
@@ -150,7 +168,8 @@ class PluginManagement:
         plugin_metadata = load_plugin_metadata(metadata_path)
         plugin_metadata._location = self._get_plugin_dir_path(dir_name)
         if self.plugin_metadata_exists(plugin_metadata.name):
-            raise ImportError(f"Plugin '{plugin_metadata.name}' is already loaded")
+            raise ImportError(
+                f"Plugin '{plugin_metadata.name}' is already loaded")
 
         try:
             if not plugin_metadata.platform.is_available():
@@ -180,7 +199,8 @@ class PluginManagement:
 
     def remove_plugin_by_dir(self, dir_name: str) -> None:
         if dir_name not in self.plugins_metadata:
-            raise ValueError(f"Plugin at {dir_name} not found in loaded plugins")
+            raise ValueError(
+                f"Plugin at {dir_name} not found in loaded plugins")
         if dir_name not in self.plugins_instances:
             self.plugins_metadata.pop(dir_name)
             return

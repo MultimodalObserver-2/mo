@@ -14,7 +14,11 @@ export function showUnexpectedErrorMessage() {
 export function showApiErrorMessage(error: unknown) {
   let errorMessage = "An unexpected error occurred"
   if (error instanceof AxiosError && error.response?.data.detail) {
-    errorMessage = error.response.data.detail
+    if (typeof error.response.data.detail === "string") {
+      errorMessage = error.response.data.detail
+    } else {
+      errorMessage = error.response.statusText
+    }
   }
   window.core.dialog.showErrorBox("Error", errorMessage)
 }

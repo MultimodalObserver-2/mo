@@ -4,11 +4,19 @@ import Panel from "@renderer/core/components/panel/Panel"
 import Participants from "@renderer/modules/organization/components/participants/Participants"
 import Protocols from "@renderer/modules/organization/components/protocols/Protocols"
 import CaptureSources from "@renderer/modules/capture/components/capture-sources/CaptureSources"
+import CaptureButton from "@renderer/modules/capture/components/capture-button/CaptureButton"
+
 
 export default function Home() {
   return (
     <main className={styles.main}>
-      <section className={styles.workspace}></section>
+      <div className={styles.workspace}>
+        <section className={styles["workspace-header"]}></section>
+        <section className={styles["workspace-body"]}></section>
+        <section className={styles["workspace-footer"]}>
+          <CaptureButton />
+        </section>
+      </div>
       <Panel>
         <Projects />
         <Protocols />

@@ -1,0 +1,4 @@
+export type StartCaptureRequest = {
+  project_name: string
+  participant_code: string
+}
