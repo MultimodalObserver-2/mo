@@ -20,22 +20,21 @@ import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import Button from "@renderer/core/components/button/Button"
 
 export default function PluginDetails() {
-  const { pluginName, pluginVersion } = useParams<{
-    pluginName: string
-    pluginVersion: string
+  const { pluginId } = useParams<{
+    pluginId: string
   }>()
   const [plugin, setPlugin] = useState<Plugin | null>(null)
 
   useEffect(() => {
     async function fetchPlugin() {
-      if (!pluginName || !pluginVersion) {
+      if (!pluginId) {
         showUnexpectedErrorMessage()
         window.close()
         return
       }
 
       try {
-        const response = await pluginService.get(pluginName)
+        const response = await pluginService.get(pluginId)
         setPlugin(response.data)
       } catch (error) {
         showApiErrorMessage(error)
@@ -44,17 +43,22 @@ export default function PluginDetails() {
     }
 
     fetchPlugin()
-  }, [pluginName, pluginVersion])
+  }, [pluginId])
 
   const handleDelete = async (plugin: Plugin) => {
     const acceptId = 0
-    const response = await showDeletePluginMessage(plugin.name, plugin.version, acceptId)
+    const response = await showDeletePluginMessage(
+      plugin.name,
+      plugin.publisher.name,
+      plugin.version,
+      acceptId
+    )
     if (response.response != acceptId) {
       return
     }
 
     try {
-      await pluginService.delete(plugin.name)
+      await pluginService.delete(plugin.id)
       window.core.plugins.reloadPlugins()
       window.close()
     } catch (error) {
@@ -87,11 +91,12 @@ export default function PluginDetails() {
         <section className={styles.group}>
           <DisplayData name="Name" value={plugin.name} />
           <DisplayData name="Version" value={plugin.version} />
+          <DisplayData name="Publisher" value={plugin.publisher.name} />
         </section>
         <DisplayData name="Description" value={plugin.description} />
         <section className={styles.group}>
-          <DisplayData name="Author Name" value={plugin.author ?? "Unknown"} />
-          <DisplayData name="Author Email" value={plugin.author_email ?? "Unknown"} />
+          <DisplayData name="Author Name" value={plugin.author?.name ?? "Unknown"} />
+          <DisplayData name="Author Email" value={plugin.author?.email ?? "Unknown"} />
         </section>
         <DisplayPath
           name="Repository"

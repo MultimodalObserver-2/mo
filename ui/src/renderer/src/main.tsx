@@ -72,12 +72,9 @@ createRoot(document.getElementById("root")!).render(
             element={<ActivityMessagePage />}
           />
           <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
-          <Route path="/plugins/:pluginName/:pluginVersion" element={<PluginDetails />} />
+          <Route path="/plugins/:pluginId" element={<PluginDetails />} />
           <Route path="/capture/select-source/:projectName" element={<SelectCaptureSource />} />
-          <Route
-            path="/capture/:projectName/sources/:pluginName"
-            element={<AddCaptureSettings />}
-          />
+          <Route path="/capture/:projectName/sources/:pluginId" element={<AddCaptureSettings />} />
           <Route
             path="/capture/:projectName/settings/:settingsName"
             element={<UpdateCaptureSettings />}

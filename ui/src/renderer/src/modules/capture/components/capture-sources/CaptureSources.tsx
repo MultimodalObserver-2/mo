@@ -122,7 +122,7 @@ export default function CaptureSources() {
           <ElementListItem
             key={settings.name}
             label={settings.name}
-            leftElement={pluginImg(settings.plugin_icon || pluginOffimg, settings.plugin_name)}
+            leftElement={pluginImg(settings.plugin_icon || pluginOffimg, settings.plugin_id)}
             rightElement={
               settings.plugin_is_loaded ? null : (
                 <abbr title="Plugin is not loaded">

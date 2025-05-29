@@ -12,14 +12,16 @@ import Input from "../input/Input"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
 export default function ConfigurePlugin({
-  pluginName,
+  pluginId,
+  pluginName = "Plugin",
   submitLabel = "CONFIGURE",
   initialConfigName = "",
   initialSettings = {},
   onSubmit,
   onClose
 }: {
-  pluginName: string
+  pluginId: string
+  pluginName?: string
   submitLabel?: string
   initialConfigName?: string
   initialSettings?: Record<string, string | number | boolean>
@@ -45,7 +47,7 @@ export default function ConfigurePlugin({
     }
     try {
       const setts = { ...settings, [property.key]: val }
-      const response = await pluginService.getSettingProperties(pluginName, setts)
+      const response = await pluginService.getSettingProperties(pluginId, setts)
       setProperties(response.data)
       setSettings(setts)
     } catch (error) {
@@ -56,7 +58,7 @@ export default function ConfigurePlugin({
   useEffect(() => {
     const fetchProperties = async () => {
       try {
-        const response = await pluginService.getSettingProperties(pluginName, initialSettings)
+        const response = await pluginService.getSettingProperties(pluginId, initialSettings)
         setProperties(response.data)
         const defaultSettings: Record<string, string | number | boolean> = {}
         for (const property of response.data) {
@@ -75,7 +77,7 @@ export default function ConfigurePlugin({
     }
 
     fetchProperties()
-  }, [pluginName])
+  }, [pluginId])
 
   return (
     <PageModal>

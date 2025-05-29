@@ -4,7 +4,7 @@ from typing import Type, TypeVar
 
 from pydantic import ValidationError
 
-from api.core.plugin.plugin import Plugin, PluginIcons, PluginMetadata
+from api.core.plugin.plugin import Plugin, PluginAuthor, PluginIcons, PluginMetadata, PluginPublisher
 from api.core.plugin.semantic_version import SemanticVersion
 from api.core.plugin.sys_platform import SysPlatform
 
@@ -16,21 +16,20 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
     with open(path, "r") as f:
         data = json.load(f)
         metadata_dict = {
+            "plugin_id": data.get("id"),
             "name": data.get("name"),
             "description": data.get("description"),
+            "version": SemanticVersion.from_string(data.get("version")),
+            "publisher": PluginPublisher(**data.get("publisher")),
             "repository": data.get("repository"),
-            "author": data.get("author"),
-            "author_email": data.get("author_email"),
+            "author": PluginAuthor(**data.get("author")) if data.get("author") else None,
+            "platform": SysPlatform(**data.get("platform"))
         }
-        platform = data.get("platform")
-        version = data.get("version")
-        metadata_dict["platform"] = SysPlatform(**platform)
-        metadata_dict["version"] = SemanticVersion.from_string(version)
-        icon_path = data.get("icon_path")
-        if icon_path and isinstance(icon_path, dict):
-            metadata_dict["icon_path"] = PluginIcons(**icon_path)
+        icon = data.get("icon")
+        if icon and isinstance(icon, dict):
+            metadata_dict["icon_path"] = PluginIcons(**icon)
         else:
-            metadata_dict["icon_path"] = icon_path
+            metadata_dict["icon_path"] = icon
         try:
             return PluginMetadata(**metadata_dict)
         except ValidationError as e:

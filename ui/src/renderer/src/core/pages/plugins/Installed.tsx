@@ -36,18 +36,23 @@ export default function Installed() {
   }, [])
 
   const openDetails = (plugin: Plugin) => {
-    openPluginDetailsModal(plugin.name, plugin.version)
+    openPluginDetailsModal(plugin.id)
   }
 
   const handleDelete = async (plugin: Plugin) => {
     const acceptId = 0
-    const response = await showDeletePluginMessage(plugin.name, plugin.version, acceptId)
+    const response = await showDeletePluginMessage(
+      plugin.name,
+      plugin.publisher.name,
+      plugin.version,
+      acceptId
+    )
     if (response.response != acceptId) {
       return
     }
 
     try {
-      await pluginService.delete(plugin.name)
+      await pluginService.delete(plugin.id)
       fetchPlugins()
     } catch (error) {
       showApiErrorMessage(error)
@@ -64,11 +69,11 @@ export default function Installed() {
 
   return (
     <PluginDisplay>
-      <PluginDisplayHeader title="Plugins installed" num={plugins.length} />
+      <PluginDisplayHeader title="Installed plugins" num={plugins.length} />
       <PluginDisplayList>
         {plugins.map((plugin) => (
           <PluginCard
-            key={plugin.name + plugin.version}
+            key={plugin.id}
             name={plugin.name}
             version={plugin.version}
             description={plugin.description}

@@ -19,10 +19,10 @@ export function openCaptureSourceModal(projectName: string) {
   })
 }
 
-export function openConfigureCaptureSourceModal(projectName: string, pluginName: string) {
+export function openConfigureCaptureSourceModal(projectName: string, pluginId: string) {
   window.core.openModalWindow({
     options: { width: 550, minWidth: 550, minHeight: 250, title: "Configure plugin" },
-    endpoint: `capture/${projectName}/sources/${pluginName}`,
+    endpoint: `capture/${projectName}/sources/${pluginId}`,
     autoAdjustHeight: {
       elementId: "submit-config",
       extraHeight: 165,

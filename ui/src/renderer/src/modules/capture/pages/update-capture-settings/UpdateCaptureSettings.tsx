@@ -48,7 +48,7 @@ export default function UpdateCaptureSettings() {
         {(captureSettings) => {
           return (
             <ConfigurePlugin
-              pluginName={captureSettings.plugin_name}
+              pluginId={captureSettings.plugin_id}
               submitLabel="UPDATE SOURCE"
               onSubmit={addSource}
               onClose={closeModalWindow}

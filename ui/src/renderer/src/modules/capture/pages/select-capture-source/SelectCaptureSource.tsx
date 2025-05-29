@@ -45,7 +45,7 @@ export default function SelectCaptureSource() {
 
   const showSourceProperties = () => {
     if (selectedSource) {
-      openConfigureCaptureSourceModal(projectName, selectedSource.name)
+      openConfigureCaptureSourceModal(projectName, selectedSource.id)
     }
   }
 
@@ -63,12 +63,12 @@ export default function SelectCaptureSource() {
           <PluginDisplayList selectable={true}>
             {plugins.map((plugin) => (
               <PluginCard
-                key={plugin.name}
+                key={plugin.id}
                 name={plugin.name}
                 version={plugin.version}
                 description={plugin.description}
                 iconPath={plugin.icon_path}
-                isSelected={selectedSource?.name === plugin.name}
+                isSelected={selectedSource?.id === plugin.id}
                 onClick={() => {
                   setSelectedSource(plugin)
                 }}

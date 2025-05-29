@@ -43,20 +43,20 @@ class PluginService:
         plugins = self.plugin_management.get_all_plugins_metadata()
         return [PluginRes.from_plugin_metadata(plugin) for plugin in plugins]
 
-    def get_plugin(self, plugin_name: str) -> PluginRes:
-        plugin_metadata = self.plugin_management.get_plugin_metadata(plugin_name)
+    def get_plugin(self, final_id: str) -> PluginRes:
+        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{plugin_name}' not found.")
+            raise BadRequestException(f"Plugin '{final_id}' not found.")
         return PluginRes.from_plugin_metadata(plugin_metadata)
 
-    def remove_plugin(self, plugin_name: str) -> None:
-        plugin_metadata = self.plugin_management.get_plugin_metadata(plugin_name)
+    def remove_plugin(self, final_id: str) -> None:
+        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{plugin_name}' not found.")
+            raise BadRequestException(f"Plugin '{final_id}' not found.")
         self.plugins_dir_handler.suspend()
-        dir_name = self.plugin_management.get_plugin_dir_name(plugin_name)
+        dir_name = self.plugin_management.get_plugin_dir_name(final_id)
         try:
-            dir_name = self.plugin_management.remove_plugin(plugin_name)
+            dir_name = self.plugin_management.remove_plugin(final_id)
             self.file_management.delete_directory(dir_name)
             self.plugins_dir_handler.remove_known_dir(dir_name)
         except Exception as e:
@@ -66,19 +66,20 @@ class PluginService:
                 pass
             self.plugins_dir_handler.add_known_dir(dir_name)
             self.plugins_dir_handler.resume()
-            raise BadRequestException(f"Failed to remove plugin '{plugin_name}'. \nError: {e}")
+            raise BadRequestException(
+                f"Failed to remove plugin '{final_id}'. \nError: {e}")
         finally:
             self.plugins_dir_handler.resume()
 
     def get_plugin_properties(
-        self, plugin_name: str, settings: Optional[dict[str, Any]] = None
+        self, final_id: str, settings: Optional[dict[str, Any]] = None
     ) -> list[PropertyRes]:
-        plugin_metadata = self.plugin_management.get_plugin_metadata(plugin_name)
+        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{plugin_name}' not found.")
+            raise BadRequestException(f"Plugin '{final_id}' not found.")
 
         plugin_properties = self.plugin_management.get_plugin_properties(
-            plugin_name, Settings(settings) if settings else None)
+            final_id, Settings(settings) if settings else None)
         if not plugin_properties:
             return []
         return [PropertyRes(**prop) for prop in plugin_properties]

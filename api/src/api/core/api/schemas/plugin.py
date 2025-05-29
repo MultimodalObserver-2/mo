@@ -12,15 +12,23 @@ class PlatformsRes(BaseModel):
     windows: bool = False
     mac: bool = False
 
+class AuthorRes(BaseModel):
+    name: Optional[str] = None
+    email: Optional[str] = None
+
+class PublisherRes(BaseModel):
+    name: str
+    url: Optional[str] = None
 
 class PluginRes(BaseModel):
+    id: str
     name: str
-    version: str
     description: str
+    version: str
+    publisher: PublisherRes
     repository: str
     icon_path: str | PluginIcons = ""
-    author: Optional[str] = None
-    author_email: Optional[str] = None
+    author: Optional[AuthorRes] = None
     platforms: PlatformsRes
     location: str
     module: Optional[str] = None
@@ -41,22 +49,28 @@ class PluginRes(BaseModel):
     @staticmethod
     def from_plugin_metadata(plugin_metadata: PluginMetadata):
         return PluginRes(
+            id=plugin_metadata.get_final_id(),
             name=plugin_metadata.name,
-            version=str(plugin_metadata.version),
             description=plugin_metadata.description,
-            icon_path=PluginRes.get_icon_path(plugin_metadata._location or "",
-                                              plugin_metadata.icon_path or ""
-                                              ),
+            version=str(plugin_metadata.version),
+            publisher=PublisherRes(
+                name=plugin_metadata.publisher.name,
+                url=plugin_metadata.publisher.url,
+            ),
             repository=plugin_metadata.repository,
-            author=plugin_metadata.author,
-            author_email=plugin_metadata.author_email,
+            icon_path=PluginRes.get_icon_path(plugin_metadata._location or "",
+                                              plugin_metadata.icon_path or ""),
+            author=AuthorRes(
+                name=plugin_metadata.author.name,
+                email=plugin_metadata.author.email,
+            ) if plugin_metadata.author else None,
             platforms=PlatformsRes(
                 linux=plugin_metadata.platform.linux,
                 windows=plugin_metadata.platform.windows,
                 mac=plugin_metadata.platform.mac,
             ),
-            module=plugin_metadata._module,
             location=plugin_metadata._location or "",
+            module=plugin_metadata._module,
             error=plugin_metadata._error,
             is_loaded=plugin_metadata._is_loaded,
         )

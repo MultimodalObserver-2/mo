@@ -33,10 +33,11 @@
 .report {
   display: flex;
   align-items: flex-end;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
+  padding: 2px;
   fill: var(--color-text-light);
-  background-color: var(--color-red-500);
+  background-color: var(--color-red-400);
   border-radius: 4px;
   transition: all 150ms ease-in-out;
 }

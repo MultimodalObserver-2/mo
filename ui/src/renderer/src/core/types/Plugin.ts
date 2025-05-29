@@ -9,17 +9,28 @@ export type PluginIcons = {
   light: string
 }
 
-export type Plugin = {
+export type PluginAuthor = {
+  name?: string
+  email?: string
+}
+
+export type PluginPublisher = {
   name: string
-  version: string
+  url?: string
+}
+
+export type Plugin = {
+  id: string
+  name: string
   description: string
+  version: string
+  publisher: PluginPublisher
   repository: string
   icon_path: string | PluginIcons
-  author?: string
-  author_email?: string
+  author?: PluginAuthor
   platforms: PluginPlatforms
-  module?: string
   location: string
+  module?: string
   error?: string
   is_loaded?: boolean
 }

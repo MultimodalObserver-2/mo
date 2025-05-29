@@ -43,15 +43,16 @@ class CaptureSettingService:
             raise NotFoundException(
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        if not self.plugin_management.plugin_from_type_exists(settings.plugin_name, CapturePlugin):
+        if not self.plugin_management.plugin_from_type_exists(settings.plugin_id, CapturePlugin):
             raise NotFoundException(
-                f"Capture plugin {settings.plugin_name} does not exist.")
+                f"Capture plugin {settings.plugin_id} does not exist.")
 
         try:
-            self.plugin_management.validate_plugin_properties(settings.plugin_name, Settings(settings.settings))
+            self.plugin_management.validate_plugin_properties(
+                settings.plugin_id, Settings(settings.settings))
         except Exception as e:
             raise BadRequestException(
-                f"Invalid settings for plugin {settings.plugin_name}: {str(e)}"
+                f"Invalid settings for plugin {settings.plugin_id}: {str(e)}"
             )
 
         settings_storage = self._get_settings_storage(project_name)
@@ -60,24 +61,24 @@ class CaptureSettingService:
                 f"Settings with name {settings.name} already exists.")
 
         plugin_metadata = self.plugin_management.get_plugin_metadata(
-            settings.plugin_name)
+            settings.plugin_id)
         if not plugin_metadata:
             raise NotFoundException(
-                f"Plugin metadata for {settings.plugin_name} does not exist.")
+                f"Plugin metadata for {settings.plugin_id} does not exist.")
 
         plugin_icon = PluginRes.get_icon_path(
             plugin_metadata._location or "", plugin_metadata.icon_path or "")
 
         final_settings = SettingsData(
             name=settings.name,
-            plugin_name=settings.plugin_name,
+            plugin_id=settings.plugin_id,
             settings=settings.settings,
         )
         settings_storage.insert_one(final_settings.model_dump())
 
         return SettingsRes(
             name=settings.name,
-            plugin_name=settings.plugin_name,
+            plugin_id=settings.plugin_id,
             plugin_icon=plugin_icon,
             settings=settings.settings,
             plugin_is_loaded=plugin_metadata._is_loaded
@@ -94,10 +95,10 @@ class CaptureSettingService:
         for settings_dict in settings_dict_list:
             settings_data = SettingsData(**settings_dict)
             plugin_metadata = self.plugin_management.get_plugin_metadata(
-                settings_data.plugin_name)
+                settings_data.plugin_id)
             settings = SettingsRes(
                 name=settings_data.name,
-                plugin_name=settings_data.plugin_name,
+                plugin_id=settings_data.plugin_id,
                 settings=settings_data.settings,
             )
             if plugin_metadata:
@@ -122,10 +123,10 @@ class CaptureSettingService:
         
         settings_data = SettingsData(**settings)
         plugin_metadata = self.plugin_management.get_plugin_metadata(
-            settings_data.plugin_name)
+            settings_data.plugin_id)
         settings = SettingsRes(
             name=settings_data.name,
-            plugin_name=settings_data.plugin_name,
+            plugin_id=settings_data.plugin_id,
             settings=settings_data.settings,
         )
         if plugin_metadata:
@@ -143,10 +144,10 @@ class CaptureSettingService:
         existing_settings.settings = settings.settings if settings.settings else existing_settings.settings
 
         try:
-            self.plugin_management.validate_plugin_properties(existing_settings.plugin_name, Settings(settings.settings))
+            self.plugin_management.validate_plugin_properties(existing_settings.plugin_id, Settings(settings.settings))
         except Exception as e:
             raise BadRequestException(
-                f"Invalid settings for plugin {existing_settings.plugin_name}: {str(e)}"
+                f"Invalid settings for plugin {existing_settings.plugin_id}: {str(e)}"
             )
 
         if settings.name != None and settings.name != setting_name:
@@ -157,7 +158,7 @@ class CaptureSettingService:
 
         settings_data = SettingsData(
             name=existing_settings.name,
-            plugin_name=existing_settings.plugin_name,
+            plugin_id=existing_settings.plugin_id,
             settings=existing_settings.settings,
         )
 
@@ -195,11 +196,11 @@ class CaptureSettingService:
         for settings_dict in settings_dict_list:
             settings_data = SettingsData(**settings_dict)
             plugin_metadata = self.plugin_management.get_plugin_metadata(
-                settings_data.plugin_name)
+                settings_data.plugin_id)
             if plugin_metadata and plugin_metadata._is_loaded:
                 settings = SettingsRes(
                     name=settings_data.name,
-                    plugin_name=settings_data.plugin_name,
+                    plugin_id=settings_data.plugin_id,
                     settings=settings_data.settings,
                 )
                 plugin_icon = PluginRes.get_icon_path(

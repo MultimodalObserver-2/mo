@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 class SettingsPostReq(BaseModel):
     name: str
-    plugin_name: str
+    plugin_id: str
     settings: dict[str, Any]
 
 
@@ -17,7 +17,7 @@ class SettingsPutReq(BaseModel):
 
 class SettingsRes(BaseModel):
     name: str
-    plugin_name: str
+    plugin_id: str
     plugin_icon: Optional[str] | Optional[PluginIcons] = None
     plugin_is_loaded: bool = False
     settings: dict[str, Any]
@@ -25,5 +25,5 @@ class SettingsRes(BaseModel):
 
 class SettingsData(BaseModel):
     name: str
-    plugin_name: str
+    plugin_id: str
     settings: dict[str, Any]

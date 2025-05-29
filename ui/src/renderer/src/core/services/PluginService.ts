@@ -21,19 +21,19 @@ class PluginService {
     return axios.get(`${this.endpoint}/`)
   }
 
-  async get(name: string): Promise<AxiosResponse<Plugin, unknown>> {
-    return axios.get(`${this.endpoint}/${name}`)
+  async get(id: string): Promise<AxiosResponse<Plugin, unknown>> {
+    return axios.get(`${this.endpoint}/${id}`)
   }
 
-  async delete(name: string): Promise<AxiosResponse<undefined, unknown>> {
-    return axios.delete(`${this.endpoint}/${name}`)
+  async delete(id: string): Promise<AxiosResponse<undefined, unknown>> {
+    return axios.delete(`${this.endpoint}/${id}`)
   }
 
   async getSettingProperties(
-    name: string,
+    id: string,
     settings?: Record<string, unknown>
   ): Promise<AxiosResponse<PluginProperty[], unknown>> {
-    return axios.get(`${this.endpoint}/${name}/settings/properties`, {
+    return axios.get(`${this.endpoint}/${id}/settings/properties`, {
       params: settings
     })
   }

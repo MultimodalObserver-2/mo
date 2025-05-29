@@ -92,16 +92,16 @@ class CaptureService:
             project_name)
         self.running_processes = {}
         for settings in settings_list:
-            if self.running_processes.get(settings.plugin_name) is None:
+            if self.running_processes.get(settings.plugin_id) is None:
                 plugin_process = self.plugin_management.get_active_plugin_process(
-                    settings.plugin_name)
+                    settings.plugin_id)
                 if plugin_process is None:
                     continue
-                self.running_processes[settings.plugin_name] = plugin_process
-                self.processes_instances[settings.plugin_name] = []
-            self.running_processes[settings.plugin_name].add_plugin_instance(
+                self.running_processes[settings.plugin_id] = plugin_process
+                self.processes_instances[settings.plugin_id] = []
+            self.running_processes[settings.plugin_id].add_plugin_instance(
                 settings.name, Settings(settings.settings))
-            self.processes_instances[settings.plugin_name].append(settings.name)
+            self.processes_instances[settings.plugin_id].append(settings.name)
 
     def unload_running_processes(self):
         for process in self.running_processes.values():

@@ -28,27 +28,27 @@ async def get_all_plugins(service: PluginService = Depends()):
 
 
 @plugin_router.get(
-    "/{plugin_name}",
+    "/{final_id}",
     response_model=PluginRes,
     status_code=status.HTTP_200_OK,
     response_model_exclude_none=True,
 )
-async def get_plugin(plugin_name: str, service: PluginService = Depends()):
-    return service.get_plugin(plugin_name)
+async def get_plugin(final_id: str, service: PluginService = Depends()):
+    return service.get_plugin(final_id)
 
 
-@plugin_router.delete("/{plugin_name}", status_code=status.HTTP_204_NO_CONTENT)
-async def delete_plugin(plugin_name: str, service: PluginService = Depends()):
-    return service.remove_plugin(plugin_name)
+@plugin_router.delete("/{final_id}", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_plugin(final_id: str, service: PluginService = Depends()):
+    return service.remove_plugin(final_id)
 
 
 @plugin_router.get(
-    "/{plugin_name}/settings/properties",
+    "/{final_id}/settings/properties",
     status_code=status.HTTP_200_OK,
     response_model_exclude_none=True,
 )
 async def get_plugin_properties(
-    plugin_name: str, request: Request, service: PluginService = Depends()
+    final_id: str, request: Request, service: PluginService = Depends()
 ):
     settings = parse_query_params(request)
-    return service.get_plugin_properties(plugin_name, settings)
+    return service.get_plugin_properties(final_id, settings)

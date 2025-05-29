@@ -32,13 +32,16 @@ export function showLockedErrorMessage(action: string, item: string) {
 
 export async function showDeletePluginMessage(
   pluginName: string,
+  pluginPublisher: string,
   pluginVersion: string,
   acceptId: number
 ) {
   const buttons = ["Accept", "Cancel"]
   const options: Electron.MessageBoxOptions = {
     title: "Delete Participant",
-    message: `Are you sure you want to delete the plugin ${pluginName}` + ` (v${pluginVersion})?`,
+    message:
+      `Are you sure you want to delete the plugin ${pluginName} (v${pluginVersion})` +
+      ` \nfrom the publisher ${pluginPublisher} ?`,
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,

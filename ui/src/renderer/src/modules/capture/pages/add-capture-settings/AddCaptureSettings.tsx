@@ -5,9 +5,9 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { CaptureSettingCreate } from "../../types/CaptureSetting"
 
 export default function AddCaptureSettings() {
-  const { projectName, pluginName } = useParams<{ projectName: string; pluginName: string }>()
+  const { projectName, pluginId } = useParams<{ projectName: string; pluginId: string }>()
 
-  if (!projectName || !pluginName) {
+  if (!projectName || !pluginId) {
     window.close()
     return
   }
@@ -15,7 +15,7 @@ export default function AddCaptureSettings() {
   const addSource = async (name: string, settings: Record<string, string | number | boolean>) => {
     const settingsData: CaptureSettingCreate = {
       name: name,
-      plugin_name: pluginName,
+      plugin_id: pluginId,
       settings: settings
     }
     try {
@@ -33,7 +33,7 @@ export default function AddCaptureSettings() {
 
   return (
     <ConfigurePlugin
-      pluginName={pluginName}
+      pluginId={pluginId}
       submitLabel="ADD SOURCE"
       onSubmit={addSource}
       onClose={closeModalWindow}
