@@ -8,11 +8,13 @@ import Button from "@renderer/core/components/button/Button"
 
 export default function Register() {
   const [files, setFiles] = useState<File[]>([])
+  const [isRegistering, setIsRegistering] = useState(false)
 
   const handleSubmitPlugin = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault()
     const formData = new FormData(event.currentTarget)
     const fileInput = formData.get("plugins") as File
+    setIsRegistering(true)
     try {
       const response = await pluginService.register(fileInput)
       const plugin = response.data
@@ -33,12 +35,19 @@ export default function Register() {
       showApiErrorMessage(error)
     }
 
+    setIsRegistering(false)
     setFiles([])
   }
   return (
     <form className={styles["upload-container"]} onSubmit={handleSubmitPlugin}>
       <FileUpload id="plugins" name="plugins" accept={[".zip"]} files={files} required />
-      <Button styleType="default" borderRadius="md" type="submit" className={styles.button}>
+      <Button
+        styleType="default"
+        borderRadius="md"
+        type="submit"
+        className={styles.button}
+        isLoading={isRegistering}
+      >
         <NoteStackAddIcon className={styles.icon} />
         Register plugin
       </Button>

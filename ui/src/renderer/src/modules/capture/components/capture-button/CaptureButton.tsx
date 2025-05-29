@@ -13,6 +13,7 @@ export default function CaptureButton() {
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const [isCapturing, setIsCapturing] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const checkCaptureStatus = async () => {
@@ -29,6 +30,7 @@ export default function CaptureButton() {
 
   const handleCaptureToggle = async () => {
     try {
+      setIsLoading(true)
       if (isCapturing) {
         await captureService.stopCapture()
       } else {
@@ -36,13 +38,13 @@ export default function CaptureButton() {
           project_name: selectedProject?.name || "",
           participant_code: selectedParticipant?.code || ""
         }
-        console.log(data)
         await captureService.startCapture(data)
       }
       setIsCapturing(!isCapturing)
     } catch (error) {
       showApiErrorMessage(error)
     }
+    setIsLoading(false)
   }
 
   const getAbbrText = () => {
@@ -66,6 +68,7 @@ export default function CaptureButton() {
         styleType={isCapturing ? "danger" : "default"}
         onClick={handleCaptureToggle}
         disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
+        isLoading={isLoading}
       >
         {isCapturing ? (
           <>

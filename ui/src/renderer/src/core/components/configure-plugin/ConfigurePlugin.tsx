@@ -31,6 +31,7 @@ export default function ConfigurePlugin({
   const [settings, setSettings] = useState<Record<string, string | number | boolean>>({})
   const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])
+  const [isLoading, setIsLoading] = useState(false)
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -57,6 +58,7 @@ export default function ConfigurePlugin({
 
   useEffect(() => {
     const fetchProperties = async () => {
+      setIsLoading(true)
       try {
         const response = await pluginService.getSettingProperties(pluginId, initialSettings)
         setProperties(response.data)
@@ -74,6 +76,7 @@ export default function ConfigurePlugin({
       } catch (error) {
         showApiErrorMessage(error)
       }
+      setIsLoading(false)
     }
 
     fetchProperties()
@@ -104,7 +107,7 @@ export default function ConfigurePlugin({
         ))}
       </ModalBody>
       <ModalFooter>
-        <Button type="submit" form="submit-config">
+        <Button type="submit" form="submit-config" isLoading={isLoading}>
           {submitLabel}
         </Button>
         <Button styleType="danger" onClick={onClose}>

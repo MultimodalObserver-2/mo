@@ -1,4 +1,5 @@
 .button {
+  position: relative;
   border: none;
   padding: 5px 18px;
   cursor: pointer;
@@ -6,9 +7,20 @@
   font-weight: 600;
 }
 
-.button:disabled {
+.button:not(.loading):disabled {
   opacity: 0.5;
   cursor: not-allowed;
+}
+
+.button.loading {
+  opacity: 0.7;
+  cursor: not-allowed;
+  fill: transparent !important;
+  color: transparent !important;
+}
+
+.button.loading svg{
+  fill: transparent !important;
 }
 
 /* Styles */
@@ -62,4 +74,30 @@
 /* extra large (xl) */
 .button.xl {
   border-radius: 16px;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loader .circle {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 3px solid var(--color-text-dark);
+  border-top: 3px solid var(--color-text-light);
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+      transform: rotate(0deg);
+  }
+
+  100% {
+      transform: rotate(360deg);
+  }
 }
