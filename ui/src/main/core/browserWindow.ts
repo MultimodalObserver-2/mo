@@ -13,7 +13,8 @@ function createModalWindow(
   autoAdjustHeight?: {
     elementId: string
     extraHeight?: number
-    timeout?: number
+    errorHeight?: number
+    setMinimumSize?: boolean
   }
 ): BrowserWindow {
   options.show = false
@@ -35,37 +36,77 @@ function createModalWindow(
 
   if (autoAdjustHeight) {
     win.once("show", () => {
-      setTimeout(() => {
-        win.webContents
-          .executeJavaScript(
-            `
+      win.webContents
+        .executeJavaScript(
+          `
           (() => {
             const el = document.getElementById("${autoAdjustHeight.elementId}")
+            let lastHeight = 0
+            const ro = new ResizeObserver((entries) => {
+              const entry = entries[0]
+              const newHeight = entry.target.scrollHeight
+              if (newHeight === lastHeight) return
+              lastHeight = newHeight
+              window.electron.ipcRenderer.send("core:adjust-modal-height:${name}-${autoAdjustHeight.elementId}", newHeight)
+            })
+
             if (el) {
-              return {scrollHeight: el.scrollHeight, offsetHeight: el.offsetHeight, clientHeight: el.clientHeight}
+              ro.observe(el)
+              return {scrollHeight: el.scrollHeight}
+            }
+            else {
+              const mo = new MutationObserver(() => {
+                const el = document.getElementById("${autoAdjustHeight.elementId}")
+                if (el) {
+                  ro.observe(el)
+                  mo.disconnect()
+                }
+              })
+              mo.observe(document.body, { childList: true, subtree: true })
             }
             return null
           })()
       `
-          )
-          .then((res) => {
-            if (!res) {
-              console.error(
-                `ModalWindow_autoAdjustHeight: Element with id ${autoAdjustHeight.elementId} not found`
-              )
-              return
+        )
+        .then((res) => {
+          const currentContentWidth = win.getContentBounds().width
+          if (!res) {
+            if (autoAdjustHeight.errorHeight) {
+              win.setSize(currentContentWidth, autoAdjustHeight.errorHeight)
             }
-            const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-            const currentContentWidth = win.getContentBounds().width
-            const height = res.scrollHeight + (autoAdjustHeight.extraHeight || 0)
-            const adjustedHeight = Math.min(height, screenHeight)
-            win.setSize(currentContentWidth, adjustedHeight, false)
-          })
-          .catch((error) => {
-            console.error("Error executing JavaScript:", error)
-          })
-      }, autoAdjustHeight.timeout || 200)
+            return
+          }
+          const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+          const height = res.scrollHeight + (autoAdjustHeight.extraHeight || 0)
+          const adjustedHeight = Math.min(height, screenHeight)
+          if (autoAdjustHeight.setMinimumSize) {
+            win.setMinimumSize(options.minWidth || currentContentWidth, adjustedHeight)
+          }
+          win.setSize(options.width || currentContentWidth, adjustedHeight, false)
+        })
+        .catch((error) => {
+          console.error("Error executing JavaScript:", error)
+        })
     })
+  }
+
+  if (autoAdjustHeight) {
+    ipcMain.on(
+      `core:adjust-modal-height:${name}-${autoAdjustHeight?.elementId}`,
+      (event, height) => {
+        const win = BrowserWindow.fromWebContents(event.sender)
+        if (win) {
+          const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
+          const currentContentWidth = win.getContentBounds().width
+          const newHeight = parseInt(height) + (autoAdjustHeight?.extraHeight || 0)
+          const adjustedHeight = Math.min(newHeight, screenHeight)
+          if (autoAdjustHeight.setMinimumSize) {
+            win.setMinimumSize(options.minWidth || currentContentWidth, adjustedHeight)
+          }
+          win.setSize(options.width || currentContentWidth, adjustedHeight, false)
+        }
+      }
+    )
   }
 
   win.once("ready-to-show", () => modalWindows.get(name)?.show())
@@ -77,6 +118,7 @@ function createModalWindow(
     modalWindows.get(parent)?.removeAllListeners("close")
     modalWindowsParents.delete(parent)
     modalWindows.delete(name)
+    ipcMain.removeAllListeners(`core:adjust-modal-height:${name}-${autoAdjustHeight?.elementId}`)
   })
 
   return win
@@ -88,7 +130,8 @@ interface OpenModalWindow {
   autoAdjustHeight?: {
     elementId: string
     extraHeight?: number
-    timeout?: number
+    errorHeight?: number
+    setMinimumSize?: boolean
   }
   parent?: string
   name?: string

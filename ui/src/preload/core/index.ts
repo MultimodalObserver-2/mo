@@ -7,7 +7,8 @@ const core = {
     autoAdjustHeight?: {
       elementId: string
       extraHeight?: number
-      timeout?: number
+      errorHeight?: number
+      setMinimumSize?: boolean
     }
     parent?: string
     name?: string

@@ -14,7 +14,8 @@ export function openCaptureSourceModal(projectName: string) {
     autoAdjustHeight: {
       elementId: "modal-body",
       extraHeight: 165,
-      timeout: 500
+      errorHeight: 250,
+      setMinimumSize: true
     }
   })
 }
@@ -26,7 +27,8 @@ export function openConfigureCaptureSourceModal(projectName: string, pluginId: s
     autoAdjustHeight: {
       elementId: "submit-config",
       extraHeight: 165,
-      timeout: 500
+      errorHeight: 250,
+      setMinimumSize: true
     }
   })
 }
@@ -38,7 +40,8 @@ export function openUpdateCaptureSourceModal(projectName: string, settingsName: 
     autoAdjustHeight: {
       elementId: "submit-config",
       extraHeight: 165,
-      timeout: 500
+      errorHeight: 250,
+      setMinimumSize: true
     }
   })
 }

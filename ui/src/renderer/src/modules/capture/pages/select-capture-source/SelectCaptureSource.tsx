@@ -60,7 +60,7 @@ export default function SelectCaptureSource() {
       </ModalHeader>
       <ModalBody id="modal-body">
         <PluginDisplay style="dark" textSize="sm">
-          <PluginDisplayList selectable={true}>
+          <PluginDisplayList id="plugin-list" selectable={true}>
             {plugins.map((plugin) => (
               <PluginCard
                 key={plugin.id}
