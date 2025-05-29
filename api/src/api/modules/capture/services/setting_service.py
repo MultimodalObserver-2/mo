@@ -47,14 +47,8 @@ class CaptureSettingService:
             raise NotFoundException(
                 f"Capture plugin {settings.plugin_name} does not exist.")
 
-        plugin_properties = self.plugin_management.get_plugin_properties(
-            settings.plugin_name)
-        if not plugin_properties:
-            raise NotFoundException(
-                f"Plugin properties for {settings.plugin_name} do not exist.")
-
         try:
-            plugin_properties.validate(Settings(settings.settings))
+            self.plugin_management.validate_plugin_properties(settings.plugin_name, Settings(settings.settings))
         except Exception as e:
             raise BadRequestException(
                 f"Invalid settings for plugin {settings.plugin_name}: {str(e)}"
@@ -147,14 +141,9 @@ class CaptureSettingService:
             project_name, setting_name)
 
         existing_settings.settings = settings.settings if settings.settings else existing_settings.settings
-        plugin_properties = self.plugin_management.get_plugin_properties(
-            existing_settings.plugin_name)
-        if not plugin_properties:
-            raise NotFoundException(
-                f"Plugin properties for {existing_settings.plugin_name} do not exist.")
 
         try:
-            plugin_properties.validate(Settings(existing_settings.settings))
+            self.plugin_management.validate_plugin_properties(existing_settings.plugin_name, Settings(settings.settings))
         except Exception as e:
             raise BadRequestException(
                 f"Invalid settings for plugin {existing_settings.plugin_name}: {str(e)}"

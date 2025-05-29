@@ -1,5 +1,7 @@
 import os
 
+from api.core.plugin.plugin_management import PluginManagement
+from api.modules.capture.plugins.capture_plugin import CapturePlugin
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -52,6 +54,11 @@ app.include_router(protocols_router)
 # Capture routers
 app.include_router(capture_router)
 app.include_router(capture_settings_router)
+
+
+plugin_management = PluginManagement()
+# Register here the types to check for plugins
+plugin_management.register_type_to_check(CapturePlugin)
 
 start_plugins_dir_observer()
 

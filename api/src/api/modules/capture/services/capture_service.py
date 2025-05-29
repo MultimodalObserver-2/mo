@@ -1,8 +1,11 @@
 import threading
 from datetime import datetime
+from typing import Any
 from api.core.api.schemas.plugin import PluginRes
 from api.core.file_management.file_management import FileManagement
+from api.core.plugin.plugin import Plugin
 from api.core.plugin.plugin_management import PluginManagement
+from api.core.plugin.plugin_worker_process import PluginWorkerProcess
 from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
@@ -11,6 +14,17 @@ from api.modules.capture.services.setting_service import CaptureSettingService
 from api.modules.organization.services.participant_service import ParticipantService
 from api.modules.organization.services.project_service import ProjectService
 
+def start_callback(instance: Plugin, extra_args: dict[str, Any] | None):
+    if not isinstance(instance, CapturePlugin) or extra_args is None:
+        return
+    threading.Thread(
+        target=instance.start,
+        args=(extra_args["session_path"], extra_args["file_name"]),
+    ).start()
+
+def stop_callback(instance: Plugin, extra_args: dict[str, Any] | None):
+    if isinstance(instance, CapturePlugin):
+        instance.stop()
 
 @singleton
 class CaptureService:
@@ -21,7 +35,8 @@ class CaptureService:
         self.file_management = FileManagement()
         self.setting_service = CaptureSettingService()
         self.started = False
-        self.running_plugins = {}  # type: dict[str, CapturePlugin]
+        self.running_processes = {} # type: dict[str, PluginWorkerProcess]
+        self.processes_instances = {} # type: dict[str, list[str]]
 
     def _get_participant_location(self, project_name: str, participant_code: str):
         participant = self.participant_service.get_participant(
@@ -39,63 +54,58 @@ class CaptureService:
         return file_name
 
     def get_capture_plugins(self) -> list[PluginRes]:
-        plugins = self.plugin_management.get_plugins_from_type(CapturePlugin)
-        plugins_metadata = [PluginRes.from_plugin_metadata(
-            plugin.metadata) for plugin in plugins]
-        return plugins_metadata
+        plugins_metadata = self.plugin_management.get_plugins_metadata_from_type(CapturePlugin)
+        plugins_res = [PluginRes.from_plugin_metadata(
+            plugin_metadata) for plugin_metadata in plugins_metadata]
+        return plugins_res
 
     def start_capture(self, project_name: str, participant_code: str):
         if self.started:
             raise BadRequestException("Capture is already started.")
-        self.running_plugins = self.load_capture_plugins(project_name)
+        self.running_plugins = self.load_processes(project_name)
         participant_location = self._get_participant_location(
             project_name, participant_code)
         session_dir_name = self._get_session_dir_name()
         session_path = self.file_management.create_directory(
             session_dir_name, participant_location)
         self.started = True
-        threads = []
-        for key, plugin in self.running_plugins.items():
-            file_name = self._format_data_file_name(key)
-            thread = threading.Thread(
-                target=plugin.start,
-                args=(session_path, file_name),
-            )
-            thread.start()
-            threads.append(thread)
-
+        for key, process in self.running_processes.items():
+            for setting_name in self.processes_instances[key]:
+                file_name = self._format_data_file_name(setting_name)
+                extra_args = {
+                    "session_path": session_path,
+                    "file_name": file_name
+                }
+                process.execute_callback_on_instance(setting_name, start_callback, extra_args)
+        
     def stop_capture(self):
         if not self.started:
             raise BadRequestException("Capture is not started.")
-        for plugin in self.running_plugins.values():
-            plugin.stop()
-        self.unload_running_plugins()
+
+        for process in self.running_processes.values():
+            process.execute_callback_on_all_instances(stop_callback)
+        self.unload_running_processes()
         self.started = False
 
-    def load_capture_plugins(self, project_name: str) -> dict[str, CapturePlugin]:
+    def load_processes(self, project_name: str):
         settings_list = self.setting_service.get_all_capture_settings_loaded(
             project_name)
-        capture_plugins = {}
+        self.running_processes = {}
         for settings in settings_list:
-            capture_plugin = self.load_capture_plugin(
-                settings.plugin_name, Settings(settings.settings))
-            if capture_plugin:
-                capture_plugins[settings.name] = capture_plugin
-        return capture_plugins
+            if self.running_processes.get(settings.plugin_name) is None:
+                plugin_process = self.plugin_management.get_active_plugin_process(
+                    settings.plugin_name)
+                if plugin_process is None:
+                    continue
+                self.running_processes[settings.plugin_name] = plugin_process
+                self.processes_instances[settings.plugin_name] = []
+            self.running_processes[settings.plugin_name].add_plugin_instance(
+                settings.name, Settings(settings.settings))
+            self.processes_instances[settings.plugin_name].append(settings.name)
 
-    def load_capture_plugin(self, plugin_name: str, settings: Settings) -> CapturePlugin | None:
-        capture_plugin_cls = self.plugin_management.get_plugin(plugin_name)
-        if not (capture_plugin_cls and issubclass(capture_plugin_cls, CapturePlugin)):
-            return None
-        capture_plugin = capture_plugin_cls()
-        capture_plugin.load()
-        capture_plugin.configure(settings)
-        return capture_plugin
-
-    def unload_running_plugins(self):
-        for plugin in self.running_plugins.values():
-            plugin.unload()
-        self.running_plugins = {}
+    def unload_running_processes(self):
+        for process in self.running_processes.values():
+            process.terminate()
 
     def is_capturing(self) -> bool:
         return self.started

@@ -54,10 +54,21 @@ class PluginService:
         if not plugin_metadata:
             raise BadRequestException(f"Plugin '{plugin_name}' not found.")
         self.plugins_dir_handler.suspend()
-        dir_name = self.plugin_management.remove_plugin(plugin_name)
-        self.file_management.delete_directory(dir_name)
-        self.plugins_dir_handler.remove_known_dir(dir_name)
-        self.plugins_dir_handler.resume()
+        dir_name = self.plugin_management.get_plugin_dir_name(plugin_name)
+        try:
+            dir_name = self.plugin_management.remove_plugin(plugin_name)
+            self.file_management.delete_directory(dir_name)
+            self.plugins_dir_handler.remove_known_dir(dir_name)
+        except Exception as e:
+            try:
+                self.plugin_management.register_plugin(dir_name)
+            except Exception:
+                pass
+            self.plugins_dir_handler.add_known_dir(dir_name)
+            self.plugins_dir_handler.resume()
+            raise BadRequestException(f"Failed to remove plugin '{plugin_name}'. \nError: {e}")
+        finally:
+            self.plugins_dir_handler.resume()
 
     def get_plugin_properties(
         self, plugin_name: str, settings: Optional[dict[str, Any]] = None
@@ -66,11 +77,9 @@ class PluginService:
         if not plugin_metadata:
             raise BadRequestException(f"Plugin '{plugin_name}' not found.")
 
-        plugin_properties = self.plugin_management.get_plugin_properties(plugin_name)
+        plugin_properties = self.plugin_management.get_plugin_properties(
+            plugin_name, Settings(settings) if settings else None)
         if not plugin_properties:
             return []
+        return [PropertyRes(**prop) for prop in plugin_properties]
 
-        properties = plugin_properties.get_properties(
-            Settings(settings=settings) if settings else None
-        )
-        return [PropertyRes.from_property(prop) for prop in properties]

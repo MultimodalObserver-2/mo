@@ -2,6 +2,7 @@ import os
 import platform
 import re
 import shutil
+import stat
 import unicodedata
 import zipfile
 from typing import BinaryIO, Optional
@@ -116,12 +117,18 @@ class FileManagement:
         new_path = os.path.normpath(new_path)
         os.rename(old_path, new_path)
         return new_path
+    
+    def _remove_readonly(self, func, path, _):
+        os.chmod(path, stat.S_IWRITE)
+        func(path)
 
-    def delete_directory(self, dir_name: str, rel_path: str = "") -> str:
+
+    def delete_directory(self, dir_name: str, rel_path: str = "", retries = 0) -> str:
         """Deletes a directory and its contents.
         Args:
             dir_name (str): Name of the directory to delete.
             rel_path (str, optional): Subdirectory path where the directory is located. Defaults to "".
+            retries (int, optional): Number of retries to delete the directory. Defaults to 0.
         Returns:
             str: Path of the deleted directory.
         Raises:
@@ -131,7 +138,13 @@ class FileManagement:
         dir_path = os.path.normpath(dir_path)
         if not os.path.exists(dir_path):
             raise NotFoundError(f"Directory {dir_path} does not exist.")
-        shutil.rmtree(dir_path)
+        for _ in range(retries):
+            try:
+                shutil.rmtree(dir_path, onexc=self._remove_readonly)
+                break
+            except:
+                continue
+        shutil.rmtree(dir_path, onexc=self._remove_readonly)
         return dir_path
 
     def delete_file(self, file_name: str, rel_path: str = "") -> str:

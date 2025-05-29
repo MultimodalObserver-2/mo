@@ -35,7 +35,7 @@ class PluginsDirHandler(FileSystemEventHandler):
             return
         self.known_dirs.remove(dir_name)
 
-    def wait_for_file(self, path, timeout=1.0, interval=0.01) -> bool:
+    def wait_for_file(self, path, timeout=20.0, interval=0.01) -> bool:
         start_time = time.time()
         while time.time() - start_time < timeout:
             if os.path.exists(path):

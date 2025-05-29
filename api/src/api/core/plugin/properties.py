@@ -36,6 +36,18 @@ class Property(BaseModel):
     _type: PropertyType = PrivateAttr()
     _modified_callback: Optional[modified_callback_type] = PrivateAttr(default=None)
 
+    def get_dict(self) -> dict[str, Any]:
+        return {
+            "key": self.key,
+            "label": self.label,
+            "required": self.required,
+            "visible": self.visible,
+            "enabled": self.enabled,
+            "default": self.default,
+            "data": self.data,
+            "property_type": self._type.value,
+            "reactive": self._modified_callback is not None,
+        }
 
 class Properties:
     _properties: dict[str, Property]
@@ -184,9 +196,6 @@ class Properties:
                 defaults[key] = prop.default
         return defaults
 
-    def get_dict_properties(self) -> dict[str, Property]:
-        return self._properties
-
     def get_properties(self, settings: Optional[Settings] = None) -> list[Property]:
         if settings is None:
             return list(self._properties.values())
@@ -199,6 +208,10 @@ class Properties:
                 if new_prop:
                     props = new_prop
         return list(props.values())
+    
+    def get_properties_dict(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
+        props = self.get_properties(settings)
+        return [prop.get_dict() for prop in props]
 
     def validate(self, settings: Settings) -> bool:
         props = self.get_properties(settings)
