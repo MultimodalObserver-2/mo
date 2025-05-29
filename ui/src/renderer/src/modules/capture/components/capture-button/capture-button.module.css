@@ -12,3 +12,7 @@
   width: 22px;
   height: 22px;
 }
+
+.main-button .icon.danger {
+  fill: var(--color-text-light);
+}

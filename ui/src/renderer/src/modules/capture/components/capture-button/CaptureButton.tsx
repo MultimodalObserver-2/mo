@@ -45,24 +45,40 @@ export default function CaptureButton() {
     }
   }
 
+  const getAbbrText = () => {
+    if (isCapturing) {
+      return `Stop capture`
+    } else if (!selectedProject && !selectedParticipant) {
+      return "Select a project and participant to start capturing"
+    } else if (!selectedParticipant) {
+      return "Select a participant to start capturing"
+    } else if (!selectedProject) {
+      return "Select a project to start capturing"
+    }
+    return `Ready to capture for project: ${selectedProject.name}, participant: ${selectedParticipant.code}`
+  }
+
   return (
-    <Button
-      className={styles["main-button"]}
-      borderRadius="xl"
-      onClick={handleCaptureToggle}
-      disabled={!selectedProject || !selectedParticipant}
-    >
-      {isCapturing ? (
-        <>
-          <StopCircleIcon className={styles.icon} />
-          STOP CAPTURE
-        </>
-      ) : (
-        <>
-          <PlayCircleIcon className={styles.icon} />
-          START CAPTURE
-        </>
-      )}
-    </Button>
+    <abbr title={getAbbrText()}>
+      <Button
+        className={styles["main-button"]}
+        borderRadius="xl"
+        styleType={isCapturing ? "danger" : "default"}
+        onClick={handleCaptureToggle}
+        disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
+      >
+        {isCapturing ? (
+          <>
+            <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
+            STOP CAPTURE
+          </>
+        ) : (
+          <>
+            <PlayCircleIcon className={styles.icon} />
+            START CAPTURE
+          </>
+        )}
+      </Button>
+    </abbr>
   )
 }

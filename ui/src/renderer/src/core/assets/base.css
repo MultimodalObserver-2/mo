@@ -99,3 +99,7 @@ button {
   color: inherit;
   cursor: pointer;
 }
+
+abbr {
+  text-decoration: none;
+}
