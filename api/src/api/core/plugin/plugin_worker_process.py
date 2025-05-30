@@ -32,15 +32,16 @@ class PluginProcessMetadata:
 
 class PluginWorkerProcess(Process):
     plugin_dir_path: str
-    plugin_class: type[Plugin] | None = None
+    plugin_class: type[Plugin] | None
     process_metadata: PluginProcessMetadata
     properties: Properties
     _parent_conn: PipeConnection
     _child_conn: PipeConnection
-    plugins_instances: dict[str, Plugin] = {}
-    load_main_instance: bool = False
-    keep_running: bool = False
-    timeout: Optional[float | int] = None
+    plugins_instances: dict[str, Plugin]
+    plugins_instances_ids: list[str]
+    load_main_instance: bool
+    keep_running: bool
+    timeout: Optional[float | int]
 
 
     def __init__(self, process_metadata: PluginProcessMetadata, load_main_instance: bool = False, keep_running: bool = False, timeout: Optional[float | int] = None):
@@ -59,9 +60,12 @@ class PluginWorkerProcess(Process):
             self.plugin_dir_path, dependencies_name)
         self.process_metadata = process_metadata
         self._parent_conn, self._child_conn = Pipe()
+        self.plugin_class = None
         self.load_main_instance = load_main_instance
         self.keep_running = keep_running
         self.timeout = timeout
+        self.plugins_instances = {}
+        self.plugins_instances_ids = []
 
     def run(self) -> None:
         try:
@@ -158,16 +162,19 @@ class PluginWorkerProcess(Process):
         plugin_instance.load()
         plugin_instance.configure(settings or Settings())
         self.plugins_instances[instance_id] = plugin_instance
-        
+        self.plugins_instances_ids.append(instance_id)
+
     def add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None) -> None:
         if not self.is_alive():
             return
+        
         self._parent_conn.send(("add_plugin_instance", instance_id, settings))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
             error = res.get("error", "Unknown error")
             raise Exception(error)
-        
+        self.plugins_instances_ids.append(instance_id)
+
     def _execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]]], Any], args: Optional[dict[str, Any]] = None) -> Any:
         if not self.is_alive():
             return None
@@ -181,7 +188,7 @@ class PluginWorkerProcess(Process):
         if not self.is_alive():
             return []
         results = []
-        for instance_id in self.plugins_instances:
+        for instance_id in self.plugins_instances_ids:
             result = self.execute_callback_on_instance(instance_id, callback, args)
             results.append(result)
         return results
