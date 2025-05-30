@@ -78,11 +78,13 @@ function createModalWindow(
           }
           const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
           const height = res.scrollHeight + (autoAdjustHeight.extraHeight || 0)
-          const adjustedHeight = Math.min(height, screenHeight)
+          const [actualWidth, actualHeight] = win.getSize()
+          const minHeight = Math.min(height, screenHeight)
+          const adjustedHeight = Math.max(minHeight, actualHeight)
           if (autoAdjustHeight.setMinimumSize) {
-            win.setMinimumSize(options.minWidth || currentContentWidth, adjustedHeight)
+            win.setMinimumSize(options.minWidth || currentContentWidth, minHeight)
           }
-          win.setSize(options.width || currentContentWidth, adjustedHeight, false)
+          win.setSize(actualWidth, adjustedHeight, false)
         })
         .catch((error) => {
           console.error("Error executing JavaScript:", error)
@@ -99,11 +101,13 @@ function createModalWindow(
           const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
           const currentContentWidth = win.getContentBounds().width
           const newHeight = parseInt(height) + (autoAdjustHeight?.extraHeight || 0)
-          const adjustedHeight = Math.min(newHeight, screenHeight)
+          const [actualWidth, actualHeight] = win.getSize()
+          const minHeight = Math.min(newHeight, screenHeight)
+          const adjustedHeight = Math.max(minHeight, actualHeight)
           if (autoAdjustHeight.setMinimumSize) {
-            win.setMinimumSize(options.minWidth || currentContentWidth, adjustedHeight)
+            win.setMinimumSize(options.minWidth || currentContentWidth, minHeight)
           }
-          win.setSize(options.width || currentContentWidth, adjustedHeight, false)
+          win.setSize(actualWidth, minHeight || adjustedHeight, false)
         }
       }
     )

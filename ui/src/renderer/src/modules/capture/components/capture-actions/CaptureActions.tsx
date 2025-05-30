@@ -1,4 +1,4 @@
-import styles from "./capture-button.module.css"
+import styles from "./capture-actions.module.css"
 import Button from "@renderer/core/components/button/Button"
 import PlayCircleIcon from "@renderer/core/components/icons/PlayCircleIcon"
 import { useEffect, useState } from "react"
@@ -8,20 +8,25 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
 import { useSelector } from "react-redux"
 import { selectSelectedParticipant } from "@renderer/modules/organization/store/participantsSlice"
+import ResumeCircleIcon from "@renderer/core/components/icons/ResumeCircleIcon"
+import PauseCircleIcon from "@renderer/core/components/icons/PauseCircleIcon"
 
-export default function CaptureButton() {
+export default function CaptureActions() {
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const [isCapturing, setIsCapturing] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
 
   useEffect(() => {
     const checkCaptureStatus = async () => {
       try {
         const response = await captureService.getStatus()
-        setIsCapturing(response.data)
+        setIsCapturing(response.data.started)
+        setIsPaused(response.data.paused)
       } catch {
         setIsCapturing(false)
+        setIsPaused(false)
       }
     }
 
@@ -41,10 +46,25 @@ export default function CaptureButton() {
         await captureService.startCapture(data)
       }
       setIsCapturing(!isCapturing)
+      setIsPaused(false)
     } catch (error) {
       showApiErrorMessage(error)
     }
     setIsLoading(false)
+  }
+
+  const handlePauseToggle = async () => {
+    try {
+      if (isPaused) {
+        await captureService.resumeCapture()
+        setIsPaused(false)
+      } else {
+        await captureService.pauseCapture()
+        setIsPaused(true)
+      }
+    } catch (error) {
+      showApiErrorMessage(error)
+    }
   }
 
   const getAbbrText = () => {
@@ -61,27 +81,48 @@ export default function CaptureButton() {
   }
 
   return (
-    <abbr title={getAbbrText()}>
-      <Button
-        className={styles["main-button"]}
-        borderRadius="xl"
-        styleType={isCapturing ? "danger" : "default"}
-        onClick={handleCaptureToggle}
-        disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
-        isLoading={isLoading}
-      >
-        {isCapturing ? (
-          <>
-            <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
-            STOP CAPTURE
-          </>
-        ) : (
-          <>
-            <PlayCircleIcon className={styles.icon} />
-            START CAPTURE
-          </>
-        )}
-      </Button>
-    </abbr>
+    <section className={styles["capture-actions"]}>
+      <abbr title={getAbbrText()}>
+        <Button
+          className={styles["main-button"]}
+          borderRadius="xl"
+          styleType={isCapturing ? "danger" : "default"}
+          onClick={handleCaptureToggle}
+          disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
+          isLoading={isLoading}
+        >
+          {isCapturing ? (
+            <>
+              <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
+              STOP CAPTURE
+            </>
+          ) : (
+            <>
+              <PlayCircleIcon className={styles.icon} />
+              START CAPTURE
+            </>
+          )}
+        </Button>
+      </abbr>
+      <abbr>
+        <Button
+          className={`${styles["secondary-button"]} ${isCapturing ? styles.visible : ""}`}
+          borderRadius="xl"
+          styleType="extra-soft"
+          onClick={handlePauseToggle}
+          disabled={!isCapturing || isLoading}
+        >
+          {isPaused ? (
+            <>
+              <ResumeCircleIcon className={styles.icon} />
+            </>
+          ) : (
+            <>
+              <PauseCircleIcon className={styles.icon} />
+            </>
+          )}
+        </Button>
+      </abbr>
+    </section>
   )
 }

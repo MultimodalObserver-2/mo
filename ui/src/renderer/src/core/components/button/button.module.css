@@ -60,6 +60,18 @@
   box-shadow: -2px 2px 3px var(--color-primary-900);
 }
 
+/* extra-soft */
+.button.extra-soft {
+  background-color: var(--color-primary-200);
+  color: var(--color-text-dark);
+  box-shadow: -2px 2px 1px var(--color-primary-800);
+}
+
+.button.extra-soft:hover {
+  background-color: var(--color-primary-100);
+  box-shadow: -2px 2px 3px var(--color-primary-900);
+}
+
 /* Border Radius Styles */
 /* small (sm) */
 .button.sm {

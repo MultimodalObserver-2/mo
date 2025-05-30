@@ -1,8 +1,8 @@
 import styles from "./button.module.css"
 
 type ButtonProps = React.ComponentProps<"button"> & {
-  /** Style variant: 'default' | 'danger' | 'soft' */
-  styleType?: "default" | "danger" | "soft"
+  /** Style variant: 'default' | 'danger' | 'soft' | 'extra-soft' */
+  styleType?: "default" | "danger" | "soft" | "extra-soft"
   /** Border radius: 'sm' | "md" | 'xl' */
   borderRadius?: "sm" | "md" | "xl"
   /** Loading state */

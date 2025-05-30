@@ -159,7 +159,7 @@ export default function ParticipantPage() {
           </Button>
         </div>
       </ModalHeader>
-      <ModalBody>
+      <ModalBody id="participant-info">
         <DisplayData name="Code" value={participant.code} />
         <DisplayData name="Name" value={participant.name} />
         <DisplayData

@@ -10,6 +10,7 @@ from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CapturePlugin
+from api.modules.capture.schemas.capture import CaptureStatusResponse
 from api.modules.capture.services.setting_service import CaptureSettingService
 from api.modules.organization.services.participant_service import ParticipantService
 from api.modules.organization.services.project_service import ProjectService
@@ -17,14 +18,23 @@ from api.modules.organization.services.project_service import ProjectService
 def start_callback(instance: Plugin, extra_args: dict[str, Any] | None):
     if not isinstance(instance, CapturePlugin) or extra_args is None:
         return
-    threading.Thread(
+    thread = threading.Thread(
         target=instance.start,
         args=(extra_args["session_path"], extra_args["file_name"]),
-    ).start()
+    )
+    thread.start()
 
 def stop_callback(instance: Plugin, extra_args: dict[str, Any] | None):
     if isinstance(instance, CapturePlugin):
         instance.stop()
+
+def pause_callback(instance: Plugin, extra_args: dict[str, Any] | None):
+    if isinstance(instance, CapturePlugin):
+        instance.pause()
+
+def resume_callback(instance: Plugin, extra_args: dict[str, Any] | None):
+    if isinstance(instance, CapturePlugin):
+        instance.resume()
 
 @singleton
 class CaptureService:
@@ -35,6 +45,7 @@ class CaptureService:
         self.file_management = FileManagement()
         self.setting_service = CaptureSettingService()
         self.started = False
+        self.paused = False
         self.running_processes = {} # type: dict[str, PluginWorkerProcess]
         self.processes_instances = {} # type: dict[str, list[str]]
 
@@ -69,6 +80,7 @@ class CaptureService:
         session_path = self.file_management.create_directory(
             session_dir_name, participant_location)
         self.started = True
+        self.paused = False
         for key, process in self.running_processes.items():
             for setting_name in self.processes_instances[key]:
                 file_name = self._format_data_file_name(setting_name)
@@ -76,16 +88,53 @@ class CaptureService:
                     "session_path": session_path,
                     "file_name": file_name
                 }
-                process.execute_callback_on_instance(setting_name, start_callback, extra_args)
-        
+                try:
+                    process.execute_callback_on_instance(setting_name, start_callback, extra_args)
+                except Exception as e:
+                    print(f"Error executing start callback for {setting_name} in process {key}: {e}")
+                    process.terminate()
+
     def stop_capture(self):
         if not self.started:
             raise BadRequestException("Capture is not started.")
+        try:
+            for process in self.running_processes.values():
+                process.execute_callback_on_all_instances(stop_callback)
+        except Exception as e:
+            self.unload_running_processes()
+            self.started = False
+            self.paused = False
+            self.running_processes = {}
+            self.processes_instances = {}
+            raise BadRequestException(f"Failed to stop capture safely, all capture sources terminated: {e}")
 
-        for process in self.running_processes.values():
-            process.execute_callback_on_all_instances(stop_callback)
         self.unload_running_processes()
         self.started = False
+        self.paused = False
+        self.running_processes = {}
+        self.processes_instances = {}
+
+    def pause_capture(self):
+        if not self.started or self.paused:
+            raise BadRequestException("Capture is not started or already paused.")
+        try:
+            for process in self.running_processes.values():
+                process.execute_callback_on_all_instances(pause_callback)
+        except Exception as e:
+            print(f"Error pausing capture: {e}")
+            raise BadRequestException("Failed to pause capture.")
+        self.paused = True
+    
+    def resume_capture(self):
+        if not self.started or not self.paused:
+            raise BadRequestException("Capture is not started or not paused.")
+        try:
+            for process in self.running_processes.values():
+                process.execute_callback_on_all_instances(resume_callback)
+        except Exception as e:
+            print(f"Error resuming capture: {e}")
+            raise BadRequestException("Failed to resume capture.")
+        self.paused = False
 
     def load_processes(self, project_name: str):
         settings_list = self.setting_service.get_all_capture_settings_loaded(
@@ -109,3 +158,12 @@ class CaptureService:
 
     def is_capturing(self) -> bool:
         return self.started
+
+    def is_paused(self) -> bool:
+        return self.paused
+    
+    def get_status(self) -> CaptureStatusResponse:
+        return CaptureStatusResponse(
+            started=self.started,
+            paused=self.paused
+        )

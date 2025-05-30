@@ -1,7 +1,7 @@
 import axios from "@renderer/core/lib/axios"
 import { Plugin } from "@renderer/core/types/Plugin"
 import { AxiosResponse } from "axios"
-import { StartCaptureRequest } from "../types/Capture"
+import { CaptureStatus, StartCaptureRequest } from "../types/Capture"
 
 class CaptureService {
   readonly endpoint = "/capture"
@@ -18,8 +18,16 @@ class CaptureService {
     return axios.post(`${this.endpoint}/stop`)
   }
 
-  async getStatus(): Promise<AxiosResponse<boolean, unknown>> {
+  async getStatus(): Promise<AxiosResponse<CaptureStatus, unknown>> {
     return axios.get(`${this.endpoint}/status`)
+  }
+
+  async pauseCapture(): Promise<AxiosResponse<void, unknown>> {
+    return axios.post(`${this.endpoint}/pause`)
+  }
+
+  async resumeCapture(): Promise<AxiosResponse<void, unknown>> {
+    return axios.post(`${this.endpoint}/resume`)
   }
 }
 

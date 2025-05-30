@@ -1,5 +1,5 @@
 from api.core.api.schemas.plugin import PluginRes
-from api.modules.capture.schemas.capture import CaptureStartRequest
+from api.modules.capture.schemas.capture import CaptureStartRequest, CaptureStatusResponse
 from fastapi import APIRouter, Depends
 
 from api.modules.capture.services.capture_service import CaptureService
@@ -30,9 +30,8 @@ async def start_capture(
     capture_start_request: CaptureStartRequest,
     service: CaptureService = Depends(get_capture_service),
 ) -> None:
-    service.start_capture(capture_start_request.project_name,
+    return service.start_capture(capture_start_request.project_name,
                           capture_start_request.participant_code)
-    return None
 
 @capture_router.post(
     "/stop",
@@ -41,15 +40,32 @@ async def start_capture(
     description="Stop the capture process.",
 )
 async def stop_capture(service: CaptureService = Depends(get_capture_service)) -> None:
-    service.stop_capture()
-    return None
+    return service.stop_capture()
+
+@capture_router.post(
+    "/pause",
+    status_code=204,
+    summary="Pause Capture",
+    description="Pause the capture process.",
+)
+async def pause_capture(service: CaptureService = Depends(get_capture_service)) -> None:
+    return service.pause_capture()
+
+@capture_router.post(
+    "/resume",
+    status_code=204,
+    summary="Resume Capture",
+    description="Resume the paused capture process.",
+)
+async def resume_capture(service: CaptureService = Depends(get_capture_service)) -> None:
+    return service.resume_capture()
 
 @capture_router.get(
     "/status",
     status_code=200,
     summary="Get Capture Status",
     description="Get the current status of the capture process.",
+    response_model=CaptureStatusResponse
 )
-async def get_status(service: CaptureService = Depends(get_capture_service)) -> bool:
-    # TODO: Add pause and resume status
-    return service.is_capturing()
+async def get_status(service: CaptureService = Depends(get_capture_service)) -> CaptureStatusResponse:
+    return service.get_status()

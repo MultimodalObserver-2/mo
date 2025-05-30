@@ -46,7 +46,13 @@ export function openParticipantInfoModal(projectName: string, participantCode: s
     },
     endpoint: `organization/${projectName}/participants/${participantCode}`,
     parent: "main",
-    name: "participant-info"
+    name: "participant-info",
+    autoAdjustHeight: {
+      elementId: "participant-info",
+      extraHeight: 165,
+      errorHeight: 500,
+      setMinimumSize: true
+    }
   })
 }
 
@@ -55,7 +61,13 @@ export function openAddParticipantModal(projectName: string) {
     options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Add Participant" },
     endpoint: `organization/${projectName}/add-participant`,
     parent: "main",
-    name: "add-participant"
+    name: "add-participant",
+    autoAdjustHeight: {
+      elementId: "create",
+      extraHeight: 165,
+      errorHeight: 380,
+      setMinimumSize: true
+    }
   })
 }
 
@@ -70,7 +82,13 @@ export function openUpdateParticipantModal(projectName: string, participantCode:
     },
     endpoint: `organization/${projectName}/update-participant/${participantCode}`,
     parent: "main",
-    name: "update-participant"
+    name: "update-participant",
+    autoAdjustHeight: {
+      elementId: "update",
+      extraHeight: 165,
+      errorHeight: 380,
+      setMinimumSize: true
+    }
   })
 }
 
