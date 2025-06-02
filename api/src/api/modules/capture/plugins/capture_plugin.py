@@ -1,23 +1,50 @@
 from abc import abstractmethod
-from typing import Any
+from typing import Any, Callable
+import typing
 
 from api.core.plugin.plugin import Plugin
+from pydantic import BaseModel
 
+PicklableScalar = typing.Union[int, float, str, bool, None, 
+                               bytes, bytearray]
 
+PicklableType = typing.Union[
+    PicklableScalar,
+    list['PicklableType'],
+    dict[str, 'PicklableType'],
+    tuple['PicklableType', ...],
+    set['PicklableType'],
+    frozenset['PicklableType'],
+]
+
+class CaptureData:
+    timestamp: float
+    data: PicklableType
+    def __init__(self, timestamp: float, data: PicklableType):
+        self.timestamp = timestamp
+        self.data = data
 
 class CapturePlugin(Plugin):
     @abstractmethod
-    def start(self, path: str, file_name: str) -> Any:
+    def prepare(self, path: str, file_name: str) -> None:
         pass
 
     @abstractmethod
-    def pause(self) -> Any:
+    def start(self, start_ts: float, get_timestamp: Callable[[], float], on_data: Callable[[CaptureData], None]) -> None:
         pass
 
     @abstractmethod
-    def resume(self) -> Any:
+    def pause(self) -> None:
         pass
 
     @abstractmethod
-    def stop(self) -> Any:
+    def resume(self) -> None:
+        pass
+
+    @abstractmethod
+    def stop(self) -> None:
+        pass
+
+    @abstractmethod
+    def get_file_extension(self) -> str:
         pass

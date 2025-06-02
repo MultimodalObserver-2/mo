@@ -42,9 +42,9 @@ class PluginWorkerProcess(Process):
     load_main_instance: bool
     keep_running: bool
     timeout: Optional[float | int]
+    processes_queue: Optional[Queue] = None
 
-
-    def __init__(self, process_metadata: PluginProcessMetadata, load_main_instance: bool = False, keep_running: bool = False, timeout: Optional[float | int] = None):
+    def __init__(self, process_metadata: PluginProcessMetadata, load_main_instance: bool = False, keep_running: bool = False, timeout: Optional[float | int] = None, processes_queue: Optional[Queue] = None):
         super().__init__()
         dependencies_name = "dependencies"
         plugins_dir = RELATIVE_PLUGINS_DIR_PATH
@@ -66,6 +66,7 @@ class PluginWorkerProcess(Process):
         self.timeout = timeout
         self.plugins_instances = {}
         self.plugins_instances_ids = []
+        self.processes_queue = processes_queue
 
     def run(self) -> None:
         try:
@@ -138,9 +139,24 @@ class PluginWorkerProcess(Process):
                         self._child_conn.send({"is_ok": False, "error": str(e)})
                 elif command == "set_timeout":
                     self.timeout = args[0]
+                elif command == "stop":
+                    self.keep_running = False
+                    if self.load_main_instance:
+                        instance.unload()
+                    self._child_conn.send({"is_ok": True})
                 start_time = time.time() if self.timeout is not None else None
         if self.load_main_instance:
             instance.unload()
+    
+    def stop(self) -> None:
+        if not self.is_alive():
+            return
+        self._parent_conn.send(("stop",))
+        res = self._parent_conn.recv()
+        if not res.get("is_ok", False):
+            error = res.get("error", "Unknown error")
+            raise Exception(error)
+        self.join()
 
     def validate_properties(self, settings: Optional[Settings]) -> None:
         if not self.is_alive():
@@ -175,16 +191,16 @@ class PluginWorkerProcess(Process):
             raise Exception(error)
         self.plugins_instances_ids.append(instance_id)
 
-    def _execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]]], Any], args: Optional[dict[str, Any]] = None) -> Any:
+    def _execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> Any:
         if not self.is_alive():
             return None
         if instance_id not in self.plugins_instances:
             raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
         
         plugin_instance = self.plugins_instances[instance_id]
-        return callback(plugin_instance, args)
+        return callback(plugin_instance, args, self.processes_queue)
     
-    def execute_callback_on_all_instances(self, callback: Callable[[Plugin, Optional[dict[str, Any]]], Any], args: Optional[dict[str, Any]] = None) -> list[Any]:
+    def execute_callback_on_all_instances(self, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> list[Any]:
         if not self.is_alive():
             return []
         results = []
@@ -193,7 +209,7 @@ class PluginWorkerProcess(Process):
             results.append(result)
         return results
 
-    def execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]]], Any], args: Optional[dict[str, Any]] = None) -> Any:
+    def execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> Any:
         if not self.is_alive():
             return None
         self._parent_conn.send(

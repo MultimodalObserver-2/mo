@@ -68,3 +68,7 @@ class Plugin(ABC):
 
     def configure(self, settings: Settings):
         self.settings = settings
+        self.on_configure(settings)
+
+    def on_configure(self, settings: Settings):
+        pass

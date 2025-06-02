@@ -1,5 +1,6 @@
 import json
 from multiprocessing import Queue
+import multiprocessing
 import os
 import sys
 from typing import Any, Optional
@@ -175,7 +176,7 @@ class PluginManagement:
             return None
         return self.plugin_processes.get(key, None)
     
-    def get_active_plugin_process(self, final_id: str) -> PluginWorkerProcess | None:
+    def get_active_plugin_process(self, final_id: str, processes_queue: Optional[multiprocessing.Queue] = None) -> PluginWorkerProcess | None:
         key = self._get_plugin_process_metadata_dir(final_id)
         if key is None:
             return None
@@ -184,7 +185,7 @@ class PluginManagement:
             process_metadata = self.plugin_processes_metadata.get(key)
             if process_metadata is None:
                 return None
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True)
+            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, processes_queue=processes_queue)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
