@@ -1,6 +1,6 @@
 from typing import Any, Optional
 
-from api.core.plugin.plugin import PluginIcons
+from api.core.plugin.plugin import PluginIcons, PluginMetadata
 from pydantic import BaseModel
 
 
@@ -26,4 +26,11 @@ class SettingsRes(BaseModel):
 class SettingsData(BaseModel):
     name: str
     plugin_id: str
+    settings: dict[str, Any]
+
+
+class SettingsLoaded(BaseModel):
+    name: str
+    plugin_id: str
+    plugin_metadata: PluginMetadata
     settings: dict[str, Any]

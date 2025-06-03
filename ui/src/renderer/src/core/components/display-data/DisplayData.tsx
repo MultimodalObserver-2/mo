@@ -10,6 +10,8 @@ interface DisplayDataProps {
   children?: React.ReactNode
   /** Optional CSS class for the value container */
   childrenClass?: string
+  /** Box style types */
+  boxStyle?: "vertical" | "horizontal"
 }
 
 /** Displays a labeled value (string, number or list) with optional children */
@@ -17,10 +19,13 @@ export default function DisplayData({
   name,
   value,
   children,
-  childrenClass
+  childrenClass,
+  boxStyle = "vertical"
 }: Readonly<DisplayDataProps>) {
   return (
-    <div className={`${styles.box}  ${Array.isArray(value) ? styles["list-label-container"] : ""}`}>
+    <div
+      className={`${styles.box} ${styles[boxStyle]} ${Array.isArray(value) ? styles["list-label-container"] : ""}`}
+    >
       <BulletLabel label={name} />
       <div className={`${childrenClass} ${Array.isArray(value) ? styles["list-container"] : ""}`}>
         {Array.isArray(value) ? (

@@ -1,9 +1,8 @@
 from abc import abstractmethod
-from typing import Any, Callable
+from typing import Callable
 import typing
 
 from api.core.plugin.plugin import Plugin
-from pydantic import BaseModel
 
 PicklableScalar = typing.Union[int, float, str, bool, None, 
                                bytes, bytearray]

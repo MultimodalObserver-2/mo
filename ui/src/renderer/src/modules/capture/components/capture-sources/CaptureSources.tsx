@@ -78,7 +78,7 @@ export default function CaptureSources() {
 
     fetchCaptureSettings(selectedProject)
     return () => {
-      window.capture.removeReloadSettings()
+      window.capture.removeReloadSettingsListeners()
     }
   }, [selectedProject])
 

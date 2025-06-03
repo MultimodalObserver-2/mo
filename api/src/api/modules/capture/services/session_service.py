@@ -5,10 +5,8 @@ from typing import Optional
 from api.core.api.services.plugin_service import PluginService
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
-from api.core.plugin.plugin_management import PluginManagement
 from api.core.utils.http_exceptions import NotFoundException
-from api.modules.capture.schemas import session
-from api.modules.capture.schemas.session import CaptureSourceSetting, CaptureSourceSettingRes, SessionData, SessionPost, SessionRes
+from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionRes
 from api.modules.capture.services import paths
 from api.modules.organization.services.participant_service import ParticipantService
 from api.modules.organization.services.project_service import ProjectService
@@ -45,9 +43,11 @@ class SessionService:
             start_timestamp=session.start_timestamp,
             started_at=session.started_at,
             capture_sources=[
-                CaptureSourceSetting(
+                CaptureSettingDetails(
                     setting_name=source.setting_name,
                     plugin_id=source.plugin_id,
+                    plugin_name=source.plugin_name,
+                    plugin_version=source.plugin_version,
                     settings=source.settings,
                     location=os.path.join(session_path, source.file_name),
                     file_extension=source.file_extension,
@@ -105,6 +105,33 @@ class SessionService:
         if not session_data_dict:
             raise NotFoundException(f"Session with ID {session_id} not found.")
         return SessionData(**session_data_dict)
+    
+    def get_all_sessions(
+        self, project_name: str, participant_code: str
+    ) -> list[SessionRes]:
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(f"Project {project_name} does not exist.")
+        
+        if not self.participant_service.exists(project_name, participant_code):
+            raise NotFoundException(f"Participant {participant_code} does not exist in project {project_name}.")
+
+        session_storage = self._get_session_storage(project_name, participant_code)
+        session_data_list = session_storage.find_all()
+        sessions = []
+        for session_data_dict in session_data_list:
+            session_data = SessionData(**session_data_dict)
+            session_res = SessionRes(
+                session_id=session_data.session_id,
+                location=session_data.location,
+                start_timestamp=session_data.start_timestamp,
+                end_timestamp=session_data.end_timestamp,
+                started_at=session_data.started_at,
+                capture_sources=[]
+            )
+            for source in session_data.capture_sources:
+                session_res.capture_sources.append(CaptureSettingDetailsRes.from_capture_source_setting(source))
+            sessions.append(session_res)
+        return sessions
 
     def get_session(
         self, project_name: str, participant_code: str, session_id: str
@@ -119,16 +146,6 @@ class SessionService:
             capture_sources=[]
         )
         for source in session_data.capture_sources:
-            plugin_metadata = self.plugin_service.get_plugin(source.plugin_id)
-            capture_source_res = CaptureSourceSettingRes(
-                setting_name=source.setting_name,
-                plugin=plugin_metadata,
-                settings=source.settings,
-                start_timestamp=source.start_timestamp or 0.0,
-                file_extension=source.file_extension,
-                location=source.location
-            )
-            session_res.capture_sources.append(capture_source_res)
+            session_res.capture_sources.append(
+                CaptureSettingDetailsRes.from_capture_source_setting(source))
         return session_res
-        
-        

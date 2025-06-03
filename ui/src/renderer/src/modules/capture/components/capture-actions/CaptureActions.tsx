@@ -38,6 +38,7 @@ export default function CaptureActions() {
       setIsLoading(true)
       if (isCapturing) {
         await captureService.stopCapture()
+        window.capture.reloadSessions()
       } else {
         const data = {
           project_name: selectedProject?.name || "",
@@ -45,6 +46,7 @@ export default function CaptureActions() {
         }
         await captureService.startCapture(data)
       }
+      window.capture.reloadCaptureStatus()
       setIsCapturing(!isCapturing)
       setIsPaused(false)
     } catch (error) {

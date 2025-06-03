@@ -6,4 +6,6 @@ export type StartCaptureRequest = {
 export type CaptureStatus = {
   started: boolean
   paused: boolean
+  project_name?: string
+  participant_code?: string
 }

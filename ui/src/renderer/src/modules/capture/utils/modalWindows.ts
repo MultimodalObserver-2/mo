@@ -45,3 +45,16 @@ export function openUpdateCaptureSourceModal(projectName: string, settingsName: 
     }
   })
 }
+
+export function openSessionDetailsModal(projectName: string, participantCode: string, sessionId: string) {
+  window.core.openModalWindow({
+    options: { width: 800, minWidth: 750, minHeight: 400, title: "Session Information" },
+    endpoint: `capture/${projectName}/participants/${participantCode}/sessions/${sessionId}`,
+    autoAdjustHeight: {
+      elementId: "modal-body",
+      extraHeight: 140,
+      errorHeight: 400,
+      setMinimumSize: true
+    }
+  })
+}

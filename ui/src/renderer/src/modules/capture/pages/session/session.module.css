@@ -1,0 +1,75 @@
+.settings-section {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.settings-label {
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.bullet {
+  width: 8px;
+  height: 8px;
+  background-color: var(--color-primary-100);
+  border-radius: 50%;
+  margin-top: 3px;
+}
+
+.name {
+  font-size: 1em;
+  font-weight: 400;
+  color: var(--color-text-light);
+}
+
+.settings-container {
+  display: flex;
+  gap: 28px;
+}
+
+.settings-panel {
+  overflow: hidden;
+  min-width: 200px;
+}
+
+.settings-panel.empty {
+  width: 100%;
+  min-width: 100%;
+}
+
+.settings-list {
+  margin: 0 !important;
+}
+
+.setting-info {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+  overflow: hidden;
+}
+
+.plugin-section {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.settings-details-label {
+  margin-left: 4px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.settings-details-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    padding-left: 22px;
+    padding-right: 22px;
+    padding-top: 6px;
+}

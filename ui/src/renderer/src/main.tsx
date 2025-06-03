@@ -26,6 +26,7 @@ import PluginDetails from "./core/pages/plugins/plugin-details/PluginDetails"
 import SelectCaptureSource from "./modules/capture/pages/select-capture-source/SelectCaptureSource"
 import AddCaptureSettings from "./modules/capture/pages/add-capture-settings/AddCaptureSettings"
 import UpdateCaptureSettings from "./modules/capture/pages/update-capture-settings/UpdateCaptureSettings"
+import SessionPage from "./modules/capture/pages/session/Session"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -78,6 +79,10 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/capture/:projectName/settings/:settingsName"
             element={<UpdateCaptureSettings />}
+          />
+          <Route
+            path="/capture/:projectName/participants/:participantCode/sessions/:sessionId"
+            element={<SessionPage />}
           />
         </Routes>
       </HashRouter>

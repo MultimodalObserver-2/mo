@@ -8,7 +8,7 @@ from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import (AlreadyExistsException, BadRequestException,
                                             NotFoundException)
 from api.modules.capture.plugins.capture_plugin import CapturePlugin
-from api.modules.capture.schemas.settings import SettingsData, SettingsPostReq, SettingsPutReq, SettingsRes
+from api.modules.capture.schemas.settings import SettingsData, SettingsLoaded, SettingsPostReq, SettingsPutReq, SettingsRes
 from api.modules.capture.services.paths import (CAPTURE_SETTINGS_DIR,
                                                 CAPTURE_SETTINGS_FILE)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
@@ -185,7 +185,7 @@ class CaptureSettingService:
         settings_storage = self._get_settings_storage(project_name)
         return settings_storage.exists({"name": setting_name})
     
-    def get_all_capture_settings_loaded(self, project_name: str) -> list[SettingsRes]:
+    def get_all_capture_settings_loaded(self, project_name: str) -> list[SettingsLoaded]:
         if not self.project_service.exists(project_name):
             raise NotFoundException(
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
@@ -198,14 +198,11 @@ class CaptureSettingService:
             plugin_metadata = self.plugin_management.get_plugin_metadata(
                 settings_data.plugin_id)
             if plugin_metadata and plugin_metadata._is_loaded:
-                settings = SettingsRes(
+                settings = SettingsLoaded(
                     name=settings_data.name,
                     plugin_id=settings_data.plugin_id,
+                    plugin_metadata=plugin_metadata,
                     settings=settings_data.settings,
                 )
-                plugin_icon = PluginRes.get_icon_path(
-                    plugin_metadata._location or "", plugin_metadata.icon_path or "")
-                settings.plugin_icon = plugin_icon
-                settings.plugin_is_loaded = plugin_metadata._is_loaded
                 settings_list.append(settings)
         return settings_list
