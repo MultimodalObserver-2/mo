@@ -7,3 +7,5 @@ class CaptureStartRequest(BaseModel):
 class CaptureStatusResponse(BaseModel):
     started: bool
     paused: bool
+    project_name: str | None = None
+    participant_code: str | None = None

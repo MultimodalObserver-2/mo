@@ -14,7 +14,7 @@ from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
 from api.modules.capture.schemas.capture import CaptureStatusResponse
-from api.modules.capture.schemas.session import CaptureSourceSettingPost, SessionPost, SessionData
+from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionData
 from api.modules.capture.services.session_service import SessionService
 from api.modules.capture.services.setting_service import CaptureSettingService
 from pydantic import BaseModel
@@ -231,8 +231,7 @@ class CaptureService:
         file_extension = file_extension.lstrip('.').lower()
         return f"{file_name}.{file_extension}"
 
-    
-    def _get_capture_settings_data(self, project_name: str) -> list[CaptureSourceSettingPost]:
+    def _get_capture_settings_data(self, project_name: str) -> list[CaptureSettingDetailsPost]:
         settings_list = self.setting_service.get_all_capture_settings_loaded(
             project_name)
         capture_settings_data = []
@@ -240,9 +239,11 @@ class CaptureService:
             file_name = self.get_capture_plugin_file_name(settings.plugin_id, settings.name)
             file_extension = file_name.split('.')[-1] if '.' in file_name else ''
             capture_settings_data.append(
-                CaptureSourceSettingPost(
+                CaptureSettingDetailsPost(
                     setting_name=settings.name,
                     plugin_id=settings.plugin_id,
+                    plugin_name=settings.plugin_metadata.name,
+                    plugin_version=str(settings.plugin_metadata.version),
                     settings=settings.settings,
                     file_extension=file_extension,
                     file_name=self.get_capture_plugin_file_name(settings.plugin_id, settings.name)
@@ -282,4 +283,6 @@ class CaptureService:
         return CaptureStatusResponse(
             started=self.started,
             paused=self.paused,
+            project_name=self.project_name,
+            participant_code=self.participant_code
         )
