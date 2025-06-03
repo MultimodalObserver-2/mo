@@ -14,9 +14,9 @@ from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
 from api.modules.capture.schemas.capture import CaptureStatusResponse
+from api.modules.capture.schemas.session import CaptureSourceSettingPost, SessionPost, SessionData
+from api.modules.capture.services.session_service import SessionService
 from api.modules.capture.services.setting_service import CaptureSettingService
-from api.modules.organization.services.participant_service import ParticipantService
-from api.modules.organization.services.project_service import ProjectService
 from pydantic import BaseModel
 
 
@@ -73,33 +73,29 @@ def resume_callback(instance: Plugin, *_):
     if isinstance(instance, CapturePlugin):
         instance.resume()
 
+def get_file_extension_callback(instance: Plugin, *_):
+    if isinstance(instance, CapturePlugin):
+        return instance.get_file_extension()
+    return ""
 
 @singleton
 class CaptureService:
     def __init__(self):
-        self.project_service = ProjectService()
-        self.participant_service = ParticipantService()
+        self.session_service = SessionService()
         self.plugin_management = PluginManagement()
-        self.file_management = FileManagement()
         self.setting_service = CaptureSettingService()
         self.started = False
         self.paused = False
         self.running_processes = {}  # type: dict[str, PluginWorkerProcess]
         self.processes_instances = {}  # type: dict[str, list[str]]
-
-    def _get_participant_location(self, project_name: str, participant_code: str):
-        participant = self.participant_service.get_participant(
-            project_name, participant_code)
-        return participant.location
-
-    def _get_session_dir_name(self):
-        datetime_now = datetime.now().strftime("%Y-%m-%d_%H.%M.%S")
-        return f"session[{datetime_now}]"
+        self.project_name = None # type: str | None
+        self.participant_code = None # type: str | None
+        self.session = None  # type: SessionData | None
 
     def _format_data_file_name(self, file_name: str) -> str:
         file_name = file_name.lower()
         file_name = file_name.replace(" ", "_")
-        file_name = self.file_management.normalize_file_name(file_name)
+        file_name = FileManagement.normalize_file_name(file_name)
         return file_name
 
     def get_capture_plugins(self) -> list[PluginRes]:
@@ -130,13 +126,17 @@ class CaptureService:
             raise BadRequestException("Capture is already started.")
         processes_queue = self.running_plugins = self.load_processes(
             project_name)
-        participant_location = self._get_participant_location(
-            project_name, participant_code)
-        session_dir_name = self._get_session_dir_name()
-        session_path = self.file_management.create_directory(
-            session_dir_name, participant_location)
-        self.prepare_capture(session_path)
         start_ts = time.monotonic()
+        self.project_name = project_name
+        self.participant_code = participant_code
+        self.session = self.session_service.create_session(
+            project_name, participant_code, SessionPost(
+                start_timestamp=start_ts,
+                started_at=datetime.now(),
+                capture_sources=self._get_capture_settings_data(project_name)
+            )
+        )
+        self.prepare_capture(self.session.location)
         for key, process in self.running_processes.items():
             for setting_name in self.processes_instances[key]:
                 extra_args = {
@@ -153,11 +153,11 @@ class CaptureService:
         self.paused = False
         threading.Thread(
             target=self.get_captured_data,
-            args=(processes_queue,),
+            args=(processes_queue, self.session,),
             daemon=True
         ).start()
 
-    def get_captured_data(self, data_queue: multiprocessing.Queue) -> None:
+    def get_captured_data(self, data_queue: multiprocessing.Queue, session: SessionData) -> None:
         first_timestamp = {}  # type: dict[str, float]
         while self.started:
             try:
@@ -166,6 +166,11 @@ class CaptureService:
                     continue
                 if data.setting_name not in first_timestamp:
                     first_timestamp[data.setting_name] = data.timestamp
+                    threading.Thread(
+                        target=self.session_service.add_capture_source_setting_start_timestamp,
+                        args=(self.project_name or "", self.participant_code or "",
+                              session.session_id, data.setting_name, data.timestamp),
+                    ).start()
             except queue.Empty:
                 pass
 
@@ -173,12 +178,15 @@ class CaptureService:
         if not self.started:
             raise BadRequestException("Capture is not started.")
         exceptions = {}
+        stop_ts = time.monotonic()
         for key, process in self.running_processes.items():
             try:
                 process.execute_callback_on_all_instances(stop_callback)
             except Exception as e:
                 exceptions[key] = e
-
+        if self.session:
+            self.session_service.add_end_timestamp(
+                self.project_name or "", self.participant_code or "", self.session.session_id, stop_ts)
         self.unload_running_processes()
         self.started = False
         self.paused = False
@@ -211,6 +219,37 @@ class CaptureService:
             raise BadRequestException("Failed to resume capture.")
         self.paused = False
 
+    def get_capture_plugin_file_name(self, plugin_id: str, setting_name: str) -> str:
+        process = self.running_processes.get(plugin_id)
+        if process is None:
+            raise BadRequestException(
+                f"No running process found for plugin {plugin_id}.")
+        file_extension = process.execute_callback_on_instance(setting_name, get_file_extension_callback)
+        file_name = self._format_data_file_name(setting_name)
+        if not file_extension:
+            return file_name
+        file_extension = file_extension.lstrip('.').lower()
+        return f"{file_name}.{file_extension}"
+
+    
+    def _get_capture_settings_data(self, project_name: str) -> list[CaptureSourceSettingPost]:
+        settings_list = self.setting_service.get_all_capture_settings_loaded(
+            project_name)
+        capture_settings_data = []
+        for settings in settings_list:
+            file_name = self.get_capture_plugin_file_name(settings.plugin_id, settings.name)
+            file_extension = file_name.split('.')[-1] if '.' in file_name else ''
+            capture_settings_data.append(
+                CaptureSourceSettingPost(
+                    setting_name=settings.name,
+                    plugin_id=settings.plugin_id,
+                    settings=settings.settings,
+                    file_extension=file_extension,
+                    file_name=self.get_capture_plugin_file_name(settings.plugin_id, settings.name)
+                )
+            )
+        return capture_settings_data
+
     def load_processes(self, project_name: str) -> multiprocessing.Queue:
         settings_list = self.setting_service.get_all_capture_settings_loaded(
             project_name)
@@ -242,5 +281,5 @@ class CaptureService:
     def get_status(self) -> CaptureStatusResponse:
         return CaptureStatusResponse(
             started=self.started,
-            paused=self.paused
+            paused=self.paused,
         )
