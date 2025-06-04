@@ -5,7 +5,7 @@ from typing import Optional
 from api.core.api.services.plugin_service import PluginService
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
-from api.core.utils.http_exceptions import NotFoundException
+from api.core.utils.http_exceptions import BadRequestException, NotFoundException
 from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionRes
 from api.modules.capture.services import paths
 from api.modules.organization.services.participant_service import ParticipantService
@@ -149,3 +149,20 @@ class SessionService:
             session_res.capture_sources.append(
                 CaptureSettingDetailsRes.from_capture_source_setting(source))
         return session_res
+    
+    def delete_session(
+        self, project_name: str, participant_code: str, session_id: str
+    ) -> None:
+        session_data = self._get_session_data(project_name, participant_code, session_id)
+        if self.participant_service.is_participant_locked(project_name, participant_code):
+            raise BadRequestException("Cannot delete session, participant is locked.")
+        self.file_management.send_to_trash(session_data.location)
+        session_storage = self._get_session_storage(
+            project_name, participant_code)
+        session_storage.delete_one({"session_id": session_id})
+
+    def exists(
+        self, project_name: str, participant_code: str, session_id: str
+    ) -> bool:
+        session_storage = self._get_session_storage(project_name, participant_code)
+        return session_storage.exists({"session_id": session_id})

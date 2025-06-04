@@ -7,7 +7,7 @@ class SessionService {
     project_name: string,
     participant_code: string
   ): Promise<AxiosResponse<CaptureSession[], unknown>> {
-    return axios.get(`/projects/${project_name}/participants/${participant_code}/sessions`)
+    return axios.get(`/projects/${project_name}/participants/${participant_code}/sessions/`)
   }
 
   async get(
@@ -16,6 +16,16 @@ class SessionService {
     session_id: string
   ): Promise<AxiosResponse<CaptureSession, unknown>> {
     return axios.get(
+      `/projects/${project_name}/participants/${participant_code}/sessions/${session_id}`
+    )
+  }
+
+  async delete(
+    project_name: string,
+    participant_code: string,
+    session_id: string
+  ): Promise<AxiosResponse<void, unknown>> {
+    return axios.delete(
       `/projects/${project_name}/participants/${participant_code}/sessions/${session_id}`
     )
   }

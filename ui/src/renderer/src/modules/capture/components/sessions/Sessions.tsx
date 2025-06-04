@@ -16,6 +16,7 @@ import { Project } from "@renderer/modules/organization/types/Project"
 import { Participant } from "@renderer/modules/organization/types/Participant"
 import { formatDatetime } from "../../utils/helpers"
 import { openSessionDetailsModal } from "../../utils/modalWindows"
+import { showDeleteSessionMessage } from "../../utils/dialogMessages"
 
 export default function Sessions() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -42,6 +43,33 @@ export default function Sessions() {
     openSessionDetailsModal(selectedProject.name, selectedParticipant.code, session.session_id)
   }
 
+  const handleDelete = async (session: CaptureSession) => {
+    if (!selectedProject || !selectedParticipant) {
+      return
+    }
+    const acceptId = 0
+    const response = await showDeleteSessionMessage(
+      session.session_id,
+      selectedProject.name,
+      selectedParticipant.code,
+      acceptId
+    )
+    if (response.response === acceptId) {
+      try {
+        await sessionService.delete(
+          selectedProject.name,
+          selectedParticipant.code,
+          session.session_id
+        )
+        setSessions((prevSessions) =>
+          prevSessions.filter((s) => s.session_id !== session.session_id)
+        )
+      } catch (error) {
+        showApiErrorMessage(error)
+      }
+    }
+  }
+
   useEffect(() => {
     window.capture.onReloadSessions(() => {
       fetchSessions(selectedProject, selectedParticipant)
@@ -63,8 +91,9 @@ export default function Sessions() {
           <ElementListItem
             key={session.session_id}
             label={formatDatetime(session.started_at)}
-            showActions={{ info: true }}
+            showActions={{ info: true, delete: true }}
             onInfo={() => openSessionInfo(session)}
+            onDelete={() => handleDelete(session)}
           />
         ))}
       </ElementList>

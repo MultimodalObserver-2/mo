@@ -17,7 +17,8 @@
 
 .workspace > .workspace-header {
   display: flex;
-  max-height: 4vh;
+  height: 40px;
+  max-height: 40px;
   border-top: 12px solid var(--color-primary-500);
 }
 
@@ -32,8 +33,7 @@
 .workspace > .workspace-footer {
   display: flex;
   justify-content: center;
-  height: 6vh;
-  max-height: 6vh;
+  max-height: 60px;
   border-bottom: 12px solid var(--color-primary-500);
 }
 

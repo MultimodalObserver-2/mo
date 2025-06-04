@@ -14,6 +14,7 @@ from api.core.file_management.exceptions import (InvalidDirectoryNameError,
                                                  InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.validators import FileValidators
+import send2trash
 
 
 class FileManagement:
@@ -122,6 +123,21 @@ class FileManagement:
         os.chmod(path, stat.S_IWRITE)
         func(path)
 
+    def send_to_trash(self, rel_path: str = "") -> str:
+        """Moves a file or directory to the trash.
+        Args:
+            rel_path (str): Path of the file or directory to move to trash. Defaults to "".
+        Returns:
+            str: Path of the moved item.
+        Raises:
+            NotFoundError: If the path does not exist.
+        """
+        path = os.path.join(self._path, rel_path)
+        path = os.path.normpath(path)
+        if not os.path.exists(path):
+            raise NotFoundError(f"Path {path} does not exist.")
+        send2trash.send2trash(path)
+        return path
 
     def delete_directory(self, dir_name: str, rel_path: str = "", retries = 0) -> str:
         """Deletes a directory and its contents.
