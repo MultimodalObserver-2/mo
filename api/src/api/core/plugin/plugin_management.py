@@ -115,6 +115,7 @@ class PluginManagement:
             status = status_queue.get()
             plugin_metadata._is_loaded = status.get("is_loaded", False)
             plugin_metadata._error = status.get("error", None)
+            plugin_metadata._module = status.get("module_name", None)
             self.plugin_types[dir_name] = status.get("plugin_types", [])
             if plugin_metadata._is_loaded:
                 self.plugin_processes_metadata[dir_name] = plugin_process_metadata

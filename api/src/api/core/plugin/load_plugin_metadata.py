@@ -65,7 +65,7 @@ def load_metadata_json(rel_path: str = ""):
         metadata_path = os.path.join(base_plugin_dir, "metadata.json")
 
         cls.metadata = load_plugin_metadata(metadata_path)
-        cls.metadata._module = cls._module
+        cls.metadata._module = cls._module_name
         cls.metadata._is_loaded = True
         cls.metadata._location = base_plugin_dir
         return cls

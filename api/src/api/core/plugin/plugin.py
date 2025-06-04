@@ -56,7 +56,7 @@ class PluginMetadata(BaseModel):
 class Plugin(ABC):
     metadata: PluginMetadata
     settings: Settings = Settings()
-    _module: str = "core"
+    _module_name: str = "core"
 
     @abstractmethod
     def load(self):

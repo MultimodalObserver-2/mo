@@ -87,6 +87,7 @@ class PluginWorkerProcess(Process):
                     self.process_metadata.check_types.remove(plugin_type)
             load_status["is_loaded"] = True
             load_status["plugin_types"] = self.process_metadata.check_types
+            load_status["module_name"] = self.plugin_class._module_name
             self.process_metadata.status_queue.put(load_status)
         except Exception as e:
             load_status = {

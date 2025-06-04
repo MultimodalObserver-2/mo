@@ -24,6 +24,7 @@ class CaptureData:
         self.data = data
 
 class CapturePlugin(Plugin):
+    _module_name: str = "capture"
     @abstractmethod
     def prepare(self, path: str, file_name: str) -> None:
         pass
