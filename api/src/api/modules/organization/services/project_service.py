@@ -11,11 +11,11 @@ from api.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
                                                      PROJECT_DOES_NOT_EXIST,
                                                      PROJECT_IS_LOCKED,
                                                      PROJECT_NAME_NOT_ALLOWED)
-from api.modules.organization.schemas.project import (ProjectPostReq,
+from api.modules.organization.schemas.project import (ProjectData, ProjectPostReq,
                                                       ProjectPutReq,
                                                       ProjectRes)
 from api.modules.organization.services.paths import (
-    PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME)
+    PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME, RELATIVE_PROJECTS_PATH)
 
 
 class ProjectService:
@@ -33,7 +33,7 @@ class ProjectService:
         self._data_file_name = PROJECTS_DATA_FILE_NAME
         self._participants_data_file_name = PARTICIPANTS_DATA_FILE_NAME
 
-        self.relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
+        self.relative_projects_path = RELATIVE_PROJECTS_PATH
 
         self.file_management = FileManagement(rel_path=self.relative_projects_path, make_dirs=True)
         self.projects_storage = JsonStorage(
@@ -62,19 +62,20 @@ class ProjectService:
 
         dir_path = self.file_management.create_directory(project.name)
 
-        project_data = {
-            "name": project.name,
-            "description": project.description,
-            "locked": False,
-            "location": dir_path,
-            "created_at": datetime.now(),
-            "updated_at": datetime.now(),
-        }
 
-        self.projects_storage.insert_one(project_data)
+        project_data = ProjectData(
+            name=project.name,
+            description=project.description or "",
+            rel_location=project.name,
+            locked=False,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
+
+        self.projects_storage.insert_one(project_data.model_dump())
         JsonStorage.create_storage(file_name=self._participants_data_file_name, base_path=dir_path)
 
-        return ProjectRes(**project_data)
+        return ProjectRes.from_data(project_data)
 
     def get_all_projects(self) -> list[ProjectRes]:
         """Retrieves all projects.
@@ -83,7 +84,7 @@ class ProjectService:
             list[ProjectRes]: A list of all existing projects.
         """
         projects = self.projects_storage.find_all()
-        return [ProjectRes(**project) for project in projects]
+        return [ProjectRes.from_data(ProjectData(**project)) for project in projects]
 
     def update_project(self, project_name: str, project: ProjectPutReq) -> ProjectRes:
         """Updates the details of an existing project.
@@ -100,34 +101,35 @@ class ProjectService:
             BadRequestException: If the project is locked or if the new name is invalid.
             AlreadyExistsException: If a project with the new name already exists.
         """
-        new_project = self.projects_storage.find_one({"name": project_name})
-        if new_project is None:
+        existing_project_dict = self.projects_storage.find_one({"name": project_name})
+        if existing_project_dict is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         if self.is_project_locked(project_name):
             raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
 
         project.name = project.name.strip() if project.name else project_name
-        new_project["name"] = project.name if project.name else new_project["name"]
-        new_project["description"] = (
-            project.description if project.description else new_project["description"]
+        existing_project = ProjectData(**existing_project_dict)
+        existing_project.name= project.name if project.name else existing_project.name
+        existing_project.description = (
+            project.description if project.description else existing_project.description
         )
-        new_project["updated_at"] = datetime.now()
+        existing_project.updated_at = datetime.now()
 
-        if project.name != None and new_project["name"] != project_name:
+        if project.name != None and existing_project.name != project_name:
             if not FileValidators.is_valid_directory_name(project.name):
                 raise BadRequestException(PROJECT_NAME_NOT_ALLOWED.format(name=project.name))
 
             if self.exists(project.name):
                 raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
-            new_location = self.file_management.rename_directory(
+            self.file_management.rename_directory(
                 old_name=project_name, new_name=project.name
             )
-            new_project["location"] = new_location
+            existing_project.rel_location = project.name
 
-        self.projects_storage.update({"name": project_name}, new_project)
-        return ProjectRes(**new_project)
+        self.projects_storage.update({"name": project_name}, existing_project.model_dump())
+        return ProjectRes.from_data(existing_project)
 
     def get_project(self, project_name: str) -> ProjectRes:
         """Retrieves a project by its name.
@@ -144,7 +146,7 @@ class ProjectService:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
-        return ProjectRes(**project)
+        return ProjectRes.from_data(ProjectData(**project))
 
     def delete_project(self, project_name: str) -> None:
         """Deletes a project by its name.
@@ -252,3 +254,14 @@ class ProjectService:
             str: Full directory path for the project.
         """
         return f"{self._data_path}/{self._projects_dir_name}/{project_name}"
+
+    def get_rel_project_location(self, project_name: str) -> str:
+        """Generates the relative location for a given project.
+
+        Args:
+            project_name (str): Name of the project.
+
+        Returns:
+            str: Relative location for the project.
+        """
+        return project_name

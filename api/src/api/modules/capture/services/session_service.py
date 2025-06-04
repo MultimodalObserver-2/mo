@@ -9,16 +9,17 @@ from api.core.utils.http_exceptions import BadRequestException, NotFoundExceptio
 from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionRes
 from api.modules.capture.services import paths
 from api.modules.organization.services.participant_service import ParticipantService
+from api.modules.organization.services.paths import RELATIVE_PROJECTS_PATH
 from api.modules.organization.services.project_service import ProjectService
 
 
 class SessionService:
     def __init__(self):
-        self.file_management = FileManagement()
         self.project_service = ProjectService()
         self.participant_service = ParticipantService()
         self.plugin_service = PluginService()
         self.sessions_file_name = paths.CAPTURE_SESSIONS_FILE
+        self.file_management = FileManagement(rel_path=RELATIVE_PROJECTS_PATH, make_dirs=False)
 
     def _get_session_dir_name(self, datetime_now: Optional[datetime] = None) -> str:
         if datetime_now is None:
@@ -31,15 +32,15 @@ class SessionService:
             project_name, participant_code)
         return JsonStorage(file_name=self.sessions_file_name, rel_path=participant.location)
 
-    def create_session(self, project_name: str, participant_code: str, session: SessionPost) -> SessionData:
+    def create_session(self, project_name: str, participant_code: str, session: SessionPost) -> SessionRes:
         participant = self.participant_service.get_participant(
             project_name, participant_code)
         session_dir_name = self._get_session_dir_name(session.started_at)
-        session_path = self.file_management.create_directory(session_dir_name, participant.location)
+        self.file_management.create_directory(session_dir_name, participant.location)
 
         session_data = SessionData(
             session_id=session_dir_name,
-            location=session_path,
+            rel_location=session_dir_name,
             start_timestamp=session.start_timestamp,
             started_at=session.started_at,
             capture_sources=[
@@ -49,7 +50,8 @@ class SessionService:
                     plugin_name=source.plugin_name,
                     plugin_version=source.plugin_version,
                     settings=source.settings,
-                    location=os.path.join(session_path, source.file_name),
+                    rel_location=os.path.join(
+                        session_dir_name, source.file_name),
                     file_extension=source.file_extension,
                 ) for source in session.capture_sources
             ]
@@ -57,7 +59,11 @@ class SessionService:
         session_storage = self._get_session_storage(project_name, participant_code)
         session_storage.insert_one(session_data.model_dump())
 
-        return session_data
+        return SessionRes.from_session_data(
+            session_data,
+            self.project_service.get_rel_project_location(project_name),
+            self.participant_service._get_participant_dir_name(participant_code)
+        )
     
     def add_end_timestamp(
         self, project_name: str, participant_code: str, session_id: str, end_timestamp: float
@@ -120,16 +126,11 @@ class SessionService:
         sessions = []
         for session_data_dict in session_data_list:
             session_data = SessionData(**session_data_dict)
-            session_res = SessionRes(
-                session_id=session_data.session_id,
-                location=session_data.location,
-                start_timestamp=session_data.start_timestamp,
-                end_timestamp=session_data.end_timestamp,
-                started_at=session_data.started_at,
-                capture_sources=[]
+            session_res = SessionRes.from_session_data(
+                session_data,
+                self.project_service.get_rel_project_location(project_name),
+                self.participant_service._get_participant_dir_name(participant_code)
             )
-            for source in session_data.capture_sources:
-                session_res.capture_sources.append(CaptureSettingDetailsRes.from_capture_source_setting(source))
             sessions.append(session_res)
         return sessions
 
@@ -137,26 +138,20 @@ class SessionService:
         self, project_name: str, participant_code: str, session_id: str
     ) -> SessionRes:
         session_data = self._get_session_data(project_name, participant_code, session_id)
-        session_res = SessionRes(
-            session_id=session_data.session_id,
-            location=session_data.location,
-            start_timestamp=session_data.start_timestamp,
-            end_timestamp=session_data.end_timestamp,
-            started_at=session_data.started_at,
-            capture_sources=[]
+        session_res = SessionRes.from_session_data(
+            session_data,
+            self.project_service.get_rel_project_location(project_name),
+            self.participant_service._get_participant_dir_name(participant_code)
         )
-        for source in session_data.capture_sources:
-            session_res.capture_sources.append(
-                CaptureSettingDetailsRes.from_capture_source_setting(source))
         return session_res
     
     def delete_session(
         self, project_name: str, participant_code: str, session_id: str
     ) -> None:
-        session_data = self._get_session_data(project_name, participant_code, session_id)
+        session = self.get_session(project_name, participant_code, session_id)
         if self.participant_service.is_participant_locked(project_name, participant_code):
             raise BadRequestException("Cannot delete session, participant is locked.")
-        self.file_management.send_to_trash(session_data.location)
+        self.file_management.send_to_trash(session.location)
         session_storage = self._get_session_storage(
             project_name, participant_code)
         session_storage.delete_one({"session_id": session_id})

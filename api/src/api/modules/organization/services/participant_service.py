@@ -11,11 +11,11 @@ from api.modules.organization.errors.participant import (
     PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
     PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)
 from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.schemas.participant import (ParticipantPostReq,
+from api.modules.organization.schemas.participant import (ParticipantData, ParticipantPostReq,
                                                           ParticipantPutReq,
                                                           ParticipantRes)
 from api.modules.organization.services.paths import (
-    PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME)
+    PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME, RELATIVE_PROJECTS_PATH)
 from api.modules.organization.services.project_service import ProjectService
 
 
@@ -33,10 +33,9 @@ class ParticipantService:
         self._projects_storage_name = PROJECTS_DATA_FILE_NAME
         self._participants_storage_name = PARTICIPANTS_DATA_FILE_NAME
 
-        relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
-
         self.project_service = ProjectService()
-        self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
+        self.file_management = FileManagement(
+            rel_path=RELATIVE_PROJECTS_PATH, make_dirs=False)
 
     def _get_participants_storage(self, project_name: str):
         """Retrieves the JSON storage handler for participants of a specific project.
@@ -80,30 +79,35 @@ class ParticipantService:
         participant.code = participant.code.strip()
         if self.exists(project_name, participant.code):
             raise AlreadyExistsException(
-                PARTICIPANT_ALREADY_EXISTS.format(code=participant.code, project_name=project_name)
+                PARTICIPANT_ALREADY_EXISTS.format(
+                    code=participant.code, project_name=project_name)
             )
 
         if not FileValidators.is_valid_directory_name(participant.code):
-            raise BadRequestException(PARTICIPANT_CODE_NOT_ALLOWED.format(code=participant.code))
+            raise BadRequestException(
+                PARTICIPANT_CODE_NOT_ALLOWED.format(code=participant.code))
 
-        dir_path = self.file_management.create_directory(
-            self._get_participant_dir_name(participant.code), rel_path=project_name
+        dir_name = self._get_participant_dir_name(participant.code)
+        self.file_management.create_directory(
+            dir_name, rel_path=project_name
         )
 
-        participant_data = {
-            "code": participant.code,
-            "name": participant.name,
-            "notes": participant.notes,
-            "location": dir_path,
-            "locked": False,
-            "created_at": datetime.now(),
-            "updated_at": datetime.now(),
-        }
+        participant_data = ParticipantData(
+            code=participant.code,
+            name=participant.name.strip(),
+            notes=participant.notes or [],
+            rel_location=dir_name,
+            locked=False,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
 
         participants_storage = self._get_participants_storage(project_name)
-        participants_storage.insert_one(participant_data)
-
-        return ParticipantRes(**participant_data)
+        participants_storage.insert_one(participant_data.model_dump())
+        project_rel_location = self.project_service.get_rel_project_location(
+            project_name)
+        return ParticipantRes.from_data(
+            participant_data, project_rel_location=project_rel_location)
 
     def get_all_participants(self, project_name: str) -> list[ParticipantRes]:
         """Retrieves all participants from a project.
@@ -118,11 +122,14 @@ class ParticipantService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participants = participants_storage.find_all()
-        return [ParticipantRes(**participant) for participant in participants]
+        project_rel_location = self.project_service.get_rel_project_location(
+            project_name)
+        return [ParticipantRes.from_data(ParticipantData(**participant), project_rel_location) for participant in participants]
 
     def get_participant(self, project_name: str, participant_code: str) -> ParticipantRes:
         """Retrieves a participant by their code from a project.
@@ -138,16 +145,46 @@ class ParticipantService:
             NotFoundException: If the project or participant does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participant = participants_storage.find_one({"code": participant_code})
         if not participant:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST.format(
+                    code=participant_code, project_name=project_name)
             )
+        project_rel_location = self.project_service.get_rel_project_location(
+            project_name)
+        return ParticipantRes.from_data(ParticipantData(**participant), project_rel_location)
+    
+    def get_participant_data(
+        self, project_name: str, participant_code: str
+    ) -> ParticipantData:
+        """Retrieves participant data from the storage.
 
-        return ParticipantRes(**participant)
+        Args:
+            project_name (str): Name of the project.
+            participant_code (str): Code of the participant.
+
+        Returns:
+            ParticipantData: The participant data.
+
+        Raises:
+            NotFoundException: If the participant does not exist.
+        """
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+        participants_storage = self._get_participants_storage(project_name)
+        participant_data = participants_storage.find_one({"code": participant_code})
+        if not participant_data:
+            raise NotFoundException(
+                PARTICIPANT_DOES_NOT_EXIST.format(
+                    code=participant_code, project_name=project_name)
+            )
+        return ParticipantData(**participant_data)
 
     def update_participant(
         self, project_name: str, participant_code: str, participant: ParticipantPutReq
@@ -166,21 +203,24 @@ class ParticipantService:
             BadRequestException: If the participant is locked or the new code is invalid.
             AlreadyExistsException: If a participant with the new code already exists.
         """
-        new_participant = self.get_participant(project_name, participant_code)
+        existing_participant = self.get_participant_data(
+            project_name, participant_code)
         if self.is_participant_locked(project_name, participant_code):
             raise BadRequestException(
-                PARTICIPANT_IS_LOCKED.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_IS_LOCKED.format(
+                    code=participant_code, project_name=project_name)
             )
 
-        participant.code = participant.code.strip() if participant.code else participant_code
-        new_participant.code = participant.code if participant.code else new_participant.code
-        new_participant.name = participant.name if participant.name else new_participant.name
-        new_participant.notes = (
-            participant.notes if (participant.notes is not None) else new_participant.notes
+        participant.code = participant.code.strip(
+        ) if participant.code else participant_code
+        existing_participant.code = participant.code if participant.code else existing_participant.code
+        existing_participant.name = participant.name if participant.name else existing_participant.name
+        existing_participant.notes = (
+            participant.notes if (
+                participant.notes is not None) else existing_participant.notes
         )
-        new_participant.updated_at = datetime.now()
-
-        if participant.code != None and new_participant.code != participant_code:
+        existing_participant.updated_at = datetime.now()
+        if participant.code != None and existing_participant.code != participant_code:
             if not FileValidators.is_valid_directory_name(participant.code):
                 raise BadRequestException(
                     PARTICIPANT_CODE_NOT_ALLOWED.format(code=participant.code)
@@ -195,14 +235,16 @@ class ParticipantService:
 
             old_name = self._get_participant_dir_name(participant_code)
             new_name = self._get_participant_dir_name(participant.code)
-            new_location = self.file_management.rename_directory(
+            self.file_management.rename_directory(
                 old_name=old_name, new_name=new_name, rel_path=project_name
             )
-            new_participant.location = new_location
+            existing_participant.rel_location = new_name
 
         participants_storage = self._get_participants_storage(project_name)
-        participants_storage.update({"code": participant_code}, new_participant.model_dump())
-        return new_participant
+        participants_storage.update(
+            {"code": participant_code}, existing_participant.model_dump())
+        project_rel_location = self.project_service.get_rel_project_location(project_name)
+        return ParticipantRes.from_data(existing_participant, project_rel_location)
 
     def delete_participant(self, project_name: str, participant_code) -> None:
         """Deletes a participant from a project.
@@ -217,12 +259,14 @@ class ParticipantService:
         """
         if not self.exists(project_name, participant_code):
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST.format(
+                    code=participant_code, project_name=project_name)
             )
 
         if self.is_participant_locked(project_name, participant_code):
             raise BadRequestException(
-                PARTICIPANT_IS_LOCKED.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_IS_LOCKED.format(
+                    code=participant_code, project_name=project_name)
             )
 
         dir_name = self._get_participant_dir_name(participant_code)
@@ -280,12 +324,14 @@ class ParticipantService:
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST.format(
+                    code=participant_code, project_name=project_name)
             )
 
         participant.locked = locked
         participants_storage = self._get_participants_storage(project_name)
-        participants_storage.update({"code": participant_code}, participant.model_dump())
+        participants_storage.update(
+            {"code": participant_code}, participant.model_dump())
         return participant
 
     def is_participant_locked(self, project_name: str, participant_code: str) -> bool:
@@ -304,7 +350,8 @@ class ParticipantService:
         participant = self.get_participant(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST.format(
+                    code=participant_code, project_name=project_name)
             )
 
         return participant.locked
@@ -323,7 +370,8 @@ class ParticipantService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         return participants_storage.exists({"code": participant_code})

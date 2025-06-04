@@ -1,6 +1,8 @@
 from datetime import datetime
+import os
 from typing import Any
 from pydantic import BaseModel
+from api.modules.organization.services.paths import PROJECTS_PATH
 
 
 # Stored schemas
@@ -12,11 +14,11 @@ class CaptureSettingDetails(BaseModel):
     settings: dict[str, Any]
     start_timestamp: float | None = None
     file_extension: str
-    location: str
+    rel_location: str
 
 class SessionData(BaseModel):
     session_id: str
-    location: str
+    rel_location: str
     start_timestamp: float
     end_timestamp: float | None = None
     started_at: datetime
@@ -50,7 +52,9 @@ class CaptureSettingDetailsRes(BaseModel):
 
     @staticmethod
     def from_capture_source_setting(
-        capture_source_setting: CaptureSettingDetails
+        capture_source_setting: CaptureSettingDetails,
+        project_rel_location: str,
+        participant_rel_location: str
     ):
         return CaptureSettingDetailsRes(
             setting_name=capture_source_setting.setting_name,
@@ -60,7 +64,8 @@ class CaptureSettingDetailsRes(BaseModel):
             settings=capture_source_setting.settings,
             start_timestamp=capture_source_setting.start_timestamp,
             file_extension=capture_source_setting.file_extension,
-            location=capture_source_setting.location
+            location=os.path.join(
+                PROJECTS_PATH, project_rel_location, participant_rel_location, capture_source_setting.rel_location)
         )
 
 class SessionRes(BaseModel):
@@ -70,3 +75,23 @@ class SessionRes(BaseModel):
     end_timestamp: float | None = None
     started_at: datetime
     capture_sources: list[CaptureSettingDetailsRes] = []
+
+    @staticmethod
+    def from_session_data(
+        session_data: SessionData,
+        project_rel_location: str,
+        participant_rel_location: str
+    ) -> "SessionRes":
+        return SessionRes(
+            session_id=session_data.session_id,
+            location=os.path.join(
+                PROJECTS_PATH, project_rel_location, participant_rel_location, session_data.rel_location),
+            start_timestamp=session_data.start_timestamp,
+            end_timestamp=session_data.end_timestamp,
+            started_at=session_data.started_at,
+            capture_sources=[
+                CaptureSettingDetailsRes.from_capture_source_setting(
+                    source, project_rel_location, participant_rel_location
+                ) for source in session_data.capture_sources
+            ]
+        )

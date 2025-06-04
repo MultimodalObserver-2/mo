@@ -14,7 +14,7 @@ from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
 from api.modules.capture.schemas.capture import CaptureStatusResponse
-from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionData
+from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionRes
 from api.modules.capture.services.session_service import SessionService
 from api.modules.capture.services.setting_service import CaptureSettingService
 from pydantic import BaseModel
@@ -90,7 +90,7 @@ class CaptureService:
         self.processes_instances = {}  # type: dict[str, list[str]]
         self.project_name = None # type: str | None
         self.participant_code = None # type: str | None
-        self.session = None  # type: SessionData | None
+        self.session = None  # type: SessionRes | None
 
     def _format_data_file_name(self, file_name: str) -> str:
         file_name = file_name.lower()
@@ -157,7 +157,7 @@ class CaptureService:
             daemon=True
         ).start()
 
-    def get_captured_data(self, data_queue: multiprocessing.Queue, session: SessionData) -> None:
+    def get_captured_data(self, data_queue: multiprocessing.Queue, session: SessionRes) -> None:
         first_timestamp = {}  # type: dict[str, float]
         while self.started:
             try:
