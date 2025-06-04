@@ -1,4 +1,5 @@
 from datetime import datetime
+import os
 
 from api.core.config.constants import RELATIVE_APP_DATA_PATH
 from api.core.file_management.file_management import FileManagement
@@ -270,7 +271,8 @@ class ParticipantService:
             )
 
         dir_name = self._get_participant_dir_name(participant_code)
-        self.file_management.delete_directory(dir_name, rel_path=project_name)
+        rel_path = os.path.join(project_name, dir_name)
+        self.file_management.send_to_trash(rel_path)
 
         participants_storage = self._get_participants_storage(project_name)
         participants_storage.delete_one({"code": participant_code})

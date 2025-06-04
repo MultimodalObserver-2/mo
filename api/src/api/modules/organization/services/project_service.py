@@ -164,7 +164,7 @@ class ProjectService:
         if self.is_project_locked(project_name):
             raise BadRequestException(PROJECT_IS_LOCKED.format(name=project_name))
 
-        self.file_management.delete_directory(project_name)
+        self.file_management.send_to_trash(project_name)
         self.projects_storage.delete_one({"name": project_name})
 
     def lock_project(self, project_name: str) -> ProjectRes:
