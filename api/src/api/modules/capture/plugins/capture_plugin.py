@@ -46,5 +46,9 @@ class CapturePlugin(Plugin):
         pass
 
     @abstractmethod
+    def save(self, data: list[CaptureData], end_of_data: bool = False) -> None:
+        pass
+
+    @abstractmethod
     def get_file_extension(self) -> str:
         pass

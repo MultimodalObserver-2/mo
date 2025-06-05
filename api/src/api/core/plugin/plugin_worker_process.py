@@ -5,6 +5,7 @@ from multiprocessing import Pipe, Process, Queue
 from multiprocessing.connection import PipeConnection
 import os
 import sys
+import threading
 import time
 from typing import Any, Callable, Optional
 
@@ -29,6 +30,7 @@ class PluginProcessMetadata:
         self.status_queue = status_queue
         self.check_types = check_types
 
+execute_callback = Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any]
 
 class PluginWorkerProcess(Process):
     plugin_dir_path: str
@@ -96,14 +98,14 @@ class PluginWorkerProcess(Process):
             }
             self.process_metadata.status_queue.put(load_status)
             return
-
+        
         start_time = None
         if self.timeout is not None:
             start_time = time.time()
         while self.keep_running:
             if start_time is not None and self.timeout is not None and (time.time() - start_time > self.timeout):
                 break
-            if self._child_conn.poll(0.05):
+            if self._child_conn.poll(0.01):
                 command, *args = self._child_conn.recv()
                 if command == "get_properties":
                     settings = args[0] if args else None
@@ -145,11 +147,13 @@ class PluginWorkerProcess(Process):
                     if self.load_main_instance:
                         instance.unload()
                     self._child_conn.send({"is_ok": True})
+                    break
                 start_time = time.time() if self.timeout is not None else None
         if self.load_main_instance:
             instance.unload()
-    
-    def stop(self) -> None:
+        self._child_conn.close()
+
+    def stop(self, timeout: Optional[float] = None, force: bool = False) -> None:
         if not self.is_alive():
             return
         self._parent_conn.send(("stop",))
@@ -157,7 +161,11 @@ class PluginWorkerProcess(Process):
         if not res.get("is_ok", False):
             error = res.get("error", "Unknown error")
             raise Exception(error)
-        self.join()
+        self._parent_conn.close()
+        self.join(timeout)
+        if force and self.is_alive():
+            self.terminate()
+            self.join()
 
     def validate_properties(self, settings: Optional[Settings]) -> None:
         if not self.is_alive():
@@ -192,16 +200,16 @@ class PluginWorkerProcess(Process):
             raise Exception(error)
         self.plugins_instances_ids.append(instance_id)
 
-    def _execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> Any:
+    def _execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
         if not self.is_alive():
             return None
         if instance_id not in self.plugins_instances:
             raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
         
         plugin_instance = self.plugins_instances[instance_id]
-        return callback(plugin_instance, args, self.processes_queue)
+        return callback(plugin_instance, args, self.processes_queue, self.process_metadata)
     
-    def execute_callback_on_all_instances(self, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> list[Any]:
+    def execute_callback_on_all_instances(self, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> list[Any]:
         if not self.is_alive():
             return []
         results = []
@@ -210,7 +218,7 @@ class PluginWorkerProcess(Process):
             results.append(result)
         return results
 
-    def execute_callback_on_instance(self, instance_id: str, callback: Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue]], Any], args: Optional[dict[str, Any]] = None) -> Any:
+    def execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
         if not self.is_alive():
             return None
         self._parent_conn.send(
