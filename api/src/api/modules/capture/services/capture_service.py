@@ -64,19 +64,22 @@ def start_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], proce
     thread.start()
 
 
-def stop_callback(instance: Plugin, *_):
-    if isinstance(instance, CapturePlugin):
-        instance.stop()
+def stop_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
+    if isinstance(instance, CapturePlugin) and extra_args is not None:
+        stop_ts = extra_args.get("stop_ts", time.monotonic())
+        instance.stop(stop_ts)
 
 
-def pause_callback(instance: Plugin, *_):
-    if isinstance(instance, CapturePlugin):
-        instance.pause()
+def pause_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
+    if isinstance(instance, CapturePlugin) and extra_args is not None:
+        pause_ts = extra_args.get("pause_ts", time.monotonic())
+        instance.pause(pause_ts)
 
 
-def resume_callback(instance: Plugin, *_):
-    if isinstance(instance, CapturePlugin):
-        instance.resume()
+def resume_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
+    if isinstance(instance, CapturePlugin) and extra_args is not None:
+        resume_ts = extra_args.get("resume_ts", time.monotonic())
+        instance.resume(resume_ts)
 
 
 def get_file_extension_callback(instance: Plugin, *_):
@@ -107,6 +110,8 @@ class CaptureService:
         self.participant_code = None  # type: str | None
         self.session = None  # type: SessionRes | None
         self.start_ts = 0.0
+        self.stop_ts = None # type: float | None
+        self.paused_intervals = []  # type: list[tuple[float, float | None]]
         self.paused_ts = 0.0
         self.paused_time = 0.0
         self.processes_queue = None  # type: multiprocessing.Queue | None
@@ -255,6 +260,14 @@ class CaptureService:
                 print(f"Error flushing captured data: {e}")
                 all_exceptions.append(e)
         return all_exceptions
+    
+    def is_on_time(self, timestamp: float) -> bool:
+        for self.paused_start, self.paused_end in self.paused_intervals:
+            if timestamp >= self.paused_start and (self.paused_end is None or timestamp <= self.paused_end):
+                return False
+        if self.stop_ts is not None and timestamp > self.stop_ts:
+            return False
+        return True
 
     def flush_captured_data(self, end_of_data: bool = False) -> dict[tuple[str, str], Exception]:
         exceptions = {}
@@ -267,8 +280,14 @@ class CaptureService:
                     continue
 
                 with self.execute_lock:
+                    data = buffer.get_all_and_clear()
+                    for idx, capture_data in enumerate(data):
+                        if not self.is_on_time(capture_data.timestamp):
+                            data.pop(idx)
+                    if len(data) == 0 and not end_of_data:
+                        continue
                     extra_args = {
-                        "data": buffer.get_all_and_clear(),
+                        "data": data,
                         "end_of_data": end_of_data
                     }
                     process.execute_callback_on_instance(
@@ -277,7 +296,6 @@ class CaptureService:
                 exceptions[(plugin_id, setting_name)] = e
                 print(
                     f"Error flushing data for {plugin_id} - {setting_name}: {e}")
-
         return exceptions
 
     def move_queue_to_buffer(self):
@@ -307,10 +325,14 @@ class CaptureService:
         self.started = False
         self.paused = False
         stop_ts = time.monotonic()
+        self.stop_ts = stop_ts
         stop_datetime = datetime.now()
+        args = {
+            "stop_ts": stop_ts,
+        }
         for key, process in self.running_processes.items():
             try:
-                process.execute_callback_on_all_instances(stop_callback)
+                process.execute_callback_on_all_instances(stop_callback, args)
             except Exception as e:
                 exceptions[key] = e
         if self.session and self.project_name and self.participant_code:
@@ -321,6 +343,7 @@ class CaptureService:
             self.session.paused_time = self.paused_time
             session_put = SessionPut.from_session_res(self.session)
             session_put.capture_sources = []
+            session_put.paused_intervals = self.paused_intervals
             self.session_service.update_session(
                 self.project_name, self.participant_code, self.session.session_id, session_put)
         if self.get_captured_data_thread is not None:
@@ -342,6 +365,11 @@ class CaptureService:
         self.processes_instances = {}
         self.processes_queue = None
         self.session = None
+        self.start_ts = 0.0
+        self.stop_ts = None
+        self.paused_ts = 0.0
+        self.paused_time = 0.0
+        self.buffer.clear()
         if len(exceptions) > 0 or len(flush_exceptions) > 0:
             raise BadRequestException(
                 "Failed to stop safely some processes, some data may be lost.")
@@ -351,26 +379,38 @@ class CaptureService:
             raise BadRequestException(
                 "Capture is not started or already paused.")
         self.paused_ts = time.monotonic()
-        try:
-            with self.execute_lock:
-                for process in self.running_processes.values():
-                    process.execute_callback_on_all_instances(pause_callback)
-        except Exception as e:
-            print(f"Error pausing capture: {e}")
-            raise BadRequestException("Failed to pause capture.")
+        self.paused_intervals.append(
+            (self.paused_ts, None))  # None indicates not resumed yet
+        args = {
+            "pause_ts": self.paused_ts,
+        }
+        with self.execute_lock:
+            for process in self.running_processes.values():
+                try:
+                    process.execute_callback_on_all_instances(
+                        pause_callback, args, need_response=False)
+                except Exception as e:
+                    print(f"Error pausing process: {e}")
+
         self.paused = True
 
     def resume_capture(self):
         if not self.started or not self.paused:
             raise BadRequestException("Capture is not started or not paused.")
         resume_ts = time.monotonic()
-        try:
-            with self.execute_lock:
-                for process in self.running_processes.values():
-                    process.execute_callback_on_all_instances(resume_callback)
-        except Exception as e:
-            print(f"Error resuming capture: {e}")
-            raise BadRequestException("Failed to resume capture.")
+        self.paused_intervals[-1] = (
+            self.paused_intervals[-1][0], resume_ts)  # Update the last pause interval
+        args = {
+            "resume_ts": resume_ts,
+        }
+        with self.execute_lock:
+            for process in self.running_processes.values():
+                try:
+                    process.execute_callback_on_all_instances(
+                            resume_callback, args, need_response=False)
+                except Exception as e:
+                    print(f"Error resuming process: {e}")
+
         self.paused_time += resume_ts - self.paused_ts
         self.paused_ts = 0.0
         self.paused = False

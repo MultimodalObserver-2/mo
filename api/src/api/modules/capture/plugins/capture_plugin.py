@@ -34,15 +34,15 @@ class CapturePlugin(Plugin):
         pass
 
     @abstractmethod
-    def pause(self) -> None:
+    def pause(self, pause_ts: float) -> None:
         pass
 
     @abstractmethod
-    def resume(self) -> None:
+    def resume(self, resume_ts: float) -> None:
         pass
 
     @abstractmethod
-    def stop(self) -> None:
+    def stop(self, stop_ts: float) -> None:
         pass
 
     @abstractmethod

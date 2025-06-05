@@ -26,6 +26,7 @@ class SessionData(BaseModel):
     started_at: datetime
     ended_at: datetime | None = None
     duration: float | None = None
+    paused_intervals: list[tuple[float, float | None]] = []
     capture_sources: list[CaptureSettingDetails] = []
 
 
@@ -68,6 +69,7 @@ class SessionRes(BaseModel):
     duration: float | None = None
     started_at: datetime
     ended_at: datetime | None = None
+    paused_intervals: list[tuple[float, float | None]] = []
     capture_sources: list[CaptureSettingDetailsRes] = []
 
     @staticmethod
@@ -86,6 +88,7 @@ class SessionRes(BaseModel):
             duration=session_data.duration,
             started_at=session_data.started_at,
             ended_at=session_data.ended_at,
+            paused_intervals=session_data.paused_intervals,
             capture_sources=[
                 CaptureSettingDetailsRes.from_capture_source_setting(
                     source, project_rel_location, participant_rel_location
@@ -124,6 +127,7 @@ class SessionPut(BaseModel):
     started_at: Optional[datetime] = None
     ended_at: Optional[datetime] = None
     duration: Optional[float] = None
+    paused_intervals: list[tuple[float, float | None]] = []
     capture_sources: list[CaptureSettingDetailsPut] = []
 
     @staticmethod
@@ -135,6 +139,7 @@ class SessionPut(BaseModel):
             started_at=session_res.started_at,
             ended_at=session_res.ended_at,
             duration=session_res.duration,
+            paused_intervals=session_res.paused_intervals,
             capture_sources=[
                 CaptureSettingDetailsPut(
                     setting_name=source.setting_name,
