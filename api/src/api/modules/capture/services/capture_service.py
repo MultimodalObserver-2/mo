@@ -16,7 +16,7 @@ from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
 from api.modules.capture.schemas.capture import CaptureStatusResponse
-from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionRes
+from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionPut, SessionRes
 from api.modules.capture.services.session_service import SessionService
 from api.modules.capture.services.setting_service import CaptureSettingService
 import psutil
@@ -106,7 +106,9 @@ class CaptureService:
         self.project_name = None  # type: str | None
         self.participant_code = None  # type: str | None
         self.session = None  # type: SessionRes | None
-        self.duration = 0.0
+        self.start_ts = 0.0
+        self.paused_ts = 0.0
+        self.paused_time = 0.0
         self.processes_queue = None  # type: multiprocessing.Queue | None
         self.get_captured_data_thread = None  # type: threading.Thread | None
         self.flush_captured_data_thread = None  # type: threading.Thread | None
@@ -149,12 +151,12 @@ class CaptureService:
             raise BadRequestException("Capture is already started.")
         self.processes_queue = self.load_processes(
             project_name)
-        start_ts = time.monotonic()
+        self.start_ts = time.monotonic()
         self.project_name = project_name
         self.participant_code = participant_code
         self.session = self.session_service.create_session(
             project_name, participant_code, SessionPost(
-                start_timestamp=start_ts,
+                start_timestamp=self.start_ts,
                 started_at=datetime.now(),
                 capture_sources=self._get_capture_settings_data(project_name)
             )
@@ -164,7 +166,7 @@ class CaptureService:
             for setting_name in self.processes_instances[key]:
                 extra_args = {
                     "setting_name": setting_name,
-                    "start_ts": start_ts,
+                    "start_ts": self.start_ts,
                 }
                 try:
                     process.execute_callback_on_instance(
@@ -305,14 +307,22 @@ class CaptureService:
         self.started = False
         self.paused = False
         stop_ts = time.monotonic()
+        stop_datetime = datetime.now()
         for key, process in self.running_processes.items():
             try:
                 process.execute_callback_on_all_instances(stop_callback)
             except Exception as e:
                 exceptions[key] = e
-        if self.session:
-            self.session_service.add_end_timestamp(
-                self.project_name or "", self.participant_code or "", self.session.session_id, stop_ts)
+        if self.session and self.project_name and self.participant_code:
+            duration = stop_ts - self.start_ts - self.paused_time
+            self.session.duration = duration
+            self.session.end_timestamp = stop_ts
+            self.session.ended_at = stop_datetime
+            self.session.paused_time = self.paused_time
+            session_put = SessionPut.from_session_res(self.session)
+            session_put.capture_sources = []
+            self.session_service.update_session(
+                self.project_name, self.participant_code, self.session.session_id, session_put)
         if self.get_captured_data_thread is not None:
             self.get_captured_data_thread.join(timeout=5)
             self.get_captured_data_thread = None
@@ -331,6 +341,7 @@ class CaptureService:
         self.running_processes = {}
         self.processes_instances = {}
         self.processes_queue = None
+        self.session = None
         if len(exceptions) > 0 or len(flush_exceptions) > 0:
             raise BadRequestException(
                 "Failed to stop safely some processes, some data may be lost.")
@@ -339,6 +350,7 @@ class CaptureService:
         if not self.started or self.paused:
             raise BadRequestException(
                 "Capture is not started or already paused.")
+        self.paused_ts = time.monotonic()
         try:
             with self.execute_lock:
                 for process in self.running_processes.values():
@@ -351,6 +363,7 @@ class CaptureService:
     def resume_capture(self):
         if not self.started or not self.paused:
             raise BadRequestException("Capture is not started or not paused.")
+        resume_ts = time.monotonic()
         try:
             with self.execute_lock:
                 for process in self.running_processes.values():
@@ -358,6 +371,8 @@ class CaptureService:
         except Exception as e:
             print(f"Error resuming capture: {e}")
             raise BadRequestException("Failed to resume capture.")
+        self.paused_time += resume_ts - self.paused_ts
+        self.paused_ts = 0.0
         self.paused = False
 
     def get_capture_plugin_file_name(self, plugin_id: str, setting_name: str) -> str:

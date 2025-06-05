@@ -1,3 +1,9 @@
+.session-section {
+  display: flex;
+  width: 100%;
+  gap: 22px;
+}
+
 .settings-section {
   display: flex;
   flex-direction: column;

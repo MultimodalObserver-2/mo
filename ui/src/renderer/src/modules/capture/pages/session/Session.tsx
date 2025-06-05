@@ -12,7 +12,7 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
 import { CaptureSession } from "../../types/Session"
-import { formatDatetime } from "../../utils/helpers"
+import { formatDatetime, formatDuration } from "../../utils/helpers"
 import { ElementList, ElementListItem, PanelElement } from "@renderer/core/components/panel"
 
 export default function SessionPage() {
@@ -61,8 +61,22 @@ export default function SessionPage() {
       <ModalBody id="modal-body">
         <DisplayData name="Session ID" value={session.session_id} />
         <DisplayPath name="Path" value={session.location} path_type="path" />
-        <section>
+        <section className={styles["session-section"]}>
           <DisplayData name="Started at" value={formatDatetime(session.started_at)} />
+          <DisplayData
+            name="Ended at"
+            value={session.ended_at ? formatDatetime(session.ended_at) : "No end time set"}
+          />
+        </section>
+        <section className={styles["session-section"]}>
+          <DisplayData
+            name="Duration"
+            value={session.duration ? formatDuration(session.duration) : "No duration set"}
+          />
+          <DisplayData
+            name="Paused time"
+            value={session.paused_time ? formatDuration(session.paused_time) : 0}
+          />
         </section>
         <section className={styles["settings-section"]}>
           <div className={styles["settings-label"]}>

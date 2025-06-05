@@ -6,7 +6,7 @@ from api.core.api.services.plugin_service import PluginService
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
 from api.core.utils.http_exceptions import BadRequestException, NotFoundException
-from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionRes
+from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionPut, SessionRes
 from api.modules.capture.services import paths
 from api.modules.organization.services.participant_service import ParticipantService
 from api.modules.organization.services.paths import RELATIVE_PROJECTS_PATH
@@ -59,6 +59,26 @@ class SessionService:
         session_storage = self._get_session_storage(project_name, participant_code)
         session_storage.insert_one(session_data.model_dump())
 
+        return SessionRes.from_session_data(
+            session_data,
+            self.project_service.get_rel_project_location(project_name),
+            self.participant_service._get_participant_dir_name(participant_code)
+        )
+    
+    def update_session(self, project_name: str, participant_code: str, session_id: str, session: SessionPut) -> SessionRes:
+        existing_session = self._get_session_data(
+            project_name, participant_code, session_id)
+        session_data = existing_session.model_copy(update=session.model_dump(exclude_unset=True))
+        existing_sources = existing_session.capture_sources
+        for source in session.capture_sources:
+            for existing_source in existing_sources:
+                if existing_source.setting_name == source.setting_name and source.start_timestamp is not None:
+                    existing_source.start_timestamp = source.start_timestamp
+                    break
+        
+        session_data.capture_sources = existing_sources
+        session_storage = self._get_session_storage(project_name, participant_code)
+        session_storage.update({"session_id": session_id}, session_data.model_dump())
         return SessionRes.from_session_data(
             session_data,
             self.project_service.get_rel_project_location(project_name),

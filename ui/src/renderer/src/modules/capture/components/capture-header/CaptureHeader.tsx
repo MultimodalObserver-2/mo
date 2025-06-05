@@ -41,7 +41,7 @@ export default function CaptureHeader() {
     <div className={styles.header}>
       <CameraIcon className={styles.icon} />
       <h4 className={styles.text}>
-        Participant <strong>{status.participant_code}</strong> in{" "}
+        Participant <strong>{status.participant_code}</strong> for{" "}
         <strong>{status.project_name}</strong>
       </h4>
     </div>

@@ -17,19 +17,19 @@ export default function CaptureActions() {
   const [isCapturing, setIsCapturing] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isLoadingPause, setIsLoadingPause] = useState(false)
+  const checkCaptureStatus = async () => {
+    try {
+      const response = await captureService.getStatus()
+      setIsCapturing(response.data.started)
+      setIsPaused(response.data.paused)
+    } catch {
+      setIsCapturing(false)
+      setIsPaused(false)
+    }
+  }
 
   useEffect(() => {
-    const checkCaptureStatus = async () => {
-      try {
-        const response = await captureService.getStatus()
-        setIsCapturing(response.data.started)
-        setIsPaused(response.data.paused)
-      } catch {
-        setIsCapturing(false)
-        setIsPaused(false)
-      }
-    }
-
     checkCaptureStatus()
   }, [])
 
@@ -50,12 +50,14 @@ export default function CaptureActions() {
       setIsCapturing(!isCapturing)
       setIsPaused(false)
     } catch (error) {
+      checkCaptureStatus()
       showApiErrorMessage(error)
     }
     setIsLoading(false)
   }
 
   const handlePauseToggle = async () => {
+    setIsLoadingPause(true)
     try {
       if (isPaused) {
         await captureService.resumeCapture()
@@ -65,8 +67,10 @@ export default function CaptureActions() {
         setIsPaused(true)
       }
     } catch (error) {
+      checkCaptureStatus()
       showApiErrorMessage(error)
     }
+    setIsLoadingPause(false)
   }
 
   const getAbbrText = () => {
@@ -113,6 +117,7 @@ export default function CaptureActions() {
           styleType="extra-soft"
           onClick={handlePauseToggle}
           disabled={!isCapturing || isLoading}
+          isLoading={isLoadingPause}
         >
           {isPaused ? (
             <>

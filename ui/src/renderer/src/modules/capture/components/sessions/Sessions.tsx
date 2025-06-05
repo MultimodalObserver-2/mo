@@ -1,3 +1,4 @@
+import styles from "./sessions.module.css"
 import {
   ElementHeader,
   ElementList,
@@ -17,6 +18,7 @@ import { Participant } from "@renderer/modules/organization/types/Participant"
 import { formatDatetime } from "../../utils/helpers"
 import { openSessionDetailsModal } from "../../utils/modalWindows"
 import { showDeleteSessionMessage } from "../../utils/dialogMessages"
+import ShowDuration from "../show-duration/ShowDuration"
 
 export default function Sessions() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -82,7 +84,7 @@ export default function Sessions() {
   }, [selectedProject, selectedParticipant])
 
   return (
-    <PanelElement>
+    <PanelElement className={styles["sessions-panel"]}>
       <ElementHeader>
         <ElementTitle>Sessions</ElementTitle>
       </ElementHeader>
@@ -90,6 +92,7 @@ export default function Sessions() {
         {sessions.map((session) => (
           <ElementListItem
             key={session.session_id}
+            leftElement={<ShowDuration duration={session.duration} />}
             label={formatDatetime(session.started_at)}
             showActions={{ info: true, delete: true }}
             onInfo={() => openSessionInfo(session)}

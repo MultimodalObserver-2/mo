@@ -131,15 +131,18 @@ class PluginWorkerProcess(Process):
                     except Exception as e:
                         self._child_conn.send({"is_ok": False, "error": str(e)})
                 elif command == "execute_callback_on_instance":
+                    instance_id = args[0]
+                    callback = args[1]
+                    extra_args = args[2] if len(args) > 2 else None
+                    need_response = args[3] if len(args) > 3 else True
                     try:
-                        instance_id = args[0]
-                        callback = args[1]
-                        extra_args = args[2] if len(args) > 2 else None
                         result = self._execute_callback_on_instance(
                             instance_id, callback, extra_args)
-                        self._child_conn.send({"is_ok": True, "result": result})
+                        if need_response:
+                            self._child_conn.send({"is_ok": True, "result": result})
                     except Exception as e:
-                        self._child_conn.send({"is_ok": False, "error": str(e)})
+                        if need_response:
+                            self._child_conn.send({"is_ok": False, "error": str(e)})
                 elif command == "set_timeout":
                     self.timeout = args[0]
                 elif command == "stop":
@@ -209,20 +212,22 @@ class PluginWorkerProcess(Process):
         plugin_instance = self.plugins_instances[instance_id]
         return callback(plugin_instance, args, self.processes_queue, self.process_metadata)
     
-    def execute_callback_on_all_instances(self, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> list[Any]:
+    def execute_callback_on_all_instances(self, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> list[Any]:
         if not self.is_alive():
             return []
         results = []
         for instance_id in self.plugins_instances_ids:
-            result = self.execute_callback_on_instance(instance_id, callback, args)
+            result = self.execute_callback_on_instance(instance_id, callback, args, need_response)
             results.append(result)
         return results
 
-    def execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
+    def execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> Any:
         if not self.is_alive():
             return None
         self._parent_conn.send(
-            ("execute_callback_on_instance", instance_id, callback, args))
+            ("execute_callback_on_instance", instance_id, callback, args, need_response))
+        if not need_response:
+            return True
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
             error = res.get("error", "Unknown error")

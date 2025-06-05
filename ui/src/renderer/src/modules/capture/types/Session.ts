@@ -12,8 +12,11 @@ export type CaptureSettingDetails = {
 export type CaptureSession = {
   session_id: string
   location: string
-  start_timestamp: string
-  end_timestamp?: string
+  start_timestamp: number
+  end_timestamp?: number
+  paused_time?: number
   started_at: string
+  ended_at?: string
+  duration: number
   capture_sources: CaptureSettingDetails[]
 }
