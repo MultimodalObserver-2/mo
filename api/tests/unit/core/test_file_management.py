@@ -4,7 +4,7 @@ from unittest.mock import MagicMock, patch
 import psutil
 import pytest
 
-from api.core.file_management.exceptions import (InvalidDirectoryNameError,
+from api.core.utils.exceptions import (InvalidDirectoryNameError,
                                                  InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.file_management import FileManagement

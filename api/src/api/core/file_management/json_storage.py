@@ -5,7 +5,7 @@ from typing import Any, Optional
 from filelock import FileLock
 
 from api.core.config.constants import APP_DATA_DIR
-from api.core.file_management.exceptions import (InvalidFileNameError,
+from api.core.utils.exceptions import (InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.validators import FileValidators
 

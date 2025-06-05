@@ -12,6 +12,7 @@ class PluginAuthor(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
 
+
 class PluginIcons(BaseModel):
     dark: Optional[str] = None
     light: Optional[str] = None
@@ -21,6 +22,7 @@ class PluginPublisher(BaseModel):
     id: str
     name: str
     url: Optional[str] = None
+
 
 class PluginMetadata(BaseModel):
     plugin_id: str
@@ -39,19 +41,21 @@ class PluginMetadata(BaseModel):
 
     def get_final_id(self) -> str:
         return f"{self.publisher.id}.{self.plugin_id}"
-    
+
     def from_final_id(self, final_id: str) -> None:
         parts = final_id.split('.')
         if len(parts) != 2:
-            raise ValueError("Invalid final ID format. Expected 'publisher_id.plugin_id'.")
+            raise ValueError(
+                "Invalid final ID format. Expected 'publisher_id.plugin_id'.")
         self.publisher.id = parts[0]
         self.plugin_id = parts[1]
-    
+
     def is_plugin(self, plugin_id: str, publisher_id) -> bool:
         return self.plugin_id == plugin_id and self.publisher.id == publisher_id
-    
+
     def is_plugin_from_final_id(self, final_id: str) -> bool:
         return self.get_final_id() == final_id
+
 
 class Plugin(ABC):
     metadata: PluginMetadata
@@ -70,5 +74,9 @@ class Plugin(ABC):
         self.settings = settings
         self.on_configure(settings)
 
-    def on_configure(self, settings: Settings):
+    def on_configure(self, settings: Settings) -> None:
+        """Override this method to handle configuration changes.
+        Args:
+            settings (Settings): The updated settings for the plugin.
+        """
         pass

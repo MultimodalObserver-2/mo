@@ -16,3 +16,9 @@ class NotFoundError(Exception):
     def __init__(self, message: str = "Not found"):
         self.message = message
         super().__init__(self.message)
+
+
+class UnknownError(Exception):
+    def __init__(self, message: str = "An unknown error occurred"):
+        self.message = message
+        super().__init__(self.message)

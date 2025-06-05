@@ -1,10 +1,7 @@
 
 import threading
-from typing import Generic, TypeVar
 
-T = TypeVar('T')
-
-class ListBuffer(Generic[T]):
+class ListBuffer[T]:
     def __init__(self):
         self._buffer = [] # type: list[T]
         self._lock = threading.Lock()

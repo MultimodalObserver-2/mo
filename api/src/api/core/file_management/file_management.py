@@ -10,7 +10,7 @@ from typing import BinaryIO, Optional
 import psutil
 
 from api.core.config.constants import APP_DATA_DIR
-from api.core.file_management.exceptions import (InvalidDirectoryNameError,
+from api.core.utils.exceptions import (InvalidDirectoryNameError,
                                                  InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.validators import FileValidators
@@ -118,10 +118,6 @@ class FileManagement:
         new_path = os.path.normpath(new_path)
         os.rename(old_path, new_path)
         return new_path
-    
-    def _remove_readonly(self, func, path, _):
-        os.chmod(path, stat.S_IWRITE)
-        func(path)
 
     def send_to_trash(self, rel_path: str = "") -> str:
         """Moves a file or directory to the trash.
@@ -139,28 +135,26 @@ class FileManagement:
         send2trash.send2trash(path)
         return path
 
-    def delete_directory(self, dir_name: str, rel_path: str = "", retries = 0) -> str:
+    def delete_directory(self, dir_name: str, rel_path: str = "") -> str:
         """Deletes a directory and its contents.
         Args:
             dir_name (str): Name of the directory to delete.
             rel_path (str, optional): Subdirectory path where the directory is located. Defaults to "".
-            retries (int, optional): Number of retries to delete the directory. Defaults to 0.
         Returns:
             str: Path of the deleted directory.
         Raises:
             NotFoundError: If the directory does not exist.
         """
+
+        def remove_readonly(func, path, _):
+            os.chmod(path, stat.S_IWRITE)
+            func(path)
         dir_path = os.path.join(self._path, rel_path, dir_name)
         dir_path = os.path.normpath(dir_path)
         if not os.path.exists(dir_path):
             raise NotFoundError(f"Directory {dir_path} does not exist.")
-        for _ in range(retries):
-            try:
-                shutil.rmtree(dir_path, onexc=self._remove_readonly)
-                break
-            except:
-                continue
-        shutil.rmtree(dir_path, onexc=self._remove_readonly)
+
+        shutil.rmtree(dir_path, onexc=remove_readonly)
         return dir_path
 
     def delete_file(self, file_name: str, rel_path: str = "") -> str:

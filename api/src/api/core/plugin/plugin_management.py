@@ -55,8 +55,8 @@ class PluginManagement:
             try:
                 self.register_plugin(plugin_dir_name)
                 dirs.append(plugin_dir_name)
-            except:
-                print(f"ERROR: Failed to load plugin {plugin_dir_name}")
+            except Exception as e:
+                print(f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
                 print(f"Traceback: {sys.exc_info()[1]}")
                 continue
         return dirs

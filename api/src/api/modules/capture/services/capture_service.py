@@ -156,6 +156,9 @@ class CaptureService:
             raise BadRequestException("Capture is already started.")
         self.processes_queue = self.load_processes(
             project_name)
+        if len(self.running_processes) == 0:
+            raise BadRequestException(
+                "No capture settings loaded for the project")
         self.start_ts = time.monotonic()
         self.project_name = project_name
         self.participant_code = participant_code
@@ -279,17 +282,15 @@ class CaptureService:
                 if process is None:
                     continue
 
+                data = buffer.get_all_and_clear()
+                filtered_data = [d for d in data if self.is_on_time(d.timestamp)]
+                if not filtered_data and not end_of_data:
+                    continue
+                extra_args = {
+                    "data": filtered_data,
+                    "end_of_data": end_of_data
+                }
                 with self.execute_lock:
-                    data = buffer.get_all_and_clear()
-                    for idx, capture_data in enumerate(data):
-                        if not self.is_on_time(capture_data.timestamp):
-                            data.pop(idx)
-                    if len(data) == 0 and not end_of_data:
-                        continue
-                    extra_args = {
-                        "data": data,
-                        "end_of_data": end_of_data
-                    }
                     process.execute_callback_on_instance(
                         setting_name, save_callback, extra_args)
             except Exception as e:

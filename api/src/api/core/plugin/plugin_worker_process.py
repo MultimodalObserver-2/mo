@@ -1,4 +1,5 @@
 
+from dataclasses import dataclass
 import importlib
 import importlib.util
 from multiprocessing import Pipe, Process, Queue
@@ -13,8 +14,10 @@ from api.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
 from api.core.plugin.plugin import Plugin, PluginMetadata
 from api.core.plugin.properties import Properties
 from api.core.plugin.settings import Settings
+from api.core.utils.exceptions import UnknownError
 
 
+@dataclass
 class PluginProcessMetadata:
     dir_name: str
     metadata: PluginMetadata
@@ -23,14 +26,10 @@ class PluginProcessMetadata:
     check_types: list[type]
     initial_settings: Optional[Settings] = None
 
-    def __init__(self, dir_name: str, metadata: PluginMetadata, entry_points: dict[str, str], status_queue: Queue, check_types: list[type]):
-        self.dir_name = dir_name
-        self.metadata = metadata
-        self.entry_points = entry_points
-        self.status_queue = status_queue
-        self.check_types = check_types
 
-execute_callback = Callable[[Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any]
+execute_callback = Callable[[
+    Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any]
+
 
 class PluginWorkerProcess(Process):
     plugin_dir_path: str
@@ -45,18 +44,19 @@ class PluginWorkerProcess(Process):
     keep_running: bool
     timeout: Optional[float | int]
     processes_queue: Optional[Queue] = None
+    METADATA_ENTRY_POINTS = {
+        "plugin": "mo.plugin",
+        "properties": "mo.plugin.properties",
+    }
 
     def __init__(self, process_metadata: PluginProcessMetadata, load_main_instance: bool = False, keep_running: bool = False, timeout: Optional[float | int] = None, processes_queue: Optional[Queue] = None):
         super().__init__()
         dependencies_name = "dependencies"
         plugins_dir = RELATIVE_PLUGINS_DIR_PATH
-        self.metadata_entry_points = {
-            "plugin": "mo.plugin",
-            "properties": "mo.plugin.properties",
-        }
         plugins_path = os.path.join(APP_DATA_DIR, plugins_dir)
         plugins_path = os.path.normpath(plugins_path)
-        self.plugin_dir_path = os.path.join(plugins_path, process_metadata.dir_name)
+        self.plugin_dir_path = os.path.join(
+            plugins_path, process_metadata.dir_name)
         self.plugin_dir_path = os.path.normpath(self.plugin_dir_path)
         self.plugin_dependencies_path = os.path.join(
             self.plugin_dir_path, dependencies_name)
@@ -69,6 +69,14 @@ class PluginWorkerProcess(Process):
         self.plugins_instances = {}
         self.plugins_instances_ids = []
         self.processes_queue = processes_queue
+        self.command_handlers = {
+            "get_properties": self._handle_get_properties,
+            "validate_properties": self._handle_validate_properties,
+            "add_plugin_instance": self._handle_add_plugin_instance,
+            "execute_callback_on_instance": self._handle_execute_callback_on_instance,
+            "set_timeout": self._handle_set_timeout,
+            "stop": self._handle_stop,
+        }
 
     def run(self) -> None:
         try:
@@ -77,18 +85,20 @@ class PluginWorkerProcess(Process):
             properties = self.__load_properties()
             load_status = {}
             if properties is not None:
-               self.properties = properties
-               load_status["properties"] = properties.get_properties_dict(
-                   self.process_metadata.initial_settings)
-               if self.process_metadata.initial_settings is not None:
-                   instance.configure(self.process_metadata.initial_settings)
+                self.properties = properties
+                load_status["properties"] = properties.get_properties_dict(
+                    self.process_metadata.initial_settings)
+                if self.process_metadata.initial_settings is not None:
+                    instance.configure(self.process_metadata.initial_settings)
             if self.load_main_instance:
                 instance.load()
+            plugin_types = []
             for plugin_type in self.process_metadata.check_types:
-                if not issubclass(self.plugin_class, plugin_type):
-                    self.process_metadata.check_types.remove(plugin_type)
+                if issubclass(self.plugin_class, plugin_type):
+                    plugin_types.append(plugin_type)
+            self.process_metadata.check_types = plugin_types
             load_status["is_loaded"] = True
-            load_status["plugin_types"] = self.process_metadata.check_types
+            load_status["plugin_types"] = plugin_types
             load_status["module_name"] = self.plugin_class._module_name
             self.process_metadata.status_queue.put(load_status)
         except Exception as e:
@@ -98,92 +108,48 @@ class PluginWorkerProcess(Process):
             }
             self.process_metadata.status_queue.put(load_status)
             return
-        
-        start_time = None
-        if self.timeout is not None:
-            start_time = time.time()
-        while self.keep_running:
-            if start_time is not None and self.timeout is not None and (time.time() - start_time > self.timeout):
-                break
-            if self._child_conn.poll(0.01):
-                command, *args = self._child_conn.recv()
-                if command == "get_properties":
-                    settings = args[0] if args else None
-                    properties = self.properties.get_properties_dict(settings)
-                    self._child_conn.send(properties)
-                elif command == "validate_properties":
-                    settings = args[0] if args else None
-                    response = {}
-                    try:
-                        self.properties.validate(settings or Settings())
-                        response["is_valid"] = True
-                        self._child_conn.send(response)
-                    except Exception as e:
-                        response["is_valid"] = False
-                        response["error"] = str(e)
-                        self._child_conn.send(response)
-                elif command == "add_plugin_instance":
-                    instance_id = args[0]
-                    settings = args[1] if len(args) > 1 else None
-                    try:
-                        self._add_plugin_instance(instance_id, settings)
-                        self._child_conn.send({"is_ok": True})
-                    except Exception as e:
-                        self._child_conn.send({"is_ok": False, "error": str(e)})
-                elif command == "execute_callback_on_instance":
-                    instance_id = args[0]
-                    callback = args[1]
-                    extra_args = args[2] if len(args) > 2 else None
-                    need_response = args[3] if len(args) > 3 else True
-                    try:
-                        result = self._execute_callback_on_instance(
-                            instance_id, callback, extra_args)
-                        if need_response:
-                            self._child_conn.send({"is_ok": True, "result": result})
-                    except Exception as e:
-                        if need_response:
-                            self._child_conn.send({"is_ok": False, "error": str(e)})
-                elif command == "set_timeout":
-                    self.timeout = args[0]
-                elif command == "stop":
-                    self.keep_running = False
-                    if self.load_main_instance:
-                        instance.unload()
-                    self._child_conn.send({"is_ok": True})
-                    break
-                start_time = time.time() if self.timeout is not None else None
+
+        self._event_loop()
+
         if self.load_main_instance:
             instance.unload()
         self._child_conn.close()
 
-    def stop(self, timeout: Optional[float] = None, force: bool = False) -> None:
-        if not self.is_alive():
-            return
-        self._parent_conn.send(("stop",))
-        res = self._parent_conn.recv()
-        if not res.get("is_ok", False):
-            error = res.get("error", "Unknown error")
-            raise Exception(error)
-        self._parent_conn.close()
-        self.join(timeout)
-        if force and self.is_alive():
-            self.terminate()
-            self.join()
+    def _event_loop(self) -> None:
+        last_activity_time = time.time()
+        while self.keep_running:
+            if self.timeout and (time.time() - last_activity_time > self.timeout):
+                break
+            if self._child_conn.poll(0.01):
+                command, *args = self._child_conn.recv()
+                last_activity_time = time.time()
+                try:
+                    result = self.handle_command(command, *args)
+                    if result is not None:
+                        self._child_conn.send(result)
+                except Exception as e:
+                    self._child_conn.send({"is_ok": False, "exception": e})
 
-    def validate_properties(self, settings: Optional[Settings]) -> None:
-        if not self.is_alive():
-            return
-        self._parent_conn.send(("validate_properties", settings))
-        res = self._parent_conn.recv()
-        if not res.get("is_valid", False):
-            error = res.get("error", "Unknown error")
-            raise Exception(error)
-        
-    def _add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None) -> None:
-        if not self.is_alive():
-            return
+    def handle_command(self, command: str, *args: Any) -> Any:
+        handler = self.command_handlers.get(command)
+        if handler:
+            return handler(*args)
+        return None
+
+    def _handle_get_properties(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
+        return self.properties.get_properties_dict(settings)
+
+    def _handle_validate_properties(self, settings: Optional[Settings] = None) -> dict[str, Any]:
+        try:
+            self.properties.validate(settings or Settings())
+            return {"is_valid": True}
+        except Exception as e:
+            return {"is_valid": False, "exception": e}
+
+    def _handle_add_plugin_instance(self, instance_id: str, settings: Optional[Settings]) -> dict[str, bool]:
         if instance_id in self.plugins_instances:
-            raise ValueError(f"Plugin instance with id '{instance_id}' already exists.")
+            raise ValueError(
+                f"Plugin instance with id '{instance_id}' already exists.")
         if self.plugin_class is None:
             raise RuntimeError("Plugin class is not loaded.")
         plugin_instance = self.plugin_class()
@@ -191,59 +157,86 @@ class PluginWorkerProcess(Process):
         plugin_instance.configure(settings or Settings())
         self.plugins_instances[instance_id] = plugin_instance
         self.plugins_instances_ids.append(instance_id)
+        return {"is_ok": True}
+
+    def _handle_execute_callback_on_instance(self, instance_id: str, callback: execute_callback, extra_args: Optional[dict[str, Any]], need_response: bool) -> Optional[dict[str, Any]]:
+        try:
+            result = self._execute_callback_on_instance(
+                instance_id, callback, extra_args)
+            if need_response:
+                return {"is_ok": True, "result": result}
+        except Exception as e:
+            if need_response:
+                raise e
+        return None
+
+    def _handle_set_timeout(self, new_timeout: Optional[float | int]) -> None:
+        self.timeout = new_timeout
+
+    def _handle_stop(self) -> dict[str, bool]:
+        self.keep_running = False
+        return {"is_ok": True}
+
+    def stop(self, timeout: Optional[float] = None, force: bool = False) -> None:
+        self._parent_conn.send(("stop",))
+        res = self._parent_conn.recv()
+        if not res.get("is_ok", False):
+            exception = res.get("exception", UnknownError())
+            raise exception
+        self._parent_conn.close()
+        self.join(timeout)
+        if force and self.is_alive():
+            self.terminate()
+            self.join()
+
+    def validate_properties(self, settings: Optional[Settings]) -> None:
+        self._parent_conn.send(("validate_properties", settings))
+        res = self._parent_conn.recv()
+        if not res.get("is_valid", False):
+            exception = res.get("exception", UnknownError())
+            raise exception
 
     def add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None) -> None:
-        if not self.is_alive():
-            return
-        
         self._parent_conn.send(("add_plugin_instance", instance_id, settings))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
-            error = res.get("error", "Unknown error")
-            raise Exception(error)
+            exception = res.get("exception", UnknownError())
+            raise exception
         self.plugins_instances_ids.append(instance_id)
 
     def _execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
-        if not self.is_alive():
-            return None
         if instance_id not in self.plugins_instances:
-            raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
-        
+            raise ValueError(
+                f"Plugin instance with id '{instance_id}' does not exist.")
+
         plugin_instance = self.plugins_instances[instance_id]
         return callback(plugin_instance, args, self.processes_queue, self.process_metadata)
-    
+
     def execute_callback_on_all_instances(self, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> list[Any]:
-        if not self.is_alive():
-            return []
         results = []
         for instance_id in self.plugins_instances_ids:
-            result = self.execute_callback_on_instance(instance_id, callback, args, need_response)
+            result = self.execute_callback_on_instance(
+                instance_id, callback, args, need_response)
             results.append(result)
         return results
 
     def execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> Any:
-        if not self.is_alive():
-            return None
         self._parent_conn.send(
             ("execute_callback_on_instance", instance_id, callback, args, need_response))
         if not need_response:
             return True
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
-            error = res.get("error", "Unknown error")
-            raise Exception(error)
+            exception = res.get("exception", UnknownError())
+            raise exception
         return res.get("result", None)
 
     def get_properties(self, settings: Optional[Settings]) -> list[dict[str, Any]]:
-        if not self.is_alive():
-            return []
         self._parent_conn.send(("get_properties", settings))
         res = self._parent_conn.recv()
         return res
-    
+
     def set_timeout(self, timeout: float | int | None) -> None:
-        if not self.is_alive():
-            return
         self.timeout = timeout
         self._parent_conn.send(("set_timeout", timeout))
 
@@ -286,13 +279,13 @@ class PluginWorkerProcess(Process):
 
     def __load_plugin(self) -> type[Plugin]:
         entry_point = self.__get_entry_point(
-            self.metadata_entry_points["plugin"])
+            self.METADATA_ENTRY_POINTS["plugin"])
         if entry_point is None:
             raise ImportError(
                 f"Plugin '{self.process_metadata.dir_name}' does not have an entry point defined")
         module_path, symbol_name = entry_point
 
-        symbol = self.__load_symbol(self.metadata_entry_points["plugin"])
+        symbol = self.__load_symbol(self.METADATA_ENTRY_POINTS["plugin"])
         if (
             symbol is None
             or not isinstance(symbol, type)
@@ -306,12 +299,13 @@ class PluginWorkerProcess(Process):
         return symbol
 
     def __load_properties(self) -> Properties | None:
-        entry_point = self.__get_entry_point(self.metadata_entry_points["properties"])
+        entry_point = self.__get_entry_point(
+            self.METADATA_ENTRY_POINTS["properties"])
         if entry_point is None:
             return None
 
         module_path, symbol_name = entry_point
-        symbol = self.__load_symbol(self.metadata_entry_points["properties"])
+        symbol = self.__load_symbol(self.METADATA_ENTRY_POINTS["properties"])
         if symbol is None:
             raise ImportError(
                 f"Cannot load properties at {self.process_metadata.dir_name}: {module_path} for class {symbol_name}"

@@ -3,7 +3,7 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from api.core.file_management.exceptions import (InvalidFileNameError,
+from api.core.utils.exceptions import (InvalidFileNameError,
                                                  NotFoundError)
 from api.core.file_management.json_storage import JsonStorage
 

@@ -25,6 +25,7 @@ class PropertySelectOption(BaseModel):
     label: str
     value: str | int | float
 
+
 class Property(BaseModel):
     key: str
     label: str
@@ -34,7 +35,8 @@ class Property(BaseModel):
     default: Optional[Any] = None
     data: dict[str, Any] = {}
     _type: PropertyType = PrivateAttr()
-    _modified_callback: Optional[modified_callback_type] = PrivateAttr(default=None)
+    _modified_callback: Optional[modified_callback_type] = PrivateAttr(
+        default=None)
 
     def get_dict(self) -> dict[str, Any]:
         return {
@@ -48,6 +50,17 @@ class Property(BaseModel):
             "property_type": self._type.value,
             "reactive": self._modified_callback is not None,
         }
+
+
+VALIDATORS = {
+    PropertyType.INT: lambda v: isinstance(v, int),
+    PropertyType.FLOAT: lambda v: isinstance(v, (float, int)),
+    PropertyType.TEXT: lambda v: isinstance(v, str),
+    PropertyType.BOOL: lambda v: isinstance(v, bool),
+    PropertyType.PATH: lambda v: isinstance(v, str),
+    PropertyType.SELECT: lambda v, options: v in [opt.value for opt in options]
+}
+
 
 class Properties:
     _properties: dict[str, Property]
@@ -127,20 +140,24 @@ class Properties:
         data = {"options": options}
         self._add_property(key, label, PropertyType.SELECT, data)
 
-    def _update_property_data(self, key: str, data: dict[str, Any], property_type: PropertyType):
+    def _validate_key(self, key: str):
         if key not in self._properties:
             raise ValueError(f"Property with key '{key}' does not exist.")
+
+    def _update_property_data(self, key: str, data: dict[str, Any], property_type: PropertyType):
+        self._validate_key(key)
         if self._properties[key]._type != property_type:
-            raise ValueError(f"Property with key '{key}' is not of type '{property_type}'.")
+            raise ValueError(
+                f"Property with key '{key}' is not of type '{property_type}'.")
 
         self._properties[key].data.update(data)
 
     def update_select_options(self, key: str, options: list[PropertySelectOption]):
-        self._update_property_data(key, {"options": options}, PropertyType.SELECT)
+        self._update_property_data(
+            key, {"options": options}, PropertyType.SELECT)
 
     def remove_property(self, key: str):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         del self._properties[key]
 
     def get_property(self, key: str) -> Optional[Property]:
@@ -150,43 +167,35 @@ class Properties:
         return key in self._properties
 
     def get_type(self, key: str) -> PropertyType:
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         return self._properties[key]._type
 
     def set_enabled(self, key: str, enabled: bool):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key].enabled = enabled
 
     def set_visible(self, key: str, visible: bool):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key].visible = visible
 
     def set_required(self, key: str, required: bool):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key].required = required
 
     def set_default(self, key: str, default: Any):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key].default = default
 
     def set_modified_callback(self, key: str, callback: modified_callback_type):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key]._modified_callback = callback
 
     def get_modified_callback(self, key: str) -> Optional[modified_callback_type]:
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         return self._properties[key]._modified_callback
 
     def remove_modified_callback(self, key: str):
-        if key not in self._properties:
-            raise ValueError(f"Property with key '{key}' does not exist.")
+        self._validate_key(key)
         self._properties[key]._modified_callback = None
 
     def get_default_values(self) -> dict[str, Any]:
@@ -208,7 +217,7 @@ class Properties:
                 if new_prop:
                     props = new_prop
         return list(props.values())
-    
+
     def get_properties_dict(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
         props = self.get_properties(settings)
         return [prop.get_dict() for prop in props]
@@ -216,25 +225,21 @@ class Properties:
     def validate(self, settings: Settings) -> bool:
         props = self.get_properties(settings)
         for prop in props:
-            key = prop.key
-            if prop.required and key not in settings.get():
-                raise ValueError(f"Property '{key}' is required.")
-            if prop.enabled and key in settings.get():
-                value = settings.get()[key]
-                if prop._type == PropertyType.INT and not isinstance(value, int):
-                    raise ValueError(f"Property '{key}' must be an int.")
-                if prop._type == PropertyType.FLOAT and not isinstance(value, float) and not isinstance(value, int):
-                    raise ValueError(f"Property '{key}' must be a float.")
-                if prop._type == PropertyType.TEXT and not isinstance(value, str):
-                    raise ValueError(f"Property '{key}' must be a string.")
-                if prop._type == PropertyType.BOOL and not isinstance(value, bool):
-                    raise ValueError(f"Property '{key}' must be a boolean.")
-                if prop._type == PropertyType.PATH and not isinstance(value, str):
-                    raise ValueError(f"Property '{key}' must be a string.")
-                if (
-                    prop._type == PropertyType.SELECT
-                    and not isinstance(value, (str, int, float))
-                    and value not in [option.value for option in prop.data["options"]]
-                ):
-                    raise ValueError(f"Property '{key}' must be a string, int or float.")
+            self.validate_property(prop, settings)
         return True
+    
+    def validate_property(self, prop: Property, settings: Settings):
+        key = prop.key
+        if prop.required and key not in settings.get():
+            raise ValueError(f"Property '{key}' is required.")
+        if prop.enabled and key in settings.get():
+            value = settings.get()[key]
+            validator = VALIDATORS.get(prop._type)
+            if not validator:
+                raise ValueError(f"Unknown property type '{prop._type}' for key '{key}'.")
+            if prop._type == PropertyType.SELECT:
+                options = prop.data.get("options", [])
+                if not validator(value, options):
+                    raise ValueError(f"Property '{key}' must be one of the valid options.")
+            elif not validator(value):
+                raise ValueError(f"Property '{key}' must be of type '{prop._type.value}'.")

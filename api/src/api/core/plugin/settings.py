@@ -5,8 +5,8 @@ from typing import Any, Optional
 class Settings:
     _settings: dict[str, Any] = {}
 
-    def __init__(self, settings: dict[str, Any] = {}):
-        self._settings = settings
+    def __init__(self, settings: Optional[dict[str, Any]] = None):
+        self._settings = settings if settings is not None else {}
 
     def set(self, settings: dict[str, Any]):
         self._settings = settings
