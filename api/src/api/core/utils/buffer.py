@@ -26,6 +26,10 @@ class ListBuffer[T]:
     
     def get(self, index: int) -> T:
         return self.__getitem__(index)
+    
+    def is_empty(self) -> bool:
+        with self._lock:
+            return len(self._buffer) == 0
 
     def __len__(self):
         with self._lock:

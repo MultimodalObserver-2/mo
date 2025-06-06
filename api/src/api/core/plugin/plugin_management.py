@@ -37,7 +37,6 @@ class PluginManagement:
         self.plugin_types = {}
         self.plugin_types_to_check = [Plugin]
 
-
     def _get_plugin_dir_path(self, dir_name: str) -> str:
         plugin_path = os.path.join(self.plugins_path, dir_name)
         plugin_path = os.path.normpath(plugin_path)
@@ -56,7 +55,8 @@ class PluginManagement:
                 self.register_plugin(plugin_dir_name)
                 dirs.append(plugin_dir_name)
             except Exception as e:
-                print(f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
+                print(
+                    f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
                 print(f"Traceback: {sys.exc_info()[1]}")
                 continue
         return dirs
@@ -101,7 +101,7 @@ class PluginManagement:
         if self.plugin_metadata_exists(plugin_metadata.get_final_id()):
             raise ImportError(
                 f"Plugin '{plugin_metadata.name}' is already loaded")
-        
+
         try:
             if not plugin_metadata.platform.is_available():
                 raise ImportError(
@@ -110,7 +110,8 @@ class PluginManagement:
             status_queue = Queue()
             plugin_process_metadata = PluginProcessMetadata(
                 dir_name, plugin_metadata, self.get_entry_points(dir_name), status_queue, self.plugin_types_to_check)
-            plugin_process = PluginWorkerProcess(plugin_process_metadata, load_main_instance=True)
+            plugin_process = PluginWorkerProcess(
+                plugin_process_metadata, load_main_instance=True)
             plugin_process.start()
             status = status_queue.get()
             plugin_metadata._is_loaded = status.get("is_loaded", False)
@@ -140,7 +141,8 @@ class PluginManagement:
     def remove_plugin(self, final_id: str) -> str:
         dir_name = self._get_plugin_metadata_dir(final_id)
         if dir_name is None:
-            raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
+            raise ValueError(
+                f"Plugin '{final_id}' not found in registered plugins")
         self.remove_plugin_by_dir(dir_name)
         return dir_name
 
@@ -169,27 +171,32 @@ class PluginManagement:
         for dir_name, plugin in self.plugins_metadata.items():
             if plugin.is_plugin_from_final_id(final_id):
                 return dir_name
-        raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
+        raise ValueError(
+            f"Plugin '{final_id}' not found in registered plugins")
 
     def get_plugin_process(self, final_id: str) -> PluginWorkerProcess | None:
         key = self._get_plugin_process_metadata_dir(final_id)
         if key is None:
             return None
         return self.plugin_processes.get(key, None)
-    
+
     def get_active_plugin_process(self, final_id: str, processes_queue: Optional[multiprocessing.Queue] = None) -> PluginWorkerProcess | None:
         key = self._get_plugin_process_metadata_dir(final_id)
         if key is None:
             return None
         plugin_process = self.plugin_processes.get(key, None)
-        if plugin_process is None or not plugin_process.is_alive():
-            process_metadata = self.plugin_processes_metadata.get(key)
-            if process_metadata is None:
-                return None
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, processes_queue=processes_queue)
-            self.plugin_processes[key] = plugin_process
-            plugin_process.start()
-            process_metadata.status_queue.get()
+        if plugin_process is not None and plugin_process.is_alive() and processes_queue is None:
+            plugin_process.set_timeout(None)
+            return plugin_process
+
+        process_metadata = self.plugin_processes_metadata.get(key)
+        if process_metadata is None:
+            return None
+        plugin_process = PluginWorkerProcess(
+            process_metadata, keep_running=True, processes_queue=processes_queue)
+        self.plugin_processes[key] = plugin_process
+        plugin_process.start()
+        process_metadata.status_queue.get()
         plugin_process.set_timeout(None)
         return plugin_process
 
@@ -211,14 +218,15 @@ class PluginManagement:
         process_metadata = self.plugin_processes_metadata.get(key)
         if process_metadata is None:
             return None
-        
+
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(
+                process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
-            
+
         properties = plugin_process.get_properties(settings)
         return properties
 
@@ -230,16 +238,17 @@ class PluginManagement:
 
         process_metadata = self.plugin_processes_metadata.get(key)
         if process_metadata is None:
-            raise ValueError(f"Plugin '{final_id}' not found in running processes")
-
+            raise ValueError(
+                f"Plugin '{final_id}' not found in running processes")
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(
+                process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
-            
+
         plugin_process.validate_properties(settings)
 
     def plugin_from_type_exists(self, final_id: str, plugin_type: type) -> bool:
@@ -247,7 +256,7 @@ class PluginManagement:
             if plugin_metadata.is_plugin_from_final_id(final_id):
                 return True
         return False
-    
+
     def register_type_to_check(self, plugin_type: type) -> None:
         if plugin_type not in self.plugin_types_to_check:
             self.plugin_types_to_check.append(plugin_type)

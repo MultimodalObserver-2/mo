@@ -6,7 +6,6 @@ from multiprocessing import Pipe, Process, Queue
 from multiprocessing.connection import PipeConnection
 import os
 import sys
-import threading
 import time
 from typing import Any, Callable, Optional
 
@@ -76,6 +75,7 @@ class PluginWorkerProcess(Process):
             "execute_callback_on_instance": self._handle_execute_callback_on_instance,
             "set_timeout": self._handle_set_timeout,
             "stop": self._handle_stop,
+            "remove_plugin_instance": self._handle_remove_plugin_instance,
         }
 
     def run(self) -> None:
@@ -119,16 +119,17 @@ class PluginWorkerProcess(Process):
         last_activity_time = time.time()
         while self.keep_running:
             if self.timeout and (time.time() - last_activity_time > self.timeout):
+                print(f"Plugin process {self.process_metadata.dir_name} timed out after {self.timeout} seconds.")
                 break
             if self._child_conn.poll(0.01):
                 command, *args = self._child_conn.recv()
-                last_activity_time = time.time()
                 try:
                     result = self.handle_command(command, *args)
                     if result is not None:
                         self._child_conn.send(result)
                 except Exception as e:
                     self._child_conn.send({"is_ok": False, "exception": e})
+                last_activity_time = time.time()
 
     def handle_command(self, command: str, *args: Any) -> Any:
         handler = self.command_handlers.get(command)
@@ -158,6 +159,15 @@ class PluginWorkerProcess(Process):
         self.plugins_instances[instance_id] = plugin_instance
         self.plugins_instances_ids.append(instance_id)
         return {"is_ok": True}
+    
+    def _handle_remove_plugin_instance(self, instance_id: str) -> dict[str, bool]:
+        if instance_id not in self.plugins_instances:
+            raise ValueError(
+                f"Plugin instance with id '{instance_id}' does not exist.")
+        plugin_instance = self.plugins_instances.pop(instance_id)
+        plugin_instance.unload()
+        self.plugins_instances_ids.remove(instance_id)
+        return {"is_ok": True}
 
     def _handle_execute_callback_on_instance(self, instance_id: str, callback: execute_callback, extra_args: Optional[dict[str, Any]], need_response: bool) -> Optional[dict[str, Any]]:
         try:
@@ -170,7 +180,8 @@ class PluginWorkerProcess(Process):
                 raise e
         return None
 
-    def _handle_set_timeout(self, new_timeout: Optional[float | int]) -> None:
+    def _handle_set_timeout(self, new_timeout: float | int | None) -> None:
+        print(f"Setting timeout for plugin process {self.process_metadata.dir_name} to {new_timeout} seconds.")
         self.timeout = new_timeout
 
     def _handle_stop(self) -> dict[str, bool]:
@@ -184,6 +195,8 @@ class PluginWorkerProcess(Process):
             exception = res.get("exception", UnknownError())
             raise exception
         self._parent_conn.close()
+        if timeout is None and force:
+            self.terminate()
         self.join(timeout)
         if force and self.is_alive():
             self.terminate()
@@ -203,6 +216,15 @@ class PluginWorkerProcess(Process):
             exception = res.get("exception", UnknownError())
             raise exception
         self.plugins_instances_ids.append(instance_id)
+
+    def remove_plugin_instance(self, instance_id: str) -> None:
+        self._parent_conn.send(("remove_plugin_instance", instance_id))
+        res = self._parent_conn.recv()
+        if not res.get("is_ok", False):
+            exception = res.get("exception", UnknownError())
+            raise exception
+        if instance_id in self.plugins_instances_ids:
+            self.plugins_instances_ids.remove(instance_id)
 
     def _execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
         if instance_id not in self.plugins_instances:
