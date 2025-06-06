@@ -211,10 +211,10 @@ class ProjectService:
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
-
-        project["locked"] = locked
-        self.projects_storage.update({"name": project_name}, project)
-        return ProjectRes(**project)
+        project_data = ProjectData(**project)
+        project_data.locked = locked
+        self.projects_storage.update({"name": project_name}, project_data.model_dump())
+        return ProjectRes.from_data(project_data)
 
     def is_project_locked(self, project_name: str) -> bool:
         """Checks if a project is locked.

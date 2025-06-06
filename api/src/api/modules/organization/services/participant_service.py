@@ -323,7 +323,7 @@ class ParticipantService:
         Raises:
             NotFoundException: If the participant does not exist.
         """
-        participant = self.get_participant(project_name, participant_code)
+        participant = self.get_participant_data(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(
@@ -334,7 +334,9 @@ class ParticipantService:
         participants_storage = self._get_participants_storage(project_name)
         participants_storage.update(
             {"code": participant_code}, participant.model_dump())
-        return participant
+        return ParticipantRes.from_data(
+            participant, project_rel_location=self.project_service.get_rel_project_location(project_name)
+        )
 
     def is_participant_locked(self, project_name: str, participant_code: str) -> bool:
         """Checks if a participant is locked.
@@ -349,7 +351,7 @@ class ParticipantService:
         Raises:
             NotFoundException: If the participant does not exist.
         """
-        participant = self.get_participant(project_name, participant_code)
+        participant = self.get_participant_data(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
                 PARTICIPANT_DOES_NOT_EXIST.format(
