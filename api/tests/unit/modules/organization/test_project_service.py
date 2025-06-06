@@ -32,7 +32,6 @@ def test_create_project_success(project_service):
         result = project_service.create_project(project_req)
         assert result.name == "Test Project"
         assert result.description == "A test project"
-        assert result.location == "/path/to/Test Project"
         assert not result.locked
         project_service.file_management.create_directory.assert_called()
         project_service.projects_storage.insert_one.assert_called()
@@ -62,7 +61,7 @@ def test_get_all_projects_success(project_service):
         {
             "name": "Project 1",
             "description": "First project",
-            "location": "/path/to/Project 1",
+            "rel_location": "/path/to/Project 1",
             "locked": False,
             "created_at": "2025-04-23 10:00:45.687379",
             "updated_at": "2025-04-23 10:00:45.687379",
@@ -70,7 +69,7 @@ def test_get_all_projects_success(project_service):
         {
             "name": "Project 2",
             "description": "Second project",
-            "location": "/path/to/Project 2",
+            "rel_location": "/path/to/Project 2",
             "locked": False,
             "created_at": "2025-04-23 10:00:45.687379",
             "updated_at": "2025-04-23 10:00:45.687379",
@@ -91,7 +90,7 @@ def test_update_project_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/project",
+        "rel_location": "/path/to/project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -107,7 +106,6 @@ def test_update_project_success(project_service):
 
     assert result.name == "Updated Project"
     assert result.description == "Updated description"
-    assert result.location == "/path/to/Updated Project"
     assert result.locked == False
     project_service.projects_storage.update.assert_called()
 
@@ -128,7 +126,7 @@ def test_update_project_locked(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Updated Project",
+        "rel_location": "/path/to/Updated Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -146,7 +144,7 @@ def test_update_project_invalid_name(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Updated Project",
+        "rel_location": "/path/to/Updated Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -164,7 +162,7 @@ def test_update_project_already_exists(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Updated Project",
+        "rel_location": "/path/to/Updated Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -182,7 +180,7 @@ def test_get_project_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Test Project",
+        "rel_location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -193,7 +191,6 @@ def test_get_project_success(project_service):
 
     assert result.name == project_name
     assert result.description == "A test project"
-    assert result.location == "/path/to/Test Project"
     assert result.locked == False
     project_service.projects_storage.find_one.assert_called()
 
@@ -211,19 +208,19 @@ def test_delete_project_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Test Project",
+        "rel_location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
     }
     project_service.projects_storage.find_one.return_value = existing_project
-    project_service.file_management.delete_directory.return_value = None
+    project_service.file_management.send_to_trash.return_value = None
     project_service.projects_storage.delete_one.return_value = None
 
     result = project_service.delete_project(project_name)
 
     assert result is None
-    project_service.file_management.delete_directory.assert_called()
+    project_service.file_management.send_to_trash.assert_called()
     project_service.projects_storage.delete_one.assert_called()
 
 
@@ -240,7 +237,7 @@ def test_delete_project_locked(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Locked Project",
+        "rel_location": "/path/to/Locked Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -256,7 +253,7 @@ def test_lock_project_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Test Project",
+        "rel_location": "/path/to/Test Project",
         "locked": False,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -282,7 +279,7 @@ def test_unlock_project_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Test Project",
+        "rel_location": "/path/to/Test Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",
@@ -308,7 +305,7 @@ def test_is_project_locked_success(project_service):
     existing_project = {
         "name": project_name,
         "description": "A test project",
-        "location": "/path/to/Test Project",
+        "rel_location": "/path/to/Test Project",
         "locked": True,
         "created_at": "2025-04-23 10:00:45.687379",
         "updated_at": "2025-04-23 10:00:45.687379",

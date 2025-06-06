@@ -47,14 +47,16 @@ def run_tests():
     elif args.type == "integration":
         test_filter = "integration"
 
-    core_path = ["--cov=api.core"]
+    core_path = ["--cov=api.core.file_management", "--cov=api.core.utils", "--cov=api.core.plugin", "--cov=api.core.api.services"]
     module_service_paths = get_modules_services()
 
     test_cmd = ["pytest"] + core_path + module_service_paths + [f"tests/{test_filter}"] + extra_args
 
     try:
         subprocess.run(test_cmd, check=True)
-    except subprocess.CalledProcessError:
+    except subprocess.CalledProcessError as e:
+        if e.returncode == 1:
+            sys.exit(1)
         print("\nERROR: pytest execution failed. Correct usage:")
         print(
             "   poetry run test [--help] [--help-pytest] [--type {unit,integration,all}] [--cov-report {html,xml,json}] [PYTEST_ARGS...]"

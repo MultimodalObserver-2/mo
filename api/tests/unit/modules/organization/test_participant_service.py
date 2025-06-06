@@ -6,7 +6,7 @@ import pytest
 from api.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
-from api.modules.organization.schemas.participant import (ParticipantPostReq,
+from api.modules.organization.schemas.participant import (ParticipantData, ParticipantPostReq,
                                                           ParticipantPutReq,
                                                           ParticipantRes)
 from api.modules.organization.services.participant_service import \
@@ -38,8 +38,10 @@ def test_create_participant_success(participant_service):
         mock_storage.insert_one = MagicMock()
         MockStorage.return_value = mock_storage
 
-        participant_req = ParticipantPostReq(code="P001", name="Participant One", notes=["Notes"])
-        result = participant_service.create_participant("TestProject", participant_req)
+        participant_req = ParticipantPostReq(
+            code="P001", name="Participant One", notes=["Notes"])
+        result = participant_service.create_participant(
+            "TestProject", participant_req)
 
         assert result.code == "P001"
         mock_storage.insert_one.assert_called()
@@ -48,7 +50,8 @@ def test_create_participant_success(participant_service):
 def test_create_participant_already_exists(participant_service):
     participant_service.exists = MagicMock(return_value=True)
 
-    participant_req = ParticipantPostReq(code="P001", name="Test", notes=["Notes"])
+    participant_req = ParticipantPostReq(
+        code="P001", name="Test", notes=["Notes"])
 
     with pytest.raises(AlreadyExistsException):
         participant_service.create_participant("TestProject", participant_req)
@@ -60,10 +63,12 @@ def test_create_participant_invalid_code(participant_service):
         "api.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
         return_value=False,
     ):
-        participant_req = ParticipantPostReq(code="Invalid/Code", name="Test", notes=["Notes"])
+        participant_req = ParticipantPostReq(
+            code="Invalid/Code", name="Test", notes=["Notes"])
 
         with pytest.raises(BadRequestException):
-            participant_service.create_participant("TestProject", participant_req)
+            participant_service.create_participant(
+                "TestProject", participant_req)
 
 
 def test_get_all_participants_success(participant_service):
@@ -71,7 +76,7 @@ def test_get_all_participants_success(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
@@ -101,7 +106,7 @@ def test_get_participant_success(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
@@ -127,7 +132,8 @@ def test_get_participant_not_found(participant_service):
         MockStorage.return_value = mock_storage
 
         with pytest.raises(NotFoundException):
-            participant_service.get_participant("TestProject", "UnknownParticipant")
+            participant_service.get_participant(
+                "TestProject", "UnknownParticipant")
 
 
 def test_get_participant_project_not_found(participant_service):
@@ -142,12 +148,13 @@ def test_update_participant_success(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant))
     participant_service.is_participant_locked = MagicMock(return_value=False)
     participant_service.exists = MagicMock(return_value=False)
     participant_service.file_management.rename_directory.return_value = "/new/path"
@@ -164,8 +171,10 @@ def test_update_participant_success(participant_service):
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
 
-        participant_put = ParticipantPutReq(code="P002", name="New", notes=["Updated"])
-        result = participant_service.update_participant("TestProject", "P001", participant_put)
+        participant_put = ParticipantPutReq(
+            code="P002", name="New", notes=["Updated"])
+        result = participant_service.update_participant(
+            "TestProject", "P001", participant_put)
 
         assert result.code == "P002"
 
@@ -175,12 +184,13 @@ def test_update_participant_locked(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": True,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant))
     participant_service.is_participant_locked = MagicMock(return_value=True)
 
     with pytest.raises(BadRequestException):
@@ -194,12 +204,13 @@ def test_update_participant_invalid_code(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant))
     participant_service.is_participant_locked = MagicMock(return_value=False)
     participant_service.exists = MagicMock(return_value=False)
 
@@ -218,12 +229,13 @@ def test_update_participant_already_exists(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant))
     participant_service.is_participant_locked = MagicMock(return_value=False)
     participant_service.exists = MagicMock(return_value=True)
 
@@ -251,7 +263,8 @@ def test_delete_participant_not_found(participant_service):
     participant_service.exists = MagicMock(return_value=False)
 
     with pytest.raises(NotFoundException):
-        participant_service.delete_participant("TestProject", "UnknownParticipant")
+        participant_service.delete_participant(
+            "TestProject", "UnknownParticipant")
 
 
 def test_delete_participant_locked(participant_service):
@@ -267,14 +280,15 @@ def test_lock_participant(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
 
     participant_data = participant.copy()
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant_data))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant_data))
 
     with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
@@ -286,10 +300,11 @@ def test_lock_participant(participant_service):
 
 
 def test_lock_participant_not_found(participant_service):
-    participant_service.get_participant = MagicMock(return_value=None)
+    participant_service.get_participant_data = MagicMock(return_value=None)
 
     with pytest.raises(NotFoundException):
-        participant_service.lock_participant("TestProject", "UnknownParticipant")
+        participant_service.lock_participant(
+            "TestProject", "UnknownParticipant")
 
 
 def test_unlock_participant(participant_service):
@@ -297,29 +312,32 @@ def test_unlock_participant(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
 
     participant_data = participant.copy()
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant_data))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant_data))
 
     with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
 
-        unlocked = participant_service.unlock_participant("TestProject", "P001")
+        unlocked = participant_service.unlock_participant(
+            "TestProject", "P001")
         assert unlocked.locked is False
 
 
 def test_unlock_participant_not_found(participant_service):
-    participant_service.get_participant = MagicMock(return_value=None)
+    participant_service.get_participant_data = MagicMock(return_value=None)
 
     with pytest.raises(NotFoundException):
-        participant_service.unlock_participant("TestProject", "UnknownParticipant")
+        participant_service.unlock_participant(
+            "TestProject", "UnknownParticipant")
 
 
 def test_is_participant_locked(participant_service):
@@ -327,22 +345,25 @@ def test_is_participant_locked(participant_service):
         "code": "P001",
         "name": "Participant One",
         "notes": ["Test notes"],
-        "location": "/path/to/participant[P001]",
+        "rel_location": "/path/to/participant[P001]",
         "locked": False,
         "created_at": datetime.now(),
         "updated_at": datetime.now(),
     }
     participant_data = {**participant, "locked": True}
-    participant_service.get_participant = MagicMock(return_value=ParticipantRes(**participant_data))
+    participant_service.get_participant_data = MagicMock(
+        return_value=ParticipantData(**participant_data))
 
-    assert participant_service.is_participant_locked("TestProject", "P001") is True
+    assert participant_service.is_participant_locked(
+        "TestProject", "P001") is True
 
 
 def test_is_participant_locked_not_found(participant_service):
-    participant_service.get_participant = MagicMock(return_value=None)
+    participant_service.get_participant_data = MagicMock(return_value=None)
 
     with pytest.raises(NotFoundException):
-        participant_service.is_participant_locked("TestProject", "UnknownParticipant")
+        participant_service.is_participant_locked(
+            "TestProject", "UnknownParticipant")
 
 
 def test_is_participant_locked_project_not_found(participant_service):
@@ -365,7 +386,8 @@ def test_exists_not_found(participant_service):
     participant_service._get_participants_storage = MagicMock()
     participant_service._get_participants_storage.return_value = MagicMock()
     participant_service._get_participants_storage.return_value.exists.return_value = False
-    assert participant_service.exists("TestProject", "UnknownParticipant") is False
+    assert participant_service.exists(
+        "TestProject", "UnknownParticipant") is False
 
 
 def test_exists_project_not_found(participant_service):

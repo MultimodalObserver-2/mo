@@ -148,7 +148,7 @@ async def test_handle_end_invalid_input(activity_example):
     service = ProtocolExecService()
 
     with pytest.raises(BadRequestException):
-        await service.handle_end(websocket, activity_example)
+        await service.handle_end(websocket, activity_example, 5)
 
 
 @pytest.mark.asyncio
@@ -163,7 +163,7 @@ async def test_handle_end_with_close_process(activity_example):
     with patch(
         "api.modules.organization.services.protocol_exec_service.FileManagement.close_process"
     ) as mock_close:
-        await service.handle_end(websocket, activity_example)
+        await service.handle_end(websocket, activity_example, 5)
         mock_close.assert_called_once_with("some_process")
 
 
