@@ -21,9 +21,7 @@ class SessionService:
         self.sessions_file_name = paths.CAPTURE_SESSIONS_FILE
         self.file_management = FileManagement(rel_path=RELATIVE_PROJECTS_PATH, make_dirs=False)
 
-    def _get_session_dir_name(self, datetime_now: Optional[datetime] = None) -> str:
-        if datetime_now is None:
-            datetime_now = datetime.now()
+    def _get_session_dir_name(self, datetime_now: datetime) -> str:
         datetime_formatted = datetime_now.strftime("%Y-%m-%d_%H.%M.%S")
         return f"session[{datetime_formatted}]"
     
@@ -90,20 +88,6 @@ class SessionService:
     ) -> SessionData:
         session = self._get_session_data(project_name, participant_code, session_id)
         session.end_timestamp = end_timestamp
-        session_storage = self._get_session_storage(
-            project_name, participant_code)
-        session_storage.update({"session_id": session_id}, session.model_dump())
-        return session
-    
-    def add_all_capture_source_settings_start_timestamp(
-        self, project_name: str, participant_code: str, session_id: str, setting_start_timestamps: dict[str, float]
-    ) -> SessionData:
-        session = self._get_session_data(project_name, participant_code, session_id)
-
-        for source in session.capture_sources:
-            if source.setting_name in setting_start_timestamps:
-                source.start_timestamp = setting_start_timestamps[source.setting_name]
-        
         session_storage = self._get_session_storage(
             project_name, participant_code)
         session_storage.update({"session_id": session_id}, session.model_dump())
