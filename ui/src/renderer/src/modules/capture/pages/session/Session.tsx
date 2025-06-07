@@ -22,7 +22,7 @@ export default function SessionPage() {
     sessionId: string
   }>()
   const [session, setSession] = useState<CaptureSession | null>(null)
-  const [selectedCaptureSetting, setSelectedCaptureSetting] = useState<number>(0)
+  const [selectedCaptureConfig, setSelectedCaptureConfig] = useState<number>(0)
 
   const getObjectEntries = (obj: Record<string, unknown>) => {
     return Object.entries(obj)
@@ -81,7 +81,7 @@ export default function SessionPage() {
         <section className={styles["settings-section"]}>
           <div className={styles["settings-label"]}>
             <span className={styles.bullet}></span>
-            <h4 className={styles.name}>Capture settings used</h4>
+            <h4 className={styles.name}>Capture configurations used</h4>
           </div>
           <div className={styles["settings-container"]}>
             <PanelElement
@@ -89,17 +89,17 @@ export default function SessionPage() {
             >
               <ElementList className={styles["settings-list"]}>
                 {session.capture_sources.length > 0 ? (
-                  session.capture_sources.map((setting, index) => (
+                  session.capture_sources.map((config, index) => (
                     <ElementListItem
-                      key={setting.setting_name}
-                      label={setting.setting_name}
-                      isSelected={selectedCaptureSetting === index}
-                      onClick={() => setSelectedCaptureSetting(index)}
+                      key={config.config_name}
+                      label={config.config_name}
+                      isSelected={selectedCaptureConfig === index}
+                      onClick={() => setSelectedCaptureConfig(index)}
                       showActions={false}
                     />
                   ))
                 ) : (
-                  <ElementListItem label="No capture settings found" showActions={false} />
+                  <ElementListItem label="No capture configurations found" showActions={false} />
                 )}
               </ElementList>
             </PanelElement>
@@ -108,25 +108,25 @@ export default function SessionPage() {
                 <>
                   <DisplayData
                     name="Plugin ID"
-                    value={session.capture_sources[selectedCaptureSetting].plugin_id}
+                    value={session.capture_sources[selectedCaptureConfig].plugin_id}
                   />
                   <section className={styles["plugin-section"]}>
                     <DisplayData
                       name="Plugin name"
-                      value={session.capture_sources[selectedCaptureSetting].plugin_name}
+                      value={session.capture_sources[selectedCaptureConfig].plugin_name}
                     />
                     <DisplayData
                       name="Plugin Version"
-                      value={session.capture_sources[selectedCaptureSetting].plugin_version}
+                      value={session.capture_sources[selectedCaptureConfig].plugin_version}
                     />
                   </section>
                   <DisplayPath
                     name="File location"
                     value={
-                      session.capture_sources[selectedCaptureSetting].location ||
+                      session.capture_sources[selectedCaptureConfig].location ||
                       "No file location found"
                     }
-                    disabled={!session.capture_sources[selectedCaptureSetting].location}
+                    disabled={!session.capture_sources[selectedCaptureConfig].location}
                   />
                   <section className={styles["settings-details"]}>
                     <div className={styles["settings-details-label"]}>
@@ -135,12 +135,12 @@ export default function SessionPage() {
                     </div>
                     <div className={styles["settings-details-container"]}>
                       <DisplayData
-                        name="Setting Name:"
+                        name="Name:"
                         boxStyle="horizontal"
-                        value={session.capture_sources[selectedCaptureSetting].setting_name}
+                        value={session.capture_sources[selectedCaptureConfig].config_name}
                       />
                       {getObjectEntries(
-                        session.capture_sources[selectedCaptureSetting].settings
+                        session.capture_sources[selectedCaptureConfig].settings
                       ).map(([key, value]) => (
                         <DisplayData
                           key={key}

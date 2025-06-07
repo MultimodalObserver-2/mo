@@ -24,8 +24,8 @@ import ActivityTimerPage from "./modules/organization/pages/protocol-pages/activ
 import PluginsPage from "./core/pages/plugins/Plugins"
 import PluginDetails from "./core/pages/plugins/plugin-details/PluginDetails"
 import SelectCaptureSource from "./modules/capture/pages/select-capture-source/SelectCaptureSource"
-import AddCaptureSettings from "./modules/capture/pages/add-capture-settings/AddCaptureSettings"
-import UpdateCaptureSettings from "./modules/capture/pages/update-capture-settings/UpdateCaptureSettings"
+import AddCaptureConfig from "./modules/capture/pages/add-capture-config/AddCaptureConfig"
+import UpdateCaptureConfig from "./modules/capture/pages/update-capture-config/UpdateCaptureConfig"
 import SessionPage from "./modules/capture/pages/session/Session"
 
 createRoot(document.getElementById("root")!).render(
@@ -75,10 +75,10 @@ createRoot(document.getElementById("root")!).render(
           <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
           <Route path="/plugins/:pluginId" element={<PluginDetails />} />
           <Route path="/capture/select-source/:projectName" element={<SelectCaptureSource />} />
-          <Route path="/capture/:projectName/sources/:pluginId" element={<AddCaptureSettings />} />
+          <Route path="/capture/:projectName/sources/:pluginId" element={<AddCaptureConfig />} />
           <Route
-            path="/capture/:projectName/settings/:settingsName"
-            element={<UpdateCaptureSettings />}
+            path="/capture/:projectName/configs/:configName"
+            element={<UpdateCaptureConfig />}
           />
           <Route
             path="/capture/:projectName/participants/:participantCode/sessions/:sessionId"

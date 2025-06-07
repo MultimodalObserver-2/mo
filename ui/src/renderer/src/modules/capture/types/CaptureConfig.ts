@@ -1,6 +1,6 @@
 import { PluginIcons } from "@renderer/core/types/Plugin"
 
-export type CaptureSetting = {
+export type CaptureConfig = {
   name: string
   plugin_id: string
   plugin_icon?: string | PluginIcons
@@ -8,13 +8,13 @@ export type CaptureSetting = {
   settings: Record<string, string | number | boolean>
 }
 
-export type CaptureSettingCreate = {
+export type CaptureConfigCreate = {
   name: string
   plugin_id: string
   settings: Record<string, string | number | boolean>
 }
 
-export type CaptureSettingUpdate = {
+export type CaptureConfigUpdate = {
   name: string
   settings: Record<string, string | number | boolean>
 }

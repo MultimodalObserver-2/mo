@@ -6,7 +6,7 @@ from api.core.api.services.plugin_service import PluginService
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
 from api.core.utils.http_exceptions import BadRequestException, NotFoundException
-from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsRes, SessionData, SessionPost, SessionPut, SessionRes
+from api.modules.capture.schemas.session import CaptureConfigDetails, CaptureConfigDetailsRes, SessionData, SessionPost, SessionPut, SessionRes
 from api.modules.capture.services import paths
 from api.modules.organization.services.participant_service import ParticipantService
 from api.modules.organization.services.paths import RELATIVE_PROJECTS_PATH
@@ -42,8 +42,8 @@ class SessionService:
             start_timestamp=session.start_timestamp,
             started_at=session.started_at,
             capture_sources=[
-                CaptureSettingDetails(
-                    setting_name=source.setting_name,
+                CaptureConfigDetails(
+                    config_name=source.config_name,
                     plugin_id=source.plugin_id,
                     plugin_name=source.plugin_name,
                     plugin_version=source.plugin_version,
@@ -70,7 +70,7 @@ class SessionService:
         existing_sources = existing_session.capture_sources
         for source in session.capture_sources:
             for existing_source in existing_sources:
-                if existing_source.setting_name == source.setting_name and source.start_timestamp is not None:
+                if existing_source.config_name == source.config_name and source.start_timestamp is not None:
                     existing_source.start_timestamp = source.start_timestamp
                     break
         
@@ -99,7 +99,7 @@ class SessionService:
         session = self._get_session_data(project_name, participant_code, session_id)
 
         for source in session.capture_sources:
-            if source.setting_name == setting_name:
+            if source.config_name == setting_name:
                 source.start_timestamp = start_timestamp
                 break
         session_storage = self._get_session_storage(

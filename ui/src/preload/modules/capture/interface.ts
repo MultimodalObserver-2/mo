@@ -1,7 +1,7 @@
 export default interface CaptureAPI {
-  reloadSettings: () => void
-  onReloadSettings: (callback: () => void) => void
-  removeReloadSettingsListeners: () => void
+  reloadConfigs: () => void
+  onReloadConfigs: (callback: () => void) => void
+  removeReloadConfigsListeners: () => void
   reloadSessions: () => void
   onReloadSessions: (callback: () => void) => void
   removeReloadSessionsListeners: () => void

@@ -4,18 +4,18 @@ from api.core.plugin.plugin import PluginIcons, PluginMetadata
 from pydantic import BaseModel
 
 
-class SettingsPostReq(BaseModel):
+class CaptureConfigPostReq(BaseModel):
     name: str
     plugin_id: str
     settings: dict[str, Any]
 
 
-class SettingsPutReq(BaseModel):
+class CaptureConfigPutReq(BaseModel):
     name: str
     settings: dict[str, Any]
 
 
-class SettingsRes(BaseModel):
+class CaptureConfigRes(BaseModel):
     name: str
     plugin_id: str
     plugin_icon: Optional[str] | Optional[PluginIcons] = None
@@ -23,13 +23,13 @@ class SettingsRes(BaseModel):
     settings: dict[str, Any]
 
 
-class SettingsData(BaseModel):
+class CaptureConfigData(BaseModel):
     name: str
     plugin_id: str
     settings: dict[str, Any]
 
 
-class SettingsLoaded(BaseModel):
+class CaptureConfigLoaded(BaseModel):
     name: str
     plugin_id: str
     plugin_metadata: PluginMetadata

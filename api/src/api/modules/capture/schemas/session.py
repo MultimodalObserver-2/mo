@@ -6,8 +6,8 @@ from api.modules.organization.services.paths import PROJECTS_PATH
 
 
 # Stored schemas
-class CaptureSettingDetails(BaseModel):
-    setting_name: str
+class CaptureConfigDetails(BaseModel):
+    config_name: str
     plugin_id: str
     plugin_name: str
     plugin_version: str
@@ -27,12 +27,12 @@ class SessionData(BaseModel):
     ended_at: datetime | None = None
     duration: float | None = None
     paused_intervals: list[tuple[float, float | None]] = []
-    capture_sources: list[CaptureSettingDetails] = []
+    capture_sources: list[CaptureConfigDetails] = []
 
 
 # Response schemas
-class CaptureSettingDetailsRes(BaseModel):
-    setting_name: str
+class CaptureConfigDetailsRes(BaseModel):
+    config_name: str
     plugin_id: str
     plugin_name: str
     plugin_version: str
@@ -43,12 +43,12 @@ class CaptureSettingDetailsRes(BaseModel):
 
     @staticmethod
     def from_capture_source_setting(
-        capture_source_setting: CaptureSettingDetails,
+        capture_source_setting: CaptureConfigDetails,
         project_rel_location: str,
         participant_rel_location: str
     ):
-        return CaptureSettingDetailsRes(
-            setting_name=capture_source_setting.setting_name,
+        return CaptureConfigDetailsRes(
+            config_name=capture_source_setting.config_name,
             plugin_id=capture_source_setting.plugin_id,
             plugin_name=capture_source_setting.plugin_name,
             plugin_version=capture_source_setting.plugin_version,
@@ -70,7 +70,7 @@ class SessionRes(BaseModel):
     started_at: datetime
     ended_at: datetime | None = None
     paused_intervals: list[tuple[float, float | None]] = []
-    capture_sources: list[CaptureSettingDetailsRes] = []
+    capture_sources: list[CaptureConfigDetailsRes] = []
 
     @staticmethod
     def from_session_data(
@@ -90,7 +90,7 @@ class SessionRes(BaseModel):
             ended_at=session_data.ended_at,
             paused_intervals=session_data.paused_intervals,
             capture_sources=[
-                CaptureSettingDetailsRes.from_capture_source_setting(
+                CaptureConfigDetailsRes.from_capture_source_setting(
                     source, project_rel_location, participant_rel_location
                 ) for source in session_data.capture_sources
             ]
@@ -98,8 +98,8 @@ class SessionRes(BaseModel):
 
 
 # Post schemas
-class CaptureSettingDetailsPost(BaseModel):
-    setting_name: str
+class CaptureConfigDetailsPost(BaseModel):
+    config_name: str
     plugin_id: str
     plugin_name: str
     plugin_version: str
@@ -111,12 +111,12 @@ class CaptureSettingDetailsPost(BaseModel):
 class SessionPost(BaseModel):
     start_timestamp: float
     started_at: datetime
-    capture_sources: list[CaptureSettingDetailsPost] = []
+    capture_sources: list[CaptureConfigDetailsPost] = []
 
 
 # Put schemas
-class CaptureSettingDetailsPut(BaseModel):
-    setting_name: str
+class CaptureConfigDetailsPut(BaseModel):
+    config_name: str
     start_timestamp: Optional[float] = None
 
 
@@ -128,7 +128,7 @@ class SessionPut(BaseModel):
     ended_at: Optional[datetime] = None
     duration: Optional[float] = None
     paused_intervals: list[tuple[float, float | None]] = []
-    capture_sources: list[CaptureSettingDetailsPut] = []
+    capture_sources: list[CaptureConfigDetailsPut] = []
 
     @staticmethod
     def from_session_res(session_res: SessionRes):
@@ -141,8 +141,8 @@ class SessionPut(BaseModel):
             duration=session_res.duration,
             paused_intervals=session_res.paused_intervals,
             capture_sources=[
-                CaptureSettingDetailsPut(
-                    setting_name=source.setting_name,
+                CaptureConfigDetailsPut(
+                    config_name=source.config_name,
                     start_timestamp=source.start_timestamp
                 ) for source in session_res.capture_sources
             ]

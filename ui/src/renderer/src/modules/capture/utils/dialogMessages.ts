@@ -1,5 +1,5 @@
-export async function showDeleteCaptureSettingsMessage(
-  settingsName: string,
+export async function showDeleteCaptureConfigMessage(
+  configName: string,
   projectName: string,
   acceptId: number
 ) {
@@ -8,7 +8,7 @@ export async function showDeleteCaptureSettingsMessage(
     title: "Delete Participant",
     message:
       `Are you sure you want to delete the capture source` +
-      ` settings ${settingsName} from the project ${projectName}?`,
+      ` configuration ${configName} from the project ${projectName}?`,
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,

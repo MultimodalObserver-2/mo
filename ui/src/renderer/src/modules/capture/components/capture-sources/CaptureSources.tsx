@@ -12,32 +12,32 @@ import {
   PanelElement
 } from "@renderer/core/components/panel"
 import { useEffect, useState } from "react"
-import { CaptureSetting } from "../../types/CaptureSetting"
+import { CaptureConfig } from "../../types/CaptureConfig"
 import {
   showApiErrorMessage,
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
-import captureSettingsService from "../../services/CaptureSettingsService"
+import captureConfigService from "../../services/CaptureConfigService"
 import { Project } from "@renderer/modules/organization/types/Project"
 import { PluginIcons } from "@renderer/core/types/Plugin"
 import fallbackimgLight from "@renderer/core/assets/images/plugin_fallback_light.svg"
 import pluginOffimg from "@renderer/core/assets/images/plugin_off_light.svg"
-import { showDeleteCaptureSettingsMessage } from "../../utils/dialogMessages"
+import { showDeleteCaptureConfigMessage } from "../../utils/dialogMessages"
 import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
 import ReportIcon from "@renderer/core/components/icons/ReportIcon"
 
 export default function CaptureSources() {
   const selectedProject = useSelector(selectSelectedProject)
-  const [captureSettings, setCaptureSettings] = useState<CaptureSetting[]>([])
+  const [captureConfigs, setCaptureConfigs] = useState<CaptureConfig[]>([])
 
-  const fetchCaptureSettings = async (project: Project | null) => {
+  const fetchCaptureConfigs = async (project: Project | null) => {
     if (!project) {
-      setCaptureSettings([])
+      setCaptureConfigs([])
       return
     }
     try {
-      const response = await captureSettingsService.getAll(project.name)
-      setCaptureSettings(response.data)
+      const response = await captureConfigService.getAll(project.name)
+      setCaptureConfigs(response.data)
     } catch {
       showUnexpectedErrorMessage()
     }
@@ -50,21 +50,21 @@ export default function CaptureSources() {
     openCaptureSourceModal(selectedProject.name)
   }
 
-  const deleteSettings = async (setting: CaptureSetting) => {
+  const deleteConfig = async (config: CaptureConfig) => {
     if (!selectedProject) {
       return
     }
 
     const acceptId = 0
-    const response = await showDeleteCaptureSettingsMessage(
-      setting.name,
+    const response = await showDeleteCaptureConfigMessage(
+      config.name,
       selectedProject.name,
       acceptId
     )
     if (response.response === acceptId) {
       try {
-        await captureSettingsService.delete(selectedProject.name, setting.name)
-        await fetchCaptureSettings(selectedProject)
+        await captureConfigService.delete(selectedProject.name, config.name)
+        await fetchCaptureConfigs(selectedProject)
       } catch (error) {
         showApiErrorMessage(error)
       }
@@ -72,13 +72,13 @@ export default function CaptureSources() {
   }
 
   useEffect(() => {
-    window.capture.onReloadSettings(() => {
-      fetchCaptureSettings(selectedProject)
+    window.capture.onReloadConfigs(() => {
+      fetchCaptureConfigs(selectedProject)
     })
 
-    fetchCaptureSettings(selectedProject)
+    fetchCaptureConfigs(selectedProject)
     return () => {
-      window.capture.removeReloadSettingsListeners()
+      window.capture.removeReloadConfigsListeners()
     }
   }, [selectedProject])
 
@@ -97,12 +97,12 @@ export default function CaptureSources() {
     )
   }
 
-  const handleOpenSettings = (settings: CaptureSetting) => {
+  const handleOpenConfig = (config: CaptureConfig) => {
     if (!selectedProject) {
       return
     }
 
-    openUpdateCaptureSourceModal(selectedProject.name, settings.name)
+    openUpdateCaptureSourceModal(selectedProject.name, config.name)
   }
 
   return (
@@ -118,24 +118,24 @@ export default function CaptureSources() {
         </ElementActions>
       </ElementHeader>
       <ElementList>
-        {captureSettings.map((settings) => (
+        {captureConfigs.map((config) => (
           <ElementListItem
-            key={settings.name}
-            label={settings.name}
-            leftElement={pluginImg(settings.plugin_icon || pluginOffimg, settings.plugin_id)}
+            key={config.name}
+            label={config.name}
+            leftElement={pluginImg(config.plugin_icon || pluginOffimg, config.plugin_id)}
             rightElement={
-              settings.plugin_is_loaded ? null : (
+              config.plugin_is_loaded ? null : (
                 <abbr title="Plugin is not loaded">
                   <ReportIcon className={styles.report} />
                 </abbr>
               )
             }
             showActions={{ delete: true }}
-            onDelete={() => deleteSettings(settings)}
+            onDelete={() => deleteConfig(config)}
             extraActions={
               <SettingsIcon
-                className={settings.plugin_is_loaded ? "" : styles.disabled}
-                onClick={() => handleOpenSettings(settings)}
+                className={config.plugin_is_loaded ? "" : styles.disabled}
+                onClick={() => handleOpenConfig(config)}
               />
             }
           />

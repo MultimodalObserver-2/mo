@@ -3,7 +3,7 @@ from unittest.mock import MagicMock, patch, ANY
 from datetime import datetime
 
 from api.core.utils.http_exceptions import BadRequestException, NotFoundException
-from api.modules.capture.schemas.session import CaptureSettingDetails, CaptureSettingDetailsPost, CaptureSettingDetailsPut, SessionData, SessionPost, SessionPut, SessionRes
+from api.modules.capture.schemas.session import CaptureConfigDetails, CaptureConfigDetailsPost, CaptureConfigDetailsPut, SessionData, SessionPost, SessionPut, SessionRes
 from api.modules.capture.services.session_service import SessionService
 
 
@@ -32,8 +32,8 @@ def mock_session_data():
         start_timestamp=1749268200.0,
         started_at=datetime(2025, 6, 6, 18, 30, 0),
         capture_sources=[
-            CaptureSettingDetails(
-                setting_name="test_setting",
+            CaptureConfigDetails(
+                config_name="test_setting",
                 plugin_id="pub.plugin",
                 plugin_name="Test",
                 plugin_version="1.0",
@@ -53,7 +53,7 @@ def test_create_session_success(session_service, mock_participant):
         start_timestamp=1749268200.0,
         started_at=now,
         capture_sources=[
-            CaptureSettingDetailsPost(setting_name="test_setting", plugin_id="pub.plugin", plugin_name="Test",
+            CaptureConfigDetailsPost(config_name="test_setting", plugin_id="pub.plugin", plugin_name="Test",
                                       plugin_version="1.0", settings={}, file_name="data", file_extension="dat")
         ]
     )
@@ -84,8 +84,8 @@ def test_update_session_success(session_service, mock_session_data):
     participant_code = "P01"
     session_id = mock_session_data.session_id
     session_put = SessionPut(end_timestamp=1749268800.0, capture_sources=[
-        CaptureSettingDetailsPut(
-            setting_name="test_setting", start_timestamp=1749268300.0
+        CaptureConfigDetailsPut(
+            config_name="test_setting", start_timestamp=1749268300.0
         )
     ])
 

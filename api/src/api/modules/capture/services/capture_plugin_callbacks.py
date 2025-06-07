@@ -20,19 +20,19 @@ def start_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], proce
     if not isinstance(instance, CapturePlugin) or extra_args is None:
         return
 
-    setting_name = extra_args.get("setting_name", "")
+    config_name = extra_args.get("config_name", "")
 
     def on_data_callback(data: CaptureData):
         try:
             if process_queue is not None:
                 process_queue.put(PluginData(
                     plugin_id=process_metadata.metadata.get_final_id(),
-                    setting_name=setting_name,
+                    config_name=config_name,
                     timestamp=data.timestamp,
                     data=data.data
                 ), block=False)
         except Exception as e:
-            print(f"Error in on_data_callback for {setting_name}: {e}")
+            print(f"Error in on_data_callback for {config_name}: {e}")
 
     thread = threading.Thread(
         target=instance.start,

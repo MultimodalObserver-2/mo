@@ -1,5 +1,5 @@
-export type CaptureSettingDetails = {
-  setting_name: string
+export type CaptureConfigDetails = {
+  config_name: string
   plugin_id: string
   plugin_name: string
   plugin_version: string
@@ -18,5 +18,5 @@ export type CaptureSession = {
   started_at: string
   ended_at?: string
   duration: number
-  capture_sources: CaptureSettingDetails[]
+  capture_sources: CaptureConfigDetails[]
 }

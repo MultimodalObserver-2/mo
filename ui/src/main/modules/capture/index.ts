@@ -1,9 +1,9 @@
 import { app, BrowserWindow, ipcMain } from "electron"
 
 app.whenReady().then(() => {
-  ipcMain.on("capture:reload-settings", async () => {
+  ipcMain.on("capture:reload-configs", async () => {
     BrowserWindow.getAllWindows().forEach((window) => {
-      window.webContents.send("capture:on-reload-settings")
+      window.webContents.send("capture:on-reload-configs")
     })
   })
 

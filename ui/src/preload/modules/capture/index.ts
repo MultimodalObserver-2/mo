@@ -1,14 +1,14 @@
 import { contextBridge, ipcRenderer } from "electron"
 
 const capture = {
-  reloadSettings: () => {
-    ipcRenderer.send("capture:reload-settings")
+  reloadConfigs: () => {
+    ipcRenderer.send("capture:reload-configs")
   },
-  onReloadSettings: (callback: () => void) => {
-    ipcRenderer.on("capture:on-reload-settings", () => callback())
+  onReloadConfigs: (callback: () => void) => {
+    ipcRenderer.on("capture:on-reload-configs", () => callback())
   },
-  removeReloadSettingsListeners: () => {
-    ipcRenderer.removeAllListeners("capture:on-reload-settings")
+  removeReloadConfigsListeners: () => {
+    ipcRenderer.removeAllListeners("capture:on-reload-configs")
   },
   reloadSessions: () => {
     ipcRenderer.send("capture:reload-sessions")

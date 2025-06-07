@@ -33,10 +33,10 @@ export function openConfigureCaptureSourceModal(projectName: string, pluginId: s
   })
 }
 
-export function openUpdateCaptureSourceModal(projectName: string, settingsName: string) {
+export function openUpdateCaptureSourceModal(projectName: string, configName: string) {
   window.core.openModalWindow({
     options: { width: 550, minWidth: 550, minHeight: 250, title: "Configure plugin" },
-    endpoint: `capture/${projectName}/settings/${settingsName}`,
+    endpoint: `capture/${projectName}/configs/${configName}`,
     autoAdjustHeight: {
       elementId: "submit-config",
       extraHeight: 165,
@@ -46,7 +46,11 @@ export function openUpdateCaptureSourceModal(projectName: string, settingsName: 
   })
 }
 
-export function openSessionDetailsModal(projectName: string, participantCode: string, sessionId: string) {
+export function openSessionDetailsModal(
+  projectName: string,
+  participantCode: string,
+  sessionId: string
+) {
   window.core.openModalWindow({
     options: { width: 800, minWidth: 750, minHeight: 400, title: "Session Information" },
     endpoint: `capture/${projectName}/participants/${participantCode}/sessions/${sessionId}`,

@@ -35,8 +35,8 @@ class CaptureBufferManager:
         self.queue = queue
         self.processes = processes
         self.buffers.clear()
-        for plugin_id, setting_name in buffer_tuples:
-            self.buffers[(plugin_id, setting_name)] = ListBuffer[CaptureData]()
+        for plugin_id, config_name in buffer_tuples:
+            self.buffers[(plugin_id, config_name)] = ListBuffer[CaptureData]()
         self.started = True
         self.captured_data_thread = threading.Thread(
             target=self.get_captured_data_worker,
@@ -71,14 +71,12 @@ class CaptureBufferManager:
                 data = self.queue.get(timeout=0.1)
                 if data is None or not isinstance(data, PluginData):
                     continue
-                print(
-                    f"Captured data: {data.plugin_id}, {data.setting_name}, {data.timestamp}")
                 threading.Thread(
                     target=self.on_capture_data,
                     args=(data,),
                     daemon=True
                 ).start()
-                self.buffers[(data.plugin_id, data.setting_name)].add(
+                self.buffers[(data.plugin_id, data.config_name)].add(
                     CaptureData(
                         timestamp=data.timestamp,
                         data=data.data,
@@ -96,7 +94,7 @@ class CaptureBufferManager:
 
     def flush_buffers(self, end_of_data: bool = False) -> dict[tuple[str, str], Exception]:
         exceptions = {}
-        for (plugin_id, setting_name), buffer in self.buffers.items():
+        for (plugin_id, config_name), buffer in self.buffers.items():
             if buffer.is_empty():
                 continue
             try:
@@ -116,12 +114,12 @@ class CaptureBufferManager:
                 }
                 with self.execution_lock:
                     process.execute_callback_on_instance(
-                        setting_name, save_callback, args
+                        config_name, save_callback, args
                     )
             except Exception as e:
-                exceptions[(plugin_id, setting_name)] = e
+                exceptions[(plugin_id, config_name)] = e
                 print(
-                    f"Error flushing buffer for {plugin_id}, {setting_name}: {e}")
+                    f"Error flushing buffer for {plugin_id}, {config_name}: {e}")
         return exceptions
 
     def flush_buffers_periodically_worker(self) -> dict[tuple[str, str], list[Exception]]:
@@ -168,7 +166,7 @@ class CaptureBufferManager:
                 if data is None or not isinstance(data, PluginData):
                     threading.Event().wait(0.05)
                     continue
-                self.buffers[(data.plugin_id, data.setting_name)].add(
+                self.buffers[(data.plugin_id, data.config_name)].add(
                     CaptureData(
                         timestamp=data.timestamp,
                         data=data.data,

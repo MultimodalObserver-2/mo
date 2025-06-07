@@ -11,11 +11,11 @@ from api.core.utils.http_exceptions import BadRequestException
 from api.core.utils.singleton import singleton
 from api.modules.capture.plugins.capture_plugin import CapturePlugin
 from api.modules.capture.schemas.capture import CaptureStatusResponse, PluginData
-from api.modules.capture.schemas.session import CaptureSettingDetailsPost, SessionPost, SessionPut, SessionRes
+from api.modules.capture.schemas.session import CaptureConfigDetailsPost, SessionPost, SessionPut, SessionRes
 from api.modules.capture.services.capture_buffer_manager import CaptureBufferManager
 from api.modules.capture.services.capture_plugin_callbacks import get_file_extension_callback, pause_callback, prepare_callback, resume_callback, start_callback, stop_callback
 from api.modules.capture.services.session_service import SessionService
-from api.modules.capture.services.setting_service import CaptureSettingService
+from api.modules.capture.services.config_service import CaptureConfigService
 
 
 @singleton
@@ -28,7 +28,7 @@ class CaptureService:
     def __init__(self):
         self.session_service = SessionService()
         self.plugin_management = PluginManagement()
-        self.setting_service = CaptureSettingService()
+        self.config_service = CaptureConfigService()
         # Lock to ensure thread-safe execution of callbacks
         self._initialize()
         self.execute_lock = threading.Lock()
@@ -70,35 +70,35 @@ class CaptureService:
     def exec_prepare_callback(self, session_path: str):
         valid_processes_instances = self.processes_instances.copy()
         for key, process in self.running_processes.items():
-            for setting_name in self.processes_instances[key]:
-                file_name = self._format_data_file_name(setting_name)
+            for config_name in self.processes_instances[key]:
+                file_name = self._format_data_file_name(config_name)
                 extra_args = {
                     "session_path": session_path,
                     "file_name": file_name
                 }
                 try:
                     process.execute_callback_on_instance(
-                        setting_name, prepare_callback, extra_args)
+                        config_name, prepare_callback, extra_args)
                 except Exception as e:
                     print(
-                        f"Error executing prepare callback for {setting_name} in process {key}: {e}")
-                    valid_processes_instances[key].remove(setting_name)
-                    process.remove_plugin_instance(setting_name)
+                        f"Error executing prepare callback for {config_name} in process {key}: {e}")
+                    valid_processes_instances[key].remove(config_name)
+                    process.remove_plugin_instance(config_name)
         self.processes_instances = valid_processes_instances
 
     def exec_start_callback(self):
         for key, process in self.running_processes.items():
-            for setting_name in self.processes_instances[key]:
+            for config_name in self.processes_instances[key]:
                 extra_args = {
-                    "setting_name": setting_name,
+                    "config_name": config_name,
                     "start_ts": self.start_ts,
                 }
                 try:
                     process.execute_callback_on_instance(
-                        setting_name, start_callback, extra_args)
+                        config_name, start_callback, extra_args)
                 except Exception as e:
                     print(
-                        f"Error executing start callback for {setting_name} in process {key}: {e}")
+                        f"Error executing start callback for {config_name} in process {key}: {e}")
 
     def start_capture(self, project_name: str, participant_code: str):
         if self.started:
@@ -107,7 +107,7 @@ class CaptureService:
             project_name)
         if len(self.running_processes) == 0:
             raise BadRequestException(
-                "No capture settings loaded for the project")
+                "No capture configurations loaded for the project")
         self.start_ts = time.monotonic()
         self.project_name = project_name
         self.participant_code = participant_code
@@ -115,7 +115,7 @@ class CaptureService:
             project_name, participant_code, SessionPost(
                 start_timestamp=self.start_ts,
                 started_at=datetime.now(),
-                capture_sources=self._get_capture_settings_data(project_name)
+                capture_sources=self._get_capture_configs(project_name)
             )
         )
         self.exec_prepare_callback(self.session.location)
@@ -124,19 +124,19 @@ class CaptureService:
         self.paused = False
         self.capture_buffer_manager.clear_paused_intervals()
         buffer_tuples = []
-        for key, settings in self.processes_instances.items():
-            for setting_name in settings:
-                buffer_tuples.append((key, setting_name))
+        for key, configs in self.processes_instances.items():
+            for config_name in configs:
+                buffer_tuples.append((key, config_name))
         self.capture_buffer_manager.start(
             buffer_tuples, processes_queue, self.running_processes)
 
     def on_capture_data_callback(self, data: PluginData):
-        if data.setting_name not in self.first_timestamp and self.session is not None:
-            self.first_timestamp[data.setting_name] = data.timestamp
+        if data.config_name not in self.first_timestamp and self.session is not None:
+            self.first_timestamp[data.config_name] = data.timestamp
             threading.Thread(
                 target=self.session_service.add_capture_source_setting_start_timestamp,
                 args=(self.project_name or "", self.participant_code or "",
-                      self.session.session_id, data.setting_name, data.timestamp),
+                      self.session.session_id, data.config_name, data.timestamp),
             ).start()
 
     def stop_capture(self):
@@ -213,58 +213,58 @@ class CaptureService:
         self.paused_ts = 0.0
         self.paused = False
 
-    def get_capture_plugin_file_name(self, plugin_id: str, setting_name: str) -> str:
+    def get_capture_plugin_file_name(self, plugin_id: str, config_name: str) -> str:
         process = self.running_processes.get(plugin_id)
         if process is None:
             raise BadRequestException(
                 f"No running process found for plugin {plugin_id}.")
         file_extension = process.execute_callback_on_instance(
-            setting_name, get_file_extension_callback)
-        file_name = self._format_data_file_name(setting_name)
+            config_name, get_file_extension_callback)
+        file_name = self._format_data_file_name(config_name)
         if not file_extension:
             return file_name
         file_extension = file_extension.lstrip('.').lower()
         return f"{file_name}.{file_extension}"
 
-    def _get_capture_settings_data(self, project_name: str) -> list[CaptureSettingDetailsPost]:
-        settings_list = self.setting_service.get_all_capture_settings_loaded(
+    def _get_capture_configs(self, project_name: str) -> list[CaptureConfigDetailsPost]:
+        configs = self.config_service.get_all_configs_loaded(
             project_name)
-        capture_settings_data = []
-        for settings in settings_list:
+        capture_configs = []
+        for config in configs:
             file_name = self.get_capture_plugin_file_name(
-                settings.plugin_id, settings.name)
+                config.plugin_id, config.name)
             file_extension = file_name.split(
                 '.')[-1] if '.' in file_name else ''
-            capture_settings_data.append(
-                CaptureSettingDetailsPost(
-                    setting_name=settings.name,
-                    plugin_id=settings.plugin_id,
-                    plugin_name=settings.plugin_metadata.name,
-                    plugin_version=str(settings.plugin_metadata.version),
-                    settings=settings.settings,
+            capture_configs.append(
+                CaptureConfigDetailsPost(
+                    config_name=config.name,
+                    plugin_id=config.plugin_id,
+                    plugin_name=config.plugin_metadata.name,
+                    plugin_version=str(config.plugin_metadata.version),
+                    settings=config.settings,
                     file_extension=file_extension,
                     file_name=self.get_capture_plugin_file_name(
-                        settings.plugin_id, settings.name)
+                        config.plugin_id, config.name)
                 )
             )
-        return capture_settings_data
+        return capture_configs
 
     def load_processes(self, project_name: str) -> multiprocessing.Queue:
-        settings_list = self.setting_service.get_all_capture_settings_loaded(
+        configs = self.config_service.get_all_configs_loaded(
             project_name)
         processes_queue = multiprocessing.Queue()
         self.running_processes = {}
-        for settings in settings_list:
-            if self.running_processes.get(settings.plugin_id) is None:
+        for config in configs:
+            if self.running_processes.get(config.plugin_id) is None:
                 plugin_process = self.plugin_management.get_active_plugin_process(
-                    settings.plugin_id, processes_queue)
+                    config.plugin_id, processes_queue)
                 if plugin_process is None:
                     continue
-                self.running_processes[settings.plugin_id] = plugin_process
-                self.processes_instances[settings.plugin_id] = []
-            self.running_processes[settings.plugin_id].add_plugin_instance(
-                settings.name, Settings(settings.settings))
-            self.processes_instances[settings.plugin_id].append(settings.name)
+                self.running_processes[config.plugin_id] = plugin_process
+                self.processes_instances[config.plugin_id] = []
+            self.running_processes[config.plugin_id].add_plugin_instance(
+                config.name, Settings(config.settings))
+            self.processes_instances[config.plugin_id].append(config.name)
         return processes_queue
 
     def unload_running_processes(self):
