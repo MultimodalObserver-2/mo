@@ -3,7 +3,7 @@ from collections import defaultdict
 import multiprocessing
 import queue
 import threading
-from typing import Callable, Optional
+from typing import Callable, Mapping, Optional
 from api.core.plugin.plugin_worker_process import PluginWorkerProcess
 from api.core.utils.buffer import ListBuffer
 from api.modules.capture.plugins.capture_plugin import CaptureData
@@ -31,7 +31,7 @@ class CaptureBufferManager:
         self.paused_intervals = []  # type: list[tuple[float, float | None]]
         self.paused_intervals_lock = threading.Lock()
 
-    def start(self, buffer_tuples: list[tuple[str, str]], queue: multiprocessing.Queue, processes: dict[str, PluginWorkerProcess]):
+    def start(self, buffer_tuples: list[tuple[str, str]], queue: multiprocessing.Queue, processes: Mapping[str, PluginWorkerProcess]):
         self.queue = queue
         self.processes = processes
         self.buffers.clear()
@@ -175,8 +175,6 @@ class CaptureBufferManager:
                 if self.queue.empty():
                     # Await a bit to ensure no more data is coming
                     threading.Event().wait(0.05)
-            except queue.Empty:
-                break
             except Exception as e:
                 print(f"Error moving queue to buffers: {e}")
 
