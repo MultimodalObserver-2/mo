@@ -119,7 +119,7 @@ class PluginWorkerProcess(Process):
         last_activity_time = time.time()
         while self.keep_running:
             if self.timeout and (time.time() - last_activity_time > self.timeout):
-                print(f"Plugin process {self.process_metadata.dir_name} timed out after {self.timeout} seconds.")
+                self.keep_running = False
                 break
             if self._child_conn.poll(0.01):
                 command, *args = self._child_conn.recv()
@@ -181,7 +181,6 @@ class PluginWorkerProcess(Process):
         return None
 
     def _handle_set_timeout(self, new_timeout: float | int | None) -> None:
-        print(f"Setting timeout for plugin process {self.process_metadata.dir_name} to {new_timeout} seconds.")
         self.timeout = new_timeout
 
     def _handle_stop(self) -> dict[str, bool]:
