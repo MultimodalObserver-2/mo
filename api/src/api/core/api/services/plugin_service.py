@@ -1,4 +1,3 @@
-import os
 from typing import Any, Optional
 
 from fastapi import UploadFile
@@ -60,10 +59,7 @@ class PluginService:
             self.file_management.delete_directory(dir_name)
             self.plugins_dir_handler.remove_known_dir(dir_name)
         except Exception as e:
-            try:
-                self.plugin_management.register_plugin(dir_name)
-            except Exception:
-                pass
+            self.plugin_management.register_plugin(dir_name)
             self.plugins_dir_handler.add_known_dir(dir_name)
             self.plugins_dir_handler.resume()
             raise BadRequestException(
