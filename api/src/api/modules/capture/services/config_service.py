@@ -48,7 +48,7 @@ class CaptureConfigService:
                 f"Capture plugin {config.plugin_id} does not exist.")
 
         try:
-            self.plugin_management.validate_plugin_properties(
+            self.plugin_management.validate_plugin_settings(
                 config.plugin_id, Settings(config.settings))
         except Exception as e:
             raise BadRequestException(
@@ -144,7 +144,7 @@ class CaptureConfigService:
         existing_config.settings = config.settings if config.settings else existing_config.settings
 
         try:
-            self.plugin_management.validate_plugin_properties(existing_config.plugin_id, Settings(config.settings))
+            self.plugin_management.validate_plugin_settings(existing_config.plugin_id, Settings(config.settings))
         except Exception as e:
             raise BadRequestException(
                 f"Invalid settings for plugin {existing_config.plugin_id}: {str(e)}"

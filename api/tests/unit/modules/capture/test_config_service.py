@@ -69,7 +69,7 @@ def test_add_capture_config_success(config_service, mock_plugin_metadata):
             project_name)
         config_service.plugin_management.plugin_from_type_exists.assert_called_with(
             plugin_final_id, CapturePlugin)
-        config_service.plugin_management.validate_plugin_properties.assert_called()
+        config_service.plugin_management.validate_plugin_settings.assert_called()
         mock_storage_instance.insert_one.assert_called()
 
 
@@ -126,7 +126,7 @@ def test_add_capture_config_invalid_settings_validation(config_service):
 
     config_service.project_service.exists.return_value = True
     config_service.plugin_management.plugin_from_type_exists.return_value = True
-    config_service.plugin_management.validate_plugin_properties.side_effect = Exception(
+    config_service.plugin_management.validate_plugin_settings.side_effect = Exception(
         "Invalid property")
 
     with pytest.raises(BadRequestException):
@@ -270,7 +270,7 @@ def test_update_capture_config_invalid_settings_validation(config_service):
         name=config_name, plugin_id="pub.plugin1", settings={})
     config_service.get_capture_config = MagicMock(
         return_value=existing_config)
-    config_service.plugin_management.validate_plugin_properties.side_effect = Exception(
+    config_service.plugin_management.validate_plugin_settings.side_effect = Exception(
         "Invalid property")
 
     with pytest.raises(BadRequestException):

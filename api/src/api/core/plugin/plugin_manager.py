@@ -1,5 +1,4 @@
 import json
-from multiprocessing import Queue
 import multiprocessing
 import os
 import sys
@@ -107,7 +106,7 @@ class PluginManager:
                 raise ImportError(
                     f"Plugin '{plugin_metadata.name}' (v{str(plugin_metadata.version)}) is not available on this operating system"
                 )
-            status_queue = Queue()
+            status_queue = multiprocessing.Queue()
             plugin_process_metadata = PluginProcessMetadata(
                 dir_name, plugin_metadata, self.get_entry_points(dir_name), status_queue, self.plugin_types_to_check)
             plugin_process = PluginWorkerProcess(
@@ -230,7 +229,7 @@ class PluginManager:
         properties = plugin_process.get_properties(settings)
         return properties
 
-    def validate_plugin_properties(self, final_id: str, settings: Settings) -> None:
+    def validate_plugin_settings(self, final_id: str, settings: Settings) -> None:
         key = self._get_plugin_metadata_dir(final_id)
         if key is None:
             raise ValueError(
@@ -249,7 +248,7 @@ class PluginManager:
             plugin_process.start()
             process_metadata.status_queue.get()
 
-        plugin_process.validate_properties(settings)
+        plugin_process.validate_settings(settings)
 
     def plugin_from_type_exists(self, final_id: str, plugin_type: type) -> bool:
         for plugin_metadata in self.get_plugins_metadata_from_type(plugin_type):

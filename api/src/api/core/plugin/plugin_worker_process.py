@@ -70,7 +70,7 @@ class PluginWorkerProcess(Process):
         self.processes_queue = processes_queue
         self.command_handlers = {
             "get_properties": self._handle_get_properties,
-            "validate_properties": self._handle_validate_properties,
+            "validate_settings": self._handle_validate_settings,
             "add_plugin_instance": self._handle_add_plugin_instance,
             "execute_callback_on_instance": self._handle_execute_callback_on_instance,
             "set_timeout": self._handle_set_timeout,
@@ -140,7 +140,7 @@ class PluginWorkerProcess(Process):
     def _handle_get_properties(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
         return self.properties.get_properties_dict(settings)
 
-    def _handle_validate_properties(self, settings: Optional[Settings] = None) -> dict[str, Any]:
+    def _handle_validate_settings(self, settings: Optional[Settings] = None) -> dict[str, Any]:
         try:
             self.properties.validate(settings or Settings())
             return {"is_valid": True}
@@ -202,8 +202,8 @@ class PluginWorkerProcess(Process):
             self.terminate()
             self.join()
 
-    def validate_properties(self, settings: Optional[Settings]) -> None:
-        self._parent_conn.send(("validate_properties", settings))
+    def validate_settings(self, settings: Optional[Settings]) -> None:
+        self._parent_conn.send(("validate_settings", settings))
         res = self._parent_conn.recv()
         if not res.get("is_valid", False):
             exception = res.get("exception", UnknownError())
