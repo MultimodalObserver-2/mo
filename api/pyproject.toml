@@ -51,3 +51,7 @@ build-backend = "poetry.core.masonry.api"
 include_namespace_packages = true
 omit = ["**/__init__.py"]
 skip_empty = true
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
