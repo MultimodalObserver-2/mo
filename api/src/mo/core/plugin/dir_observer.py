@@ -1,6 +1,5 @@
 import os
 import time
-from time import sleep
 
 from watchdog.events import (DirCreatedEvent, DirDeletedEvent, DirMovedEvent,
                              FileCreatedEvent, FileDeletedEvent,
@@ -40,7 +39,7 @@ class PluginsDirHandler(FileSystemEventHandler):
         while time.time() - start_time < timeout:
             if os.path.exists(path):
                 return True
-            sleep(interval)
+            time.sleep(interval)
         return False
 
     def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
