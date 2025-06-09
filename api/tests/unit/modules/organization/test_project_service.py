@@ -2,12 +2,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from api.core.utils.http_exceptions import (AlreadyExistsException,
+from mo.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
-from api.modules.organization.schemas.project import (ProjectPostReq,
+from mo.modules.organization.schemas.project import (ProjectPostReq,
                                                       ProjectPutReq)
-from api.modules.organization.services.project_service import ProjectService
+from mo.modules.organization.services.project_service import ProjectService
 
 
 @pytest.fixture
@@ -26,7 +26,7 @@ def test_create_project_success(project_service):
     project_service.projects_storage.insert_one.return_value = None
     project_req = ProjectPostReq(**project_data)
     with patch(
-        "api.core.file_management.json_storage.JsonStorage.create_storage"
+        "mo.core.file_management.json_storage.JsonStorage.create_storage"
     ) as mock_create_storage:
         mock_create_storage.return_value = None
         result = project_service.create_project(project_req)

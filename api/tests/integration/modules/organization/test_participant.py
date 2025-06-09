@@ -4,16 +4,16 @@ import pytest
 from fastapi import status
 from httpx import ASGITransport, AsyncClient
 
-from api.core.file_management.file_management import FileManagement
-from api.core.file_management.json_storage import JsonStorage
-from api.main import app
-from api.modules.organization.errors.participant import (
+from mo.core.file_management.file_management import FileManagement
+from mo.core.file_management.json_storage import JsonStorage
+from mo.main import app
+from mo.modules.organization.errors.participant import (
     PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
     PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)
-from api.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from api.modules.organization.services.participant_service import \
+from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
+from mo.modules.organization.services.participant_service import \
     ParticipantService
-from api.modules.organization.services.project_service import ProjectService
+from mo.modules.organization.services.project_service import ProjectService
 
 
 @pytest.fixture

@@ -3,19 +3,19 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from api.core.file_management.file_management import FileManagement
-from api.core.utils.http_exceptions import (AlreadyExistsException,
+from mo.core.file_management.file_management import FileManagement
+from mo.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
-from api.modules.organization.errors.protocols import (
+from mo.modules.organization.errors.protocols import (
     ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT,
     ACTIVITY_PROCESS_NAME_REQUIRED, PROTOCOL_ALREADY_EXISTS,
     PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
-from api.modules.organization.schemas.protocol import (ActivityPostReq,
+from mo.modules.organization.schemas.protocol import (ActivityPostReq,
                                                        ProtocolPostReq,
                                                        ProtocolPutReq,
                                                        ProtocolRes)
-from api.modules.organization.services.protocol_service import ProtocolService
+from mo.modules.organization.services.protocol_service import ProtocolService
 
 
 @pytest.fixture
@@ -30,7 +30,7 @@ def test_create_protocol_success(protocol_service):
     protocol_service.exists = MagicMock(return_value=False)
     protocol_service._validate_and_format_activities = MagicMock(return_value=[])
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.insert_one = MagicMock()
         MockStorage.return_value = mock_storage
@@ -64,7 +64,7 @@ def test_get_all_protocols_success(protocol_service):
         }
     ]
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_all.return_value = data
         MockStorage.return_value = mock_storage
@@ -93,7 +93,7 @@ def test_get_protocol_success(protocol_service):
         "updated_at": datetime.now(),
     }
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_one.return_value = protocol_data
         MockStorage.return_value = mock_storage
@@ -106,7 +106,7 @@ def test_get_protocol_success(protocol_service):
 def test_get_protocol_not_found(protocol_service):
     protocol_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_one.return_value = None
         MockStorage.return_value = mock_storage
@@ -137,7 +137,7 @@ def test_update_protocol_success(protocol_service):
     )
     protocol_service.get_protocol.return_value = mock_protocol
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
@@ -174,7 +174,7 @@ def test_delete_protocol_success(protocol_service):
     protocol_service.exists = MagicMock(return_value=True)
     protocol_service.is_protocol_locked = MagicMock(return_value=False)
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.delete_one = MagicMock()
         MockStorage.return_value = mock_storage
@@ -201,7 +201,7 @@ def test_delete_protocol_not_found(protocol_service):
 
 def test_lock_protocol_success(protocol_service):
     protocol_service.get_protocol = MagicMock()
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
@@ -221,7 +221,7 @@ def test_lock_protocol_success(protocol_service):
 
 def test_unlock_protocol_success(protocol_service):
     protocol_service.get_protocol = MagicMock()
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
@@ -264,7 +264,7 @@ def test_is_protocol_locked_not_found(protocol_service):
 def test_exists_true(protocol_service):
     protocol_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.exists.return_value = True
         MockStorage.return_value = mock_storage
@@ -275,7 +275,7 @@ def test_exists_true(protocol_service):
 def test_exists_false(protocol_service):
     protocol_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.protocol_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.exists.return_value = False
         MockStorage.return_value = mock_storage

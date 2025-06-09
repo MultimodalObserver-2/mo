@@ -1,14 +1,14 @@
-from api.core.plugin.plugin import PluginPublisher
-from api.core.plugin.semantic_version import SemanticVersion
-from api.core.plugin.sys_platform import SysPlatform
+from mo.core.plugin.models.plugin import PluginPublisher
+from mo.core.plugin.models.semantic_version import SemanticVersion
+from mo.core.plugin.models.sys_platform import SysPlatform
 import pytest
 from unittest.mock import MagicMock, patch, ANY
 
-from api.core.api.schemas.plugin import PluginMetadata
-from api.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
-from api.modules.capture.plugins.capture_plugin import CapturePlugin
-from api.modules.capture.schemas.capture_config import CaptureConfigPostReq, CaptureConfigPutReq, CaptureConfigRes
-from api.modules.capture.services.config_service import CaptureConfigService
+from mo.core.api.schemas.plugin import PluginMetadata
+from mo.core.utils.http_exceptions import AlreadyExistsException, BadRequestException, NotFoundException
+from mo.modules.capture.plugins.capture_plugin import CapturePlugin
+from mo.modules.capture.schemas.capture_config import CaptureConfigPostReq, CaptureConfigPutReq, CaptureConfigRes
+from mo.modules.capture.services.config_service import CaptureConfigService
 
 
 @pytest.fixture
@@ -53,7 +53,7 @@ def test_add_capture_config_success(config_service, mock_plugin_metadata):
     config_service.file_management.exists.return_value = False
     config_service.file_management.create_directory.return_value = ""
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.exists.return_value = False
         mock_json_storage_class.return_value = mock_storage_instance
@@ -109,7 +109,7 @@ def test_add_capture_config_already_exists(config_service):
     config_service.project_service.exists.return_value = True
     config_service.plugin_management.plugin_from_type_exists.return_value = True
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.exists.return_value = True
         mock_json_storage_class.return_value = mock_storage_instance
@@ -143,7 +143,7 @@ def test_add_capture_config_plugin_metadata_not_found(config_service):
     config_service.plugin_management.plugin_from_type_exists.return_value = True
     config_service.plugin_management.get_plugin_metadata.return_value = None
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.exists.return_value = False
         mock_json_storage_class.return_value = mock_storage_instance
@@ -162,7 +162,7 @@ def test_get_all_capture_configs_success(config_service, mock_plugin_metadata):
     config_service.project_service.exists.return_value = True
     config_service.plugin_management.get_plugin_metadata.return_value = mock_plugin_metadata
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_all.return_value = configs
         mock_json_storage_class.return_value = mock_storage_instance
@@ -192,7 +192,7 @@ def test_get_capture_config_success(config_service, mock_plugin_metadata):
     config_service.project_service.exists.return_value = True
     config_service.plugin_management.get_plugin_metadata.return_value = mock_plugin_metadata
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_one.return_value = config_dict
         mock_json_storage_class.return_value = mock_storage_instance
@@ -211,7 +211,7 @@ def test_get_capture_config_not_found(config_service):
     config_name = "NonExistentSetting"
     config_service.project_service.exists.return_value = True
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_one.return_value = None
         mock_json_storage_class.return_value = mock_storage_instance
@@ -245,7 +245,7 @@ def test_update_capture_config_success(config_service):
         return_value=existing_config)
     config_service.exists = MagicMock(return_value=False)
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_json_storage_class.return_value = mock_storage_instance
 
@@ -300,7 +300,7 @@ def test_delete_capture_config_success(config_service):
 
     config_service.exists = MagicMock(return_value=True)
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_json_storage_class.return_value = mock_storage_instance
 
@@ -341,7 +341,7 @@ def test_get_all_configs_loaded_success(config_service, mock_plugin_metadata):
     config_service.plugin_management.get_plugin_metadata.side_effect = [
         mock_plugin_metadata, unloaded_metadata]
 
-    with patch('api.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
+    with patch('mo.modules.capture.services.config_service.JsonStorage') as mock_json_storage_class:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_all.return_value = settings_list
         mock_json_storage_class.return_value = mock_storage_instance

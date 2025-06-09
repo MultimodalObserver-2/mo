@@ -1,9 +1,9 @@
 import pytest
 from unittest.mock import MagicMock, patch
 
-from api.core.api.services.plugin_service import PluginService
-from api.core.plugin.plugin import PluginMetadata
-from api.core.utils.http_exceptions import BadRequestException
+from mo.core.api.services.plugin_service import PluginService
+from mo.core.plugin.models.plugin import PluginMetadata
+from mo.core.utils.http_exceptions import BadRequestException
 
 
 @pytest.fixture
@@ -27,7 +27,7 @@ def test_add_plugin_success(plugin_service):
     mock_metadata = MagicMock(spec=PluginMetadata)
     plugin_service.plugin_management.register_plugin.return_value = mock_metadata
 
-    with patch('api.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
+    with patch('mo.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
         result = plugin_service.add_plugin(mock_file)
 
     plugin_service.plugins_dir_handler.suspend.assert_called_once()
@@ -67,7 +67,7 @@ def test_get_all_plugins(plugin_service):
         MagicMock(spec=PluginMetadata), MagicMock(spec=PluginMetadata)]
     plugin_service.plugin_management.get_all_plugins_metadata.return_value = mock_plugins_list
 
-    with patch('api.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
+    with patch('mo.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
         result = plugin_service.get_all_plugins()
 
     assert len(result) == 2
@@ -78,7 +78,7 @@ def test_get_plugin_success(plugin_service):
     mock_metadata = MagicMock(spec=PluginMetadata)
     plugin_service.plugin_management.get_plugin_metadata.return_value = mock_metadata
 
-    with patch('api.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
+    with patch('mo.core.api.services.plugin_service.PluginRes') as mock_plugin_res:
         result = plugin_service.get_plugin("some.id")
 
     assert result == mock_plugin_res.from_plugin_metadata(mock_metadata)
@@ -144,7 +144,7 @@ def test_get_plugin_properties_success(plugin_service):
         {"name": "prop1", "label": "Label 1", "type": "str", "required": False}
     ]
 
-    with patch('api.core.api.services.plugin_service.PropertyRes') as mock_prop_res:
+    with patch('mo.core.api.services.plugin_service.PropertyRes') as mock_prop_res:
         result = plugin_service.get_plugin_properties("some.id")
 
     assert len(result) == 1

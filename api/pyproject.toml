@@ -1,5 +1,5 @@
 [project]
-name = "api"
+name = "mo"
 version = "0.1.0"
 description = ""
 authors = [
@@ -20,7 +20,7 @@ dependencies = [
 ]
 
 [tool.poetry]
-packages = [{ include = "api", from = "src" }]
+packages = [{ include = "mo", from = "src" }]
 
 [tool.poetry.scripts]
 dev = "scripts.dev:start"

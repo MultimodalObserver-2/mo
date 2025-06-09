@@ -3,11 +3,11 @@ from unittest.mock import MagicMock, patch
 import multiprocessing
 import time
 
-from api.core.plugin.plugin import Plugin
-from api.core.plugin.plugin_worker_process import PluginProcessMetadata
-from api.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
-from api.modules.capture.schemas.capture import PluginData
-from api.modules.capture.services.capture_plugin_callbacks import (
+from mo.core.plugin.models.plugin import Plugin
+from mo.core.plugin.worker_process import PluginProcessMetadata
+from mo.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
+from mo.modules.capture.schemas.capture import PluginData
+from mo.modules.capture.services.capture_plugin_callbacks import (
     prepare_callback, start_callback, stop_callback, pause_callback,
     resume_callback, get_file_extension_callback, save_callback
 )

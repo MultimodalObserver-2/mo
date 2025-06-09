@@ -1,14 +1,14 @@
 import multiprocessing
 import queue
-from api.core.plugin.plugin_worker_process import PluginWorkerProcess
+from mo.core.plugin.worker_process import PluginWorkerProcess
 import pytest
 from unittest.mock import MagicMock, patch
 import threading
 import time
 
-from api.modules.capture.plugins.capture_plugin import CaptureData
-from api.modules.capture.schemas.capture import PluginData
-from api.modules.capture.services.capture_buffer_manager import CaptureBufferManager
+from mo.modules.capture.plugins.capture_plugin import CaptureData
+from mo.modules.capture.schemas.capture import PluginData
+from mo.modules.capture.services.capture_buffer_manager import CaptureBufferManager
 
 
 @pytest.fixture

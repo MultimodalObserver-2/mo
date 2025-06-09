@@ -1,4 +1,4 @@
-from api.core.plugin.properties import Properties
+from mo.core.plugin.models.properties import Properties
 from multiprocessing import Process
 from unittest.mock import MagicMock, patch
 import pytest
@@ -6,9 +6,9 @@ from unittest.mock import MagicMock, patch
 from multiprocessing import Process
 from multiprocessing.connection import PipeConnection
 
-from api.core.plugin.plugin_worker_process import PluginWorkerProcess, PluginProcessMetadata
-from api.core.plugin.plugin import Plugin, PluginMetadata
-from api.core.plugin.settings import Settings
+from mo.core.plugin.worker_process import PluginWorkerProcess, PluginProcessMetadata
+from mo.core.plugin.models.plugin import Plugin, PluginMetadata
+from mo.core.plugin.models.settings import Settings
 
 
 @pytest.fixture
@@ -33,7 +33,7 @@ def mock_process_metadata():
 @pytest.fixture
 def worker_process(mock_process_metadata):
     with patch.object(Process, '__init__'), \
-            patch('api.core.plugin.plugin_worker_process.Pipe') as mock_pipe:
+            patch('mo.core.plugin.worker_process.Pipe') as mock_pipe:
 
         mock_parent_conn = MagicMock(spec=PipeConnection)
         mock_child_conn = MagicMock(spec=PipeConnection)

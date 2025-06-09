@@ -3,13 +3,13 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from api.core.utils.http_exceptions import (AlreadyExistsException,
+from mo.core.utils.http_exceptions import (AlreadyExistsException,
                                             BadRequestException,
                                             NotFoundException)
-from api.modules.organization.schemas.participant import (ParticipantData, ParticipantPostReq,
+from mo.modules.organization.schemas.participant import (ParticipantData, ParticipantPostReq,
                                                           ParticipantPutReq,
                                                           ParticipantRes)
-from api.modules.organization.services.participant_service import \
+from mo.modules.organization.services.participant_service import \
     ParticipantService
 
 
@@ -28,9 +28,9 @@ def test_create_participant_success(participant_service):
 
     with (
         patch(
-            "api.modules.organization.services.participant_service.FileValidators.is_valid_directory_name"
+            "mo.modules.organization.services.participant_service.FileValidators.is_valid_directory_name"
         ) as mock_is_valid_directory_name,
-        patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage,
+        patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage,
     ):
 
         mock_is_valid_directory_name.return_value = True
@@ -60,7 +60,7 @@ def test_create_participant_already_exists(participant_service):
 def test_create_participant_invalid_code(participant_service):
     participant_service.exists = MagicMock(return_value=False)
     with patch(
-        "api.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
+        "mo.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
         return_value=False,
     ):
         participant_req = ParticipantPostReq(
@@ -83,7 +83,7 @@ def test_get_all_participants_success(participant_service):
     }
     participant_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_all.return_value = [participant]
         MockStorage.return_value = mock_storage
@@ -113,7 +113,7 @@ def test_get_participant_success(participant_service):
     }
     participant_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_one.return_value = participant
         MockStorage.return_value = mock_storage
@@ -126,7 +126,7 @@ def test_get_participant_success(participant_service):
 def test_get_participant_not_found(participant_service):
     participant_service.project_service.exists.return_value = True
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.find_one.return_value = None
         MockStorage.return_value = mock_storage
@@ -160,9 +160,9 @@ def test_update_participant_success(participant_service):
     participant_service.file_management.rename_directory.return_value = "/new/path"
 
     with (
-        patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage,
+        patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage,
         patch(
-            "api.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
+            "mo.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
             return_value=True,
         ),
     ):
@@ -215,7 +215,7 @@ def test_update_participant_invalid_code(participant_service):
     participant_service.exists = MagicMock(return_value=False)
 
     with patch(
-        "api.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
+        "mo.modules.organization.services.participant_service.FileValidators.is_valid_directory_name",
         return_value=False,
     ):
         with pytest.raises(BadRequestException):
@@ -249,7 +249,7 @@ def test_delete_participant_success(participant_service):
     participant_service.exists = MagicMock(return_value=True)
     participant_service.is_participant_locked = MagicMock(return_value=False)
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.delete_one = MagicMock()
         MockStorage.return_value = mock_storage
@@ -290,7 +290,7 @@ def test_lock_participant(participant_service):
     participant_service.get_participant_data = MagicMock(
         return_value=ParticipantData(**participant_data))
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage
@@ -322,7 +322,7 @@ def test_unlock_participant(participant_service):
     participant_service.get_participant_data = MagicMock(
         return_value=ParticipantData(**participant_data))
 
-    with patch("api.modules.organization.services.participant_service.JsonStorage") as MockStorage:
+    with patch("mo.modules.organization.services.participant_service.JsonStorage") as MockStorage:
         mock_storage = MockStorage()
         mock_storage.update = MagicMock()
         MockStorage.return_value = mock_storage

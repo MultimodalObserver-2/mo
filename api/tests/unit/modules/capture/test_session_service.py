@@ -2,9 +2,9 @@ import pytest
 from unittest.mock import MagicMock, patch, ANY
 from datetime import datetime
 
-from api.core.utils.http_exceptions import BadRequestException, NotFoundException
-from api.modules.capture.schemas.session import CaptureConfigDetails, CaptureConfigDetailsPost, CaptureConfigDetailsPut, SessionData, SessionPost, SessionPut, SessionRes
-from api.modules.capture.services.session_service import SessionService
+from mo.core.utils.http_exceptions import BadRequestException, NotFoundException
+from mo.modules.capture.schemas.session import CaptureConfigDetails, CaptureConfigDetailsPost, CaptureConfigDetailsPut, SessionData, SessionPost, SessionPut, SessionRes
+from mo.modules.capture.services.session_service import SessionService
 
 
 @pytest.fixture
@@ -64,7 +64,7 @@ def test_create_session_success(session_service, mock_participant):
     session_service.participant_service._get_participant_dir_name.return_value = "P01"
     SessionRes.from_session_data = MagicMock()
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -95,7 +95,7 @@ def test_update_session_success(session_service, mock_session_data):
     session_service.participant_service._get_participant_dir_name.return_value = participant_code
     SessionRes.from_session_data = MagicMock()
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -121,7 +121,7 @@ def test_add_capture_source_setting_start_timestamp_success(session_service, moc
     session_service._get_session_data = MagicMock(
         return_value=mock_session_data)
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -143,7 +143,7 @@ def test_add_end_timestamp_success(session_service, mock_session_data):
     session_service._get_session_data = MagicMock(
         return_value=mock_session_data)
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -179,7 +179,7 @@ def test_get_all_sessions_success(session_service, mock_participant):
     session_service.participant_service.get_participant.return_value = mock_participant
     SessionRes.from_session_data = MagicMock()
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_all.return_value = [
             session_dict_1, session_dict_2
@@ -254,7 +254,7 @@ def test_delete_session_success(session_service):
     session_service.get_session = MagicMock(return_value=mock_session_res)
     session_service.participant_service.is_participant_locked.return_value = False
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -290,7 +290,7 @@ def test_exists_true(session_service, mock_participant):
 
     session_service.participant_service.get_participant.return_value = mock_participant
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_storage_instance.exists.return_value = True
         mock_json_storage.return_value = mock_storage_instance
@@ -321,7 +321,7 @@ def test_get_session_data_not_found(session_service):
     participant_code = "P01"
     session_id = "nonexistent_session"
 
-    with patch('api.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_one.return_value = None
         mock_json_storage.return_value = mock_storage_instance

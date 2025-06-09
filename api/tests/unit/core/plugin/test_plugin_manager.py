@@ -1,11 +1,11 @@
 from re import M
-from api.core.plugin.plugin_manager import PluginManager
-from api.core.plugin.settings import Settings
+from mo.core.plugin.manager import PluginManager
+from mo.core.plugin.models.settings import Settings
 import pytest
 from unittest.mock import MagicMock, patch, mock_open
 
-from api.core.plugin.plugin import Plugin, PluginMetadata
-from api.core.plugin.plugin_worker_process import PluginProcessMetadata, PluginWorkerProcess
+from mo.core.plugin.models.plugin import Plugin, PluginMetadata
+from mo.core.plugin.worker_process import PluginProcessMetadata, PluginWorkerProcess
 
 
 @pytest.fixture
@@ -59,9 +59,9 @@ def test_load_metadata_file_not_found(mock_exists, plugin_manager):
         plugin_manager.load_metadata_file('non_existent_plugin')
 
 
-@patch('api.core.plugin.plugin_manager.multiprocessing.Queue')
-@patch('api.core.plugin.plugin_manager.PluginWorkerProcess')
-@patch('api.core.plugin.plugin_manager.load_plugin_metadata')
+@patch('mo.core.plugin.manager.multiprocessing.Queue')
+@patch('mo.core.plugin.manager.PluginWorkerProcess')
+@patch('mo.core.plugin.manager.load_plugin_metadata')
 def test_register_plugin_success(mock_load_meta, mock_process, mock_queue, plugin_manager):
     mock_meta = MagicMock(spec=PluginMetadata)
     mock_meta.platform = MagicMock()
@@ -118,7 +118,7 @@ def test_get_plugin_metadata_not_found(plugin_manager):
     assert result is None
 
 
-@patch('api.core.plugin.plugin_manager.PluginWorkerProcess')
+@patch('mo.core.plugin.manager.PluginWorkerProcess')
 def test_get_active_plugin_process_creates_new(mock_process_class, plugin_manager):
     mock_meta = MagicMock(spec=PluginMetadata)
     mock_meta.is_plugin_from_final_id.return_value = True
@@ -208,14 +208,14 @@ def test_exists_entry_point(plugin_manager):
             'plugin_a', 'non.existent') is False
 
 
-@patch('api.core.plugin.plugin_manager.load_plugin_metadata')
+@patch('mo.core.plugin.manager.load_plugin_metadata')
 def test_register_plugin_already_exists(mock_load_meta, plugin_manager):
     with patch.object(plugin_manager, 'plugin_metadata_exists', return_value=True):
         with pytest.raises(ImportError):
             plugin_manager.register_plugin('plugin_a')
 
 
-@patch('api.core.plugin.plugin_manager.load_plugin_metadata')
+@patch('mo.core.plugin.manager.load_plugin_metadata')
 def test_register_plugin_platform_not_available(mock_load_meta, plugin_manager):
     mock_meta = MagicMock(spec=PluginMetadata)
     mock_meta.platform = MagicMock()
@@ -238,7 +238,7 @@ def test_remove_plugin_success(plugin_manager):
     mock_remove.assert_called_with('plugin_a')
 
 
-@patch('api.core.plugin.plugin_manager.load_plugin_metadata')
+@patch('mo.core.plugin.manager.load_plugin_metadata')
 def test_rename_plugin_dir_success(mock_load_meta, plugin_manager):
     with patch.object(plugin_manager, 'remove_plugin') as mock_remove:
         with patch.object(plugin_manager, 'register_plugin') as mock_register:
@@ -301,7 +301,7 @@ def test_get_active_plugin_process_metadata_is_none(plugin_manager):
     assert result is None
 
 
-@patch('api.core.plugin.plugin_manager.PluginWorkerProcess')
+@patch('mo.core.plugin.manager.PluginWorkerProcess')
 def test_get_plugin_properties_success(plugin_worker_process, plugin_manager):
     mock_process = MagicMock(spec=PluginWorkerProcess)
     mock_process.get_properties.return_value = [{"prop": "value"}]
@@ -339,7 +339,7 @@ def test_validate_plugin_settings_metadata_is_none(plugin_manager):
         plugin_manager.validate_plugin_settings('id', MagicMock())
 
 
-@patch('api.core.plugin.plugin_manager.PluginWorkerProcess')
+@patch('mo.core.plugin.manager.PluginWorkerProcess')
 def test_validate_plugin_settings_process_is_none(mock_worker_class, plugin_manager):
     mock_settings = MagicMock(spec=Settings)
 

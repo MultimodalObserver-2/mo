@@ -2,9 +2,9 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from api.core.utils.http_exceptions import BadRequestException
-from api.modules.organization.schemas.protocol import Activity, ProtocolExecMsg
-from api.modules.organization.services.protocol_exec_service import \
+from mo.core.utils.http_exceptions import BadRequestException
+from mo.modules.organization.schemas.protocol import Activity, ProtocolExecMsg
+from mo.modules.organization.services.protocol_exec_service import \
     ProtocolExecService
 
 
@@ -68,7 +68,7 @@ async def test_handle_activity_execution_with_file(activity_example):
     service = ProtocolExecService()
 
     with patch(
-        "api.modules.organization.services.protocol_exec_service.FileManagement.open_file"
+        "mo.modules.organization.services.protocol_exec_service.FileManagement.open_file"
     ) as mock_open_file:
         await service.handle_activity_execution(websocket, activity_example)
         mock_open_file.assert_called_once_with(activity_example.path)
@@ -84,7 +84,7 @@ async def test_handle_activity_execution_with_timer(activity_example):
     service = ProtocolExecService()
 
     with patch(
-        "api.modules.organization.services.protocol_exec_service.asyncio.sleep",
+        "mo.modules.organization.services.protocol_exec_service.asyncio.sleep",
         new_callable=AsyncMock,
     ):
         await service.handle_activity_execution(websocket, activity_example)
@@ -161,7 +161,7 @@ async def test_handle_end_with_close_process(activity_example):
     service = ProtocolExecService()
 
     with patch(
-        "api.modules.organization.services.protocol_exec_service.FileManagement.close_process"
+        "mo.modules.organization.services.protocol_exec_service.FileManagement.close_process"
     ) as mock_close:
         await service.handle_end(websocket, activity_example, 5)
         mock_close.assert_called_once_with("some_process")

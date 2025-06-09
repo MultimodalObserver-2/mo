@@ -6,11 +6,11 @@ import uvicorn
 def start():
     os.environ["APP_ENV"] = "development"
     uvicorn.run(
-        "api.main:app",
+        "mo.main:app",
         host="localhost",
         port=8000,
         reload=True,
-        reload_dirs=["api/src/api", "src/api"],
+        reload_dirs=["api/src/mo", "src/mo"],
     )
 
 

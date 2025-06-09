@@ -4,11 +4,11 @@ import pytest
 from fastapi import status
 from httpx import ASGITransport, AsyncClient
 
-from api.core.file_management.file_management import FileManagement
-from api.core.file_management.json_storage import JsonStorage
-from api.main import app
-from api.modules.organization.services.project_service import ProjectService
-from api.modules.organization.services.protocol_service import ProtocolService
+from mo.core.file_management.file_management import FileManagement
+from mo.core.file_management.json_storage import JsonStorage
+from mo.main import app
+from mo.modules.organization.services.project_service import ProjectService
+from mo.modules.organization.services.protocol_service import ProtocolService
 
 
 @pytest.fixture

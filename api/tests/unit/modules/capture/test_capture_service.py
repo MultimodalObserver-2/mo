@@ -1,13 +1,13 @@
 from datetime import datetime
-from api.core.plugin.plugin_worker_process import PluginWorkerProcess
-from api.modules.capture.services.capture_plugin_callbacks import prepare_callback, start_callback
+from mo.core.plugin.worker_process import PluginWorkerProcess
+from mo.modules.capture.services.capture_plugin_callbacks import prepare_callback, start_callback
 import pytest
 from unittest.mock import MagicMock, patch
 
-from api.core.utils.http_exceptions import BadRequestException
-from api.modules.capture.services.capture_service import CaptureService
-from api.modules.capture.schemas.session import CaptureConfigDetailsPost, SessionRes, SessionPut
-from api.modules.capture.schemas.capture import PluginData
+from mo.core.utils.http_exceptions import BadRequestException
+from mo.modules.capture.services.capture_service import CaptureService
+from mo.modules.capture.schemas.session import CaptureConfigDetailsPost, SessionRes, SessionPut
+from mo.modules.capture.schemas.capture import PluginData
 
 
 @pytest.fixture
@@ -34,7 +34,7 @@ def test_get_capture_plugins_success(capture_service):
     mock_metadata = [MagicMock(), MagicMock()]
     capture_service.plugin_management.get_plugins_metadata_from_type.return_value = mock_metadata
 
-    with patch('api.modules.capture.services.capture_service.PluginRes') as mock_plugin_res:
+    with patch('mo.modules.capture.services.capture_service.PluginRes') as mock_plugin_res:
         result = capture_service.get_capture_plugins()
 
         assert len(result) == 2
@@ -43,7 +43,7 @@ def test_get_capture_plugins_success(capture_service):
 
 
 @patch('time.monotonic', return_value=1000.0)
-@patch('api.modules.capture.services.capture_service.datetime')
+@patch('mo.modules.capture.services.capture_service.datetime')
 def test_start_capture_success(mock_dt, mock_monotonic, capture_service):
     project_name = "TestProject"
     participant_code = "P01"
@@ -86,7 +86,7 @@ def test_start_capture_no_processes_loaded_raises_exception(capture_service):
 
 
 @patch('time.monotonic', side_effect=[1000.0, 1100.0])  # start_ts, stop_ts
-@patch('api.modules.capture.services.capture_service.datetime')
+@patch('mo.modules.capture.services.capture_service.datetime')
 def test_stop_capture_success(mock_dt, mock_monotonic, capture_service):
     capture_service.started = True
     capture_service.project_name = "TestProject"
@@ -97,7 +97,7 @@ def test_stop_capture_success(mock_dt, mock_monotonic, capture_service):
     capture_service.unload_running_processes = MagicMock()
     capture_service._initialize = MagicMock()
 
-    with patch('api.modules.capture.services.capture_service.SessionPut') as mock_session_put:
+    with patch('mo.modules.capture.services.capture_service.SessionPut') as mock_session_put:
         mock_session_put.from_session_res.return_value = MagicMock(
             spec=SessionPut)
         capture_service.stop_capture()
@@ -159,7 +159,7 @@ def test_get_capture_plugin_file_name_success(capture_service):
     mock_process.execute_callback_on_instance.return_value = "csv"
     capture_service.running_processes["plugin1"] = mock_process
 
-    with patch('api.modules.capture.services.capture_service.FileManagement') as mock_fm:
+    with patch('mo.modules.capture.services.capture_service.FileManagement') as mock_fm:
         mock_fm.normalize_file_name.return_value = "my_config"
         file_name = capture_service.get_capture_plugin_file_name(
             "plugin1", "My Config")
@@ -369,7 +369,7 @@ def test_get_status_returns_correct_state(capture_service):
     capture_service.project_name = "MyProject"
     capture_service.participant_code = "P99"
 
-    with patch('api.modules.capture.services.capture_service.CaptureStatusResponse') as mock_response:
+    with patch('mo.modules.capture.services.capture_service.CaptureStatusResponse') as mock_response:
         capture_service.get_status()
         mock_response.assert_called_with(
             started=True,
