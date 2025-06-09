@@ -4,7 +4,7 @@ from datetime import datetime
 import time
 from api.core.api.schemas.plugin import PluginRes
 from api.core.file_management.file_management import FileManagement
-from api.core.plugin.plugin_management import PluginManagement
+from api.core.plugin.plugin_manager import PluginManager
 from api.core.plugin.plugin_worker_process import PluginWorkerProcess
 from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import BadRequestException
@@ -27,7 +27,7 @@ class CaptureService:
 
     def __init__(self):
         self.session_service = SessionService()
-        self.plugin_management = PluginManagement()
+        self.plugin_management = PluginManager()
         self.config_service = CaptureConfigService()
         # Lock to ensure thread-safe execution of callbacks
         self._initialize()

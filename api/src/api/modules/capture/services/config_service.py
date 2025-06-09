@@ -3,7 +3,7 @@ import os
 from api.core.api.schemas.plugin import PluginRes
 from api.core.file_management.file_management import FileManagement
 from api.core.file_management.json_storage import JsonStorage
-from api.core.plugin.plugin_management import PluginManagement
+from api.core.plugin.plugin_manager import PluginManager
 from api.core.plugin.settings import Settings
 from api.core.utils.http_exceptions import (AlreadyExistsException, BadRequestException,
                                             NotFoundException)
@@ -20,7 +20,7 @@ class CaptureConfigService:
         self._settings_dir_name = CAPTURE_CONFIGS_DIR
         self._settings_file_name = CAPTURE_CONFIGS_FILE
         self.project_service = ProjectService()
-        self.plugin_management = PluginManagement()
+        self.plugin_management = PluginManager()
         self.file_management = FileManagement()
 
     def _get_settings_dir_path(self, project_name: str):

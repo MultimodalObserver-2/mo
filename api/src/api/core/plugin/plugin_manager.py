@@ -14,7 +14,7 @@ from api.core.utils.singleton import singleton
 
 
 @singleton
-class PluginManagement:
+class PluginManager:
     plugins_metadata: dict[str, PluginMetadata]
     plugin_processes_metadata: dict[str, PluginProcessMetadata]
     plugin_processes: dict[str, PluginWorkerProcess]

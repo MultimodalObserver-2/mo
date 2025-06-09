@@ -6,7 +6,7 @@ from watchdog.events import (DirCreatedEvent, DirDeletedEvent, DirMovedEvent,
                              FileCreatedEvent, FileDeletedEvent,
                              FileMovedEvent, FileSystemEventHandler)
 
-from api.core.plugin.plugin_management import PluginManagement
+from api.core.plugin.plugin_manager import PluginManager
 from api.core.utils.singleton import singleton
 
 
@@ -14,7 +14,7 @@ from api.core.utils.singleton import singleton
 class PluginsDirHandler(FileSystemEventHandler):
     def __init__(self) -> None:
         super().__init__()
-        self.plugin_management = PluginManagement()
+        self.plugin_management = PluginManager()
         self.known_dirs = self.plugin_management.load_all_plugins()
         self.plugins_path = self.plugin_management.plugins_path
         self.suspended = False
