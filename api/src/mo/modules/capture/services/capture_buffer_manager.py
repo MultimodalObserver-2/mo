@@ -27,6 +27,7 @@ class CaptureBufferManager:
         self.memory_limit = memory_limit
         self.swap_memory_limit = swap_memory_limit
         self.started = False
+        self.last_pause = None
         self.on_capture_data = on_capture_data
         self.paused_intervals = []  # type: list[tuple[float, float | None]]
         self.paused_intervals_lock = threading.Lock()
@@ -34,6 +35,7 @@ class CaptureBufferManager:
     def start(self, buffer_tuples: list[tuple[str, str]], queue: multiprocessing.Queue, processes: Mapping[str, PluginWorkerProcess]):
         self.queue = queue
         self.processes = processes
+        self.last_pause = None
         self.buffers.clear()
         for plugin_id, config_name in buffer_tuples:
             self.buffers[(plugin_id, config_name)] = ListBuffer[CaptureData]()
@@ -128,7 +130,6 @@ class CaptureBufferManager:
             try:
                 if self.is_stressed():
                     continue
-                print("Flushing buffers...")
                 exceptions = self.flush_buffers()
                 for key, exception in exceptions.items():
                     all_exceptions[key].append(exception)
@@ -178,6 +179,14 @@ class CaptureBufferManager:
             except Exception as e:
                 print(f"Error moving queue to buffers: {e}")
 
+    def pause(self, ts: float):
+        self.last_pause = ts
+
+    def resume(self, ts: float):
+        if self.last_pause is not None:
+            self.add_paused_interval(self.last_pause, ts)
+            self.last_pause = None
+
     def add_paused_interval(self, start: float, end: float | None):
         with self.paused_intervals_lock:
             self.paused_intervals.append((start, end))
@@ -188,7 +197,10 @@ class CaptureBufferManager:
 
     def get_paused_intervals(self) -> list[tuple[float, float | None]]:
         with self.paused_intervals_lock:
-            return list(self.paused_intervals)
+            paused_intervals_copy = self.paused_intervals.copy()
+            if self.last_pause is not None:
+                paused_intervals_copy.append((self.last_pause, None))
+            return paused_intervals_copy
 
     def patch_last_paused_interval(self, start: float | None, end: float | None):
         with self.paused_intervals_lock:

@@ -146,8 +146,8 @@ class CaptureService:
         self.started = False
         self.paused = False
         stop_ts = time.monotonic()
-        self.capture_buffer_manager.add_paused_interval(stop_ts, None)
         stop_datetime = datetime.now()
+        self.capture_buffer_manager.add_paused_interval(stop_ts, None)
         for key, process in self.running_processes.items():
             try:
                 process.execute_callback_on_all_instances(
@@ -180,8 +180,7 @@ class CaptureService:
             raise BadRequestException(
                 "Capture is not started or already paused.")
         self.paused_ts = time.monotonic()
-        self.capture_buffer_manager.add_paused_interval(
-            self.paused_ts, None)  # None indicates not resumed yet
+        self.capture_buffer_manager.pause(self.paused_ts)
         with self.execute_lock:
             for process in self.running_processes.values():
                 try:
@@ -196,16 +195,14 @@ class CaptureService:
         if not self.started or not self.paused:
             raise BadRequestException("Capture is not started or not paused.")
         resume_ts = time.monotonic()
-        self.capture_buffer_manager.patch_last_paused_interval(
-            None, resume_ts)  # Update the last interval to resume time
-        args = {
-            "resume_ts": resume_ts,
-        }
+        self.capture_buffer_manager.resume(resume_ts)
         with self.execute_lock:
             for process in self.running_processes.values():
                 try:
                     process.execute_callback_on_all_instances(
-                        resume_callback, args, need_response=False)
+                        resume_callback, {
+                            "resume_ts": resume_ts,
+                        }, need_response=False)
                 except Exception as e:
                     print(f"Error resuming process: {e}")
 
