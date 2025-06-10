@@ -394,3 +394,14 @@ def test_flush_buffers_periodically_worker_handles_exceptions(capture_buffer_man
     capture_buffer_manager.flush_buffers.assert_called_once()
     assert ("plugin1", "config1") in all_exceptions
     assert all_exceptions[("plugin1", "config1")][0] is test_exception
+
+
+def test_pause_resume(capture_buffer_manager):
+    capture_buffer_manager.pause(10.0)
+
+    assert capture_buffer_manager.last_pause == 10.0
+    assert (10.0, None) in capture_buffer_manager.get_paused_intervals()
+
+    capture_buffer_manager.resume(20.0)
+    assert capture_buffer_manager.last_pause is None
+    assert (10.0, 20.0) in capture_buffer_manager.get_paused_intervals()

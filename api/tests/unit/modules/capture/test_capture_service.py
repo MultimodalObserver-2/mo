@@ -125,16 +125,14 @@ def test_pause_and_resume_capture_success(mock_monotonic, capture_service):
 
     assert capture_service.paused is True
     assert capture_service.paused_ts == 100.0
-    capture_service.capture_buffer_manager.add_paused_interval.assert_called_with(
-        100.0, None)
+    capture_service.capture_buffer_manager.pause.assert_called_with(100.0)
     mock_process.execute_callback_on_all_instances.assert_called_once()
 
     capture_service.resume_capture()
 
     assert capture_service.paused is False
     assert capture_service.paused_time == 10.0
-    capture_service.capture_buffer_manager.patch_last_paused_interval.assert_called_with(
-        None, 110.0)
+    capture_service.capture_buffer_manager.resume.assert_called_with(110.0)
     assert mock_process.execute_callback_on_all_instances.call_count == 2
 
 
