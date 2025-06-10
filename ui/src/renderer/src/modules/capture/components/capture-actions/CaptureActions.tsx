@@ -46,13 +46,13 @@ export default function CaptureActions() {
         }
         await captureService.startCapture(data)
       }
-      window.capture.reloadCaptureStatus()
       setIsCapturing(!isCapturing)
       setIsPaused(false)
     } catch (error) {
       checkCaptureStatus()
       showApiErrorMessage(error)
     }
+    window.capture.reloadCaptureStatus()
     setIsLoading(false)
   }
 
