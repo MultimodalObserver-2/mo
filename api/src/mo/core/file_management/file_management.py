@@ -257,5 +257,5 @@ class FileManagement:
         """
         file_name = unicodedata.normalize("NFKD", file_name)
         file_name = "".join(c for c in file_name if not unicodedata.combining(c))
-        file_name = re.sub(r'[^a-zA-Z0-9_]', '', file_name)
+        file_name = re.sub(r'[\W]', '', file_name)
         return file_name
