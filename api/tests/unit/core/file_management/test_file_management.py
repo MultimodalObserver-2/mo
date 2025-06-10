@@ -1,12 +1,15 @@
+from math import e
 import sys
+import os
+import stat
 from unittest.mock import MagicMock, patch
 
 import psutil
 import pytest
 
 from mo.core.utils.exceptions import (InvalidDirectoryNameError,
-                                                 InvalidFileNameError,
-                                                 NotFoundError)
+                                      InvalidFileNameError,
+                                      NotFoundError)
 from mo.core.file_management.file_management import FileManagement
 
 
@@ -111,7 +114,8 @@ def test_rename_directory_invalid_name(file_mgmt):
 
 def test_delete_directory_success(file_mgmt):
     with (
-        patch("mo.core.file_management.file_management.os.path.exists", return_value=True),
+        patch("mo.core.file_management.file_management.os.path.exists",
+              return_value=True),
         patch("mo.core.file_management.file_management.shutil.rmtree") as mock_rmtree,
     ):
 
@@ -136,7 +140,8 @@ def test_is_file(file_mgmt):
 
 def test_open_file_linux(file_mgmt):
     with (
-        patch("mo.core.file_management.file_management.platform.system", return_value="Linux"),
+        patch("mo.core.file_management.file_management.platform.system",
+              return_value="Linux"),
         patch("mo.core.file_management.file_management.os.system") as mock_system,
     ):
         file_mgmt.open_file("file.txt")
@@ -155,7 +160,8 @@ def test_open_file_windows(file_mgmt):
 
 def test_open_file_mac(file_mgmt):
     with (
-        patch("mo.core.file_management.file_management.platform.system", return_value="Darwin"),
+        patch("mo.core.file_management.file_management.platform.system",
+              return_value="Darwin"),
         patch("mo.core.file_management.file_management.os.system") as mock_system,
     ):
         file_mgmt.open_file("file.txt")
@@ -204,3 +210,106 @@ def test_close_process_no_such_process_error(file_mgmt):
         file_mgmt.close_process("process_name")
 
         mock_process.kill.assert_called_once()
+
+
+@patch('mo.core.file_management.file_management.send2trash')
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=True)
+def test_send_to_trash(mock_exists, mock_send2trash, file_mgmt):
+    name = 'my_file.txt'
+    result = file_mgmt.send_to_trash(name)
+
+    assert name in result
+    mock_send2trash.send2trash.assert_called_once()
+
+
+@patch('mo.core.file_management.file_management.shutil.rmtree')
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=True)
+def test_delete_directory_with_readonly(mock_exists, mock_rmtree, file_mgmt):
+    mock_onexc_func = MagicMock()
+
+    mock_rmtree.side_effect = lambda path, onexc: onexc(
+        mock_onexc_func, '/internal/path', None)
+
+    with patch('mo.core.file_management.file_management.os.chmod') as mock_chmod:
+        file_mgmt.delete_directory('my_dir')
+
+    mock_chmod.assert_called_once_with('/internal/path', stat.S_IWRITE)
+    mock_onexc_func.assert_called_with('/internal/path')
+
+
+@patch('mo.core.file_management.file_management.os.remove')
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=True)
+def test_delete_file(mock_exists, mock_remove, file_mgmt):
+    name = 'my_file.txt'
+    result = file_mgmt.delete_file(name)
+
+    assert name in result
+    mock_remove.assert_called_once()
+
+
+@patch('mo.core.file_management.file_management.shutil.copyfileobj')
+def test_copy_file_obj(mock_copyfileobj, file_mgmt):
+    mock_file_obj = MagicMock()
+    name = 'new_file.txt'
+    rel_path = 'some/path'
+    expected_path = os.path.join(rel_path, name)
+    expected_path = os.path.normpath(expected_path)
+    with patch('builtins.open') as mock_file:
+        result = file_mgmt.copy_file_obj(
+            mock_file_obj, name, rel_path)
+
+    assert expected_path in result
+    mock_file.assert_called_once()
+    mock_copyfileobj.assert_called_once()
+
+
+@patch('mo.core.file_management.file_management.zipfile.ZipFile')
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=True)
+def test_extract_zip(mock_exists, mock_zipfile, file_mgmt):
+    mock_zip_instance = mock_zipfile.return_value.__enter__.return_value
+
+    file_mgmt.extract_zip('my_archive.zip', 'extract/here')
+
+    mock_zipfile.assert_called_once()
+    mock_zip_instance.extractall.assert_called_once()
+
+
+@patch('mo.core.file_management.file_management.os.path.exists', side_effect=[True, True, False])
+def test_get_unique_name(mock_exists, file_mgmt):
+    result = file_mgmt.get_unique_name('my_name')
+    assert result == 'my_name (2)'
+
+
+def test_normalize_file_name():
+    assert FileManagement.normalize_file_name(
+        "Tést Fíle Nãme") == "TestFileName"
+    assert FileManagement.normalize_file_name(
+        "file_with_special-chars!@#") == "file_with_specialchars"
+    assert FileManagement.normalize_file_name(
+        "another_file_123") == "another_file_123"
+
+
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=False)
+def test_send_to_trash_path_not_found(mock_exists, file_mgmt):
+    with pytest.raises(NotFoundError):
+        file_mgmt.send_to_trash('non_existent.txt')
+
+
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=False)
+def test_delete_file_path_not_found(mock_exists, file_mgmt):
+    with pytest.raises(NotFoundError):
+        file_mgmt.delete_file('non_existent.txt')
+
+
+@patch('mo.core.file_management.file_management.os.path.exists', return_value=False)
+def test_extract_zip_path_not_found(mock_exists, file_mgmt):
+    with pytest.raises(NotFoundError):
+        file_mgmt.extract_zip('non_existent.zip', 'some_dir')
+
+
+@patch('mo.core.file_management.file_management.zipfile.ZipFile')
+@patch('mo.core.file_management.file_management.os.makedirs')
+@patch('mo.core.file_management.file_management.os.path.exists', side_effect=[True, False])
+def test_extract_zip_creates_extract_to_path(mock_exists, mock_makedirs, mock_zipfile, file_mgmt):
+    file_mgmt.extract_zip('existent.zip', 'new_dir')
+    mock_makedirs.assert_called_once()
