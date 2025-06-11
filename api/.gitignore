@@ -34,6 +34,10 @@ pip-wheel-metadata/
 /data/
 /plugins/
 
+# Logs
+*.log
+/logs/
+
 # SonarQube files
 .sonar/
 

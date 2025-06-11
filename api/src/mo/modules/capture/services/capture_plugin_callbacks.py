@@ -1,8 +1,10 @@
+import logging
 import multiprocessing
 import threading
 import time
 from typing import Any, Optional
 
+from mo.core.config import constants
 from mo.core.plugin.models.plugin import Plugin
 from mo.core.plugin.worker_process import PluginProcessMetadata
 from mo.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
@@ -14,6 +16,8 @@ pausing, resuming, and saving of capture plugins in a multi-process and multi-th
 environment.
 """
 
+
+logger = logging.getLogger(constants.LOGGER_NAME)
 
 def prepare_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
     """Prepares the CapturePlugin instance with the provided session path and file name.
@@ -67,7 +71,7 @@ def start_callback(
                     block=False,
                 )
         except Exception as e:
-            print(f"Error in on_data_callback for {config_name}: {e}")
+            logger.error(f"[start_callback] Error in on_data_callback for {config_name}: {e}", exc_info=True)
 
     thread = threading.Thread(
         target=instance.start,

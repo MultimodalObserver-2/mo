@@ -10,8 +10,11 @@ IS_PROD = APP_ENVIRONMENT == "production"
 
 # Application metadata
 APP_NAME = "multimodal-observer"
+LOGGER_NAME = "mo-api"
 # Application paths
 RELATIVE_APP_DATA_PATH = "data"
 RELATIVE_PLUGINS_DIR_PATH = "plugins"
 PLUGIN_METADATA_FILE = "metadata.json"
+RELATIVE_LOG_PATH = "logs/api"
+LOG_FILE = "mo_api.log"
 APP_DATA_DIR = platformdirs.user_data_dir(APP_NAME, appauthor=False) if IS_PROD else os.getcwd()

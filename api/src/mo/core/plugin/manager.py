@@ -1,7 +1,7 @@
 import json
+import logging
 import multiprocessing
 import os
-import sys
 from typing import Any, Optional
 
 from mo.core.config import constants
@@ -42,6 +42,7 @@ class PluginManager:
         self.plugin_types = {}
         # Default plugin type to check for search purposes
         self.plugin_types_to_check = [Plugin]
+        self.logger = logging.getLogger(constants.LOGGER_NAME)
 
     def _get_plugin_dir_path(self, dir_name: str) -> str:
         """Returns the absolute path to the plugin directory.
@@ -72,8 +73,9 @@ class PluginManager:
                 self.register_plugin(plugin_dir_name)
                 dirs.append(plugin_dir_name)
             except Exception as e:
-                print(f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
-                print(f"Traceback: {sys.exc_info()[1]}")
+                self.logger.error(
+                    f"[PluginManager] Failed to load plugin {plugin_dir_name}: {str(e)}", exc_info=True
+                )
                 continue
         return dirs
 
@@ -177,6 +179,11 @@ class PluginManager:
         except Exception as e:
             plugin_metadata._is_loaded = False
             plugin_metadata._error = str(e)
+
+        if not plugin_metadata._is_loaded:
+            self.logger.error(
+                f"[PluginManager] Failed to load plugin '{plugin_metadata.get_final_id()}': {plugin_metadata._error}",
+            )
 
         self.plugins_metadata[dir_name] = plugin_metadata
         return plugin_metadata

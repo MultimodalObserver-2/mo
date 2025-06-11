@@ -1,3 +1,4 @@
+import multiprocessing
 import os
 
 import uvicorn
@@ -7,8 +8,9 @@ from fastapi.responses import JSONResponse
 
 from mo.core.api.routers.plugins import plugin_router
 from mo.core.config.constants import IS_DEV
+from mo.core.config.logger_setup import setup_global_logger
 from mo.core.config.setup import app_setup
-from mo.core.plugin.dir_observer import start_plugins_dir_observer
+from mo.core.plugin.dir_observer import start_plugins_dir_observer_async
 from mo.core.plugin.manager import PluginManager
 from mo.modules.capture.plugins.capture_plugin import CapturePlugin
 from mo.modules.capture.routers.capture import capture_router
@@ -22,6 +24,8 @@ if __name__ == "__main__":
     # Initialize application setup
     app_setup()
 
+logger = setup_global_logger()
+
 app = FastAPI(
     title="Multimodal Observer API",
     description="Multimodal Observer API",
@@ -34,6 +38,7 @@ app = FastAPI(
 
 @app.exception_handler(Exception)
 async def exception_handler(request, exc):
+    logger.exception(f"[API] Request {request.url} unhandled exception: {exc}", exc_info=True)
     return JSONResponse(
         status_code=500,
         content={"message": "Internal Server Error"},
@@ -66,7 +71,7 @@ plugin_management = PluginManager()
 # Register here the types to check for plugins
 plugin_management.register_type_to_check(CapturePlugin)
 
-start_plugins_dir_observer()
+observer = start_plugins_dir_observer_async()
 
 if __name__ == "__main__":
 

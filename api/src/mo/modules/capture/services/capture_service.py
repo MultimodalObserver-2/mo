@@ -1,9 +1,11 @@
+import logging
 import multiprocessing
 import threading
 import time
 from datetime import datetime
 
 from mo.core.api.schemas.plugin import PluginRes
+from mo.core.config import constants
 from mo.core.file_management.file_management import FileManagement
 from mo.core.plugin.manager import PluginManager
 from mo.core.plugin.models.settings import Settings
@@ -62,6 +64,7 @@ class CaptureService:
             swap_memory_limit=self.SWAP_MEMORY_LIMIT,
             on_capture_data=self.on_capture_data_callback,
         )
+        self.logger = logging.getLogger(constants.LOGGER_NAME)
 
     def _initialize(self):
         """Reset the internal state of the CaptureService."""
@@ -120,8 +123,8 @@ class CaptureService:
                 try:
                     process.execute_callback_on_instance(config_name, prepare_callback, extra_args)
                 except Exception as e:
-                    print(
-                        f"Error executing prepare callback for {config_name} in process {key}: {e}"
+                    self.logger.error(
+                        f"[CaptureService] Error executing prepare callback for {config_name} in process {key}: {e}"
                     )
                     valid_processes_instances[key].remove(config_name)
                     process.remove_plugin_instance(config_name)
@@ -141,7 +144,10 @@ class CaptureService:
                 try:
                     process.execute_callback_on_instance(config_name, start_callback, extra_args)
                 except Exception as e:
-                    print(f"Error executing start callback for {config_name} in process {key}: {e}")
+                    self.logger.error(
+                        f"[CaptureService] Error executing start callback for {config_name} in process {key}: {e}",
+                        exc_info=True
+                    )
 
     def start_capture(self, project_name: str, participant_code: str):
         """Start a capture session for the specified project and participant.
@@ -262,7 +268,10 @@ class CaptureService:
                         pause_callback, {"pause_ts": self.paused_ts}, need_response=False
                     )
                 except Exception as e:
-                    print(f"Error pausing process: {e}")
+                    self.logger.error(
+                        f"[CaptureService] Error executing pause callback for process {process.process_metadata.metadata.plugin_id}: {e}",
+                        exc_info=True
+                    )
 
         self.paused = True
 
@@ -288,7 +297,10 @@ class CaptureService:
                         need_response=False,
                     )
                 except Exception as e:
-                    print(f"Error resuming process: {e}")
+                    self.logger.error(
+                        f"[CaptureService] Error executing resume callback for process {process.process_metadata.metadata.plugin_id}: {e}",
+                        exc_info=True
+                    )
 
         self.paused_time += resume_ts - self.paused_ts
         self.paused_ts = 0.0
