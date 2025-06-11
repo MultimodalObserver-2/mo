@@ -23,7 +23,7 @@ class PluginService:
         """Initializes the PluginService, setting up the plugin manager,
         plugins directory handler, and file management system.
         """
-        self.plugin_management = PluginManager()
+        self.plugin_manager = PluginManager()
         self.plugins_dir_handler = PluginsDirHandler()
         self.plugins_dir = RELATIVE_PLUGINS_DIR_PATH
         self.file_management = FileManagement(self.plugins_dir)
@@ -49,10 +49,11 @@ class PluginService:
         self.file_management.extract_zip(zip_path, dir_path)
         self.file_management.delete_file(zip_path)
         try:
-            plugin_metadata = self.plugin_management.register_plugin(dir_name)
+            plugin_metadata = self.plugin_manager.register_plugin(dir_name)
         except Exception as e:
             # If registration fails, we need to clean up the directory
             self.file_management.delete_directory(dir_name)
+            self.plugins_dir_handler.resume()
             raise BadRequestException(f"Failed to add plugin '{file_name}'. \nError: {e}")
         self.plugins_dir_handler.add_known_dir(dir_name)
         self.plugins_dir_handler.resume()
@@ -63,7 +64,7 @@ class PluginService:
         Returns:
             list[PluginRes]: A list of PluginRes objects containing metadata for each plugin.
         """
-        plugins = self.plugin_management.get_all_plugins_metadata()
+        plugins = self.plugin_manager.get_all_plugins_metadata()
         return [PluginRes.from_plugin_metadata(plugin) for plugin in plugins]
 
     def get_plugin(self, final_id: str) -> PluginRes:
@@ -75,7 +76,7 @@ class PluginService:
         Raises:
             BadRequestException: If the plugin with the specified final ID does not exist.
         """
-        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
+        plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(f"Plugin '{final_id}' not found.")
         return PluginRes.from_plugin_metadata(plugin_metadata)
@@ -88,19 +89,19 @@ class PluginService:
             BadRequestException: If the plugin with the specified final ID does not exist
             or if there is an error during removal.
         """
-        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
+        plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(f"Plugin '{final_id}' not found.")
         self.plugins_dir_handler.suspend()
-        dir_name = self.plugin_management.get_plugin_dir_name(final_id)
+        dir_name = self.plugin_manager.get_plugin_dir_name(final_id)
         try:
-            dir_name = self.plugin_management.remove_plugin(final_id)
+            dir_name = self.plugin_manager.remove_plugin(final_id)
             self.file_management.delete_directory(dir_name)
             self.plugins_dir_handler.remove_known_dir(dir_name)
         except Exception as e:
             # If removal fails, we need to re-register the plugin and resume the handler
             # to ensure the plugin is still recognized in the system.
-            self.plugin_management.register_plugin(dir_name)
+            self.plugin_manager.register_plugin(dir_name)
             self.plugins_dir_handler.add_known_dir(dir_name)
             self.plugins_dir_handler.resume()
             raise BadRequestException(f"Failed to remove plugin '{final_id}'. \nError: {e}")
@@ -119,11 +120,11 @@ class PluginService:
         Raises:
             BadRequestException: If the plugin with the specified final ID does not exist.
         """
-        plugin_metadata = self.plugin_management.get_plugin_metadata(final_id)
+        plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(f"Plugin '{final_id}' not found.")
 
-        plugin_properties = self.plugin_management.get_plugin_properties(
+        plugin_properties = self.plugin_manager.get_plugin_properties(
             final_id, Settings(settings) if settings else None
         )
         if not plugin_properties:
