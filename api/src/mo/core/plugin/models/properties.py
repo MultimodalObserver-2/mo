@@ -9,6 +9,7 @@ from mo.core.plugin.models.settings import Settings
 
 class PropertyType(Enum):
     """Enumeration for different property types."""
+
     INT = "int"
     FLOAT = "float"
     TEXT = "text"
@@ -25,21 +26,25 @@ modified_callback_type = Callable[
 
 class PropertySelectOption(BaseModel):
     """Represents an option for a select property."""
+
     label: str
     value: str | int | float
 
 
 class Property(BaseModel):
     """Represents a setting property, which can be of various types."""
-    key: str # Unique identifier for the property
-    label: str # Display label for the property
-    required: bool = True # Indicates if the property is required
-    visible: bool = True # Indicates if the property is visible
-    enabled: bool = True # Indicates if the property is enabled
-    default: Optional[Any] = None # Default value for the property
-    data: dict[str, Any] = {} # Additional data for the property, such as min/max values or options
-    _type: PropertyType = PrivateAttr() # Type of the property (int, float, text, etc.)
-    _modified_callback: Optional[modified_callback_type] = PrivateAttr(default=None) # Callback for when the setting is modified
+
+    key: str  # Unique identifier for the property
+    label: str  # Display label for the property
+    required: bool = True  # Indicates if the property is required
+    visible: bool = True  # Indicates if the property is visible
+    enabled: bool = True  # Indicates if the property is enabled
+    default: Optional[Any] = None  # Default value for the property
+    data: dict[str, Any] = {}  # Additional data for the property, such as min/max values or options
+    _type: PropertyType = PrivateAttr()  # Type of the property (int, float, text, etc.)
+    _modified_callback: Optional[modified_callback_type] = PrivateAttr(
+        default=None
+    )  # Callback for when the setting is modified
 
     def get_dict(self) -> dict[str, Any]:
         """Returns a dictionary representation of the property."""
@@ -69,6 +74,7 @@ VALIDATORS = {
 
 class Properties:
     """Manages a collection of setting properties for a plugin."""
+
     _properties: dict[str, Property]
 
     def __init__(self):
@@ -266,7 +272,7 @@ class Properties:
         Args:
             key (str): Unique identifier for the property.
         Returns:
-            PropertyType: The type of the property. 
+            PropertyType: The type of the property.
         Raises:
             ValueError: If the property with the given key does not exist.
         """

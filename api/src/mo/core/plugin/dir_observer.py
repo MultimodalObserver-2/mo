@@ -18,6 +18,7 @@ from mo.core.utils.singleton import singleton
 @singleton
 class PluginsDirHandler(FileSystemEventHandler):
     """Handles file system events in the plugins directory."""
+
     def __init__(self) -> None:
         """Initializes the PluginsDirHandler."""
         super().__init__()

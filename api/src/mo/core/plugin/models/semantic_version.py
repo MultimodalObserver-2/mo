@@ -3,6 +3,7 @@ from pydantic import BaseModel
 
 class SemanticVersion(BaseModel):
     """Represents a semantic version in the format major.minor.patch."""
+
     major: int
     minor: int
     patch: int

@@ -6,7 +6,8 @@ class Settings:
     """A class to manage settings for a plugin.
     It allows setting, updating, retrieving, and saving settings in JSON format.
     """
-    _settings: dict[str, Any] = {} # Default empty settings dictionary
+
+    _settings: dict[str, Any] = {}  # Default empty settings dictionary
 
     def __init__(self, settings: Optional[dict[str, Any]] = None):
         """Initializes the Settings instance with an optional dictionary of settings.

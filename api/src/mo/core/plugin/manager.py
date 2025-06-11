@@ -16,6 +16,7 @@ from mo.core.utils.singleton import singleton
 @singleton
 class PluginManager:
     """Manages the lifecycle of plugins in the application, and provides methods to manage them."""
+
     plugins_metadata: dict[str, PluginMetadata]
     plugin_processes_metadata: dict[str, PluginProcessMetadata]
     plugin_processes: dict[str, PluginWorkerProcess]
@@ -56,8 +57,7 @@ class PluginManager:
         Args:
             dir_name (str): The name of the plugin directory.
         """
-        metadata_path = os.path.join(
-            self.plugins_path, dir_name, self.plugin_metadata_name)
+        metadata_path = os.path.join(self.plugins_path, dir_name, self.plugin_metadata_name)
         metadata_path = os.path.normpath(metadata_path)
         return metadata_path
 
@@ -72,8 +72,7 @@ class PluginManager:
                 self.register_plugin(plugin_dir_name)
                 dirs.append(plugin_dir_name)
             except Exception as e:
-                print(
-                    f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
+                print(f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
                 print(f"Traceback: {sys.exc_info()[1]}")
                 continue
         return dirs
@@ -89,8 +88,7 @@ class PluginManager:
         """
         metadata_path = self._get_plugin_metadata_path(dir_name)
         if not os.path.exists(metadata_path):
-            raise FileNotFoundError(
-                f"Metadata file not found at {metadata_path}")
+            raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
 
         with open(metadata_path, "r") as f:
             data = json.load(f)
@@ -152,8 +150,7 @@ class PluginManager:
         plugin_metadata = load_plugin_metadata(metadata_path)
         plugin_metadata._location = self._get_plugin_dir_path(dir_name)
         if self.plugin_metadata_exists(plugin_metadata.get_final_id()):
-            raise ImportError(
-                f"Plugin '{plugin_metadata.name}' is already loaded")
+            raise ImportError(f"Plugin '{plugin_metadata.name}' is already loaded")
 
         try:
             if not plugin_metadata.platform.is_available():
@@ -168,8 +165,7 @@ class PluginManager:
                 status_queue,
                 self.plugin_types_to_check,
             )
-            plugin_process = PluginWorkerProcess(
-                plugin_process_metadata, load_main_instance=True)
+            plugin_process = PluginWorkerProcess(plugin_process_metadata, load_main_instance=True)
             plugin_process.start()
             status = status_queue.get()
             plugin_metadata._is_loaded = status.get("is_loaded", False)
@@ -193,8 +189,7 @@ class PluginManager:
             ValueError: If the plugin is not found in the registered plugins.
         """
         if dir_name not in self.plugins_metadata:
-            raise ValueError(
-                f"Plugin at {dir_name} not found in registered plugins")
+            raise ValueError(f"Plugin at {dir_name} not found in registered plugins")
 
         self.plugins_metadata.pop(dir_name)
         self.plugin_processes_metadata.pop(dir_name, None)
@@ -213,8 +208,7 @@ class PluginManager:
         """
         dir_name = self._get_plugin_metadata_dir(final_id)
         if dir_name is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in registered plugins")
+            raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
         self.remove_plugin_by_dir(dir_name)
         return dir_name
 
@@ -245,8 +239,7 @@ class PluginManager:
             str | None: The directory name of the plugin metadata if found, otherwise None.
         """
         return next(
-            (k for k, v in self.plugins_metadata.items()
-             if v.is_plugin_from_final_id(final_id)),
+            (k for k, v in self.plugins_metadata.items() if v.is_plugin_from_final_id(final_id)),
             None,
         )
 
@@ -290,8 +283,7 @@ class PluginManager:
         for dir_name, plugin in self.plugins_metadata.items():
             if plugin.is_plugin_from_final_id(final_id):
                 return dir_name
-        raise ValueError(
-            f"Plugin '{final_id}' not found in registered plugins")
+        raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
 
     def get_plugin_process(self, final_id: str) -> PluginWorkerProcess | None:
         """Returns the worker process of a plugin by its final ID.
@@ -379,8 +371,7 @@ class PluginManager:
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
@@ -398,18 +389,15 @@ class PluginManager:
         """
         key = self._get_plugin_metadata_dir(final_id)
         if key is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in loaded plugins")
+            raise ValueError(f"Plugin '{final_id}' not found in loaded plugins")
 
         process_metadata = self.plugin_processes_metadata.get(key)
         if process_metadata is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in running processes")
+            raise ValueError(f"Plugin '{final_id}' not found in running processes")
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()

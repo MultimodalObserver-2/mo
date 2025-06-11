@@ -35,6 +35,7 @@ execute_callback = Callable[
 
 class PluginWorkerProcess(Process):
     """A worker process for loading a plugin on a separate process, executing commands, and managing plugin instances."""
+
     plugin_dir_path: str
     plugin_class: type[Plugin] | None
     process_metadata: PluginProcessMetadata
@@ -48,8 +49,8 @@ class PluginWorkerProcess(Process):
     timeout: Optional[float | int]
     processes_queue: Optional[Queue] = None
     METADATA_ENTRY_POINTS = {
-        "plugin": "mo.plugin", # Entry point for the plugin class
-        "properties": "mo.plugin.properties", # Entry point for the properties class
+        "plugin": "mo.plugin",  # Entry point for the plugin class
+        "properties": "mo.plugin.properties",  # Entry point for the properties class
     }
 
     def __init__(
@@ -468,7 +469,7 @@ class PluginWorkerProcess(Process):
         full_module_path = os.path.normpath(full_module_path)
         if not os.path.exists(full_module_path):
             raise FileNotFoundError(f"Module file not found at {module_path}")
-        
+
         # Add the plugin directory to the system path to allow importing
         sys.path.insert(0, os.path.dirname(full_module_path))
 

@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class SysPlatform(BaseModel):
     """Represents the system platforms supported by a plugin."""
+
     linux: bool = False
     windows: bool = False
     mac: bool = False

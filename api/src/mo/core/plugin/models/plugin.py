@@ -10,18 +10,21 @@ from mo.core.plugin.models.sys_platform import SysPlatform
 
 class PluginAuthor(BaseModel):
     """Represents the author of a plugin."""
+
     name: Optional[str] = None  # Name of the author
     email: Optional[str] = None  # Email of the author
 
 
 class PluginIcons(BaseModel):
     """Represents icons for a plugin."""
+
     dark: Optional[str] = None  # Path to the dark mode icon
     light: Optional[str] = None  # Path to the light mode icon
 
 
 class PluginPublisher(BaseModel):
     """Represents the publisher of a plugin."""
+
     id: str  # Unique identifier for the publisher
     name: str  # Name of the publisher
     url: Optional[str] = None  # URL to the publisher's website
@@ -29,6 +32,7 @@ class PluginPublisher(BaseModel):
 
 class PluginMetadata(BaseModel):
     """Metadata for a plugin."""
+
     plugin_id: str  # Unique identifier for the plugin
     name: str  # Name of the plugin
     description: str  # Description of the plugin
@@ -39,10 +43,8 @@ class PluginMetadata(BaseModel):
     icon_path: Optional[str] | Optional[PluginIcons] = None
     author: Optional[PluginAuthor] = None  # Author of the plugin
     platform: SysPlatform  # Supported platform for the plugin
-    _location: Optional[str] = PrivateAttr(
-        default=None)  # Location of the plugin files
-    _module: Optional[str] = PrivateAttr(
-        default=None)  # Module name of the plugin
+    _location: Optional[str] = PrivateAttr(default=None)  # Location of the plugin files
+    _module: Optional[str] = PrivateAttr(default=None)  # Module name of the plugin
     # Indicates if the plugin is loaded
     _is_loaded: bool = PrivateAttr(default=False)
     # Error message if the plugin failed to load
@@ -56,8 +58,7 @@ class PluginMetadata(BaseModel):
         """Sets the plugin ID and publisher ID from a final ID string."""
         parts = final_id.split(".")
         if len(parts) != 2:
-            raise ValueError(
-                "Invalid final ID format. Expected 'publisher_id.plugin_id'.")
+            raise ValueError("Invalid final ID format. Expected 'publisher_id.plugin_id'.")
         self.publisher.id = parts[0]
         self.plugin_id = parts[1]
 
@@ -74,9 +75,10 @@ class Plugin(ABC):
     """Base class for plugins in the system.
     This class defines the basic structure and methods that all plugins must implement.
     """
-    metadata: PluginMetadata # Metadata for the plugin
-    settings: Settings = Settings() # Settings for the plugin
-    _module_name: str = "core" # Module name for the plugin
+
+    metadata: PluginMetadata  # Metadata for the plugin
+    settings: Settings = Settings()  # Settings for the plugin
+    _module_name: str = "core"  # Module name for the plugin
 
     @abstractmethod
     def load(self):
