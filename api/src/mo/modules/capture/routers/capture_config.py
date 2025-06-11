@@ -9,7 +9,7 @@ from mo.modules.capture.services.config_service import CaptureConfigService
 
 capture_config_router = APIRouter(
     prefix="/projects/{project_name}/capture/configs",
-    tags=["capture_settings"],
+    tags=["projects", "capture", "configurations"],
 )
 
 
@@ -19,6 +19,10 @@ capture_config_router = APIRouter(
     status_code=200,
     summary="Add capture configuration",
     description="Add new capture configuration for the specified project.",
+    responses={
+        409: {"description": "Capture configuration already exists"},
+        400: {"description": "Invalid capture configuration"},
+    },
 )
 async def add_capture_config(
     project_name: str, config: CaptureConfigPostReq, service: CaptureConfigService = Depends()
@@ -45,6 +49,10 @@ async def get_all_capture_configs(
     status_code=200,
     summary="Get capture configuration",
     description="Get capture configuration for the specified project.",
+    responses={
+        404: {"description": "Capture configuration not found"},
+        400: {"description": "Invalid capture configuration name"},
+    },
 )
 async def get_capture_config(
     project_name: str, config_name: str, service: CaptureConfigService = Depends()
@@ -58,6 +66,11 @@ async def get_capture_config(
     status_code=200,
     summary="Update capture configuration",
     description="Update capture configuration for the specified project.",
+    responses={
+        404: {"description": "Capture configuration not found"},
+        400: {"description": "Invalid capture configuration"},
+        409: {"description": "Capture configuration already exists"},
+    },
 )
 async def update_capture_config(
     project_name: str,
@@ -73,8 +86,12 @@ async def update_capture_config(
     status_code=204,
     summary="Delete capture configuration",
     description="Delete capture configuration for the specified project.",
+    responses={
+        404: {"description": "Capture configuration not found"},
+        400: {"description": "Invalid capture configuration name"},
+    },
 )
 async def delete_capture_settings(
     project_name: str, config_name: str, service: CaptureConfigService = Depends()
 ) -> None:
-    service.delete_capture_config(project_name, config_name)
+    return service.delete_capture_config(project_name, config_name)

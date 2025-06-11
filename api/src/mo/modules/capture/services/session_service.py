@@ -1,6 +1,5 @@
 import os
 from datetime import datetime
-from typing import Optional
 
 from mo.core.api.services.plugin_service import PluginService
 from mo.core.file_management.file_management import FileManagement
@@ -8,7 +7,6 @@ from mo.core.file_management.json_storage import JsonStorage
 from mo.core.utils.http_exceptions import BadRequestException, NotFoundException
 from mo.modules.capture.schemas.session import (
     CaptureConfigDetails,
-    CaptureConfigDetailsRes,
     SessionData,
     SessionPost,
     SessionPut,
@@ -21,7 +19,18 @@ from mo.modules.organization.services.project_service import ProjectService
 
 
 class SessionService:
+    """Service class for managing capture sessions within a project and participant context.
+    This class provides methods to create, update, retrieve, and delete capture sessions,
+    as well as manage session-related data such as capture sources and timestamps.
+
+    Sessions are stored in a JSON file specific to each participant's location,
+    and each session is represented by a directory named with the session's start time.
+    The session data includes details about the capture sources, their configurations,
+    and the timestamps for when the session started and ended.
+    """
+
     def __init__(self):
+        """Initializes the SessionService with necessary dependencies and configurations."""
         self.project_service = ProjectService()
         self.participant_service = ParticipantService()
         self.plugin_service = PluginService()
@@ -29,16 +38,42 @@ class SessionService:
         self.file_management = FileManagement(rel_path=RELATIVE_PROJECTS_PATH, make_dirs=False)
 
     def _get_session_dir_name(self, datetime_now: datetime) -> str:
+        """Generates a directory name for a session based on the datetime provided.
+        Args:
+            datetime_now (datetime): The datetime object representing the session start time.
+        Returns:
+            str: A formatted string representing the session directory name.
+        """
         datetime_formatted = datetime_now.strftime("%Y-%m-%d_%H.%M.%S")
         return f"session[{datetime_formatted}]"
 
     def _get_session_storage(self, project_name: str, participant_code: str) -> JsonStorage:
+        """Retrieves the JSON storage for sessions of a specific participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+        Returns:
+            JsonStorage: An instance of JsonStorage for the participant's session data.
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+        """
         participant = self.participant_service.get_participant(project_name, participant_code)
         return JsonStorage(file_name=self.sessions_file_name, rel_path=participant.location)
 
     def create_session(
         self, project_name: str, participant_code: str, session: SessionPost
     ) -> SessionRes:
+        """Creates a new capture session for a participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session (SessionPost): The session data to be created.
+        Returns:
+            SessionRes: The response object containing session details.
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+            BadRequestException: If the participant is locked.
+        """
         participant = self.participant_service.get_participant(project_name, participant_code)
         session_dir_name = self._get_session_dir_name(session.started_at)
         self.file_management.create_directory(session_dir_name, participant.location)
@@ -73,6 +108,18 @@ class SessionService:
     def update_session(
         self, project_name: str, participant_code: str, session_id: str, session: SessionPut
     ) -> SessionRes:
+        """Updates an existing capture session for a participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to be updated.
+            session (SessionPut): The updated session data.
+        Returns:
+            SessionRes: The response object containing updated session details.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+            BadRequestException: If the participant is locked.
+        """
         existing_session = self._get_session_data(project_name, participant_code, session_id)
         session_data = existing_session.model_copy(update=session.model_dump(exclude_unset=True))
         existing_sources = existing_session.capture_sources
@@ -97,6 +144,18 @@ class SessionService:
     def add_end_timestamp(
         self, project_name: str, participant_code: str, session_id: str, end_timestamp: float
     ) -> SessionData:
+        """Adds an end timestamp to an existing session.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to be updated.
+            end_timestamp (float): The end timestamp to be added.
+        Returns:
+            SessionData: The updated session data with the end timestamp.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+            BadRequestException: If the participant is locked.
+        """
         session = self._get_session_data(project_name, participant_code, session_id)
         session.end_timestamp = end_timestamp
         session_storage = self._get_session_storage(project_name, participant_code)
@@ -111,6 +170,19 @@ class SessionService:
         setting_name: str,
         start_timestamp: float,
     ) -> SessionData:
+        """Adds a start timestamp to a specific capture source setting in an existing session.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to be updated.
+            setting_name (str): The name of the capture source setting to update.
+            start_timestamp (float): The start timestamp to be added.
+        Returns:
+            SessionData: The updated session data with the capture source setting start timestamp.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+            BadRequestException: If the participant is locked.
+        """
         session = self._get_session_data(project_name, participant_code, session_id)
 
         for source in session.capture_sources:
@@ -124,6 +196,16 @@ class SessionService:
     def _get_session_data(
         self, project_name: str, participant_code: str, session_id: str
     ) -> SessionData:
+        """Retrieves session data for a specific session ID.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to retrieve.
+        Returns:
+            SessionData: The session data object containing details of the session.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+        """
         session_storage = self._get_session_storage(project_name, participant_code)
         session_data_dict = session_storage.find_one({"session_id": session_id})
         if not session_data_dict:
@@ -131,6 +213,15 @@ class SessionService:
         return SessionData(**session_data_dict)
 
     def get_all_sessions(self, project_name: str, participant_code: str) -> list[SessionRes]:
+        """Retrieves all sessions for a specific participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+        Returns:
+            list[SessionRes]: A list of SessionRes objects containing details of all sessions.
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(f"Project {project_name} does not exist.")
 
@@ -153,6 +244,16 @@ class SessionService:
         return sessions
 
     def get_session(self, project_name: str, participant_code: str, session_id: str) -> SessionRes:
+        """Retrieves a specific session for a participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to retrieve.
+        Returns:
+            SessionRes: The response object containing session details.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+        """
         session_data = self._get_session_data(project_name, participant_code, session_id)
         session_res = SessionRes.from_session_data(
             session_data,
@@ -162,6 +263,15 @@ class SessionService:
         return session_res
 
     def delete_session(self, project_name: str, participant_code: str, session_id: str) -> None:
+        """Deletes a specific session for a participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to delete.
+        Raises:
+            NotFoundException: If the project, participant, or session does not exist.
+            BadRequestException: If the participant is locked.
+        """
         session = self.get_session(project_name, participant_code, session_id)
         if self.participant_service.is_participant_locked(project_name, participant_code):
             raise BadRequestException("Cannot delete session, participant is locked.")
@@ -170,5 +280,15 @@ class SessionService:
         session_storage.delete_one({"session_id": session_id})
 
     def exists(self, project_name: str, participant_code: str, session_id: str) -> bool:
+        """Checks if a specific session exists for a participant in a project.
+        Args:
+            project_name (str): The name of the project.
+            participant_code (str): The code of the participant.
+            session_id (str): The ID of the session to check.
+        Returns:
+            bool: True if the session exists, False otherwise.
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+        """
         session_storage = self._get_session_storage(project_name, participant_code)
         return session_storage.exists({"session_id": session_id})

@@ -4,7 +4,7 @@ from mo.core.api.schemas.plugin import PluginRes
 from mo.modules.capture.schemas.capture import CaptureStartRequest, CaptureStatusResponse
 from mo.modules.capture.services.capture_service import CaptureService
 
-capture_router = APIRouter(prefix="/capture", tags=["Capture"])
+capture_router = APIRouter(prefix="/capture", tags=["capture"])
 
 
 def get_capture_service() -> CaptureService:
@@ -29,6 +29,10 @@ async def get_capture_plugins(
     status_code=204,
     summary="Start Capture",
     description="Start the capture process for a participant in a project.",
+    responses={
+        400: {"description": "Capture already in progress or invalid request"},
+        404: {"description": "Project or participant not found"},
+    },
 )
 async def start_capture(
     capture_start_request: CaptureStartRequest,
@@ -44,6 +48,9 @@ async def start_capture(
     status_code=204,
     summary="Stop Capture",
     description="Stop the capture process.",
+    responses={
+        400: {"description": "Capture is not in progress"},
+    },
 )
 async def stop_capture(service: CaptureService = Depends(get_capture_service)) -> None:
     return service.stop_capture()
@@ -54,6 +61,9 @@ async def stop_capture(service: CaptureService = Depends(get_capture_service)) -
     status_code=204,
     summary="Pause Capture",
     description="Pause the capture process.",
+    responses={
+        400: {"description": "Capture is not in progress or already paused"},
+    },
 )
 async def pause_capture(service: CaptureService = Depends(get_capture_service)) -> None:
     return service.pause_capture()
@@ -64,6 +74,9 @@ async def pause_capture(service: CaptureService = Depends(get_capture_service)) 
     status_code=204,
     summary="Resume Capture",
     description="Resume the paused capture process.",
+    responses={
+        400: {"description": "Capture is not paused or not in progress"},
+    },
 )
 async def resume_capture(service: CaptureService = Depends(get_capture_service)) -> None:
     return service.resume_capture()

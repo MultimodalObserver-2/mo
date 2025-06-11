@@ -24,30 +24,65 @@ from mo.modules.organization.services.project_service import ProjectService
 
 
 class CaptureConfigService:
+    """Service for managing capture configurations, including adding, retrieving, updating, and deleting configurations.
+    It also provides functionality to check if a configuration exists and to retrieve all configurations that are loaded.
+    This service interacts with the project service to ensure that configurations are stored in the correct project directory.
+
+    Configurations are stored in a JSON file within a dedicated directory for capture configurations.
+    """
+
     def __init__(self):
+        """Initializes the CaptureConfigService with necessary dependencies."""
         self._settings_dir_name = CAPTURE_CONFIGS_DIR
         self._settings_file_name = CAPTURE_CONFIGS_FILE
         self.project_service = ProjectService()
         self.plugin_management = PluginManager()
         self.file_management = FileManagement()
 
-    def _get_settings_dir_path(self, project_name: str):
+    def _get_configurations_dir_path(self, project_name: str):
+        """Returns the directory path where capture configurations are stored for a given project.
+        Args:
+            project_name (str): The name of the project for which to get the configuration directory path.
+        Returns:
+            str: The path to the configuration directory for the specified project.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         dir_path = self.project_service.get_project_dir_path(project_name)
         settings_dir_path = os.path.join(dir_path, self._settings_dir_name)
         return settings_dir_path
 
-    def _get_settings_storage(self, project_name: str):
-        if not self.file_management.exists(self._get_settings_dir_path(project_name)):
+    def _get_configurations_storage(self, project_name: str):
+        """Returns a JsonStorage instance for managing capture configurations for a given project.
+        Args:
+            project_name (str): The name of the project for which to get the configuration storage.
+        Returns:
+            JsonStorage: An instance of JsonStorage for managing capture configurations.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
+        if not self.file_management.exists(self._get_configurations_dir_path(project_name)):
             self.file_management.create_directory(
                 dir_name=self._settings_dir_name,
                 rel_path=self.project_service.get_project_dir_path(project_name),
             )
-        dir_path = self._get_settings_dir_path(project_name)
+        dir_path = self._get_configurations_dir_path(project_name)
         return JsonStorage(file_name=self._settings_file_name, rel_path=dir_path)
 
     def add_capture_config(
         self, project_name: str, config: CaptureConfigPostReq
     ) -> CaptureConfigRes:
+        """Adds a new capture configuration for a given project.
+        Args:
+            project_name (str): The name of the project to which the configuration will be added.
+            config (CaptureConfigPostReq): The configuration data to be added.
+        Returns:
+            CaptureConfigRes: The response containing the added configuration details.
+        Raises:
+            NotFoundException: If the project does not exist or if the plugin does not exist.
+            AlreadyExistsException: If a configuration with the same name already exists.
+            BadRequestException: If the provided settings for the plugin are invalid.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
@@ -61,7 +96,7 @@ class CaptureConfigService:
         except Exception as e:
             raise BadRequestException(f"Invalid settings for plugin {config.plugin_id}: {str(e)}")
 
-        settings_storage = self._get_settings_storage(project_name)
+        configurations_storage = self._get_configurations_storage(project_name)
         if self.exists(project_name, config.name):
             raise AlreadyExistsException(f"Configuration with name {config.name} already exists.")
 
@@ -78,7 +113,7 @@ class CaptureConfigService:
             plugin_id=config.plugin_id,
             settings=config.settings,
         )
-        settings_storage.insert_one(final_config.model_dump())
+        configurations_storage.insert_one(final_config.model_dump())
 
         return CaptureConfigRes(
             name=config.name,
@@ -89,11 +124,19 @@ class CaptureConfigService:
         )
 
     def get_all_capture_configs(self, project_name: str) -> list[CaptureConfigRes]:
+        """Retrieves all capture configurations for a given project.
+        Args:
+            project_name (str): The name of the project for which to retrieve configurations.
+        Returns:
+            list[CaptureConfigRes]: A list of CaptureConfigRes objects representing all configurations.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        settings_storage = self._get_settings_storage(project_name)
-        configs_dict = settings_storage.find_all()
+        configurations_storage = self._get_configurations_storage(project_name)
+        configs_dict = configurations_storage.find_all()
         configs = []
         for config_dict in configs_dict:
             config_data = CaptureConfigData(**config_dict)
@@ -114,11 +157,20 @@ class CaptureConfigService:
         return configs
 
     def get_capture_config(self, project_name: str, config_name: str) -> CaptureConfigRes:
+        """Retrieves a specific capture configuration by name for a given project.
+        Args:
+            project_name (str): The name of the project from which to retrieve the configuration.
+            config_name (str): The name of the configuration to retrieve.
+        Returns:
+            CaptureConfigRes: The response containing the requested configuration details.
+        Raises:
+            NotFoundException: If the project does not exist or if the configuration does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        settings_storage = self._get_settings_storage(project_name)
-        settings = settings_storage.find_one({"name": config_name})
+        configs_storage = self._get_configurations_storage(project_name)
+        settings = configs_storage.find_one({"name": config_name})
         if not settings:
             raise NotFoundException(f"Configuration with name {config_name} do not exist.")
 
@@ -141,6 +193,18 @@ class CaptureConfigService:
     def update_capture_config(
         self, project_name: str, config_name: str, config: CaptureConfigPutReq
     ) -> CaptureConfigRes:
+        """Updates an existing capture configuration for a given project.
+        Args:
+            project_name (str): The name of the project in which the configuration exists.
+            config_name (str): The name of the configuration to update.
+            config (CaptureConfigPutReq): The updated configuration data.
+        Returns:
+            CaptureConfigRes: The response containing the updated configuration details.
+        Raises:
+            NotFoundException: If the project does not exist or if the configuration does not exist.
+            AlreadyExistsException: If a configuration with the new name already exists.
+            BadRequestException: If the provided settings for the plugin are invalid.
+        """
         existing_config = self.get_capture_config(project_name, config_name)
 
         existing_config.settings = config.settings if config.settings else existing_config.settings
@@ -167,30 +231,54 @@ class CaptureConfigService:
             settings=existing_config.settings,
         )
 
-        settings_storage = self._get_settings_storage(project_name)
-        settings_storage.update({"name": config_name}, config_data.model_dump())
+        configs_storage = self._get_configurations_storage(project_name)
+        configs_storage.update({"name": config_name}, config_data.model_dump())
 
         return existing_config
 
     def delete_capture_config(self, project_name: str, config_name: str) -> None:
+        """Deletes a specific capture configuration by name for a given project.
+        Args:
+            project_name (str): The name of the project from which to delete the configuration.
+            config_name (str): The name of the configuration to delete.
+        Raises:
+            NotFoundException: If the project does not exist or if the configuration does not exist.
+        """
         if not self.exists(project_name, config_name):
             raise NotFoundException("Configuration with name {setting_name} do not exist.")
 
-        settings_storage = self._get_settings_storage(project_name)
-        settings_storage.delete_one({"name": config_name})
+        configs_storage = self._get_configurations_storage(project_name)
+        configs_storage.delete_one({"name": config_name})
 
     def exists(self, project_name: str, config_name: str) -> bool:
+        """Checks if a specific capture configuration exists for a given project.
+        Args:
+            project_name (str): The name of the project in which to check for the configuration.
+            config_name (str): The name of the configuration to check.
+        Returns:
+            bool: True if the configuration exists, False otherwise.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
-        settings_storage = self._get_settings_storage(project_name)
-        return settings_storage.exists({"name": config_name})
+        configs_storage = self._get_configurations_storage(project_name)
+        return configs_storage.exists({"name": config_name})
 
     def get_all_configs_loaded(self, project_name: str) -> list[CaptureConfigLoaded]:
+        """Retrieves all capture configurations that are loaded for a given project.
+        Args:
+            project_name (str): The name of the project for which to retrieve loaded configurations.
+        Returns:
+            list[CaptureConfigLoaded]: A list of CaptureConfigLoaded objects representing all loaded configurations.
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
         if not self.project_service.exists(project_name):
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        settings_storage = self._get_settings_storage(project_name)
-        config_dicts = settings_storage.find_all()
+        configs_storage = self._get_configurations_storage(project_name)
+        config_dicts = configs_storage.find_all()
         configs = []
         for config_dict in config_dicts:
             config_data = CaptureConfigData(**config_dict)
