@@ -1,10 +1,14 @@
 from dataclasses import dataclass
-from mo.modules.capture.plugins.capture_plugin import PicklableType
+
 from pydantic import BaseModel
+
+from mo.modules.capture.plugins.capture_plugin import PicklableType
+
 
 class CaptureStartRequest(BaseModel):
     project_name: str
     participant_code: str
+
 
 class CaptureStatusResponse(BaseModel):
     started: bool

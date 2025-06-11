@@ -1,15 +1,21 @@
-import pytest
-from unittest.mock import MagicMock, patch
 import multiprocessing
 import time
+from unittest.mock import MagicMock, patch
+
+import pytest
 
 from mo.core.plugin.models.plugin import Plugin
 from mo.core.plugin.worker_process import PluginProcessMetadata
 from mo.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
 from mo.modules.capture.schemas.capture import PluginData
 from mo.modules.capture.services.capture_plugin_callbacks import (
-    prepare_callback, start_callback, stop_callback, pause_callback,
-    resume_callback, get_file_extension_callback, save_callback
+    get_file_extension_callback,
+    pause_callback,
+    prepare_callback,
+    resume_callback,
+    save_callback,
+    start_callback,
+    stop_callback,
 )
 
 
@@ -37,7 +43,7 @@ def test_prepare_callback_invalid_instance(mock_generic_plugin):
     mock_generic_plugin.prepare.assert_not_called()
 
 
-@patch('threading.Thread')
+@patch("threading.Thread")
 def test_start_callback_success(mock_thread, mock_capture_plugin):
     extra_args = {"config_name": "c1", "start_ts": 12345.0}
     mock_queue = MagicMock(spec=multiprocessing.Queue)
@@ -50,8 +56,8 @@ def test_start_callback_success(mock_thread, mock_capture_plugin):
     thread_instance.start.assert_called_once()
 
     call_args = mock_thread.call_args.kwargs
-    assert call_args['target'] == mock_capture_plugin.start
-    assert call_args['args'][0] == extra_args["start_ts"]
+    assert call_args["target"] == mock_capture_plugin.start
+    assert call_args["args"][0] == extra_args["start_ts"]
 
 
 def test_start_callback_invalid_instance(mock_generic_plugin):
@@ -78,10 +84,14 @@ def test_start_callback_on_data_callback_puts_to_queue():
     mock_metadata.metadata.get_final_id.return_value = "plugin.id"
     mock_queue.put = MagicMock()
 
-    with patch('threading.Thread') as mock_thread:
-        start_callback(MagicMock(spec=CapturePlugin), {
-                       "config_name": "c1", "start_ts": time.monotonic()}, mock_queue, mock_metadata)
-        on_data_callback = mock_thread.call_args.kwargs['args'][2]
+    with patch("threading.Thread") as mock_thread:
+        start_callback(
+            MagicMock(spec=CapturePlugin),
+            {"config_name": "c1", "start_ts": time.monotonic()},
+            mock_queue,
+            mock_metadata,
+        )
+        on_data_callback = mock_thread.call_args.kwargs["args"][2]
 
     capture_data = CaptureData(timestamp=time.time(), data=b"some_data")
     on_data_callback(capture_data)
@@ -101,10 +111,14 @@ def test_start_callback_on_data_callback_error_handling():
     mock_metadata.metadata.get_final_id.return_value = "plugin.id"
     mock_queue.put = MagicMock(side_effect=Exception("Queue error"))
 
-    with patch('threading.Thread') as mock_thread:
-        start_callback(MagicMock(spec=CapturePlugin), {
-                       "config_name": "c1", "start_ts": time.monotonic()}, mock_queue, mock_metadata)
-        on_data_callback = mock_thread.call_args.kwargs['args'][2]
+    with patch("threading.Thread") as mock_thread:
+        start_callback(
+            MagicMock(spec=CapturePlugin),
+            {"config_name": "c1", "start_ts": time.monotonic()},
+            mock_queue,
+            mock_metadata,
+        )
+        on_data_callback = mock_thread.call_args.kwargs["args"][2]
 
     capture_data = CaptureData(timestamp=time.time(), data=b"some_data")
     on_data_callback(capture_data)

@@ -1,7 +1,6 @@
 import os
 
-from mo.core.config.constants import (APP_DATA_DIR, RELATIVE_APP_DATA_PATH,
-                                       RELATIVE_PLUGINS_DIR_PATH)
+from mo.core.config.constants import APP_DATA_DIR, RELATIVE_APP_DATA_PATH, RELATIVE_PLUGINS_DIR_PATH
 
 
 def app_setup():

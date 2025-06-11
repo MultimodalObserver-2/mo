@@ -7,8 +7,8 @@ from typing import Any, Optional
 from mo.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
 from mo.core.plugin.metadata_loader import load_plugin_metadata
 from mo.core.plugin.models.plugin import Plugin, PluginMetadata
-from mo.core.plugin.worker_process import PluginProcessMetadata, PluginWorkerProcess
 from mo.core.plugin.models.settings import Settings
+from mo.core.plugin.worker_process import PluginProcessMetadata, PluginWorkerProcess
 from mo.core.utils.singleton import singleton
 
 
@@ -42,8 +42,7 @@ class PluginManager:
         return plugin_path
 
     def _get_plugin_metadata_path(self, dir_name: str) -> str:
-        metadata_path = os.path.join(
-            self.plugins_path, dir_name, self.plugin_metadata_name)
+        metadata_path = os.path.join(self.plugins_path, dir_name, self.plugin_metadata_name)
         metadata_path = os.path.normpath(metadata_path)
         return metadata_path
 
@@ -54,8 +53,7 @@ class PluginManager:
                 self.register_plugin(plugin_dir_name)
                 dirs.append(plugin_dir_name)
             except Exception as e:
-                print(
-                    f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
+                print(f"ERROR: Failed to load plugin {plugin_dir_name}: {str(e)}")
                 print(f"Traceback: {sys.exc_info()[1]}")
                 continue
         return dirs
@@ -63,8 +61,7 @@ class PluginManager:
     def load_metadata_file(self, dir_name: str) -> dict[str, Any]:
         metadata_path = self._get_plugin_metadata_path(dir_name)
         if not os.path.exists(metadata_path):
-            raise FileNotFoundError(
-                f"Metadata file not found at {metadata_path}")
+            raise FileNotFoundError(f"Metadata file not found at {metadata_path}")
 
         with open(metadata_path, "r") as f:
             data = json.load(f)
@@ -98,8 +95,7 @@ class PluginManager:
         plugin_metadata = load_plugin_metadata(metadata_path)
         plugin_metadata._location = self._get_plugin_dir_path(dir_name)
         if self.plugin_metadata_exists(plugin_metadata.get_final_id()):
-            raise ImportError(
-                f"Plugin '{plugin_metadata.name}' is already loaded")
+            raise ImportError(f"Plugin '{plugin_metadata.name}' is already loaded")
 
         try:
             if not plugin_metadata.platform.is_available():
@@ -108,9 +104,13 @@ class PluginManager:
                 )
             status_queue = multiprocessing.Queue()
             plugin_process_metadata = PluginProcessMetadata(
-                dir_name, plugin_metadata, self.get_entry_points(dir_name), status_queue, self.plugin_types_to_check)
-            plugin_process = PluginWorkerProcess(
-                plugin_process_metadata, load_main_instance=True)
+                dir_name,
+                plugin_metadata,
+                self.get_entry_points(dir_name),
+                status_queue,
+                self.plugin_types_to_check,
+            )
+            plugin_process = PluginWorkerProcess(plugin_process_metadata, load_main_instance=True)
             plugin_process.start()
             status = status_queue.get()
             plugin_metadata._is_loaded = status.get("is_loaded", False)
@@ -128,8 +128,7 @@ class PluginManager:
 
     def remove_plugin_by_dir(self, dir_name: str) -> None:
         if dir_name not in self.plugins_metadata:
-            raise ValueError(
-                f"Plugin at {dir_name} not found in registered plugins")
+            raise ValueError(f"Plugin at {dir_name} not found in registered plugins")
 
         self.plugins_metadata.pop(dir_name)
         self.plugin_processes_metadata.pop(dir_name, None)
@@ -140,8 +139,7 @@ class PluginManager:
     def remove_plugin(self, final_id: str) -> str:
         dir_name = self._get_plugin_metadata_dir(final_id)
         if dir_name is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in registered plugins")
+            raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
         self.remove_plugin_by_dir(dir_name)
         return dir_name
 
@@ -155,10 +153,20 @@ class PluginManager:
         return list(self.plugins_metadata.values())
 
     def _get_plugin_metadata_dir(self, final_id: str) -> str | None:
-        return next((k for k, v in self.plugins_metadata.items() if v.is_plugin_from_final_id(final_id)), None)
+        return next(
+            (k for k, v in self.plugins_metadata.items() if v.is_plugin_from_final_id(final_id)),
+            None,
+        )
 
     def _get_plugin_process_metadata_dir(self, final_id: str) -> str | None:
-        return next((k for k, v in self.plugin_processes_metadata.items() if v.metadata.is_plugin_from_final_id(final_id)), None)
+        return next(
+            (
+                k
+                for k, v in self.plugin_processes_metadata.items()
+                if v.metadata.is_plugin_from_final_id(final_id)
+            ),
+            None,
+        )
 
     def get_plugin_metadata(self, final_id: str) -> PluginMetadata | None:
         key = self._get_plugin_metadata_dir(final_id)
@@ -170,8 +178,7 @@ class PluginManager:
         for dir_name, plugin in self.plugins_metadata.items():
             if plugin.is_plugin_from_final_id(final_id):
                 return dir_name
-        raise ValueError(
-            f"Plugin '{final_id}' not found in registered plugins")
+        raise ValueError(f"Plugin '{final_id}' not found in registered plugins")
 
     def get_plugin_process(self, final_id: str) -> PluginWorkerProcess | None:
         key = self._get_plugin_process_metadata_dir(final_id)
@@ -179,7 +186,9 @@ class PluginManager:
             return None
         return self.plugin_processes.get(key, None)
 
-    def get_active_plugin_process(self, final_id: str, processes_queue: Optional[multiprocessing.Queue] = None) -> PluginWorkerProcess | None:
+    def get_active_plugin_process(
+        self, final_id: str, processes_queue: Optional[multiprocessing.Queue] = None
+    ) -> PluginWorkerProcess | None:
         key = self._get_plugin_process_metadata_dir(final_id)
         if key is None:
             return None
@@ -192,7 +201,8 @@ class PluginManager:
         if process_metadata is None:
             return None
         plugin_process = PluginWorkerProcess(
-            process_metadata, keep_running=True, processes_queue=processes_queue)
+            process_metadata, keep_running=True, processes_queue=processes_queue
+        )
         self.plugin_processes[key] = plugin_process
         plugin_process.start()
         process_metadata.status_queue.get()
@@ -209,7 +219,9 @@ class PluginManager:
                 res.append(self.plugins_metadata[key])
         return res
 
-    def get_plugin_properties(self, final_id: str, settings: Optional[Settings]) -> list[dict[str, Any]] | None:
+    def get_plugin_properties(
+        self, final_id: str, settings: Optional[Settings]
+    ) -> list[dict[str, Any]] | None:
         key = self._get_plugin_metadata_dir(final_id)
         if key is None:
             return None
@@ -220,8 +232,7 @@ class PluginManager:
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
@@ -232,18 +243,15 @@ class PluginManager:
     def validate_plugin_settings(self, final_id: str, settings: Settings) -> None:
         key = self._get_plugin_metadata_dir(final_id)
         if key is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in loaded plugins")
+            raise ValueError(f"Plugin '{final_id}' not found in loaded plugins")
 
         process_metadata = self.plugin_processes_metadata.get(key)
         if process_metadata is None:
-            raise ValueError(
-                f"Plugin '{final_id}' not found in running processes")
+            raise ValueError(f"Plugin '{final_id}' not found in running processes")
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()

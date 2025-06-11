@@ -1,9 +1,10 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from typing import Optional
 
-from mo.modules.organization.services.paths import PROJECTS_PATH
 from pydantic import BaseModel
+
+from mo.modules.organization.services.paths import PROJECTS_PATH
 
 
 class ParticipantData(BaseModel):
@@ -31,8 +32,7 @@ class ParticipantRes(BaseModel):
             code=data.code,
             name=data.name,
             notes=data.notes,
-            location=os.path.join(PROJECTS_PATH,
-                                  project_rel_location, data.rel_location),
+            location=os.path.join(PROJECTS_PATH, project_rel_location, data.rel_location),
             locked=data.locked,
             created_at=data.created_at,
             updated_at=data.updated_at,

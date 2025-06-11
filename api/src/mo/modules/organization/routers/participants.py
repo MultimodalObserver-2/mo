@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, Path, status
 
-from mo.modules.organization.schemas.participant import (ParticipantPostReq,
-                                                          ParticipantPutReq,
-                                                          ParticipantRes)
-from mo.modules.organization.services.participant_service import \
-    ParticipantService
+from mo.modules.organization.schemas.participant import (
+    ParticipantPostReq,
+    ParticipantPutReq,
+    ParticipantRes,
+)
+from mo.modules.organization.services.participant_service import ParticipantService
 
 participant_router = APIRouter(
     prefix="/projects/{project_name}/participants",

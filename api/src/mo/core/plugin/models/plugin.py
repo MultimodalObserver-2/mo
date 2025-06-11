@@ -43,10 +43,9 @@ class PluginMetadata(BaseModel):
         return f"{self.publisher.id}.{self.plugin_id}"
 
     def from_final_id(self, final_id: str) -> None:
-        parts = final_id.split('.')
+        parts = final_id.split(".")
         if len(parts) != 2:
-            raise ValueError(
-                "Invalid final ID format. Expected 'publisher_id.plugin_id'.")
+            raise ValueError("Invalid final ID format. Expected 'publisher_id.plugin_id'.")
         self.publisher.id = parts[0]
         self.plugin_id = parts[1]
 

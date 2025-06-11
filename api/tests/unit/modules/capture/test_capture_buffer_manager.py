@@ -1,11 +1,12 @@
 import multiprocessing
 import queue
-from mo.core.plugin.worker_process import PluginWorkerProcess
-import pytest
-from unittest.mock import MagicMock, patch
 import threading
 import time
+from unittest.mock import MagicMock, patch
 
+import pytest
+
+from mo.core.plugin.worker_process import PluginWorkerProcess
 from mo.modules.capture.plugins.capture_plugin import CaptureData
 from mo.modules.capture.schemas.capture import PluginData
 from mo.modules.capture.services.capture_buffer_manager import CaptureBufferManager
@@ -25,9 +26,7 @@ def mock_queue():
 @pytest.fixture
 def capture_buffer_manager(mock_queue):
     manager = CaptureBufferManager(
-        execution_lock=threading.Lock(),
-        flush_interval=0.1,
-        monitor_interval=0.1
+        execution_lock=threading.Lock(), flush_interval=0.1, monitor_interval=0.1
     )
     manager.queue = mock_queue
     manager.processes = {"plugin1": MagicMock(spec=PluginWorkerProcess)}
@@ -43,7 +42,7 @@ def test_initialization():
         execution_lock=lock,
         flush_interval=2.0,
         memory_limit=80,
-        on_capture_data=on_capture_data_callback
+        on_capture_data=on_capture_data_callback,
     )
     assert manager.execution_lock is lock
     assert manager.flush_interval == 2.0
@@ -53,10 +52,12 @@ def test_initialization():
 
 
 def test_start_initializes_buffers_and_starts_threads(capture_buffer_manager, mock_queue):
-    with patch('threading.Thread') as mock_thread_class:
+    with patch("threading.Thread") as mock_thread_class:
         buffer_tuples = [("plugin1", "config1"), ("plugin2", "config2")]
-        mock_processes = {"plugin1": MagicMock(
-            spec=PluginWorkerProcess), "plugin2": MagicMock(spec=PluginWorkerProcess)}
+        mock_processes = {
+            "plugin1": MagicMock(spec=PluginWorkerProcess),
+            "plugin2": MagicMock(spec=PluginWorkerProcess),
+        }
 
         capture_buffer_manager.start(buffer_tuples, mock_queue, mock_processes)
 
@@ -71,12 +72,9 @@ def test_start_initializes_buffers_and_starts_threads(capture_buffer_manager, mo
 
 
 def test_stop_joins_threads_and_flushes_final_data(capture_buffer_manager):
-    capture_buffer_manager.captured_data_thread = MagicMock(
-        spec=threading.Thread)
-    capture_buffer_manager.flush_buffers_thread = MagicMock(
-        spec=threading.Thread)
-    capture_buffer_manager.stressed_monitor_thread = MagicMock(
-        spec=threading.Thread)
+    capture_buffer_manager.captured_data_thread = MagicMock(spec=threading.Thread)
+    capture_buffer_manager.flush_buffers_thread = MagicMock(spec=threading.Thread)
+    capture_buffer_manager.stressed_monitor_thread = MagicMock(spec=threading.Thread)
     capture_buffer_manager.move_queue_to_buffers = MagicMock()
     capture_buffer_manager.flush_buffers = MagicMock()
 
@@ -95,7 +93,8 @@ def test_stop_joins_threads_and_flushes_final_data(capture_buffer_manager):
 def test_flush_buffers_executes_callback(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=time.time(), data=b"123"))
+        CaptureData(timestamp=time.time(), data=b"123")
+    )
     mock_process = capture_buffer_manager.processes[plugin_id]
     mock_process.is_alive.return_value = True
     capture_buffer_manager.is_on_time = MagicMock(return_value=True)
@@ -113,13 +112,14 @@ def test_flush_buffers_executes_callback(capture_buffer_manager):
 def test_flush_buffers_filters_data_by_timestamp(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=1.0, data=b"on_time"))
+        CaptureData(timestamp=1.0, data=b"on_time")
+    )
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=2.0, data=b"paused"))
+        CaptureData(timestamp=2.0, data=b"paused")
+    )
     mock_process = capture_buffer_manager.processes[plugin_id]
     mock_process.is_alive.return_value = True
-    capture_buffer_manager.is_on_time = MagicMock(
-        side_effect=lambda ts: ts == 1.0)
+    capture_buffer_manager.is_on_time = MagicMock(side_effect=lambda ts: ts == 1.0)
 
     capture_buffer_manager.flush_buffers()
 
@@ -128,16 +128,16 @@ def test_flush_buffers_filters_data_by_timestamp(capture_buffer_manager):
     assert args["data"][0].data == b"on_time"
 
 
-@patch('psutil.virtual_memory')
-@patch('psutil.swap_memory')
+@patch("psutil.virtual_memory")
+@patch("psutil.swap_memory")
 def test_is_stressed_returns_true_on_high_memory(mock_swap, mock_mem, capture_buffer_manager):
     mock_mem.return_value.percent = 90
     mock_swap.return_value.percent = 20
     assert capture_buffer_manager.is_stressed() is True
 
 
-@patch('psutil.virtual_memory')
-@patch('psutil.swap_memory')
+@patch("psutil.virtual_memory")
+@patch("psutil.swap_memory")
 def test_is_stressed_returns_false_on_low_memory(mock_swap, mock_mem, capture_buffer_manager):
     mock_mem.return_value.percent = 50
     mock_swap.return_value.percent = 10
@@ -146,10 +146,8 @@ def test_is_stressed_returns_false_on_low_memory(mock_swap, mock_mem, capture_bu
 
 def test_move_queue_to_buffers_transfers_data(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
-    d1 = PluginData(plugin_id=plugin_id, config_name=config_name,
-                    timestamp=1.0, data=b"a")
-    d2 = PluginData(plugin_id=plugin_id, config_name=config_name,
-                    timestamp=2.0, data=b"b")
+    d1 = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=1.0, data=b"a")
+    d2 = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=2.0, data=b"b")
 
     capture_buffer_manager.queue.empty.side_effect = [False, False, False, True, True]
     capture_buffer_manager.queue.get_nowait.side_effect = [d1, d2]
@@ -157,8 +155,7 @@ def test_move_queue_to_buffers_transfers_data(capture_buffer_manager):
     capture_buffer_manager.buffers.clear()
     capture_buffer_manager.move_queue_to_buffers()
 
-    buffer_content = capture_buffer_manager.buffers[(
-        plugin_id, config_name)].get_all_and_clear()
+    buffer_content = capture_buffer_manager.buffers[(plugin_id, config_name)].get_all_and_clear()
     assert len(buffer_content) == 2
     assert buffer_content[0].data == b"a"
     assert buffer_content[1].data == b"b"
@@ -166,8 +163,7 @@ def test_move_queue_to_buffers_transfers_data(capture_buffer_manager):
 
 def test_get_captured_data_worker_processes_item_from_queue(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
-    plugin_data = PluginData(
-        plugin_id=plugin_id, config_name=config_name, timestamp=1.0, data=b"a")
+    plugin_data = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=1.0, data=b"a")
 
     capture_buffer_manager.on_capture_data = MagicMock()
     capture_buffer_manager.started = True
@@ -182,8 +178,7 @@ def test_get_captured_data_worker_processes_item_from_queue(capture_buffer_manag
 
     capture_buffer_manager.on_capture_data.assert_called_with(plugin_data)
 
-    buffer_content = capture_buffer_manager.buffers[(
-        plugin_id, config_name)].get_all_and_clear()
+    buffer_content = capture_buffer_manager.buffers[(plugin_id, config_name)].get_all_and_clear()
     assert len(buffer_content) == 1
 
     captured_item = buffer_content[0]
@@ -208,7 +203,7 @@ def test_get_captured_data_worker_handles_invalid_data(capture_buffer_manager):
 
                 if isinstance(val, queue.Empty):
                     raise queue.Empty
-        
+
                 return val
             except IndexError:
                 capture_buffer_manager.started = False
@@ -219,8 +214,7 @@ def test_get_captured_data_worker_handles_invalid_data(capture_buffer_manager):
     capture_buffer_manager.get_captured_data_worker()
 
     capture_buffer_manager.on_capture_data.assert_not_called()
-    assert all(buf.is_empty()
-               for buf in capture_buffer_manager.buffers.values())
+    assert all(buf.is_empty() for buf in capture_buffer_manager.buffers.values())
 
 
 def test_is_on_time_with_paused_intervals(capture_buffer_manager):
@@ -236,7 +230,8 @@ def test_is_on_time_with_paused_intervals(capture_buffer_manager):
 def test_flush_buffers_skips_when_all_data_filtered(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=1.0, data=b"data"))
+        CaptureData(timestamp=1.0, data=b"data")
+    )
     mock_process = capture_buffer_manager.processes[plugin_id]
     mock_process.is_alive.return_value = True
     capture_buffer_manager.is_on_time = MagicMock(return_value=False)
@@ -249,11 +244,11 @@ def test_flush_buffers_skips_when_all_data_filtered(capture_buffer_manager):
 def test_flush_buffers_catches_exception_from_callback(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=1.0, data=b"data"))
+        CaptureData(timestamp=1.0, data=b"data")
+    )
     mock_process = capture_buffer_manager.processes[plugin_id]
     mock_process.is_alive.return_value = True
-    mock_process.execute_callback_on_instance.side_effect = RuntimeError(
-        "Callback Failed")
+    mock_process.execute_callback_on_instance.side_effect = RuntimeError("Callback Failed")
     capture_buffer_manager.is_on_time = MagicMock(return_value=True)
 
     exceptions = capture_buffer_manager.flush_buffers()
@@ -267,7 +262,8 @@ def test_flush_buffers_periodically_worker_one_cycle(capture_buffer_manager):
     capture_buffer_manager.is_stressed = MagicMock(return_value=False)
 
     capture_buffer_manager.flush_buffers = MagicMock(
-        side_effect=lambda *args, **kwargs: setattr(capture_buffer_manager, 'started', False))
+        side_effect=lambda *args, **kwargs: setattr(capture_buffer_manager, "started", False)
+    )
 
     capture_buffer_manager.flush_buffers_periodically_worker()
 
@@ -279,7 +275,8 @@ def test_stressed_monitor_worker_flushes_when_stressed(capture_buffer_manager):
     capture_buffer_manager.started = True
     capture_buffer_manager.is_stressed = MagicMock(return_value=True)
     capture_buffer_manager.flush_buffers = MagicMock(
-        side_effect=lambda *args, **kwargs: setattr(capture_buffer_manager, 'started', False))
+        side_effect=lambda *args, **kwargs: setattr(capture_buffer_manager, "started", False)
+    )
 
     capture_buffer_manager.stressed_monitor_worker()
 
@@ -311,8 +308,7 @@ def test_stressed_monitor_worker_handles_flush_exceptions(capture_buffer_manager
         capture_buffer_manager.started = False
         return {("plugin1", "config1"): test_exception}
 
-    capture_buffer_manager.flush_buffers = MagicMock(
-        side_effect=flush_and_stop)
+    capture_buffer_manager.flush_buffers = MagicMock(side_effect=flush_and_stop)
 
     all_exceptions = capture_buffer_manager.stressed_monitor_worker()
 
@@ -326,7 +322,7 @@ def test_stressed_monitor_worker_waits_when_not_stressed(capture_buffer_manager)
     capture_buffer_manager.is_stressed = MagicMock(return_value=False)
     capture_buffer_manager.flush_buffers = MagicMock()
 
-    with patch('threading.Event') as mock_event_class:
+    with patch("threading.Event") as mock_event_class:
         mock_event_instance = mock_event_class.return_value
 
         def wait_and_stop(*args, **kwargs):
@@ -338,14 +334,12 @@ def test_stressed_monitor_worker_waits_when_not_stressed(capture_buffer_manager)
 
         capture_buffer_manager.is_stressed.assert_called_once()
         capture_buffer_manager.flush_buffers.assert_not_called()
-        mock_event_instance.wait.assert_called_with(
-            capture_buffer_manager.monitor_interval)
+        mock_event_instance.wait.assert_called_with(capture_buffer_manager.monitor_interval)
 
 
 def test_move_queue_to_buffers_skips_invalid_data(capture_buffer_manager):
     capture_buffer_manager.queue.empty.side_effect = [False, False, False, False, True, True]
-    capture_buffer_manager.queue.get_nowait.side_effect = [
-        None, "invalid_data"]
+    capture_buffer_manager.queue.get_nowait.side_effect = [None, "invalid_data"]
     capture_buffer_manager.buffers.clear()
 
     capture_buffer_manager.move_queue_to_buffers()
@@ -356,19 +350,20 @@ def test_move_queue_to_buffers_skips_invalid_data(capture_buffer_manager):
 def test_flush_buffers_skips_none_process(capture_buffer_manager):
     plugin_id, config_name = "non_existent_plugin", "config1"
     capture_buffer_manager.buffers[(plugin_id, config_name)].add(
-        CaptureData(timestamp=1.0, data=b"data"))
+        CaptureData(timestamp=1.0, data=b"data")
+    )
 
     exceptions = capture_buffer_manager.flush_buffers()
 
     assert not exceptions
-    assert not capture_buffer_manager.buffers[(
-        plugin_id, config_name)].is_empty()
+    assert not capture_buffer_manager.buffers[(plugin_id, config_name)].is_empty()
 
 
 def test_flush_buffers_periodically_worker_when_stressed(capture_buffer_manager):
     capture_buffer_manager.started = True
     capture_buffer_manager.is_stressed = MagicMock(
-        side_effect=lambda: setattr(capture_buffer_manager, 'started', False) or True)
+        side_effect=lambda: setattr(capture_buffer_manager, "started", False) or True
+    )
     capture_buffer_manager.flush_buffers = MagicMock()
 
     capture_buffer_manager.flush_buffers_periodically_worker()
@@ -383,11 +378,10 @@ def test_flush_buffers_periodically_worker_handles_exceptions(capture_buffer_man
     test_exception = ValueError("Flush Error")
 
     def flush_and_stop(*args, **kwargs):
-        setattr(capture_buffer_manager, 'started', False)
+        setattr(capture_buffer_manager, "started", False)
         return {("plugin1", "config1"): test_exception}
 
-    capture_buffer_manager.flush_buffers = MagicMock(
-        side_effect=flush_and_stop)
+    capture_buffer_manager.flush_buffers = MagicMock(side_effect=flush_and_stop)
 
     all_exceptions = capture_buffer_manager.flush_buffers_periodically_worker()
 

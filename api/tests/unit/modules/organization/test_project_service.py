@@ -2,11 +2,12 @@ from unittest.mock import MagicMock, patch
 
 import pytest
 
-from mo.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException,
-                                            NotFoundException)
-from mo.modules.organization.schemas.project import (ProjectPostReq,
-                                                      ProjectPutReq)
+from mo.core.utils.http_exceptions import (
+    AlreadyExistsException,
+    BadRequestException,
+    NotFoundException,
+)
+from mo.modules.organization.schemas.project import ProjectPostReq, ProjectPutReq
 from mo.modules.organization.services.project_service import ProjectService
 
 

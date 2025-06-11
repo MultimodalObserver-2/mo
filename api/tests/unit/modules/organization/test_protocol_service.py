@@ -4,17 +4,25 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 from mo.core.file_management.file_management import FileManagement
-from mo.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException,
-                                            NotFoundException)
+from mo.core.utils.http_exceptions import (
+    AlreadyExistsException,
+    BadRequestException,
+    NotFoundException,
+)
 from mo.modules.organization.errors.protocols import (
-    ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT,
-    ACTIVITY_PROCESS_NAME_REQUIRED, PROTOCOL_ALREADY_EXISTS,
-    PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
-from mo.modules.organization.schemas.protocol import (ActivityPostReq,
-                                                       ProtocolPostReq,
-                                                       ProtocolPutReq,
-                                                       ProtocolRes)
+    ACTIVITY_INVALID_FILE_PATH,
+    ACTIVITY_INVALID_TIME_LIMIT,
+    ACTIVITY_PROCESS_NAME_REQUIRED,
+    PROTOCOL_ALREADY_EXISTS,
+    PROTOCOL_DOES_NOT_EXIST,
+    PROTOCOL_IS_LOCKED,
+)
+from mo.modules.organization.schemas.protocol import (
+    ActivityPostReq,
+    ProtocolPostReq,
+    ProtocolPutReq,
+    ProtocolRes,
+)
 from mo.modules.organization.services.protocol_service import ProtocolService
 
 

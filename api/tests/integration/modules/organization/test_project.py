@@ -7,10 +7,12 @@ from httpx import ASGITransport, AsyncClient
 from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.main import app
-from mo.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
-                                                     PROJECT_DOES_NOT_EXIST,
-                                                     PROJECT_IS_LOCKED,
-                                                     PROJECT_NAME_NOT_ALLOWED)
+from mo.modules.organization.errors.project import (
+    PROJECT_ALREADY_EXISTS,
+    PROJECT_DOES_NOT_EXIST,
+    PROJECT_IS_LOCKED,
+    PROJECT_NAME_NOT_ALLOWED,
+)
 from mo.modules.organization.services.project_service import ProjectService
 
 

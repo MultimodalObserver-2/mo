@@ -1,9 +1,18 @@
-import pytest
-from unittest.mock import MagicMock, patch, ANY
 from datetime import datetime
+from unittest.mock import ANY, MagicMock, patch
+
+import pytest
 
 from mo.core.utils.http_exceptions import BadRequestException, NotFoundException
-from mo.modules.capture.schemas.session import CaptureConfigDetails, CaptureConfigDetailsPost, CaptureConfigDetailsPut, SessionData, SessionPost, SessionPut, SessionRes
+from mo.modules.capture.schemas.session import (
+    CaptureConfigDetails,
+    CaptureConfigDetailsPost,
+    CaptureConfigDetailsPut,
+    SessionData,
+    SessionPost,
+    SessionPut,
+    SessionRes,
+)
 from mo.modules.capture.services.session_service import SessionService
 
 
@@ -39,9 +48,9 @@ def mock_session_data():
                 plugin_version="1.0",
                 settings={},
                 rel_location="session[2025-06-06_18-30-00]/data.dat",
-                file_extension="dat"
+                file_extension="dat",
             )
-        ]
+        ],
     )
 
 
@@ -53,9 +62,16 @@ def test_create_session_success(session_service, mock_participant):
         start_timestamp=1749268200.0,
         started_at=now,
         capture_sources=[
-            CaptureConfigDetailsPost(config_name="test_setting", plugin_id="pub.plugin", plugin_name="Test",
-                                      plugin_version="1.0", settings={}, file_name="data", file_extension="dat")
-        ]
+            CaptureConfigDetailsPost(
+                config_name="test_setting",
+                plugin_id="pub.plugin",
+                plugin_name="Test",
+                plugin_version="1.0",
+                settings={},
+                file_name="data",
+                file_extension="dat",
+            )
+        ],
     )
     expected_session_id = "session[2025-06-06_18.30.00]"
 
@@ -64,17 +80,18 @@ def test_create_session_success(session_service, mock_participant):
     session_service.participant_service._get_participant_dir_name.return_value = "P01"
     SessionRes.from_session_data = MagicMock()
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
-        session_service.create_session(
-            project_name, participant_code, session_post)
+        session_service.create_session(project_name, participant_code, session_post)
 
         session_service.participant_service.get_participant.assert_called_with(
-            project_name, participant_code)
+            project_name, participant_code
+        )
         session_service.file_management.create_directory.assert_called_with(
-            expected_session_id, mock_participant.location)
+            expected_session_id, mock_participant.location
+        )
         mock_storage_instance.insert_one.assert_called_once()
         SessionRes.from_session_data.assert_called_once()
 
@@ -83,29 +100,28 @@ def test_update_session_success(session_service, mock_session_data):
     project_name = "TestProject"
     participant_code = "P01"
     session_id = mock_session_data.session_id
-    session_put = SessionPut(end_timestamp=1749268800.0, capture_sources=[
-        CaptureConfigDetailsPut(
-            config_name="test_setting", start_timestamp=1749268300.0
-        )
-    ])
+    session_put = SessionPut(
+        end_timestamp=1749268800.0,
+        capture_sources=[
+            CaptureConfigDetailsPut(config_name="test_setting", start_timestamp=1749268300.0)
+        ],
+    )
 
-    session_service._get_session_data = MagicMock(
-        return_value=mock_session_data)
+    session_service._get_session_data = MagicMock(return_value=mock_session_data)
     session_service.project_service.get_rel_project_location.return_value = project_name
     session_service.participant_service._get_participant_dir_name.return_value = participant_code
     SessionRes.from_session_data = MagicMock()
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
-        session_service.update_session(
-            project_name, participant_code, session_id, session_put)
+        session_service.update_session(project_name, participant_code, session_id, session_put)
 
         session_service._get_session_data.assert_called_with(
-            project_name, participant_code, session_id)
-        mock_storage_instance.update.assert_called_with(
-            {"session_id": session_id}, ANY)
+            project_name, participant_code, session_id
+        )
+        mock_storage_instance.update.assert_called_with({"session_id": session_id}, ANY)
         updated_data = mock_storage_instance.update.call_args[0][1]
         assert updated_data["end_timestamp"] == session_put.end_timestamp
         SessionRes.from_session_data.assert_called_once()
@@ -118,10 +134,9 @@ def test_add_capture_source_setting_start_timestamp_success(session_service, moc
     setting_name = "test_setting"
     new_timestamp = 1749268300.0
 
-    session_service._get_session_data = MagicMock(
-        return_value=mock_session_data)
+    session_service._get_session_data = MagicMock(return_value=mock_session_data)
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
@@ -131,7 +146,8 @@ def test_add_capture_source_setting_start_timestamp_success(session_service, moc
 
         assert result.capture_sources[0].start_timestamp == new_timestamp
         mock_storage_instance.update.assert_called_with(
-            {"session_id": session_id}, result.model_dump())
+            {"session_id": session_id}, result.model_dump()
+        )
 
 
 def test_add_end_timestamp_success(session_service, mock_session_data):
@@ -140,19 +156,20 @@ def test_add_end_timestamp_success(session_service, mock_session_data):
     session_id = mock_session_data.session_id
     end_timestamp = 1749268800.0
 
-    session_service._get_session_data = MagicMock(
-        return_value=mock_session_data)
+    session_service._get_session_data = MagicMock(return_value=mock_session_data)
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
         result = session_service.add_end_timestamp(
-            project_name, participant_code, session_id, end_timestamp)
+            project_name, participant_code, session_id, end_timestamp
+        )
 
         assert result.end_timestamp == end_timestamp
         mock_storage_instance.update.assert_called_with(
-            {"session_id": session_id}, result.model_dump())
+            {"session_id": session_id}, result.model_dump()
+        )
 
 
 def test_get_all_sessions_success(session_service, mock_participant):
@@ -164,14 +181,14 @@ def test_get_all_sessions_success(session_service, mock_participant):
         "rel_location": "location1",
         "start_timestamp": 1749268200.0,
         "started_at": datetime(2025, 6, 6, 18, 30, 0),
-        "capture_sources": []
+        "capture_sources": [],
     }
     session_dict_2 = {
         "session_id": "s2",
         "rel_location": "location2",
         "start_timestamp": 1749268300.0,
         "started_at": datetime(2025, 6, 6, 18, 31, 40),
-        "capture_sources": []
+        "capture_sources": [],
     }
 
     session_service.project_service.exists.return_value = True
@@ -179,15 +196,12 @@ def test_get_all_sessions_success(session_service, mock_participant):
     session_service.participant_service.get_participant.return_value = mock_participant
     SessionRes.from_session_data = MagicMock()
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
-        mock_storage_instance.find_all.return_value = [
-            session_dict_1, session_dict_2
-        ]
+        mock_storage_instance.find_all.return_value = [session_dict_1, session_dict_2]
         mock_json_storage.return_value = mock_storage_instance
 
-        result = session_service.get_all_sessions(
-            project_name, participant_code)
+        result = session_service.get_all_sessions(project_name, participant_code)
 
         assert len(result) == 2
         mock_storage_instance.find_all.assert_called_once()
@@ -220,16 +234,13 @@ def test_get_session_success(session_service, mock_session_data):
     participant_code = "P01"
     session_id = mock_session_data.session_id
 
-    session_service._get_session_data = MagicMock(
-        return_value=mock_session_data)
+    session_service._get_session_data = MagicMock(return_value=mock_session_data)
     SessionRes.from_session_data = MagicMock()
 
     session_service.get_session(project_name, participant_code, session_id)
 
-    session_service._get_session_data.assert_called_with(
-        project_name, participant_code, session_id)
-    SessionRes.from_session_data.assert_called_with(
-        mock_session_data, ANY, ANY)
+    session_service._get_session_data.assert_called_with(project_name, participant_code, session_id)
+    SessionRes.from_session_data.assert_called_with(mock_session_data, ANY, ANY)
 
 
 def test_get_session_not_found(session_service):
@@ -237,8 +248,7 @@ def test_get_session_not_found(session_service):
     participant_code = "P01"
     session_id = "nonexistent_session"
 
-    session_service._get_session_data = MagicMock(
-        side_effect=NotFoundException)
+    session_service._get_session_data = MagicMock(side_effect=NotFoundException)
 
     with pytest.raises(NotFoundException):
         session_service.get_session(project_name, participant_code, session_id)
@@ -254,19 +264,15 @@ def test_delete_session_success(session_service):
     session_service.get_session = MagicMock(return_value=mock_session_res)
     session_service.participant_service.is_participant_locked.return_value = False
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
-        session_service.delete_session(
-            project_name, participant_code, session_id)
+        session_service.delete_session(project_name, participant_code, session_id)
 
-        session_service.get_session.assert_called_with(
-            project_name, participant_code, session_id)
-        session_service.file_management.send_to_trash.assert_called_with(
-            mock_session_res.location)
-        mock_storage_instance.delete_one.assert_called_with(
-            {"session_id": session_id})
+        session_service.get_session.assert_called_with(project_name, participant_code, session_id)
+        session_service.file_management.send_to_trash.assert_called_with(mock_session_res.location)
+        mock_storage_instance.delete_one.assert_called_with({"session_id": session_id})
 
 
 def test_delete_session_participant_locked(session_service):
@@ -279,8 +285,7 @@ def test_delete_session_participant_locked(session_service):
     session_service.participant_service.is_participant_locked.return_value = True
 
     with pytest.raises(BadRequestException):
-        session_service.delete_session(
-            project_name, participant_code, session_id)
+        session_service.delete_session(project_name, participant_code, session_id)
 
 
 def test_exists_true(session_service, mock_participant):
@@ -290,13 +295,12 @@ def test_exists_true(session_service, mock_participant):
 
     session_service.participant_service.get_participant.return_value = mock_participant
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_storage_instance.exists.return_value = True
         mock_json_storage.return_value = mock_storage_instance
 
-        result = session_service.exists(
-            project_name, participant_code, session_id)
+        result = session_service.exists(project_name, participant_code, session_id)
         assert result is True
 
 
@@ -306,14 +310,14 @@ def test_get_session_data_success(session_service, mock_session_data):
     session_id = mock_session_data.session_id
 
     session_service._get_session_storage = MagicMock()
-    session_service._get_session_storage.return_value.find_one.return_value = mock_session_data.model_dump()
+    session_service._get_session_storage.return_value.find_one.return_value = (
+        mock_session_data.model_dump()
+    )
 
-    result = session_service._get_session_data(
-        project_name, participant_code, session_id)
+    result = session_service._get_session_data(project_name, participant_code, session_id)
 
     assert result == mock_session_data
-    session_service._get_session_storage.assert_called_with(
-        project_name, participant_code)
+    session_service._get_session_storage.assert_called_with(project_name, participant_code)
 
 
 def test_get_session_data_not_found(session_service):
@@ -321,13 +325,11 @@ def test_get_session_data_not_found(session_service):
     participant_code = "P01"
     session_id = "nonexistent_session"
 
-    with patch('mo.modules.capture.services.session_service.JsonStorage') as mock_json_storage:
+    with patch("mo.modules.capture.services.session_service.JsonStorage") as mock_json_storage:
         mock_storage_instance = MagicMock()
         mock_storage_instance.find_one.return_value = None
         mock_json_storage.return_value = mock_storage_instance
-        session_service._get_session_storage = MagicMock(
-            return_value=mock_storage_instance)
+        session_service._get_session_storage = MagicMock(return_value=mock_storage_instance)
 
         with pytest.raises(NotFoundException):
-            session_service._get_session_data(
-                project_name, participant_code, session_id)
+            session_service._get_session_data(project_name, participant_code, session_id)

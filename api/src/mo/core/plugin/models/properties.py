@@ -35,8 +35,7 @@ class Property(BaseModel):
     default: Optional[Any] = None
     data: dict[str, Any] = {}
     _type: PropertyType = PrivateAttr()
-    _modified_callback: Optional[modified_callback_type] = PrivateAttr(
-        default=None)
+    _modified_callback: Optional[modified_callback_type] = PrivateAttr(default=None)
 
     def get_dict(self) -> dict[str, Any]:
         return {
@@ -58,7 +57,7 @@ VALIDATORS = {
     PropertyType.TEXT: lambda v: isinstance(v, str),
     PropertyType.BOOL: lambda v: isinstance(v, bool),
     PropertyType.PATH: lambda v: isinstance(v, str),
-    PropertyType.SELECT: lambda v, options: v in [opt.value for opt in options]
+    PropertyType.SELECT: lambda v, options: v in [opt.value for opt in options],
 }
 
 
@@ -134,9 +133,7 @@ class Properties:
             data["file_types"] = file_types
         self._add_property(key, label, PropertyType.PATH, data)
 
-    def add_select(
-        self, key: str, label: str, options: list[PropertySelectOption]
-    ):
+    def add_select(self, key: str, label: str, options: list[PropertySelectOption]):
         data = {"options": options}
         self._add_property(key, label, PropertyType.SELECT, data)
 
@@ -147,14 +144,12 @@ class Properties:
     def _update_property_data(self, key: str, data: dict[str, Any], property_type: PropertyType):
         self._validate_key(key)
         if self._properties[key]._type != property_type:
-            raise ValueError(
-                f"Property with key '{key}' is not of type '{property_type}'.")
+            raise ValueError(f"Property with key '{key}' is not of type '{property_type}'.")
 
         self._properties[key].data.update(data)
 
     def update_select_options(self, key: str, options: list[PropertySelectOption]):
-        self._update_property_data(
-            key, {"options": options}, PropertyType.SELECT)
+        self._update_property_data(key, {"options": options}, PropertyType.SELECT)
 
     def remove_property(self, key: str):
         self._validate_key(key)
@@ -227,7 +222,7 @@ class Properties:
         for prop in props:
             self.validate_property(prop, settings)
         return True
-    
+
     def validate_property(self, prop: Property, settings: Settings):
         key = prop.key
         if prop.required and key not in settings.get():

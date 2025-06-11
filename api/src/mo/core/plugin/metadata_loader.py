@@ -4,7 +4,13 @@ from typing import Type, TypeVar
 
 from pydantic import ValidationError
 
-from mo.core.plugin.models.plugin import Plugin, PluginAuthor, PluginIcons, PluginMetadata, PluginPublisher
+from mo.core.plugin.models.plugin import (
+    Plugin,
+    PluginAuthor,
+    PluginIcons,
+    PluginMetadata,
+    PluginPublisher,
+)
 from mo.core.plugin.models.semantic_version import SemanticVersion
 from mo.core.plugin.models.sys_platform import SysPlatform
 
@@ -23,7 +29,7 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
             "publisher": PluginPublisher(**data.get("publisher")),
             "repository": data.get("repository"),
             "author": PluginAuthor(**data.get("author")) if data.get("author") else None,
-            "platform": SysPlatform(**data.get("platform"))
+            "platform": SysPlatform(**data.get("platform")),
         }
         icon = data.get("icon")
         if icon and isinstance(icon, dict):
@@ -39,6 +45,7 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
 
 
 T = TypeVar("T", bound=Plugin)
+
 
 def load_metadata_json(rel_path: str = ""):
     """

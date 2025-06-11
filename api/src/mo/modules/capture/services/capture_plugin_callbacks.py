@@ -2,6 +2,7 @@ import multiprocessing
 import threading
 import time
 from typing import Any, Optional
+
 from mo.core.plugin.models.plugin import Plugin
 from mo.core.plugin.worker_process import PluginProcessMetadata
 from mo.modules.capture.plugins.capture_plugin import CaptureData, CapturePlugin
@@ -16,7 +17,13 @@ def prepare_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_)
     instance.prepare(session_path, file_name)
 
 
-def start_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], process_queue: Optional[multiprocessing.Queue], process_metadata: PluginProcessMetadata, *_):
+def start_callback(
+    instance: Plugin,
+    extra_args: Optional[dict[str, Any]],
+    process_queue: Optional[multiprocessing.Queue],
+    process_metadata: PluginProcessMetadata,
+    *_,
+):
     if not isinstance(instance, CapturePlugin) or extra_args is None:
         return
 
@@ -25,19 +32,22 @@ def start_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], proce
     def on_data_callback(data: CaptureData):
         try:
             if process_queue is not None:
-                process_queue.put(PluginData(
-                    plugin_id=process_metadata.metadata.get_final_id(),
-                    config_name=config_name,
-                    timestamp=data.timestamp,
-                    data=data.data
-                ), block=False)
+                process_queue.put(
+                    PluginData(
+                        plugin_id=process_metadata.metadata.get_final_id(),
+                        config_name=config_name,
+                        timestamp=data.timestamp,
+                        data=data.data,
+                    ),
+                    block=False,
+                )
         except Exception as e:
             print(f"Error in on_data_callback for {config_name}: {e}")
 
     thread = threading.Thread(
         target=instance.start,
         args=(extra_args["start_ts"], time.monotonic, on_data_callback),
-        daemon=True
+        daemon=True,
     )
     thread.start()
 

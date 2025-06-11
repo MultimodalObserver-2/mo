@@ -4,18 +4,29 @@ from mo.core.config.constants import RELATIVE_APP_DATA_PATH
 from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.core.file_management.validators import FileValidators
-from mo.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException,
-                                            NotFoundException)
-from mo.modules.organization.errors.project import (PROJECT_ALREADY_EXISTS,
-                                                     PROJECT_DOES_NOT_EXIST,
-                                                     PROJECT_IS_LOCKED,
-                                                     PROJECT_NAME_NOT_ALLOWED)
-from mo.modules.organization.schemas.project import (ProjectData, ProjectPostReq,
-                                                      ProjectPutReq,
-                                                      ProjectRes)
+from mo.core.utils.http_exceptions import (
+    AlreadyExistsException,
+    BadRequestException,
+    NotFoundException,
+)
+from mo.modules.organization.errors.project import (
+    PROJECT_ALREADY_EXISTS,
+    PROJECT_DOES_NOT_EXIST,
+    PROJECT_IS_LOCKED,
+    PROJECT_NAME_NOT_ALLOWED,
+)
+from mo.modules.organization.schemas.project import (
+    ProjectData,
+    ProjectPostReq,
+    ProjectPutReq,
+    ProjectRes,
+)
 from mo.modules.organization.services.paths import (
-    PARTICIPANTS_DATA_FILE_NAME, PROJECTS_DATA_FILE_NAME, PROJECTS_DIR_NAME, RELATIVE_PROJECTS_PATH)
+    PARTICIPANTS_DATA_FILE_NAME,
+    PROJECTS_DATA_FILE_NAME,
+    PROJECTS_DIR_NAME,
+    RELATIVE_PROJECTS_PATH,
+)
 
 
 class ProjectService:
@@ -61,7 +72,6 @@ class ProjectService:
             raise BadRequestException(PROJECT_NAME_NOT_ALLOWED.format(name=project.name))
 
         dir_path = self.file_management.create_directory(project.name)
-
 
         project_data = ProjectData(
             name=project.name,
@@ -110,7 +120,7 @@ class ProjectService:
 
         project.name = project.name.strip() if project.name else project_name
         existing_project = ProjectData(**existing_project_dict)
-        existing_project.name= project.name if project.name else existing_project.name
+        existing_project.name = project.name if project.name else existing_project.name
         existing_project.description = (
             project.description if project.description else existing_project.description
         )
@@ -123,9 +133,7 @@ class ProjectService:
             if self.exists(project.name):
                 raise AlreadyExistsException(PROJECT_ALREADY_EXISTS.format(name=project.name))
 
-            self.file_management.rename_directory(
-                old_name=project_name, new_name=project.name
-            )
+            self.file_management.rename_directory(old_name=project_name, new_name=project.name)
             existing_project.rel_location = project.name
 
         self.projects_storage.update({"name": project_name}, existing_project.model_dump())

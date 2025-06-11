@@ -12,13 +12,16 @@ class PlatformsRes(BaseModel):
     windows: bool = False
     mac: bool = False
 
+
 class AuthorRes(BaseModel):
     name: Optional[str] = None
     email: Optional[str] = None
 
+
 class PublisherRes(BaseModel):
     name: str
     url: Optional[str] = None
+
 
 class PluginRes(BaseModel):
     id: str
@@ -40,10 +43,12 @@ class PluginRes(BaseModel):
         if isinstance(icon_path, str):
             return os.path.join(location, icon_path)
         elif isinstance(icon_path, PluginIcons):
-            return PluginIcons(**{
-                "dark": os.path.join(location, icon_path.dark or ""),
-                "light": os.path.join(location, icon_path.light or ""),
-            })
+            return PluginIcons(
+                **{
+                    "dark": os.path.join(location, icon_path.dark or ""),
+                    "light": os.path.join(location, icon_path.light or ""),
+                }
+            )
         return ""
 
     @staticmethod
@@ -58,12 +63,17 @@ class PluginRes(BaseModel):
                 url=plugin_metadata.publisher.url,
             ),
             repository=plugin_metadata.repository,
-            icon_path=PluginRes.get_icon_path(plugin_metadata._location or "",
-                                              plugin_metadata.icon_path or ""),
-            author=AuthorRes(
-                name=plugin_metadata.author.name,
-                email=plugin_metadata.author.email,
-            ) if plugin_metadata.author else None,
+            icon_path=PluginRes.get_icon_path(
+                plugin_metadata._location or "", plugin_metadata.icon_path or ""
+            ),
+            author=(
+                AuthorRes(
+                    name=plugin_metadata.author.name,
+                    email=plugin_metadata.author.email,
+                )
+                if plugin_metadata.author
+                else None
+            ),
             platforms=PlatformsRes(
                 linux=plugin_metadata.platform.linux,
                 windows=plugin_metadata.platform.windows,

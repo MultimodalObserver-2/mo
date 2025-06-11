@@ -3,23 +3,33 @@ from datetime import datetime
 from mo.core.config.constants import RELATIVE_APP_DATA_PATH
 from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
-from mo.core.utils.http_exceptions import (AlreadyExistsException,
-                                            BadRequestException,
-                                            NotFoundException)
+from mo.core.utils.http_exceptions import (
+    AlreadyExistsException,
+    BadRequestException,
+    NotFoundException,
+)
 from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from mo.modules.organization.errors.protocols import (
-    ACTIVITY_INVALID_FILE_PATH, ACTIVITY_INVALID_TIME_LIMIT,
-    ACTIVITY_PROCESS_NAME_REQUIRED, PROTOCOL_ALREADY_EXISTS,
-    PROTOCOL_DOES_NOT_EXIST, PROTOCOL_IS_LOCKED)
-from mo.modules.organization.schemas.protocol import (Activity,
-                                                       ActivityPostReq,
-                                                       ActivityPutReq,
-                                                       ProtocolPostReq,
-                                                       ProtocolPutReq,
-                                                       ProtocolRes)
-from mo.modules.organization.services.paths import (PROJECTS_DATA_FILE_NAME,
-                                                     PROJECTS_DIR_NAME,
-                                                     PROTOCOLS_DATA_FILE_NAME)
+    ACTIVITY_INVALID_FILE_PATH,
+    ACTIVITY_INVALID_TIME_LIMIT,
+    ACTIVITY_PROCESS_NAME_REQUIRED,
+    PROTOCOL_ALREADY_EXISTS,
+    PROTOCOL_DOES_NOT_EXIST,
+    PROTOCOL_IS_LOCKED,
+)
+from mo.modules.organization.schemas.protocol import (
+    Activity,
+    ActivityPostReq,
+    ActivityPutReq,
+    ProtocolPostReq,
+    ProtocolPutReq,
+    ProtocolRes,
+)
+from mo.modules.organization.services.paths import (
+    PROJECTS_DATA_FILE_NAME,
+    PROJECTS_DIR_NAME,
+    PROTOCOLS_DATA_FILE_NAME,
+)
 from mo.modules.organization.services.project_service import ProjectService
 
 

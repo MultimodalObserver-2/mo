@@ -1,25 +1,28 @@
-
-from collections import defaultdict
 import multiprocessing
 import queue
 import threading
+from collections import defaultdict
 from typing import Callable, Mapping, Optional
+
+import psutil
+
 from mo.core.plugin.worker_process import PluginWorkerProcess
 from mo.core.utils.buffer import ListBuffer
 from mo.modules.capture.plugins.capture_plugin import CaptureData
 from mo.modules.capture.schemas.capture import PluginData
 from mo.modules.capture.services.capture_plugin_callbacks import save_callback
-import psutil
 
 
 class CaptureBufferManager:
-    def __init__(self,
-                 execution_lock: threading.Lock,
-                 flush_interval: float = 1.0,
-                 monitor_interval: float = 0.5,
-                 memory_limit: int = 75,
-                 swap_memory_limit: int = 25,
-                 on_capture_data: Optional[Callable[[PluginData], None]] = None):
+    def __init__(
+        self,
+        execution_lock: threading.Lock,
+        flush_interval: float = 1.0,
+        monitor_interval: float = 0.5,
+        memory_limit: int = 75,
+        swap_memory_limit: int = 25,
+        on_capture_data: Optional[Callable[[PluginData], None]] = None,
+    ):
         self.buffers = defaultdict(ListBuffer[CaptureData])
         self.execution_lock = execution_lock
         self.flush_interval = flush_interval
@@ -32,7 +35,12 @@ class CaptureBufferManager:
         self.paused_intervals = []  # type: list[tuple[float, float | None]]
         self.paused_intervals_lock = threading.Lock()
 
-    def start(self, buffer_tuples: list[tuple[str, str]], queue: multiprocessing.Queue, processes: Mapping[str, PluginWorkerProcess]):
+    def start(
+        self,
+        buffer_tuples: list[tuple[str, str]],
+        queue: multiprocessing.Queue,
+        processes: Mapping[str, PluginWorkerProcess],
+    ):
         self.queue = queue
         self.processes = processes
         self.last_pause = None
@@ -41,17 +49,12 @@ class CaptureBufferManager:
             self.buffers[(plugin_id, config_name)] = ListBuffer[CaptureData]()
         self.started = True
         self.captured_data_thread = threading.Thread(
-            target=self.get_captured_data_worker,
-            daemon=True
+            target=self.get_captured_data_worker, daemon=True
         )
         self.captured_data_thread.start()
-        self.flush_buffers_thread = threading.Thread(
-            target=self.flush_buffers_periodically_worker
-        )
+        self.flush_buffers_thread = threading.Thread(target=self.flush_buffers_periodically_worker)
         self.flush_buffers_thread.start()
-        self.stressed_monitor_thread = threading.Thread(
-            target=self.stressed_monitor_worker
-        )
+        self.stressed_monitor_thread = threading.Thread(target=self.stressed_monitor_worker)
         self.stressed_monitor_thread.start()
 
     def stop(self, timeout: Optional[float] = None):
@@ -73,11 +76,7 @@ class CaptureBufferManager:
                 data = self.queue.get(timeout=0.1)
                 if data is None or not isinstance(data, PluginData):
                     continue
-                threading.Thread(
-                    target=self.on_capture_data,
-                    args=(data,),
-                    daemon=True
-                ).start()
+                threading.Thread(target=self.on_capture_data, args=(data,), daemon=True).start()
                 self.buffers[(data.plugin_id, data.config_name)].add(
                     CaptureData(
                         timestamp=data.timestamp,
@@ -105,23 +104,15 @@ class CaptureBufferManager:
                     continue
 
                 data = buffer.get_all_and_clear()
-                filtered_data = [
-                    item for item in data if self.is_on_time(item.timestamp)
-                ]
+                filtered_data = [item for item in data if self.is_on_time(item.timestamp)]
                 if not filtered_data and not end_of_data:
                     continue
-                args = {
-                    "data": filtered_data,
-                    "end_of_data": end_of_data
-                }
+                args = {"data": filtered_data, "end_of_data": end_of_data}
                 with self.execution_lock:
-                    process.execute_callback_on_instance(
-                        config_name, save_callback, args
-                    )
+                    process.execute_callback_on_instance(config_name, save_callback, args)
             except Exception as e:
                 exceptions[(plugin_id, config_name)] = e
-                print(
-                    f"Error flushing buffer for {plugin_id}, {config_name}: {e}")
+                print(f"Error flushing buffer for {plugin_id}, {config_name}: {e}")
         return exceptions
 
     def flush_buffers_periodically_worker(self) -> dict[tuple[str, str], list[Exception]]:
@@ -136,15 +127,13 @@ class CaptureBufferManager:
                 threading.Event().wait(self.flush_interval)
             except Exception as e:
                 print(f"Error in flush_buffers_periodically_worker: {e}")
-                all_exceptions[(
-                    "all", "flush_buffers_periodically_worker")].append(e)
+                all_exceptions[("all", "flush_buffers_periodically_worker")].append(e)
         return all_exceptions
 
     def is_stressed(self) -> bool:
         mem = psutil.virtual_memory()
         swap = psutil.swap_memory()
-        return (mem.percent >= self.memory_limit or
-                swap.percent >= self.swap_memory_limit)
+        return mem.percent >= self.memory_limit or swap.percent >= self.swap_memory_limit
 
     def stressed_monitor_worker(self) -> dict[tuple[str, str], list[Exception]]:
         all_exceptions = defaultdict(list)
@@ -207,5 +196,5 @@ class CaptureBufferManager:
             if self.paused_intervals:
                 self.paused_intervals[-1] = (
                     start if start is not None else self.paused_intervals[-1][0],
-                    end if end is not None else self.paused_intervals[-1][1]
+                    end if end is not None else self.paused_intervals[-1][1],
                 )

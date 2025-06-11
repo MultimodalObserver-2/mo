@@ -3,9 +3,8 @@ from unittest.mock import mock_open, patch
 
 import pytest
 
-from mo.core.utils.exceptions import (InvalidFileNameError,
-                                                 NotFoundError)
 from mo.core.file_management.json_storage import JsonStorage
+from mo.core.utils.exceptions import InvalidFileNameError, NotFoundError
 
 
 @pytest.fixture
@@ -66,8 +65,7 @@ def test_find_all(json_storage):
         patch(
             "mo.core.file_management.json_storage.open", mock_open(read_data=json.dumps(expected))
         ),
-        patch("mo.core.file_management.json_storage.json.load",
-              return_value=expected),
+        patch("mo.core.file_management.json_storage.json.load", return_value=expected),
     ):
 
         result = json_storage.find_all()
@@ -119,10 +117,8 @@ def test_update_success(json_storage):
 
 def test_update_not_found(json_storage):
     with (
-        patch("mo.core.file_management.json_storage.JsonStorage.find_all",
-              return_value=[]),
-        patch("mo.core.file_management.json_storage.JsonStorage._find_index",
-              return_value=None),
+        patch("mo.core.file_management.json_storage.JsonStorage.find_all", return_value=[]),
+        patch("mo.core.file_management.json_storage.JsonStorage._find_index", return_value=None),
     ):
         with pytest.raises(NotFoundError):
             json_storage.update({"id": 1}, {"id": 1, "name": "New"})
@@ -135,8 +131,7 @@ def test_delete_one_success(json_storage):
         patch(
             "mo.core.file_management.json_storage.JsonStorage.find_all", return_value=initial_data
         ),
-        patch(
-            "mo.core.file_management.json_storage.JsonStorage._find_index", return_value=0),
+        patch("mo.core.file_management.json_storage.JsonStorage._find_index", return_value=0),
         patch("mo.core.file_management.json_storage.open", mock_open()) as m,
         patch("mo.core.file_management.json_storage.json.dump") as mock_dump,
     ):
@@ -147,10 +142,8 @@ def test_delete_one_success(json_storage):
 
 def test_delete_one_not_found(json_storage):
     with (
-        patch("mo.core.file_management.json_storage.JsonStorage.find_all",
-              return_value=[]),
-        patch("mo.core.file_management.json_storage.JsonStorage._find_index",
-              return_value=None),
+        patch("mo.core.file_management.json_storage.JsonStorage.find_all", return_value=[]),
+        patch("mo.core.file_management.json_storage.JsonStorage._find_index", return_value=None),
     ):
         with pytest.raises(NotFoundError):
             json_storage.delete_one({"id": 2})

@@ -5,8 +5,8 @@ from fastapi import UploadFile
 from mo.core.api.schemas.plugin import PluginRes, PropertyRes
 from mo.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
 from mo.core.file_management.file_management import FileManagement
-from mo.core.plugin.manager import PluginManager
 from mo.core.plugin.dir_observer import PluginsDirHandler
+from mo.core.plugin.manager import PluginManager
 from mo.core.plugin.models.settings import Settings
 from mo.core.utils.http_exceptions import BadRequestException
 
@@ -62,8 +62,7 @@ class PluginService:
             self.plugin_management.register_plugin(dir_name)
             self.plugins_dir_handler.add_known_dir(dir_name)
             self.plugins_dir_handler.resume()
-            raise BadRequestException(
-                f"Failed to remove plugin '{final_id}'. \nError: {e}")
+            raise BadRequestException(f"Failed to remove plugin '{final_id}'. \nError: {e}")
         finally:
             self.plugins_dir_handler.resume()
 
@@ -75,8 +74,8 @@ class PluginService:
             raise BadRequestException(f"Plugin '{final_id}' not found.")
 
         plugin_properties = self.plugin_management.get_plugin_properties(
-            final_id, Settings(settings) if settings else None)
+            final_id, Settings(settings) if settings else None
+        )
         if not plugin_properties:
             return []
         return [PropertyRes(**prop) for prop in plugin_properties]
-

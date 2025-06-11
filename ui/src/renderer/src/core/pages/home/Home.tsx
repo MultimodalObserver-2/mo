@@ -8,7 +8,6 @@ import CaptureButton from "@renderer/modules/capture/components/capture-actions/
 import Sessions from "@renderer/modules/capture/components/sessions/Sessions"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
 
-
 export default function Home() {
   return (
     <main className={styles.main}>

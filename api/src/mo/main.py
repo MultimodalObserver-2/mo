@@ -1,7 +1,5 @@
 import os
 
-from mo.core.plugin.manager import PluginManager
-from mo.modules.capture.plugins.capture_plugin import CapturePlugin
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -11,12 +9,18 @@ from mo.core.api.routers.plugins import plugin_router
 from mo.core.config.constants import IS_DEV
 from mo.core.config.setup import app_setup
 from mo.core.plugin.dir_observer import start_plugins_dir_observer
+from mo.core.plugin.manager import PluginManager
+from mo.modules.capture.plugins.capture_plugin import CapturePlugin
 from mo.modules.capture.routers.capture import capture_router
 from mo.modules.capture.routers.capture_config import capture_config_router
 from mo.modules.capture.routers.session import session_router
 from mo.modules.organization.routers.participants import participant_router
 from mo.modules.organization.routers.projects import project_router
 from mo.modules.organization.routers.protocols import protocols_router
+
+if __name__ == "__main__":
+    # Initialize application setup
+    app_setup()
 
 app = FastAPI(
     title="Multimodal Observer API",
@@ -73,7 +77,6 @@ if __name__ == "__main__":
             s.bind(("127.0.0.1", 0))
             return s.getsockname()[1]
 
-    app_setup()
     port = int(os.getenv("API_PORT", find_free_port()))
     uvicorn.run(
         app, host="127.0.0.1", port=port, log_level="critical", access_log=False, log_config=None

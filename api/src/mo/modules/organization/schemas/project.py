@@ -1,9 +1,10 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from typing import Optional
 
-from mo.modules.organization.services.paths import PROJECTS_PATH
 from pydantic import BaseModel
+
+from mo.modules.organization.services.paths import PROJECTS_PATH
 
 
 class ProjectData(BaseModel):

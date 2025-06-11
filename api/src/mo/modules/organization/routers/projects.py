@@ -1,8 +1,6 @@
 from fastapi import APIRouter, Depends, Path, status
 
-from mo.modules.organization.schemas.project import (ProjectPostReq,
-                                                      ProjectPutReq,
-                                                      ProjectRes)
+from mo.modules.organization.schemas.project import ProjectPostReq, ProjectPutReq, ProjectRes
 from mo.modules.organization.services.project_service import ProjectService
 
 project_router = APIRouter(

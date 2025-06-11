@@ -1,9 +1,15 @@
 import os
 import time
 
-from watchdog.events import (DirCreatedEvent, DirDeletedEvent, DirMovedEvent,
-                             FileCreatedEvent, FileDeletedEvent,
-                             FileMovedEvent, FileSystemEventHandler)
+from watchdog.events import (
+    DirCreatedEvent,
+    DirDeletedEvent,
+    DirMovedEvent,
+    FileCreatedEvent,
+    FileDeletedEvent,
+    FileMovedEvent,
+    FileSystemEventHandler,
+)
 
 from mo.core.plugin.manager import PluginManager
 from mo.core.utils.singleton import singleton

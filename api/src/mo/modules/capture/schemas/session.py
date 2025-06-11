@@ -1,7 +1,9 @@
-from datetime import datetime
 import os
+from datetime import datetime
 from typing import Any, Optional
+
 from pydantic import BaseModel
+
 from mo.modules.organization.services.paths import PROJECTS_PATH
 
 
@@ -45,7 +47,7 @@ class CaptureConfigDetailsRes(BaseModel):
     def from_capture_source_setting(
         capture_source_setting: CaptureConfigDetails,
         project_rel_location: str,
-        participant_rel_location: str
+        participant_rel_location: str,
     ):
         return CaptureConfigDetailsRes(
             config_name=capture_source_setting.config_name,
@@ -56,7 +58,11 @@ class CaptureConfigDetailsRes(BaseModel):
             start_timestamp=capture_source_setting.start_timestamp,
             file_extension=capture_source_setting.file_extension,
             location=os.path.join(
-                PROJECTS_PATH, project_rel_location, participant_rel_location, capture_source_setting.rel_location)
+                PROJECTS_PATH,
+                project_rel_location,
+                participant_rel_location,
+                capture_source_setting.rel_location,
+            ),
         )
 
 
@@ -74,14 +80,16 @@ class SessionRes(BaseModel):
 
     @staticmethod
     def from_session_data(
-        session_data: SessionData,
-        project_rel_location: str,
-        participant_rel_location: str
+        session_data: SessionData, project_rel_location: str, participant_rel_location: str
     ) -> "SessionRes":
         return SessionRes(
             session_id=session_data.session_id,
             location=os.path.join(
-                PROJECTS_PATH, project_rel_location, participant_rel_location, session_data.rel_location),
+                PROJECTS_PATH,
+                project_rel_location,
+                participant_rel_location,
+                session_data.rel_location,
+            ),
             start_timestamp=session_data.start_timestamp,
             end_timestamp=session_data.end_timestamp,
             paused_time=session_data.paused_time,
@@ -92,8 +100,9 @@ class SessionRes(BaseModel):
             capture_sources=[
                 CaptureConfigDetailsRes.from_capture_source_setting(
                     source, project_rel_location, participant_rel_location
-                ) for source in session_data.capture_sources
-            ]
+                )
+                for source in session_data.capture_sources
+            ],
         )
 
 
@@ -142,8 +151,8 @@ class SessionPut(BaseModel):
             paused_intervals=session_res.paused_intervals,
             capture_sources=[
                 CaptureConfigDetailsPut(
-                    config_name=source.config_name,
-                    start_timestamp=source.start_timestamp
-                ) for source in session_res.capture_sources
-            ]
+                    config_name=source.config_name, start_timestamp=source.start_timestamp
+                )
+                for source in session_res.capture_sources
+            ],
         )

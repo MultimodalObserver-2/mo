@@ -21,6 +21,7 @@ dependencies = [
 
 [tool.poetry]
 packages = [{ include = "mo", from = "src" }]
+package-mode = false
 
 [tool.poetry.scripts]
 dev = "scripts.dev:start"
@@ -31,6 +32,10 @@ build = "scripts.build:build"
 
 [tool.black]
 line-length = 100
+
+[tool.isort]
+profile = "black"
+line_length = 100
 
 [tool.poetry.group.dev.dependencies]
 pyinstaller = "^6.13.0"

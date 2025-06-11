@@ -1,6 +1,10 @@
 from fastapi import APIRouter, Depends
 
-from mo.modules.capture.schemas.capture_config import CaptureConfigPostReq, CaptureConfigPutReq, CaptureConfigRes
+from mo.modules.capture.schemas.capture_config import (
+    CaptureConfigPostReq,
+    CaptureConfigPutReq,
+    CaptureConfigRes,
+)
 from mo.modules.capture.services.config_service import CaptureConfigService
 
 capture_config_router = APIRouter(
@@ -43,9 +47,7 @@ async def get_all_capture_configs(
     description="Get capture configuration for the specified project.",
 )
 async def get_capture_config(
-    project_name: str,
-    config_name: str,
-    service: CaptureConfigService = Depends()
+    project_name: str, config_name: str, service: CaptureConfigService = Depends()
 ) -> CaptureConfigRes:
     return service.get_capture_config(project_name, config_name)
 
@@ -61,7 +63,7 @@ async def update_capture_config(
     project_name: str,
     config_name: str,
     config: CaptureConfigPutReq,
-    service: CaptureConfigService = Depends()
+    service: CaptureConfigService = Depends(),
 ) -> CaptureConfigRes:
     return service.update_capture_config(project_name, config_name, config)
 
@@ -70,11 +72,9 @@ async def update_capture_config(
     "/{config_name}",
     status_code=204,
     summary="Delete capture configuration",
-    description="Delete capture configuration for the specified project."
+    description="Delete capture configuration for the specified project.",
 )
 async def delete_capture_settings(
-    project_name: str,
-    config_name: str,
-    service: CaptureConfigService = Depends()
+    project_name: str, config_name: str, service: CaptureConfigService = Depends()
 ) -> None:
     service.delete_capture_config(project_name, config_name)

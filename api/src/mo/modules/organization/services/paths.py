@@ -1,6 +1,6 @@
 import os
-from mo.core.config.constants import APP_DATA_DIR, RELATIVE_APP_DATA_PATH
 
+from mo.core.config.constants import APP_DATA_DIR, RELATIVE_APP_DATA_PATH
 
 PROJECTS_DIR_NAME = "projects"
 PROJECTS_DATA_FILE_NAME = "projects.json"

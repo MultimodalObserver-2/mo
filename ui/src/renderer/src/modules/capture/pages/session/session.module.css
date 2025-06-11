@@ -72,10 +72,10 @@
 }
 
 .settings-details-container {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
-    padding-left: 22px;
-    padding-right: 22px;
-    padding-top: 6px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-left: 22px;
+  padding-right: 22px;
+  padding-top: 6px;
 }

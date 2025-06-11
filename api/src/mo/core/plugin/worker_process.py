@@ -1,12 +1,11 @@
-
-from dataclasses import dataclass
 import importlib
 import importlib.util
-from multiprocessing import Pipe, Process, Queue
-from multiprocessing.connection import PipeConnection
 import os
 import sys
 import time
+from dataclasses import dataclass
+from multiprocessing import Pipe, Process, Queue
+from multiprocessing.connection import PipeConnection
 from typing import Any, Callable, Optional
 
 from mo.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
@@ -26,8 +25,9 @@ class PluginProcessMetadata:
     initial_settings: Optional[Settings] = None
 
 
-execute_callback = Callable[[
-    Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any]
+execute_callback = Callable[
+    [Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any
+]
 
 
 class PluginWorkerProcess(Process):
@@ -48,17 +48,22 @@ class PluginWorkerProcess(Process):
         "properties": "mo.plugin.properties",
     }
 
-    def __init__(self, process_metadata: PluginProcessMetadata, load_main_instance: bool = False, keep_running: bool = False, timeout: Optional[float | int] = None, processes_queue: Optional[Queue] = None):
+    def __init__(
+        self,
+        process_metadata: PluginProcessMetadata,
+        load_main_instance: bool = False,
+        keep_running: bool = False,
+        timeout: Optional[float | int] = None,
+        processes_queue: Optional[Queue] = None,
+    ):
         super().__init__()
         dependencies_name = "dependencies"
         plugins_dir = RELATIVE_PLUGINS_DIR_PATH
         plugins_path = os.path.join(APP_DATA_DIR, plugins_dir)
         plugins_path = os.path.normpath(plugins_path)
-        self.plugin_dir_path = os.path.join(
-            plugins_path, process_metadata.dir_name)
+        self.plugin_dir_path = os.path.join(plugins_path, process_metadata.dir_name)
         self.plugin_dir_path = os.path.normpath(self.plugin_dir_path)
-        self.plugin_dependencies_path = os.path.join(
-            self.plugin_dir_path, dependencies_name)
+        self.plugin_dependencies_path = os.path.join(self.plugin_dir_path, dependencies_name)
         self.process_metadata = process_metadata
         self._parent_conn, self._child_conn = Pipe()
         self.plugin_class = None
@@ -80,6 +85,7 @@ class PluginWorkerProcess(Process):
 
     def run(self) -> None:
         try:
+            self.__load_dependencies()
             self.plugin_class = self.__load_plugin()
             instance = self.plugin_class()
             properties = self.__load_properties()
@@ -87,7 +93,8 @@ class PluginWorkerProcess(Process):
             if properties is not None:
                 self.properties = properties
                 load_status["properties"] = properties.get_properties_dict(
-                    self.process_metadata.initial_settings)
+                    self.process_metadata.initial_settings
+                )
                 if self.process_metadata.initial_settings is not None:
                     instance.configure(self.process_metadata.initial_settings)
             if self.load_main_instance:
@@ -102,10 +109,7 @@ class PluginWorkerProcess(Process):
             load_status["module_name"] = self.plugin_class._module_name
             self.process_metadata.status_queue.put(load_status)
         except Exception as e:
-            load_status = {
-                "is_loaded": False,
-                "error": str(e)
-            }
+            load_status = {"is_loaded": False, "error": str(e)}
             self.process_metadata.status_queue.put(load_status)
             return
 
@@ -147,10 +151,11 @@ class PluginWorkerProcess(Process):
         except Exception as e:
             return {"is_valid": False, "exception": e}
 
-    def _handle_add_plugin_instance(self, instance_id: str, settings: Optional[Settings]) -> dict[str, bool]:
+    def _handle_add_plugin_instance(
+        self, instance_id: str, settings: Optional[Settings]
+    ) -> dict[str, bool]:
         if instance_id in self.plugins_instances:
-            raise ValueError(
-                f"Plugin instance with id '{instance_id}' already exists.")
+            raise ValueError(f"Plugin instance with id '{instance_id}' already exists.")
         if self.plugin_class is None:
             raise RuntimeError("Plugin class is not loaded.")
         plugin_instance = self.plugin_class()
@@ -159,20 +164,24 @@ class PluginWorkerProcess(Process):
         self.plugins_instances[instance_id] = plugin_instance
         self.plugins_instances_ids.append(instance_id)
         return {"is_ok": True}
-    
+
     def _handle_remove_plugin_instance(self, instance_id: str) -> dict[str, bool]:
         if instance_id not in self.plugins_instances:
-            raise ValueError(
-                f"Plugin instance with id '{instance_id}' does not exist.")
+            raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
         plugin_instance = self.plugins_instances.pop(instance_id)
         plugin_instance.unload()
         self.plugins_instances_ids.remove(instance_id)
         return {"is_ok": True}
 
-    def _handle_execute_callback_on_instance(self, instance_id: str, callback: execute_callback, extra_args: Optional[dict[str, Any]], need_response: bool) -> Optional[dict[str, Any]]:
+    def _handle_execute_callback_on_instance(
+        self,
+        instance_id: str,
+        callback: execute_callback,
+        extra_args: Optional[dict[str, Any]],
+        need_response: bool,
+    ) -> Optional[dict[str, Any]]:
         try:
-            result = self._execute_callback_on_instance(
-                instance_id, callback, extra_args)
+            result = self._execute_callback_on_instance(instance_id, callback, extra_args)
             if need_response:
                 return {"is_ok": True, "result": result}
         except Exception as e:
@@ -225,25 +234,37 @@ class PluginWorkerProcess(Process):
         if instance_id in self.plugins_instances_ids:
             self.plugins_instances_ids.remove(instance_id)
 
-    def _execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None) -> Any:
+    def _execute_callback_on_instance(
+        self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None
+    ) -> Any:
         if instance_id not in self.plugins_instances:
-            raise ValueError(
-                f"Plugin instance with id '{instance_id}' does not exist.")
+            raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
 
         plugin_instance = self.plugins_instances[instance_id]
         return callback(plugin_instance, args, self.processes_queue, self.process_metadata)
 
-    def execute_callback_on_all_instances(self, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> list[Any]:
+    def execute_callback_on_all_instances(
+        self,
+        callback: execute_callback,
+        args: Optional[dict[str, Any]] = None,
+        need_response: bool = True,
+    ) -> list[Any]:
         results = []
         for instance_id in self.plugins_instances_ids:
-            result = self.execute_callback_on_instance(
-                instance_id, callback, args, need_response)
+            result = self.execute_callback_on_instance(instance_id, callback, args, need_response)
             results.append(result)
         return results
 
-    def execute_callback_on_instance(self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None, need_response: bool = True) -> Any:
+    def execute_callback_on_instance(
+        self,
+        instance_id: str,
+        callback: execute_callback,
+        args: Optional[dict[str, Any]] = None,
+        need_response: bool = True,
+    ) -> Any:
         self._parent_conn.send(
-            ("execute_callback_on_instance", instance_id, callback, args, need_response))
+            ("execute_callback_on_instance", instance_id, callback, args, need_response)
+        )
         if not need_response:
             return True
         res = self._parent_conn.recv()
@@ -272,38 +293,37 @@ class PluginWorkerProcess(Process):
         return module_path, symbol_name
 
     def __load_dependencies(self) -> None:
-        dependencies_path = os.path.join(
-            self.plugin_dir_path, self.plugin_dependencies_path)
+        dependencies_path = os.path.join(self.plugin_dir_path, self.plugin_dependencies_path)
         if os.path.exists(dependencies_path):
-            sys.path.append(dependencies_path)
+            sys.path.insert(0, dependencies_path)
 
     def __load_symbol(self, group: str) -> Any | None:
         entry_point = self.__get_entry_point(group)
         if entry_point is None:
             return None
         module_path, symbol_name = entry_point
-        full_module_path = os.path.join(
-            self.plugin_dir_path, module_path)
+        full_module_path = os.path.join(self.plugin_dir_path, module_path)
         full_module_path = os.path.normpath(full_module_path)
         if not os.path.exists(full_module_path):
             raise FileNotFoundError(f"Module file not found at {module_path}")
+        sys.path.insert(0, os.path.dirname(full_module_path))
 
         spec = importlib.util.spec_from_file_location(
-            self.process_metadata.dir_name, full_module_path)
+            self.process_metadata.dir_name, full_module_path
+        )
         if spec is None or spec.loader is None:
             return None
-        self.__load_dependencies()
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
         return getattr(module, symbol_name)
 
     def __load_plugin(self) -> type[Plugin]:
-        entry_point = self.__get_entry_point(
-            self.METADATA_ENTRY_POINTS["plugin"])
+        entry_point = self.__get_entry_point(self.METADATA_ENTRY_POINTS["plugin"])
         if entry_point is None:
             raise ImportError(
-                f"Plugin '{self.process_metadata.dir_name}' does not have an entry point defined")
+                f"Plugin '{self.process_metadata.dir_name}' does not have an entry point defined"
+            )
         module_path, symbol_name = entry_point
 
         symbol = self.__load_symbol(self.METADATA_ENTRY_POINTS["plugin"])
@@ -320,8 +340,7 @@ class PluginWorkerProcess(Process):
         return symbol
 
     def __load_properties(self) -> Properties | None:
-        entry_point = self.__get_entry_point(
-            self.METADATA_ENTRY_POINTS["properties"])
+        entry_point = self.__get_entry_point(self.METADATA_ENTRY_POINTS["properties"])
         if entry_point is None:
             return None
 

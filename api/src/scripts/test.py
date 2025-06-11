@@ -47,8 +47,12 @@ def run_tests():
     elif args.type == "integration":
         test_filter = "integration"
 
-    core_path = ["--cov=mo.core.file_management", "--cov=mo.core.utils",
-                 "--cov=mo.core.plugin", "--cov=mo.core.api.services"]
+    core_path = [
+        "--cov=mo.core.file_management",
+        "--cov=mo.core.utils",
+        "--cov=mo.core.plugin",
+        "--cov=mo.core.api.services",
+    ]
     module_service_paths = get_modules_services()
 
     test_cmd = ["pytest"] + core_path + module_service_paths + [f"tests/{test_filter}"] + extra_args

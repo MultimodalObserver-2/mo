@@ -8,11 +8,13 @@ from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.main import app
 from mo.modules.organization.errors.participant import (
-    PARTICIPANT_ALREADY_EXISTS, PARTICIPANT_CODE_NOT_ALLOWED,
-    PARTICIPANT_DOES_NOT_EXIST, PARTICIPANT_IS_LOCKED)
+    PARTICIPANT_ALREADY_EXISTS,
+    PARTICIPANT_CODE_NOT_ALLOWED,
+    PARTICIPANT_DOES_NOT_EXIST,
+    PARTICIPANT_IS_LOCKED,
+)
 from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
-from mo.modules.organization.services.participant_service import \
-    ParticipantService
+from mo.modules.organization.services.participant_service import ParticipantService
 from mo.modules.organization.services.project_service import ProjectService
 
 

@@ -33,10 +33,10 @@ class Settings:
 
     def __repr__(self) -> str:
         return f"Settings({self._settings})"
-    
+
     def __str__(self) -> str:
         return json.dumps(self._settings, indent=4, ensure_ascii=False)
-    
+
     def __getitem__(self, key: str) -> Any:
         return self._settings[key]
 
@@ -48,12 +48,12 @@ class Settings:
             del self._settings[key]
         else:
             raise KeyError(f"Key '{key}' not found in settings.")
-    
+
     def __contains__(self, key: str) -> bool:
         return key in self._settings
-    
+
     def __len__(self) -> int:
         return len(self._settings)
-    
+
     def __iter__(self):
         return iter(self._settings.items())

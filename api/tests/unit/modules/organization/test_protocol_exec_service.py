@@ -4,8 +4,7 @@ import pytest
 
 from mo.core.utils.http_exceptions import BadRequestException
 from mo.modules.organization.schemas.protocol import Activity, ProtocolExecMsg
-from mo.modules.organization.services.protocol_exec_service import \
-    ProtocolExecService
+from mo.modules.organization.services.protocol_exec_service import ProtocolExecService
 
 
 @pytest.fixture

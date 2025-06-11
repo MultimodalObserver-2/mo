@@ -49,6 +49,9 @@ export default function CaptureActions() {
       setIsCapturing(!isCapturing)
       setIsPaused(false)
     } catch (error) {
+      if (isCapturing) {
+        window.capture.reloadSessions()
+      }
       checkCaptureStatus()
       showApiErrorMessage(error)
     }

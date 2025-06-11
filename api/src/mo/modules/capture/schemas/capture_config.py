@@ -1,7 +1,8 @@
 from typing import Any, Optional
 
-from mo.core.plugin.models.plugin import PluginIcons, PluginMetadata
 from pydantic import BaseModel
+
+from mo.core.plugin.models.plugin import PluginIcons, PluginMetadata
 
 
 class CaptureConfigPostReq(BaseModel):

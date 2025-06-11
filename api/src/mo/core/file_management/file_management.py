@@ -8,13 +8,11 @@ import zipfile
 from typing import BinaryIO, Optional
 
 import psutil
+import send2trash
 
 from mo.core.config.constants import APP_DATA_DIR
-from mo.core.utils.exceptions import (InvalidDirectoryNameError,
-                                                 InvalidFileNameError,
-                                                 NotFoundError)
 from mo.core.file_management.validators import FileValidators
-import send2trash
+from mo.core.utils.exceptions import InvalidDirectoryNameError, InvalidFileNameError, NotFoundError
 
 
 class FileManagement:
@@ -149,6 +147,7 @@ class FileManagement:
         def remove_readonly(func, path, _):
             os.chmod(path, stat.S_IWRITE)
             func(path)
+
         dir_path = os.path.join(self._path, rel_path, dir_name)
         dir_path = os.path.normpath(dir_path)
         if not os.path.exists(dir_path):
@@ -257,5 +256,5 @@ class FileManagement:
         """
         file_name = unicodedata.normalize("NFKD", file_name)
         file_name = "".join(c for c in file_name if not unicodedata.combining(c))
-        file_name = re.sub(r'[\W]', '', file_name)
+        file_name = re.sub(r"[\W]", "", file_name)
         return file_name

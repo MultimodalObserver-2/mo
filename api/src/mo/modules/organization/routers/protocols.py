@@ -1,10 +1,7 @@
 from fastapi import APIRouter, Depends, Path, WebSocket, status
 
-from mo.modules.organization.schemas.protocol import (ProtocolPostReq,
-                                                       ProtocolPutReq,
-                                                       ProtocolRes)
-from mo.modules.organization.services.protocol_exec_service import \
-    ProtocolExecService
+from mo.modules.organization.schemas.protocol import ProtocolPostReq, ProtocolPutReq, ProtocolRes
+from mo.modules.organization.services.protocol_exec_service import ProtocolExecService
 from mo.modules.organization.services.protocol_service import ProtocolService
 
 protocols_router = APIRouter(

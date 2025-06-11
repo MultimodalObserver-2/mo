@@ -1,9 +1,9 @@
-
 import threading
+
 
 class ListBuffer[T]:
     def __init__(self):
-        self._buffer = [] # type: list[T]
+        self._buffer = []  # type: list[T]
         self._lock = threading.Lock()
 
     def add(self, item: T):
@@ -23,10 +23,10 @@ class ListBuffer[T]:
             items = list(self._buffer)
             self._buffer.clear()
             return items
-    
+
     def get(self, index: int) -> T:
         return self.__getitem__(index)
-    
+
     def is_empty(self) -> bool:
         with self._lock:
             return len(self._buffer) == 0
