@@ -21,6 +21,9 @@ from mo.modules.organization.routers.projects import project_router
 from mo.modules.organization.routers.protocols import protocols_router
 
 if __name__ == "__main__":
+    # Ensure multiprocessing support is initialized for Windows
+    # This is necessary to avoid issues with multiprocessing on Windows
+    multiprocessing.freeze_support()
     # Initialize application setup
     app_setup()
 
