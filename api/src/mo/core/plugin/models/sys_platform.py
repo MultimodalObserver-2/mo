@@ -4,11 +4,13 @@ from pydantic import BaseModel
 
 
 class SysPlatform(BaseModel):
+    """Represents the system platforms supported by a plugin."""
     linux: bool = False
     windows: bool = False
     mac: bool = False
 
     def is_available(self) -> bool:
+        """Checks if the current operating system matches any of the supported platforms."""
         operating_system = platform.system()
         return (
             (self.linux and operating_system == "Linux")
@@ -17,6 +19,7 @@ class SysPlatform(BaseModel):
         )
 
     def get_platforms(self) -> list[str]:
+        """Returns a list of supported platforms."""
         platforms = []
         if self.linux:
             platforms.append("Linux")
@@ -27,4 +30,5 @@ class SysPlatform(BaseModel):
         return platforms
 
     def __str__(self) -> str:
+        """Returns a string representation of the supported platforms."""
         return self.get_platforms().__str__()

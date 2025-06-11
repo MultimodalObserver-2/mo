@@ -17,6 +17,8 @@ from mo.core.utils.exceptions import UnknownError
 
 @dataclass
 class PluginProcessMetadata:
+    """Metadata for the plugin worker process."""
+
     dir_name: str
     metadata: PluginMetadata
     entry_points: dict[str, str]
@@ -25,12 +27,14 @@ class PluginProcessMetadata:
     initial_settings: Optional[Settings] = None
 
 
+# Type alias for the callback function that will be executed on the plugin instance
 execute_callback = Callable[
     [Plugin, Optional[dict[str, Any]], Optional[Queue], PluginProcessMetadata], Any
 ]
 
 
 class PluginWorkerProcess(Process):
+    """A worker process for loading a plugin on a separate process, executing commands, and managing plugin instances."""
     plugin_dir_path: str
     plugin_class: type[Plugin] | None
     process_metadata: PluginProcessMetadata
@@ -44,8 +48,8 @@ class PluginWorkerProcess(Process):
     timeout: Optional[float | int]
     processes_queue: Optional[Queue] = None
     METADATA_ENTRY_POINTS = {
-        "plugin": "mo.plugin",
-        "properties": "mo.plugin.properties",
+        "plugin": "mo.plugin", # Entry point for the plugin class
+        "properties": "mo.plugin.properties", # Entry point for the properties class
     }
 
     def __init__(
@@ -56,6 +60,14 @@ class PluginWorkerProcess(Process):
         timeout: Optional[float | int] = None,
         processes_queue: Optional[Queue] = None,
     ):
+        """Initializes the PluginWorkerProcess.
+        Args:
+            process_metadata (PluginProcessMetadata): Metadata for the plugin process.
+            load_main_instance (bool): Whether to load the main plugin instance.
+            keep_running (bool): Whether to keep the process running.
+            timeout (Optional[float | int]): Timeout for the process, in seconds, or None for no timeout.
+            processes_queue (Optional[Queue]): Queue for inter-process communication.
+        """
         super().__init__()
         dependencies_name = "dependencies"
         plugins_dir = RELATIVE_PLUGINS_DIR_PATH
@@ -84,6 +96,7 @@ class PluginWorkerProcess(Process):
         }
 
     def run(self) -> None:
+        """Runs the plugin worker process, loading the plugin and handling commands."""
         try:
             self.__load_dependencies()
             self.plugin_class = self.__load_plugin()
@@ -120,6 +133,7 @@ class PluginWorkerProcess(Process):
         self._child_conn.close()
 
     def _event_loop(self) -> None:
+        """Main event loop for the plugin worker process, handling commands and managing plugin instances."""
         last_activity_time = time.time()
         while self.keep_running:
             if self.timeout and (time.time() - last_activity_time > self.timeout):
@@ -136,15 +150,34 @@ class PluginWorkerProcess(Process):
                 last_activity_time = time.time()
 
     def handle_command(self, command: str, *args: Any) -> Any:
+        """Handles a command sent to the plugin worker process.
+        Args:
+            command (str): The command to handle.
+            *args: Additional arguments for the command.
+        Returns:
+            Any: The result of the command, or None if no response is needed.
+        """
         handler = self.command_handlers.get(command)
         if handler:
             return handler(*args)
         return None
 
     def _handle_get_properties(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
+        """Handles the 'get_properties' command to retrieve plugin properties.
+        Args:
+            settings (Optional[Settings]): Optional settings to filter properties.
+        Returns:
+            list[dict[str, Any]]: A list of properties dictionaries.
+        """
         return self.properties.get_properties_dict(settings)
 
     def _handle_validate_settings(self, settings: Optional[Settings] = None) -> dict[str, Any]:
+        """Handles the 'validate_settings' command to validate plugin settings.
+        Args:
+            settings (Optional[Settings]): The settings to validate.
+        Returns:
+            dict[str, Any]: A dictionary indicating whether the settings are valid and any exceptions raised.
+        """
         try:
             self.properties.validate(settings or Settings())
             return {"is_valid": True}
@@ -154,6 +187,16 @@ class PluginWorkerProcess(Process):
     def _handle_add_plugin_instance(
         self, instance_id: str, settings: Optional[Settings]
     ) -> dict[str, bool]:
+        """Handles the 'add_plugin_instance' command to add a new plugin instance.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance.
+            settings (Optional[Settings]): Optional settings for the plugin instance.
+        Returns:
+            dict[str, bool]: A dictionary indicating whether the instance was added successfully.
+        Raises:
+            ValueError: If an instance with the same ID already exists.
+            RuntimeError: If the plugin class is not loaded.
+        """
         if instance_id in self.plugins_instances:
             raise ValueError(f"Plugin instance with id '{instance_id}' already exists.")
         if self.plugin_class is None:
@@ -166,6 +209,14 @@ class PluginWorkerProcess(Process):
         return {"is_ok": True}
 
     def _handle_remove_plugin_instance(self, instance_id: str) -> dict[str, bool]:
+        """Handles the 'remove_plugin_instance' command to remove a plugin instance.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance to remove.
+        Returns:
+            dict[str, bool]: A dictionary indicating whether the instance was removed successfully.
+        Raises:
+            ValueError: If the instance with the given ID does not exist.
+        """
         if instance_id not in self.plugins_instances:
             raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
         plugin_instance = self.plugins_instances.pop(instance_id)
@@ -180,6 +231,19 @@ class PluginWorkerProcess(Process):
         extra_args: Optional[dict[str, Any]],
         need_response: bool,
     ) -> Optional[dict[str, Any]]:
+        """Handles the 'execute_callback_on_instance' command to execute a callback on a plugin instance.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance.
+            callback (execute_callback): The callback function to execute on the plugin instance.
+            extra_args (Optional[dict[str, Any]]): Additional arguments to pass to the callback.
+            need_response (bool): Whether a response is needed from the callback execution.
+        Returns:
+            Optional[dict[str, Any]]: A dictionary with the result of the callback execution if `need_response` is True,
+                                       otherwise None.
+        Raises:
+            ValueError: If the instance with the given ID does not exist.
+            Exception: If an error occurs during callback execution.
+        """
         try:
             result = self._execute_callback_on_instance(instance_id, callback, extra_args)
             if need_response:
@@ -190,13 +254,28 @@ class PluginWorkerProcess(Process):
         return None
 
     def _handle_set_timeout(self, new_timeout: float | int | None) -> None:
+        """Handles the 'set_timeout' command to set a new timeout for the process.
+        Args:
+            new_timeout (float | int | None): The new timeout value in seconds, or None for no timeout.
+        """
         self.timeout = new_timeout
 
     def _handle_stop(self) -> dict[str, bool]:
+        """Handles the 'stop' command to stop the plugin worker process.
+        Returns:
+            dict[str, bool]: A dictionary indicating whether the stop command was successful.
+        """
         self.keep_running = False
         return {"is_ok": True}
 
     def stop(self, timeout: Optional[float] = None, force: bool = False) -> None:
+        """Stops the plugin worker process.
+        Args:
+            timeout (Optional[float]): The maximum time to wait for the process to stop, in seconds.
+            force (bool): Whether to forcefully terminate the process if it does not stop within the timeout.
+        Raises:
+            UnknownError: If an error occurs while stopping the process.
+        """
         self._parent_conn.send(("stop",))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
@@ -211,6 +290,12 @@ class PluginWorkerProcess(Process):
             self.join()
 
     def validate_settings(self, settings: Optional[Settings]) -> None:
+        """Validates the settings for the plugin.
+        Args:
+            settings (Optional[Settings]): The settings to validate.
+        Raises:
+            UnknownError: If the settings are not valid or an error occurs during validation.
+        """
         self._parent_conn.send(("validate_settings", settings))
         res = self._parent_conn.recv()
         if not res.get("is_valid", False):
@@ -218,25 +303,54 @@ class PluginWorkerProcess(Process):
             raise exception
 
     def add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None) -> None:
+        """Adds a new plugin instance with the given ID and settings.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance.
+            settings (Optional[Settings]): Optional settings for the plugin instance.
+        Raises:
+            ValueError: If an instance with the same ID already exists.
+            RuntimeError: If the plugin class is not loaded.
+            UnknownError: If an error occurs while adding the plugin instance.
+        """
         self._parent_conn.send(("add_plugin_instance", instance_id, settings))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
             exception = res.get("exception", UnknownError())
             raise exception
+        # If the instance was added successfully, store it in the local state.
         self.plugins_instances_ids.append(instance_id)
 
     def remove_plugin_instance(self, instance_id: str) -> None:
+        """Removes a plugin instance with the given ID.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance to remove.
+        Raises:
+            ValueError: If the instance with the given ID does not exist.
+            UnknownError: If an error occurs while removing the plugin instance.
+        """
         self._parent_conn.send(("remove_plugin_instance", instance_id))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
             exception = res.get("exception", UnknownError())
             raise exception
         if instance_id in self.plugins_instances_ids:
+            # If the instance was removed successfully, remove it from the local state.
             self.plugins_instances_ids.remove(instance_id)
 
     def _execute_callback_on_instance(
         self, instance_id: str, callback: execute_callback, args: Optional[dict[str, Any]] = None
     ) -> Any:
+        """Executes a callback on a specific plugin instance.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance.
+            callback (execute_callback): The callback function to execute on the plugin instance.
+            args (Optional[dict[str, Any]]): Additional arguments to pass to the callback.
+        Returns:
+            Any: The result of the callback execution.
+        Raises:
+            ValueError: If the instance with the given ID does not exist.
+            UnknownError: If an error occurs during callback execution.
+        """
         if instance_id not in self.plugins_instances:
             raise ValueError(f"Plugin instance with id '{instance_id}' does not exist.")
 
@@ -249,6 +363,14 @@ class PluginWorkerProcess(Process):
         args: Optional[dict[str, Any]] = None,
         need_response: bool = True,
     ) -> list[Any]:
+        """Executes a callback on all plugin instances.
+        Args:
+            callback (execute_callback): The callback function to execute on each plugin instance.
+            args (Optional[dict[str, Any]]): Additional arguments to pass to the callback.
+            need_response (bool): Whether a response is needed from each callback execution.
+        Returns:
+            list[Any]: A list of results from the callback executions on each instance.
+        """
         results = []
         for instance_id in self.plugins_instances_ids:
             result = self.execute_callback_on_instance(instance_id, callback, args, need_response)
@@ -262,6 +384,18 @@ class PluginWorkerProcess(Process):
         args: Optional[dict[str, Any]] = None,
         need_response: bool = True,
     ) -> Any:
+        """Executes a callback on a specific plugin instance.
+        Args:
+            instance_id (str): The unique identifier for the plugin instance.
+            callback (execute_callback): The callback function to execute on the plugin instance.
+            args (Optional[dict[str, Any]]): Additional arguments to pass to the callback.
+            need_response (bool): Whether a response is needed from the callback execution.
+        Returns:
+            Any: The result of the callback execution if `need_response` is True, otherwise None.
+        Raises:
+            ValueError: If the instance with the given ID does not exist.
+            UnknownError: If an error occurs during callback execution.
+        """
         self._parent_conn.send(
             ("execute_callback_on_instance", instance_id, callback, args, need_response)
         )
@@ -274,15 +408,32 @@ class PluginWorkerProcess(Process):
         return res.get("result", None)
 
     def get_properties(self, settings: Optional[Settings]) -> list[dict[str, Any]]:
+        """Retrieves the properties of the plugin.
+        Args:
+            settings (Optional[Settings]): Optional settings to filter properties.
+        Returns:
+            list[dict[str, Any]]: A list of properties dictionaries.
+        """
         self._parent_conn.send(("get_properties", settings))
         res = self._parent_conn.recv()
         return res
 
     def set_timeout(self, timeout: float | int | None) -> None:
+        """Sets a timeout for the plugin worker process.
+        Args:
+            timeout (float | int | None): The timeout value in seconds, or None for no timeout.
+        """
         self.timeout = timeout
         self._parent_conn.send(("set_timeout", timeout))
 
     def __get_entry_point(self, group: str):
+        """Retrieves the entry point for a given group from the plugin metadata.
+        Args:
+            group (str): The group for which to retrieve the entry point.
+        Returns:
+            tuple[str, str] | None: A tuple containing the module path and symbol name if the entry point exists,
+            otherwise None.
+        """
         if group not in self.process_metadata.entry_points:
             return None
 
@@ -293,19 +444,32 @@ class PluginWorkerProcess(Process):
         return module_path, symbol_name
 
     def __load_dependencies(self) -> None:
+        """Loads the plugin dependencies by adding the dependencies directory to the system path."""
         dependencies_path = os.path.join(self.plugin_dir_path, self.plugin_dependencies_path)
         if os.path.exists(dependencies_path):
             sys.path.insert(0, dependencies_path)
 
     def __load_symbol(self, group: str) -> Any | None:
+        """Loads a symbol from the plugin entry point.
+        Args:
+            group (str): The group for which to load the symbol.
+        Returns:
+            Any | None: The loaded symbol if it exists, otherwise None.
+        Raises:
+            FileNotFoundError: If the module file does not exist.
+            ImportError: If the module cannot be imported or the symbol is not found.
+        """
         entry_point = self.__get_entry_point(group)
         if entry_point is None:
             return None
         module_path, symbol_name = entry_point
+        # Normalize the module path and ensure it exists
         full_module_path = os.path.join(self.plugin_dir_path, module_path)
         full_module_path = os.path.normpath(full_module_path)
         if not os.path.exists(full_module_path):
             raise FileNotFoundError(f"Module file not found at {module_path}")
+        
+        # Add the plugin directory to the system path to allow importing
         sys.path.insert(0, os.path.dirname(full_module_path))
 
         spec = importlib.util.spec_from_file_location(
@@ -319,6 +483,12 @@ class PluginWorkerProcess(Process):
         return getattr(module, symbol_name)
 
     def __load_plugin(self) -> type[Plugin]:
+        """Loads the plugin class from the entry point defined in the plugin metadata.
+        Returns:
+            type[Plugin]: The loaded plugin class.
+        Raises:
+            ImportError: If the plugin does not have an entry point defined or if the symbol cannot be loaded.
+        """
         entry_point = self.__get_entry_point(self.METADATA_ENTRY_POINTS["plugin"])
         if entry_point is None:
             raise ImportError(
@@ -340,6 +510,12 @@ class PluginWorkerProcess(Process):
         return symbol
 
     def __load_properties(self) -> Properties | None:
+        """Loads the properties class from the entry point defined in the plugin metadata.
+        Returns:
+            Properties | None: The loaded properties instance if it exists, otherwise None.
+        Raises:
+            ImportError: If the properties class cannot be loaded or is not of the correct type.
+        """
         entry_point = self.__get_entry_point(self.METADATA_ENTRY_POINTS["properties"])
         if entry_point is None:
             return None

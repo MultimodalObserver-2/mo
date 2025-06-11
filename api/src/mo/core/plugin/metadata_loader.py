@@ -16,6 +16,16 @@ from mo.core.plugin.models.sys_platform import SysPlatform
 
 
 def load_plugin_metadata(path: str) -> PluginMetadata:
+    """
+    Load plugin metadata from a JSON file.
+    Args:
+        path (str): The path to the metadata JSON file.
+    Returns:
+        PluginMetadata: An instance of PluginMetadata containing the loaded data.
+    Raises:
+        FileNotFoundError: If the metadata file does not exist.
+        ValueError: If the metadata file is not in the correct format or contains invalid data.
+    """
     if not os.path.exists(path):
         raise FileNotFoundError(f"Metadata file not found at {path}")
 
@@ -50,6 +60,15 @@ T = TypeVar("T", bound=Plugin)
 def load_metadata_json(rel_path: str = ""):
     """
     Load the metadata.json file navigating from the current class directory to the relative path
+    Args:
+        rel_path (str): The relative path from the current class directory to the metadata.json file.
+    Returns:
+        A decorator that loads the metadata.json file and attaches it to the Plugin class.
+    Raises:
+        TypeError: If the class is not a subclass of Plugin.
+        RuntimeError: If the base file cannot be found in the stack.
+        FileNotFoundError: If the metadata file does not exist at the specified path.
+        ValueError: If the metadata file is not in the correct format or contains invalid data.
     """
 
     def decorator(cls: Type[T]) -> Type[T]:

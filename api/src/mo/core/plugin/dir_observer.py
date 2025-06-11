@@ -17,7 +17,9 @@ from mo.core.utils.singleton import singleton
 
 @singleton
 class PluginsDirHandler(FileSystemEventHandler):
+    """Handles file system events in the plugins directory."""
     def __init__(self) -> None:
+        """Initializes the PluginsDirHandler."""
         super().__init__()
         self.plugin_management = PluginManager()
         self.known_dirs = self.plugin_management.load_all_plugins()
@@ -25,22 +27,40 @@ class PluginsDirHandler(FileSystemEventHandler):
         self.suspended = False
 
     def suspend(self):
+        """Suspends the handler, preventing it from processing events."""
         self.suspended = True
 
     def resume(self):
+        """Resumes the handler, allowing it to process events again."""
         self.suspended = False
 
     def add_known_dir(self, dir_name: str) -> None:
+        """Adds a directory to the list of known directories.
+        Args:
+            dir_name (str): The name of the directory to add.
+        """
         if dir_name in self.known_dirs:
             return
         self.known_dirs.append(dir_name)
 
     def remove_known_dir(self, dir_name: str) -> None:
+        """Removes a directory from the list of known directories.
+        Args:
+            dir_name (str): The name of the directory to remove.
+        """
         if dir_name not in self.known_dirs:
             return
         self.known_dirs.remove(dir_name)
 
     def wait_for_file(self, path, timeout=20.0, interval=0.01) -> bool:
+        """Waits for a file to be created at the specified path.
+        Args:
+            path (str): The path to the file to wait for.
+            timeout (float): The maximum time to wait in seconds.
+            interval (float): The time to wait between checks in seconds.
+        Returns:
+            bool: True if the file is found within the timeout, False otherwise.
+        """
         start_time = time.time()
         while time.time() - start_time < timeout:
             if os.path.exists(path):
@@ -49,7 +69,12 @@ class PluginsDirHandler(FileSystemEventHandler):
         return False
 
     def on_created(self, event: DirCreatedEvent | FileCreatedEvent) -> None:
+        """Handles the creation of a directory in the plugins directory.
+        Args:
+            event (DirCreatedEvent | FileCreatedEvent): The event representing the creation.
+        """
         if not event.is_directory or self.suspended:
+            # Ignore file creation events or if the handler is suspended
             return
         src_path = event.src_path
         src_path = str(src_path)
@@ -69,6 +94,10 @@ class PluginsDirHandler(FileSystemEventHandler):
             print(f"Traceback: {e}")
 
     def on_deleted(self, event: DirDeletedEvent | FileDeletedEvent) -> None:
+        """Handles the deletion of a directory in the plugins directory.
+        Args:
+            event (DirDeletedEvent | FileDeletedEvent): The event representing the deletion.
+        """
         if self.suspended:
             return
 
@@ -86,6 +115,10 @@ class PluginsDirHandler(FileSystemEventHandler):
             print(f"Traceback: {e}")
 
     def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
+        """Handles the renaming of a directory in the plugins directory.
+        Args:
+            event (DirMovedEvent | FileMovedEvent): The event representing the move.
+        """
         if not event.is_directory or self.suspended:
             return
 
@@ -105,6 +138,7 @@ class PluginsDirHandler(FileSystemEventHandler):
 
 
 def start_plugins_dir_observer():
+    """Starts the observer for the plugins directory."""
     from watchdog.observers import Observer
 
     plugins_dir_handler = PluginsDirHandler()
