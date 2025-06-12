@@ -267,6 +267,12 @@ class PluginWorkerProcess(Process):
             dict[str, bool]: A dictionary indicating whether the stop command was successful.
         """
         self.keep_running = False
+        plugin_instances_ids = list(self.plugins_instances_ids)
+        for instance_id in plugin_instances_ids:
+            try:
+                self._handle_remove_plugin_instance(instance_id)
+            except Exception:
+                pass
         return {"is_ok": True}
 
     def stop(self, timeout: Optional[float] = None, force: bool = False) -> None:
