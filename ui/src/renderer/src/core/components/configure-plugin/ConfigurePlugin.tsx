@@ -6,7 +6,11 @@ import Button from "../button/Button"
 import ModalFooter from "../page-modal/modal-footer/ModalFooter"
 import { useEffect, useState } from "react"
 import pluginService from "@renderer/core/services/PluginService"
-import { PluginProperty } from "@renderer/core/types/PluginProperty"
+import {
+  PluginProperty,
+  PluginPropertyTypes,
+  PropertyDataNumber
+} from "@renderer/core/types/PluginProperty"
 import PluginSettingProperty from "./PluginSettingProperty"
 import Input from "../input/Input"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
@@ -64,6 +68,52 @@ export default function ConfigurePlugin({
     onSubmit(configName, settings)
   }
 
+  const changeToDefault = (property: PluginProperty, settings: Record<string, SettingType>) => {
+    if (property.default !== undefined && settings[property.key] === undefined) {
+      return true
+    }
+
+    if (
+      property.property_type === PluginPropertyTypes.INT ||
+      property.property_type === PluginPropertyTypes.FLOAT
+    ) {
+      const value = settings[property.key] as number
+      const data = property.data as PropertyDataNumber
+      return (
+        (data.min !== undefined && value < data.min) ||
+        (data.max !== undefined && value > data.max) ||
+        (data.step !== undefined && value % data.step !== 0)
+      )
+    }
+
+    if (property.property_type === PluginPropertyTypes.TEXT) {
+      const value = settings[property.key] as string
+      const data = property.data as { max_length?: number; min_length?: number }
+      return (
+        (data.min_length !== undefined && value.length < data.min_length) ||
+        (data.max_length !== undefined && value.length > data.max_length)
+      )
+    }
+
+    if (property.property_type === PluginPropertyTypes.BOOL) {
+      return settings[property.key] !== true && settings[property.key] !== false
+    }
+
+    if (property.property_type === PluginPropertyTypes.PATH) {
+      const value = settings[property.key] as string
+      const data = property.data as { file_types?: string[] }
+      return !value || (data.file_types && !data.file_types.includes(value.split(".").pop() || ""))
+    }
+
+    if (property.property_type === PluginPropertyTypes.SELECT) {
+      const value = settings[property.key]
+      const data = property.data as { options: { value: string | number | boolean }[] }
+      return !data.options.some((option) => option.value === value)
+    }
+
+    return false
+  }
+
   const handleChangeProperty = async (val: string | number | boolean, property: PluginProperty) => {
     if (!property.reactive) {
       setSettings((prev) => ({
@@ -76,6 +126,11 @@ export default function ConfigurePlugin({
       const setts = { ...settings, [property.key]: val }
       const response = await pluginService.getSettingProperties(pluginId, setts)
       setProperties(response.data)
+      for (const prop of response.data) {
+        if (changeToDefault(prop, setts)) {
+          setts[prop.key] = prop.default !== undefined ? prop.default : ""
+        }
+      }
       setSettings(setts)
     } catch (error) {
       showApiErrorMessage(error)

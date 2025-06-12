@@ -36,7 +36,7 @@ properties.set_default(key="boolean_property", default=True)
 properties.set_default(key="select_property", default="opt_1")
 
 
-def modify_text_property(properties: Properties, prop: Property, settings: Settings) -> None:
+def modify_text_property(properties: Properties, settings: Settings):
     text = settings["text_property"]
     if text == default_text:
         properties.update_select_options(key="select_property", options=select_options)
@@ -48,6 +48,7 @@ def modify_text_property(properties: Properties, prop: Property, settings: Setti
                 PropertySelectOption(label="Modified Option 2", value="mod_opt_2"),
             ],
         )
+    return properties._properties
 
 
 properties.set_modified_callback(key="text_property", callback=modify_text_property)

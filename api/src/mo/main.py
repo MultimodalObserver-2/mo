@@ -56,6 +56,11 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+# Health check endpoint, for quick status checks
+@app.get("/health")
+def health_check():
+    return {"status": "ok"}
+
 # Core routers
 app.include_router(plugin_router)
 

@@ -20,7 +20,7 @@ class PropertyType(Enum):
 
 # Callback type for modified properties.
 modified_callback_type = Callable[
-    ["Properties", "Property", Settings], Optional[dict[str, "Property"]]
+    ["Properties", Settings], Optional[dict[str, "Property"]]
 ]
 
 
@@ -40,8 +40,10 @@ class Property(BaseModel):
     visible: bool = True  # Indicates if the property is visible
     enabled: bool = True  # Indicates if the property is enabled
     default: Optional[Any] = None  # Default value for the property
-    data: dict[str, Any] = {}  # Additional data for the property, such as min/max values or options
-    _type: PropertyType = PrivateAttr()  # Type of the property (int, float, text, etc.)
+    # Additional data for the property, such as min/max values or options
+    data: dict[str, Any] = {}
+    # Type of the property (int, float, text, etc.)
+    _type: PropertyType = PrivateAttr()
     _modified_callback: Optional[modified_callback_type] = PrivateAttr(
         default=None
     )  # Callback for when the setting is modified
@@ -221,7 +223,8 @@ class Properties:
         """
         self._validate_key(key)
         if self._properties[key]._type != property_type:
-            raise ValueError(f"Property with key '{key}' is not of type '{property_type}'.")
+            raise ValueError(
+                f"Property with key '{key}' is not of type '{property_type}'.")
 
         self._properties[key].data.update(data)
 
@@ -233,7 +236,8 @@ class Properties:
         Raises:
             ValueError: If the property with the given key does not exist or is not of type 'select'.
         """
-        self._update_property_data(key, {"options": options}, PropertyType.SELECT)
+        self._update_property_data(
+            key, {"options": options}, PropertyType.SELECT)
 
     def remove_property(self, key: str):
         """Removes a property from the collection.
@@ -325,6 +329,13 @@ class Properties:
 
     def set_modified_callback(self, key: str, callback: modified_callback_type):
         """Sets a callback function to be called when the settings of property is modified.
+        This callback can modify the properties based on the current settings, and if it returns
+        a dict[str, Property], those properties will be updated in the Properties instance.
+        If the callback returns None, no changes are made to the properties.
+        The callback should accept three parameters:
+            - `props`: The Properties instance.
+            - `settings`: The current Settings instance.
+        The callback should return a dictionary of properties to update, or None if no changes are needed.
         Args:
             key (str): Unique identifier for the setting property.
             callback (modified_callback_type): Callback function to set.
@@ -377,15 +388,16 @@ class Properties:
         if settings is None:
             return list(self._properties.values())
         self_copy = copy.deepcopy(self)
-        props = self_copy._properties
+        props = self_copy._properties.copy()
         for key, _ in settings.get_settings().items():
             prop = self_copy.get_property(key)
             if prop and prop._modified_callback:
                 # Call the modified callback if it exists, which may modify the properties
                 # based on the current settings.
-                new_prop = prop._modified_callback(self_copy, prop, settings)
-                if new_prop:
-                    props = new_prop
+                new_props = prop._modified_callback(self_copy, settings)
+                if new_props:
+                    props = new_props
+                    self_copy._properties.update(new_props)
         return list(props.values())
 
     def get_properties_dict(self, settings: Optional[Settings] = None) -> list[dict[str, Any]]:
@@ -427,10 +439,13 @@ class Properties:
             value = settings.get_settings()[key]
             validator = VALIDATORS.get(prop._type)
             if not validator:
-                raise ValueError(f"Unknown property type '{prop._type}' for key '{key}'.")
+                raise ValueError(
+                    f"Unknown property type '{prop._type}' for key '{key}'.")
             if prop._type == PropertyType.SELECT:
                 options = prop.data.get("options", [])
                 if not validator(value, options):
-                    raise ValueError(f"Property '{key}' must be one of the valid options.")
+                    raise ValueError(
+                        f"Property '{key}' must be one of the valid options.")
             elif not validator(value):
-                raise ValueError(f"Property '{key}' must be of type '{prop._type.value}'.")
+                raise ValueError(
+                    f"Property '{key}' must be of type '{prop._type.value}'.")
