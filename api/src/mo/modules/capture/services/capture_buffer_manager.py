@@ -83,9 +83,11 @@ class CaptureBufferManager:
             self.captured_data_thread.join(timeout=timeout)
         if self.flush_buffers_thread.is_alive():
             self.flush_buffers_thread.join(timeout=timeout)
-        if self.stressed_monitor_thread.is_alive():
-            self.stressed_monitor_thread.join(timeout=timeout)
         self.move_queue_to_buffers()
+        if self.stressed_monitor_thread.is_alive():
+            # Keep the monitor thread running until we flush buffers
+            # to ensure it can handle any stress conditions.
+            self.stressed_monitor_thread.join(timeout=timeout)
         self.queue.close()
         self.queue.join_thread()
         self.flush_buffers(end_of_data=True)
