@@ -1,6 +1,9 @@
 from datetime import datetime
+import logging
+import logging.handlers
 from unittest.mock import MagicMock, patch
 
+from mo.core.config import constants
 import pytest
 
 from mo.core.plugin.worker_process import PluginWorkerProcess
@@ -30,6 +33,20 @@ def clean_capture_service():
     yield capture_service
     CaptureService.clear_instance()  # type: ignore
 
+
+@pytest.fixture(autouse=True)
+def disable_file_logging():
+    logger = logging.getLogger(constants.LOGGER_NAME)
+
+    file_handlers = [h for h in logger.handlers if isinstance(
+        h, logging.handlers.TimedRotatingFileHandler) or isinstance(h, logging.StreamHandler)]
+    for handler in file_handlers:
+        logger.removeHandler(handler)
+
+    yield
+
+    for handler in file_handlers:
+        logger.addHandler(handler)
 
 def test_get_capture_plugins_success(capture_service):
     mock_metadata = [MagicMock(), MagicMock()]
@@ -224,8 +241,7 @@ def test_pause_capture_invalid_state(capture_service):
         capture_service.pause_capture()
 
 
-@patch("builtins.print")
-def test_pause_capture_handles_process_exception(mock_print, capture_service):
+def test_pause_capture_handles_process_exception(capture_service, caplog):
     capture_service.started = True
     capture_service.paused = False
 
@@ -233,10 +249,12 @@ def test_pause_capture_handles_process_exception(mock_print, capture_service):
     mock_process.execute_callback_on_all_instances.side_effect = RuntimeError("Pause Failed")
     capture_service.running_processes = {"p1": mock_process}
 
-    capture_service.pause_capture()
+    with caplog.at_level(logging.ERROR):
+        capture_service.pause_capture()
 
     assert capture_service.paused is True
-    mock_print.assert_called_with("Error pausing process: Pause Failed")
+    assert any(
+        "Error executing pause callback for process" in message for message in caplog.messages)
 
 
 def test_resume_capture_invalid_state(capture_service):
@@ -250,18 +268,20 @@ def test_resume_capture_invalid_state(capture_service):
         capture_service.resume_capture()
 
 
-@patch("builtins.print")
-def test_resume_capture_handles_process_exception(mock_print, capture_service):
+def test_resume_capture_handles_process_exception(capture_service, caplog):
     capture_service.started = True
     capture_service.paused = True
     mock_process = MagicMock()
     mock_process.execute_callback_on_all_instances.side_effect = RuntimeError("Resume Failed")
     capture_service.running_processes = {"p1": mock_process}
 
-    capture_service.resume_capture()
+    with caplog.at_level(logging.ERROR):
+        capture_service.resume_capture()
 
     assert capture_service.paused is False
-    mock_print.assert_called_with("Error resuming process: Resume Failed")
+    assert any(
+        "Error executing resume callback for process" in message for message in caplog.messages
+    )
 
 
 def test_get_capture_plugin_file_name_process_none(capture_service):
@@ -361,7 +381,7 @@ def test_get_status_returns_correct_state(capture_service):
         )
 
 
-def test_exec_prepare_callback_handles_exception(capture_service):
+def test_exec_prepare_callback_handles_exception(capture_service, caplog):
     mock_process = MagicMock()
     mock_process.execute_callback_on_instance.side_effect = RuntimeError("Prepare Failed")
 
@@ -369,15 +389,18 @@ def test_exec_prepare_callback_handles_exception(capture_service):
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service._format_data_file_name = MagicMock(return_value="any_file")
 
-    with patch("builtins.print") as mock_print:
+    with caplog.at_level(logging.ERROR):
         capture_service.exec_prepare_callback("/path/to/session")
 
     assert not capture_service.processes_instances["plugin1"]
     mock_process.remove_plugin_instance.assert_called_with("config1")
-    mock_print.assert_called_once()
+    assert any(
+        "Error executing prepare callback for config1 in process plugin1"
+        in message for message in caplog.messages
+    )
 
 
-def test_exec_start_callback_handles_exception(capture_service):
+def test_exec_start_callback_handles_exception(capture_service, caplog):
     mock_process = MagicMock()
     mock_process.execute_callback_on_instance.side_effect = RuntimeError("Start Failed")
 
@@ -385,13 +408,14 @@ def test_exec_start_callback_handles_exception(capture_service):
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service.start_ts = 12345.0
 
-    with patch("builtins.print") as mock_print:
+    with caplog.at_level(logging.ERROR):
         capture_service.exec_start_callback()
 
     mock_process.execute_callback_on_instance.assert_called_once()
-    mock_print.assert_called_once()
-    assert "Start Failed" in mock_print.call_args[0][0]
-
+    assert any(
+        "Error executing start callback for config1 in process plugin1"
+        in message for message in caplog.messages
+    )
 
 def test_load_processes_skips_none_plugin_process(capture_service):
     mock_config = MagicMock()
