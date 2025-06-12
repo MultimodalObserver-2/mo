@@ -123,7 +123,7 @@ export default function SessionPage() {
                   <DisplayPath
                     name="File location"
                     value={
-                      session.capture_sources[selectedCaptureConfig].location ||
+                      session.capture_sources[selectedCaptureConfig].location ??
                       "No file location found"
                     }
                     disabled={!session.capture_sources[selectedCaptureConfig].location}

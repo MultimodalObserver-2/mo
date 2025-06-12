@@ -11,6 +11,8 @@ import PluginSettingProperty from "./PluginSettingProperty"
 import Input from "../input/Input"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
+type SettingType = string | number | boolean
+
 interface ConfigurePluginProps {
   /** The unique identifier for the plugin to be configured. */
   pluginId: string
@@ -21,9 +23,9 @@ interface ConfigurePluginProps {
   /** An initial name for the configuration being created or edited. */
   initialConfigName?: string
   /** An initial set of settings to pre-fill the form and send to the API on load. */
-  initialSettings?: Record<string, string | number | boolean>
+  initialSettings?: Record<string, SettingType>
   /** Callback function executed with the config name and final settings when the form is submitted. */
-  onSubmit: (name: string, settings: Record<string, string | number | boolean>) => void
+  onSubmit: (name: string, settings: Record<string, SettingType>) => void
   /** Callback function executed when the modal is requested to be closed. */
   onClose: () => void
 }
@@ -51,8 +53,8 @@ export default function ConfigurePlugin({
   initialSettings = {},
   onSubmit,
   onClose
-}: ConfigurePluginProps) {
-  const [settings, setSettings] = useState<Record<string, string | number | boolean>>({})
+}: Readonly<ConfigurePluginProps>) {
+  const [settings, setSettings] = useState<Record<string, SettingType>>({})
   const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])
   const [isLoading, setIsLoading] = useState(false)

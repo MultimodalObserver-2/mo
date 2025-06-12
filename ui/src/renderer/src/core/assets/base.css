@@ -79,7 +79,7 @@ body {
   min-height: 100vh;
   color: var(--color-text-light);
   background: var(--color-background);
-  font-family: "Geist";
+  font-family: "Geist", sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -87,7 +87,7 @@ body {
 
 input,
 button {
-  font-family: "Geist";
+  font-family: "Geist", sans-serif;
 }
 
 button {

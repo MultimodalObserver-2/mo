@@ -15,7 +15,7 @@ interface TabsProps {
  * @param {React.ReactElement<TabProps> | React.ReactElement<TabProps>[]} props.children - One or more `Tab` components. The `title` prop of each `Tab` is used for the button label.
  * @returns {React.ReactElement | null} The rendered tabs interface, or `null` if no valid `Tab` children are provided.
  */
-export default function Tabs({ children }: TabsProps) {
+export default function Tabs({ children }: Readonly<TabsProps>) {
   const tabs = Children.toArray(children).filter(
     (child): child is React.ReactElement<TabProps> => isValidElement(child) && child.type === Tab
   )
@@ -61,7 +61,7 @@ interface TabButtonProps {
  * @param {() => void} props.onClick - The function to call when the button is clicked.
  * @returns {React.ReactElement} The rendered button element.
  */
-function TabButton({ title, isActive, onClick }: TabButtonProps) {
+function TabButton({ title, isActive, onClick }: Readonly<TabButtonProps>) {
   return (
     <button
       type="button"

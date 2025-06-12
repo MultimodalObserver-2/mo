@@ -11,7 +11,7 @@ interface BulletLabelProps {
  * @param {string} props.label - The text to be displayed.
  * @returns {React.ReactElement} The rendered label with a bullet.
  */
-export default function BulletLabel({ label }: BulletLabelProps) {
+export default function BulletLabel({ label }: Readonly<BulletLabelProps>) {
   return (
     <div className={styles.label}>
       <span className={styles.bullet}></span>

@@ -75,14 +75,20 @@ export default function PluginCard({
   onReport = () => {},
   onDetails = () => {},
   onDelete = () => {}
-}: PluginCardProps) {
+}: Readonly<PluginCardProps>) {
   const showAction = (action: string) => {
     return typeof showActions === "boolean" ? showActions : showActions[action]
   }
 
   const isDarkMode = document.getElementById("plugin-display")?.classList.contains(styles.dark)
-  const finalIconPath =
-    typeof iconPath === "string" ? iconPath : iconPath[isDarkMode ? "light" : "dark"]
+  let finalIconPath: string
+
+  if (typeof iconPath === "string") {
+    finalIconPath = iconPath
+  } else {
+    const theme = isDarkMode ? "light" : "dark"
+    finalIconPath = iconPath[theme]
+  }
 
   return (
     <WideCard
@@ -95,20 +101,20 @@ export default function PluginCard({
         alt={name}
         className={styles.icon}
         onError={(e) => {
-          e.currentTarget.onerror = null
-          if (isDarkMode) {
-            if (isLoaded) {
-              e.currentTarget.src = fallbackimgLight
-            } else {
-              e.currentTarget.src = fallbackNotLoadedLight
-            }
+          let fallbackSrc = ""
+
+          if (isDarkMode && isLoaded) {
+            fallbackSrc = fallbackimgLight
+          } else if (isDarkMode && !isLoaded) {
+            fallbackSrc = fallbackNotLoadedLight
+          } else if (!isDarkMode && isLoaded) {
+            fallbackSrc = fallbackimg
           } else {
-            if (isLoaded) {
-              e.currentTarget.src = fallbackimg
-            } else {
-              e.currentTarget.src = fallbackNotLoadedDark
-            }
+            fallbackSrc = fallbackNotLoadedDark
           }
+
+          e.currentTarget.onerror = null
+          e.currentTarget.src = fallbackSrc
         }}
       />
       <WideCardHeader>

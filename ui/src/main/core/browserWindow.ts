@@ -77,12 +77,12 @@ function createModalWindow(
             return
           }
           const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
-          const height = res.scrollHeight + (autoAdjustHeight.extraHeight || 0)
+          const height = res.scrollHeight + (autoAdjustHeight.extraHeight ?? 0)
           const [actualWidth, actualHeight] = win.getSize()
           const minHeight = Math.min(height, screenHeight)
           const adjustedHeight = Math.max(minHeight, actualHeight)
           if (autoAdjustHeight.setMinimumSize) {
-            win.setMinimumSize(options.minWidth || currentContentWidth, minHeight)
+            win.setMinimumSize(options.minWidth ?? currentContentWidth, minHeight)
           }
           win.setSize(actualWidth, adjustedHeight, false)
         })
@@ -100,14 +100,14 @@ function createModalWindow(
         if (win) {
           const { height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
           const currentContentWidth = win.getContentBounds().width
-          const newHeight = parseInt(height) + (autoAdjustHeight?.extraHeight || 0)
+          const newHeight = parseInt(height) + (autoAdjustHeight?.extraHeight ?? 0)
           const [actualWidth, actualHeight] = win.getSize()
           const minHeight = Math.min(newHeight, screenHeight)
           const adjustedHeight = Math.max(minHeight, actualHeight)
           if (autoAdjustHeight.setMinimumSize) {
-            win.setMinimumSize(options.minWidth || currentContentWidth, minHeight)
+            win.setMinimumSize(options.minWidth ?? currentContentWidth, minHeight)
           }
-          win.setSize(actualWidth, minHeight || adjustedHeight, false)
+          win.setSize(actualWidth, minHeight ?? adjustedHeight, false)
         }
       }
     )

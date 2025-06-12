@@ -14,7 +14,7 @@ import Select from "../select/Select"
 
 type PluginSettingPropertyProps = {
   /** The configuration object that defines the property's type, label, and constraints. */
-  readonly property: PluginProperty
+  property: PluginProperty
   /** The current value of the property. Providing this makes the component "controlled". */
   value?: string | number | boolean
   /** Callback function triggered when the property's value changes. */
@@ -35,7 +35,7 @@ export default function PluginSettingProperty({
   property,
   value,
   onChange
-}: PluginSettingPropertyProps) {
+}: Readonly<PluginSettingPropertyProps>) {
   if (!property.visible) {
     return null
   }
@@ -43,6 +43,9 @@ export default function PluginSettingProperty({
   if (value != undefined) {
     property.default = undefined
   }
+
+  const invisibleClass = property.visible ? "" : styles.invisible
+  const finalValue = typeof value === "boolean" ? String(value) : value
 
   if (
     property.property_type === PluginPropertyTypes.INT ||
@@ -53,7 +56,7 @@ export default function PluginSettingProperty({
     return (
       <Input
         id={property.key}
-        boxClassName={property.visible ? "" : styles.invisible}
+        boxClassName={invisibleClass}
         label={property.label}
         type="number"
         required={property.required}
@@ -61,7 +64,7 @@ export default function PluginSettingProperty({
         min={data.min}
         max={data.max}
         step={data.step}
-        value={typeof value === "boolean" ? "" : value}
+        value={finalValue}
         defaultValue={defaultValue}
         onChange={(e) => {
           onChange?.(e.target.valueAsNumber)
@@ -74,13 +77,14 @@ export default function PluginSettingProperty({
     return (
       <Input
         id={property.key}
+        boxClassName={invisibleClass}
         label={property.label}
         type="text"
         required={property.required}
         disabled={!property.enabled}
         minLength={data.min_length}
         maxLength={data.max_length}
-        value={typeof value === "boolean" ? "" : value}
+        value={finalValue}
         defaultValue={defaultValue}
         onChange={(e) => {
           onChange?.(e.target.value)
@@ -91,6 +95,7 @@ export default function PluginSettingProperty({
     const defaultValue = property.default as boolean
     return (
       <Checkbox
+        className={invisibleClass}
         id={property.key}
         defaultChecked={defaultValue}
         checked={value as boolean}
@@ -107,12 +112,13 @@ export default function PluginSettingProperty({
     return (
       <PathInput
         id={property.key}
+        boxClassName={invisibleClass}
         label={property.label}
         type="text"
         required={property.required}
         disabled={!property.enabled}
         fileTypes={data.file_types}
-        value={typeof value === "boolean" ? "" : value}
+        value={finalValue}
         defaultValue={defaultValue}
         onChange={(e) => {
           onChange?.(e.target.value)
@@ -131,10 +137,11 @@ export default function PluginSettingProperty({
     return (
       <Select
         id={property.key}
+        boxClassName={invisibleClass}
         label={property.label}
         required={property.required}
         disabled={!property.enabled}
-        value={typeof value === "boolean" ? String(value) : value}
+        value={finalValue}
         defaultValue={defaultValue}
         onChange={(e) => {
           // Retrieve the original typed value from the map before calling onChange.
@@ -149,8 +156,8 @@ export default function PluginSettingProperty({
         ))}
       </Select>
     )
-  } else {
-    // Render nothing for an unknown property type to avoid breaking the UI.
-    return null
   }
+
+  // Render nothing for an unknown property type to avoid breaking the UI.
+  return null
 }

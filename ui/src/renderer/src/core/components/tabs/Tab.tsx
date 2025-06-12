@@ -15,6 +15,6 @@ export interface TabProps {
  * @returns {null} This component does not render anything.
  */
 // eslint-disable-next-line @typescript-eslint/no-unused-vars
-export default function Tab(_props: TabProps) {
+export default function Tab(_props: Readonly<TabProps>) {
   return null
 }

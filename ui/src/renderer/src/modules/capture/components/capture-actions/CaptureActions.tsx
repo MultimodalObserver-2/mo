@@ -41,8 +41,8 @@ export default function CaptureActions() {
         window.capture.reloadSessions()
       } else {
         const data = {
-          project_name: selectedProject?.name || "",
-          participant_code: selectedParticipant?.code || ""
+          project_name: selectedProject?.name ?? "",
+          participant_code: selectedParticipant?.code ?? ""
         }
         await captureService.startCapture(data)
       }
@@ -123,13 +123,9 @@ export default function CaptureActions() {
           isLoading={isLoadingPause}
         >
           {isPaused ? (
-            <>
-              <ResumeCircleIcon className={styles.icon} />
-            </>
+            <ResumeCircleIcon className={styles.icon} />
           ) : (
-            <>
-              <PauseCircleIcon className={styles.icon} />
-            </>
+            <PauseCircleIcon className={styles.icon} />
           )}
         </Button>
       </abbr>

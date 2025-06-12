@@ -34,7 +34,7 @@ export default function Select({
   className,
   boxClassName,
   ...props
-}: SelectProps) {
+}: Readonly<SelectProps>) {
   if (label == undefined) {
     return (
       <select

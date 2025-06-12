@@ -32,10 +32,15 @@ export default function PluginDisplay({
   const header = findChildByDisplayName(children, "PluginDisplayHeader")
   const list = findChildByDisplayName(children, "PluginDisplayList")
 
+  const baseClass = styles["plugin-display"]
+  const styleClass = styles[style]
+  const textSizeClass = styles[`text-${textSize}`]
+  const customClass = className ?? ""
+
   return (
     <div
       id="plugin-display"
-      className={`${styles["plugin-display"]} ${styles[style]} ${styles[`text-${textSize}`]} ${className}`}
+      className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass}`}
     >
       {header}
       {list}

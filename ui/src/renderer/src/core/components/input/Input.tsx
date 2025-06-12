@@ -28,7 +28,7 @@ export default function Input({
   disabled = false,
   ref,
   ...rest
-}: InputProps) {
+}: Readonly<InputProps>) {
   if (label == undefined) {
     return (
       <input

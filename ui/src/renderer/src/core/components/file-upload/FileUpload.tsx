@@ -41,7 +41,7 @@ export default function FileUpload({
   required = false,
   files = [],
   onChangeFiles
-}: FileUploadProps) {
+}: Readonly<FileUploadProps>) {
   const upload = useUpload(accept, multiple, files, onChangeFiles)
 
   const acceptedFilesText = () => {
@@ -53,13 +53,21 @@ export default function FileUpload({
 
   return (
     <div className={styles.container}>
-      <div
+      <button
+        type="button"
         className={`${styles["upload-zone"]}
                     ${upload.dragOver ? styles["drag-over"] : ""} 
                     ${upload.hasFiles ? styles["has-files"] : ""}`}
         onDragOver={upload.onDragOver}
         onDragLeave={upload.onDragLeave}
         onDrop={upload.onDrop}
+        aria-label="File upload area. Drop files here or click to browse."
+        onKeyDown={(e) => {
+          if (e.key === "Enter" || e.key === " ") {
+            upload.inputRef.current?.click()
+          }
+        }}
+        tabIndex={0}
       >
         <input
           ref={upload.inputRef}
@@ -82,7 +90,7 @@ export default function FileUpload({
         <p className={styles["accepted-files"]}>
           {upload.hasFiles ? upload.fileNames.join(", ") : acceptedFilesText()}
         </p>
-      </div>
+      </button>
     </div>
   )
 }
