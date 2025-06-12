@@ -1,4 +1,5 @@
 /**
+ * @module axios
  * Exports a preconfigured Axios instance with dynamic port selection
  * based on the environment (dev or prod). Used for making HTTP requests
  * to the application's API.

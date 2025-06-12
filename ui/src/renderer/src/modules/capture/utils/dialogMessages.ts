@@ -1,3 +1,11 @@
+/**
+ * @module dialogMessages
+ * This file contains utility functions for displaying specific confirmation
+ * dialogs before performing destructive actions, such as deleting capture
+ * configurations or sessions. It uses the Electron dialog API exposed
+ * at `window.core.dialog`.
+ */
+
 export async function showDeleteCaptureConfigMessage(
   configName: string,
   projectName: string,

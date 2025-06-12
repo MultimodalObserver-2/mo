@@ -1,3 +1,10 @@
+/**
+ * @module modalWindows
+ * This file contains utility functions for opening modal windows related to
+ * data capture sources and session details. These helpers abstract the
+ * `window.core.openModalWindow` API call for common capture-related UI flows.
+ */
+
 export function openCaptureSourceModal(projectName: string) {
   window.core.openModalWindow({
     options: {

@@ -1,3 +1,9 @@
+/**
+ * @module modalWindows
+ * Modal utilities to open project, participant, protocol, and activity-related windows
+ * in the Electron desktop application. These use the core window API exposed
+ * on the global `window.core` object.
+ */
 import { ActivityCreate } from "../types/Protocol"
 
 // Projects Modal Windows

@@ -1,8 +1,16 @@
+/**
+ * @module dialogMessages
+ * This file contains utility functions for displaying native dialogs and
+ * message boxes throughout the application. It centralizes the logic for
+ * confirmation dialogs (e.g., deletions) and common error messages, using the
+ * Electron dialog API exposed at `window.core.dialog`.
+ */
+
 export async function showDeleteProjectMessage(
   projectName: string,
   acceptId: number,
   cancelId: number
-) {
+): Promise<Electron.MessageBoxReturnValue> {
   const buttons = ["Accept", "Cancel"]
   const options: Electron.MessageBoxOptions = {
     title: "Delete Project",
@@ -25,7 +33,7 @@ export async function showDeleteParticipantMessage(
   projectName: string,
   acceptId: number,
   cancelId: number
-) {
+): Promise<Electron.MessageBoxReturnValue> {
   const buttons = ["Accept", "Cancel"]
   const options: Electron.MessageBoxOptions = {
     title: "Delete Participant",
@@ -48,7 +56,7 @@ export async function showDeleteProtocolMessage(
   projectName: string,
   acceptId: number,
   cancelId: number
-) {
+): Promise<Electron.MessageBoxReturnValue> {
   const buttons = ["Accept", "Cancel"]
   const options: Electron.MessageBoxOptions = {
     title: "Delete Protocol",
@@ -66,13 +74,13 @@ export async function showDeleteProtocolMessage(
   return await window.core.dialog.showMessageBox(options)
 }
 
-export function showSelectProjectErrorMessage() {
+export function showSelectProjectErrorMessage(): void {
   window.core.dialog.showErrorBox(
     "Select Project",
     "You need to select a project to perform this action"
   )
 }
 
-export function showParticipantCodeErrorMessage() {
+export function showParticipantCodeErrorMessage(): void {
   window.core.dialog.showErrorBox("Error", "Participant code error")
 }
