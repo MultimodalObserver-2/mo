@@ -3,7 +3,7 @@
 This document provides the **general setup, usage, and management instructions** for the API of the **Multimodal Observer (MO)** desktop application.  
 It includes installation steps, development commands, and project structure notes.
 
-- For detailed information about the available API endpoints, refer to the [📚 API Reference](./docs/API_DOCS.md).
+- For detailed information about the available API endpoints, refer to the [📚 API Reference](./docs/api/API_OVERVIEW.md).
 - For an overview of the directory layout and source code structure, see the [📁 Project Structure Overview](./docs/STRUCTURE.md).
 - For user interface-related information, refer to the [💻 MO UI Documentation](../ui/README.md).
 
