@@ -1,37 +1,20 @@
 <!-- omit in toc -->
-# 📚 API Documentation
+# 📦 Module: Organization
 
-This document contains the HTTP API reference for the **Multimodal Observer** application.
-
-The API is organized in **modules** to reflect the modular and extensible architecture of the platform. Each module is responsible for a set of related operations.
-
-📌 While the API is in development, the full interactive documentation is available at:
-
-- [Swagger (/docs)](http://localhost:8000/docs)
-- [ReDoc (/redoc)](http://localhost:8000/redoc)
-
-These endpoints provide up-to-date details including request/response schemas, example payloads, and status codes.
+This module handles operations related to **projects**, **participants**, and **protocols**.  
+It defines the full lifecycle of research entities and their management endpoints.
 
 ---
-
+<!-- omit in toc -->
 ## 📑 Table of Contents
 
-- [📑 Table of Contents](#-table-of-contents)
-- [📦 Module: Organization](#-module-organization)
-  - [📁 Projects](#-projects)
-  - [📁 Participants](#-participants)
-  - [📁 Protocols](#-protocols)
-- [🛠 General Information](#-general-information)
+- [📁 Projects](#-projects)
+- [🧑‍💻 Participants](#-participants)
+- [📄 Protocols](#-protocols)
 
 ---
 
-## 📦 Module: Organization
-
-Operations for managing **projects**, **participants** and **protocols**.
-
----
-
-### 📁 Projects
+## 📁 Projects
 
 | Method   | Route                             | Description                              | Responses                                            |
 | :------- | :-------------------------------- | :--------------------------------------- | :--------------------------------------------------- |
@@ -45,7 +28,7 @@ Operations for managing **projects**, **participants** and **protocols**.
 
 ---
 
-### 📁 Participants
+## 🧑‍💻 Participants
 
 | Method   | Route                                                             | Description                              | Responses                                                 |
 | :------- | :---------------------------------------------------------------- | :--------------------------------------- | :-------------------------------------------------------- |
@@ -59,7 +42,7 @@ Operations for managing **projects**, **participants** and **protocols**.
 
 ---
 
-### 📁 Protocols
+## 📄 Protocols
 
 | Method   | Route                                                       | Description                           | Responses                                                 |
 | :------- | :---------------------------------------------------------- | :------------------------------------ | :-------------------------------------------------------- |
@@ -76,7 +59,7 @@ Operations for managing **projects**, **participants** and **protocols**.
 > **Description**: Executes a **research protocol** interactively via WebSocket, guiding the client through a sequence of predefined activities. Each activity can involve instructions, timers, media handling, or external process execution.
 
 <!-- omit in toc -->
-#### 🔁 Execution Flow
+### 🔁 Execution Flow
 
 1. **Connection Start**  
    The client establishes a WebSocket connection. The server loads the specified protocol and begins iterating through its ordered list of activities.
@@ -128,15 +111,3 @@ Operations for managing **projects**, **participants** and **protocols**.
 > ⚠️ If at any point the client sends an invalid message (anything other than `start`, `completed`, or `next` where required), the server returns a `400 Bad Request` and may terminate the session.
 
 ---
-
-## 🛠 General Information
-
-- **Base URL**: `/`
-- **Version**: `0.1.0`
-- **Response Format**: `application/json`
-- **Error Handling**: Errors return JSON responses like:
-
-```json
-{
-  "detail": "Project not found"
-}
