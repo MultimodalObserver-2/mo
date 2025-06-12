@@ -226,6 +226,10 @@ class CaptureService:
             try:
                 process.execute_callback_on_all_instances(stop_callback, {"stop_ts": stop_ts})
             except Exception as e:
+                self.logger.error(
+                    f"[CaptureService] Error executing stop callback for plugin process {key}: {e}",
+                    exc_info=True
+                )
                 exceptions[key] = e
         if self.session and self.project_name and self.participant_code:
             duration = stop_ts - self.start_ts - self.paused_time
