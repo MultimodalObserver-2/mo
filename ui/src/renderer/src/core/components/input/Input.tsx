@@ -7,7 +7,19 @@ interface InputProps extends React.ComponentProps<"input"> {
   boxClassName?: string
 }
 
-/** Reusable input component with optional label and styling support */
+/**
+ * A versatile and stylized wrapper for the native `<input>` element that adds
+ * an optional label, custom styling hooks, and forwards all standard input attributes.
+ *
+ * @param {string} [props.label] - If provided, a `<label>` element is rendered wrapping the input.
+ * @param {string} [props.boxClassName=""] - An optional CSS class for the wrapper element when a label is present.
+ * @param {string} [props.className=""] - An optional CSS class applied directly to the `<input>` element.
+ * @param {boolean} [props.required=false] - If true, the input is marked as required, and an asterisk is shown in the label.
+ * @param {boolean} [props.disabled=false] - If true, both the input and the label are styled as disabled.
+ * @param {React.Ref<HTMLInputElement>} [props.ref] - A ref to be forwarded to the underlying `<input>` element.
+ * @param {object} props....rest - Any other native `<input>` attributes (e.g., `type`, `value`, `placeholder`, `onChange`).
+ * @returns {React.ReactElement} The rendered input component.
+ */
 export default function Input({
   label,
   boxClassName = "",

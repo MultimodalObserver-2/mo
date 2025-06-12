@@ -4,6 +4,12 @@ import StacksIcon from "../icons/StacksIcon"
 import ExtensionIcon from "../icons/ExtensionIcon"
 import SettingsIcon from "../icons/SettingsIcon"
 
+/**
+ * A static layout component that renders the main application sidebar.
+ * It includes navigation links for primary features and utility sections.
+ *
+ * @returns {React.ReactElement} The rendered sidebar component.
+ */
 export default function Sidebar() {
   return (
     <aside className={styles.sidebar}>

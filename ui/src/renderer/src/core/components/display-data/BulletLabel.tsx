@@ -1,6 +1,17 @@
 import styles from "./display-data.module.css"
 
-export default function BulletLabel({ label }: { label: string }) {
+interface BulletLabelProps {
+  /** The text content to be displayed next to the bullet point. */
+  label: string
+}
+
+/**
+ * A simple UI component that displays a text label preceded by a decorative bullet point.
+ *
+ * @param {string} props.label - The text to be displayed.
+ * @returns {React.ReactElement} The rendered label with a bullet.
+ */
+export default function BulletLabel({ label }: BulletLabelProps) {
   return (
     <div className={styles.label}>
       <span className={styles.bullet}></span>

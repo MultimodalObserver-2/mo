@@ -12,17 +12,32 @@ import Checkbox from "../checkbox/Checkbox"
 import PathInput from "../path-input/PathInput"
 import Select from "../select/Select"
 
+type PluginSettingPropertyProps = {
+  /** The configuration object that defines the property's type, label, and constraints. */
+  readonly property: PluginProperty
+  /** The current value of the property. Providing this makes the component "controlled". */
+  value?: string | number | boolean
+  /** Callback function triggered when the property's value changes. */
+  onChange?: (newValue: string | number | boolean) => void
+}
+
+/**
+ * Renders a specific form input control based on the configuration of a plugin property.
+ * This component acts as a dynamic renderer for different types of settings.
+ *
+ * @param {PluginProperty} props.property - The configuration object for the setting.
+ * @param {string | number | boolean} [props.value] - The current value, making it a controlled component.
+ * If undefined, the component will use the `property.default` value.
+ * @param {(newValue: string | number | boolean) => void} [props.onChange] - The callback to handle value changes.
+ * @returns {React.ReactElement | null} The appropriate form input, or null if the property is not visible.
+ */
 export default function PluginSettingProperty({
   property,
   value,
   onChange
-}: {
-  readonly property: PluginProperty
-  value?: string | number | boolean
-  onChange?: (newValue: string | number | boolean) => void
-}) {
+}: PluginSettingPropertyProps) {
   if (!property.visible) {
-    return <></>
+    return null
   }
 
   if (value != undefined) {
@@ -107,6 +122,7 @@ export default function PluginSettingProperty({
   } else if (property.property_type === PluginPropertyTypes.SELECT) {
     const data = property.data as PropertyDataSelect
     const defaultValue = property.default as string | undefined
+    // Create a map to look up the original value type (string, number, or boolean) from the option's string value.
     const valueMap = new Map<string, string | number | boolean>()
     data.options.forEach((option) => {
       valueMap.set(String(option.value), option.value)
@@ -121,7 +137,9 @@ export default function PluginSettingProperty({
         value={typeof value === "boolean" ? String(value) : value}
         defaultValue={defaultValue}
         onChange={(e) => {
-          onChange?.(valueMap.get(e.target.value) ?? e.target.value)
+          // Retrieve the original typed value from the map before calling onChange.
+          const selectedValue = valueMap.get(e.target.value) ?? e.target.value
+          onChange?.(selectedValue)
         }}
       >
         {data.options.map((option) => (
@@ -132,6 +150,7 @@ export default function PluginSettingProperty({
       </Select>
     )
   } else {
-    return <div>Unknown property type</div>
+    // Render nothing for an unknown property type to avoid breaking the UI.
+    return null
   }
 }

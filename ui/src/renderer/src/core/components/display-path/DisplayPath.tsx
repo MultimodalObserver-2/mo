@@ -13,19 +13,22 @@ interface DisplayPathProps {
   value: string
   /** Whether the buttons should be disabled */
   disabled?: boolean
-  /** */
+  /** The type of path, which determines the icon for the "open" button */
   path_type?: "url" | "path"
   /** Additional class name for styling */
   className?: string
 }
 
 /**
- * A component that displays a file path with buttons to copy the path and open it in the file explorer.
- * @param {string} name - The name of the path to be displayed.
- * @param {string} value - The path to be displayed.
- * @param {boolean} [disabled=false] - Whether the buttons should be disabled.
- * @param {string} [path_type="path"] - The type of the path, either "url" or "path".
- * @param {string} [className] - Additional class name for styling.
+ * Displays a file path or URL with action buttons to copy the value or
+ * open it in the native file explorer or browser.
+ *
+ * @param {string} props.name - The descriptive label for the path.
+ * @param {string} props.value - The actual path or URL string.
+ * @param {boolean} [props.disabled=false] - If true, the action buttons will be disabled.
+ * @param {"url" | "path"} [props.path_type="path"] - Determines the "open" button's icon.
+ * @param {string} [props.className] - An additional CSS class for the component's container.
+ * @returns {React.ReactElement} The rendered path display component.
  */
 export default function DisplayPath({
   name,

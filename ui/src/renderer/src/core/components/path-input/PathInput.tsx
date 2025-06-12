@@ -13,6 +13,23 @@ interface PathInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
   fileTypes?: string[]
 }
 
+/**
+ * A stylized input component for selecting file paths. It includes a button
+ * that opens the native file system dialog, allowing users to browse for and
+ * select a file.
+ *
+ * @param {string} [props.label] - An optional label displayed above the input.
+ * @param {string} [props.boxClassName=""] - An optional CSS class for the main label container.
+ * @param {string} [props.className=""] - An optional CSS class applied to the underlying `<Input>` component.
+ * @param {boolean} [props.required=false] - If true, the input is marked as required.
+ * @param {boolean} [props.disabled=false] - If true, the input and browse button are disabled.
+ * @param {string | number | readonly string[]} [props.value] - The controlled value of the input.
+ * @param {string | number | readonly string[]} [props.defaultValue] - The default value for uncontrolled usage.
+ * @param {(event: React.ChangeEvent<HTMLInputElement>) => void} [props.onChange] - Callback that fires when the value changes.
+ * @param {string[]} [props.fileTypes] - File extensions (e.g., 'png', 'txt') to filter by in the dialog.
+ * @param {object} props....props - Any other native `<input>` attributes passed to the `Input` component.
+ * @returns {React.ReactElement} The rendered path input component.
+ */
 export default function PathInput({
   label,
   boxClassName = "",

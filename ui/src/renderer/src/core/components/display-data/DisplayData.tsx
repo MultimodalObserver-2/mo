@@ -14,7 +14,18 @@ interface DisplayDataProps {
   boxStyle?: "vertical" | "horizontal"
 }
 
-/** Displays a labeled value (string, number or list) with optional children */
+/**
+ * A flexible component for displaying a labeled data point.
+ * It can render simple values (string, number), lists of strings,
+ * and optional child elements in different layouts.
+ *
+ * @param {string} props.name - The label to be displayed for the data.
+ * @param {string | number | string[]} props.value - The data to display. If it's an array, it will be rendered as a list.
+ * @param {React.ReactNode} [props.children] - Optional elements to render below the main value.
+ * @param {string} [props.childrenClass] - Optional CSS class for the container of the value and children.
+ * @param {"vertical" | "horizontal"} [props.boxStyle="vertical"] - The layout direction of the label and value.
+ * @returns {React.ReactElement} The rendered data display component.
+ */
 export default function DisplayData({
   name,
   value,

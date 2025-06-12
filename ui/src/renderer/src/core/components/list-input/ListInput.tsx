@@ -22,7 +22,21 @@ interface ListInputProps {
   onChange?: (value: string[]) => void
 }
 
-/** Renders a dynamic list of input fields with add/remove capabilities */
+/**
+ * A stylized component that renders a dynamic list of text inputs, allowing
+ * users to add or remove fields. It serializes the list into a hidden input
+ * for easy form submission.
+ *
+ * @param {string} [props.label] - An optional label displayed above the entire list.
+ * @param {string} [props.placeholder=""] - Placeholder text for the first input field.
+ * @param {string} [props.boxClassName=""] - An optional CSS class for the main container element.
+ * @param {string} [props.className=""] - An optional CSS class applied to each individual `<input>` element.
+ * @param {string} [props.name=""] - The base name for form submission and unique key generation.
+ * @param {boolean} [props.required=false] - If true, the first input is marked as required.
+ * @param {string[]} [props.defaultValue=[""]] - The initial list of values for the inputs.
+ * @param {(value: string[]) => void} [props.onChange] - A callback that fires with the updated list of values on any change.
+ * @returns {React.ReactElement} The rendered dynamic list input component.
+ */
 export default function ListInput({
   label,
   placeholder = "",

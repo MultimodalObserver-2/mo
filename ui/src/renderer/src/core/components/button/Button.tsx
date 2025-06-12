@@ -1,15 +1,35 @@
 import styles from "./button.module.css"
 
 type ButtonProps = React.ComponentProps<"button"> & {
-  /** Style variant: 'default' | 'danger' | 'soft' | 'extra-soft' */
+  /** The visual style of the button */
   styleType?: "default" | "danger" | "soft" | "extra-soft"
-  /** Border radius: 'sm' | "md" | 'xl' */
+  /** The border radius of the button */
   borderRadius?: "sm" | "md" | "xl"
-  /** Loading state */
+  /** Shows a loading spinner and disables the button */
   isLoading?: boolean
 }
 
-/** Reusable button component with customizable style and shape */
+/**
+ * A reusable button component with customizable style and shape.
+ * It accepts all standard props of a native HTML button.
+ *
+ * @param {string} [props.className=""] - Additional classes for custom styling.
+ * @param {React.ReactNode} props.children - The content to be displayed inside the button.
+ * @param {"default" | "danger" | "soft" | "extra-soft"} [props.styleType="default"] - The visual variant of the button.
+ * - 'default': Standard button
+ * - 'danger': Warning/destructive actions
+ * - 'soft': Muted background
+ * - 'extra-soft': Even lighter background
+ * @param {"sm" | "md" | "xl"} [props.borderRadius="sm"] - Defines the border radius.
+ * - 'sm': Small radius
+ * - 'md': Medium radius
+ * - 'xl': Fully rounded
+ * @param {boolean} [props.isLoading=false] - If true, displays a loading spinner.
+ * @param {boolean} [props.disabled=false] - If true, the button is disabled. It's also disabled when isLoading is true.
+ * @param {object} props.rest - Other native button props like onClick, etc.
+ *
+ * @returns {React.ReactElement} The rendered button component.
+ */
 export default function Button({
   className = "",
   children,

@@ -11,6 +11,38 @@ import PluginSettingProperty from "./PluginSettingProperty"
 import Input from "../input/Input"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 
+interface ConfigurePluginProps {
+  /** The unique identifier for the plugin to be configured. */
+  pluginId: string
+  /** The display name of the plugin, used in the modal title. */
+  pluginName?: string
+  /** The text label for the primary submission button. */
+  submitLabel?: string
+  /** An initial name for the configuration being created or edited. */
+  initialConfigName?: string
+  /** An initial set of settings to pre-fill the form and send to the API on load. */
+  initialSettings?: Record<string, string | number | boolean>
+  /** Callback function executed with the config name and final settings when the form is submitted. */
+  onSubmit: (name: string, settings: Record<string, string | number | boolean>) => void
+  /** Callback function executed when the modal is requested to be closed. */
+  onClose: () => void
+}
+
+/**
+ * A modal component for configuring a plugin. It dynamically generates a form
+ * based on properties fetched from an API. Some properties can be "reactive",
+ * meaning a change in their value will trigger a refetch of the entire form to
+ * update dependent settings.
+ *
+ * @param {string} props.pluginId - The unique ID for the plugin.
+ * @param {string} [props.pluginName="Plugin"] - The name of the plugin for the modal title.
+ * @param {string} [props.submitLabel="CONFIGURE"] - The label for the submit button.
+ * @param {string} [props.initialConfigName=""] - The initial value for the configuration's name input.
+ * @param {Record<string, any>} [props.initialSettings={}] - Initial settings to populate the form.
+ * @param {(name: string, settings: Record<string, any>) => void} props.onSubmit - Callback for form submission.
+ * @param {() => void} props.onClose - Callback to close the modal.
+ * @returns {React.ReactElement} The rendered modal component for plugin configuration.
+ */
 export default function ConfigurePlugin({
   pluginId,
   pluginName = "Plugin",
@@ -19,15 +51,7 @@ export default function ConfigurePlugin({
   initialSettings = {},
   onSubmit,
   onClose
-}: {
-  pluginId: string
-  pluginName?: string
-  submitLabel?: string
-  initialConfigName?: string
-  initialSettings?: Record<string, string | number | boolean>
-  onSubmit: (name: string, settings: Record<string, string | number | boolean>) => void
-  onClose: () => void
-}) {
+}: ConfigurePluginProps) {
   const [settings, setSettings] = useState<Record<string, string | number | boolean>>({})
   const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])

@@ -11,7 +11,16 @@ interface ModalTitleProps {
   iconClassName?: string
 }
 
-/** Title section for a modal, optionally with a leading icon */
+/**
+ * A stylized title component for use within a `ModalHeader`, with support
+ * for an optional leading icon.
+ *
+ * @param {string} props.title - The title text to be displayed.
+ * @param {string} [props.className] - An optional CSS class to apply to the `<h2>` title element.
+ * @param {React.FunctionComponent<React.SVGProps<SVGSVGElement>>} [props.Icon] - An optional SVG Icon component to be rendered before the title.
+ * @param {string} [props.iconClassName] - An optional CSS class to apply to the Icon component.
+ * @returns {React.ReactElement} The rendered title component.
+ */
 export default function ModalTitle({
   title,
   className,

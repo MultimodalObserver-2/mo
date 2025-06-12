@@ -1,11 +1,40 @@
 import { useEffect, useRef, useState } from "react"
 
+/**
+ * A custom hook that encapsulates the logic for a file upload component.
+ * It handles drag-and-drop events, file input changes, file type validation,
+ * and both controlled (via props) and uncontrolled (internal state) behavior.
+ *
+ * @param {string[]} [accept] - An array of accepted file type specifiers (e.g., '.jpg', 'image/*').
+ * @param {boolean} [multiple=false] - If true, allows multiple file selection.
+ * @param {File[]} [files] - An array of `File` objects for controlled component behavior. The hook will sync its state to this prop.
+ * @param {(files: File[]) => void} [onChangeFiles] - Callback function to enable controlled mode. It's invoked with the new list of files when a change occurs.
+ * @returns {{
+ * dragOver: boolean,
+ * fileNames: string[],
+ * hasFiles: boolean,
+ * inputRef: React.RefObject<HTMLInputElement | null>,
+ * onDragOver: (e: React.DragEvent<HTMLElement>) => void,
+ * onDragLeave: (e: React.DragEvent<HTMLElement>) => void,
+ * onDrop: (e: React.DragEvent<HTMLElement>) => void,
+ * onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+ * }} An object containing state and event handlers for a file upload component.
+ */
 export default function useUpload(
   accept?: string[],
-  multiple = false,
+  multiple: boolean = false,
   files?: File[],
   onChangeFiles?: (files: File[]) => void
-) {
+): {
+  dragOver: boolean
+  fileNames: string[]
+  hasFiles: boolean
+  inputRef: React.RefObject<HTMLInputElement | null>
+  onDragOver: (e: React.DragEvent<HTMLElement>) => void
+  onDragLeave: (e: React.DragEvent<HTMLElement>) => void
+  onDrop: (e: React.DragEvent<HTMLElement>) => void
+  onChange: (e: React.ChangeEvent<HTMLInputElement>) => void
+} {
   const [dragOver, setDragOver] = useState(false)
   const [fileNames, setFileNames] = useState<string[]>([])
   const [hasFiles, setHasFiles] = useState(false)
