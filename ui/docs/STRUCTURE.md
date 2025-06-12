@@ -33,6 +33,7 @@ Contains preload scripts that safely expose APIs to the renderer process.
 
 - **`core/`**: Shared logic for context bridging.
 - **`modules/`**: Exposed APIs grouped by feature.
+- **`/interface.ts`**: Define the TypeScript interface for the API exposed to the renderer process. This file should be imported into index.d.ts to properly expose the module's API in the preload layer.
 - **`index.ts` / `index.d.ts`**: Entry points for the preload logic and TypeScript declarations.
 
 ---
@@ -67,6 +68,7 @@ Main React app source directory.
 
 - **`main.tsx`**: React app entry point.
 - **`index.html`**: HTML template for the renderer.
+- **`env.d.ts`**: TypeScript declarations for the renderer process.
 
 ---
 
@@ -91,7 +93,7 @@ Main React app source directory.
 ## 📌 Notes
 
 - The structure supports **separation of concerns** between the Electron main process and the React renderer.
-- New features should be added as modules under `src/renderer/src/modules/`.
+- New specific features not related to existing modules should be added under `src/renderer/src/modules/`.
 - Shared code across modules should reside under `src/renderer/src/core/`.
 - Preload logic must be defined carefully to securely expose APIs via context bridge.
 - Build and package behavior is configured via `electron-builder.yml`.
