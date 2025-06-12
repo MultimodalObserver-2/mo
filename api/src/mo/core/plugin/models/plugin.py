@@ -31,18 +31,31 @@ class PluginPublisher(BaseModel):
 
 
 class PluginMetadata(BaseModel):
-    """Metadata for a plugin."""
+    """Metadata for a plugin.
+    
+    This class contains essential information about a plugin
 
-    plugin_id: str  # Unique identifier for the plugin
-    name: str  # Name of the plugin
-    description: str  # Description of the plugin
-    version: SemanticVersion  # Version of the plugin
-    publisher: PluginPublisher  # Publisher of the plugin
-    repository: str  # URL to the plugin's repository
-    # Path to the plugin's icon or icons
+    Attributes:
+        plugin_id (str): Unique identifier for the plugin.
+        name (str): Name of the plugin.
+        description (str): Description of the plugin.
+        version (SemanticVersion): Version of the plugin.
+        publisher (PluginPublisher): Publisher of the plugin.
+        repository (str): URL to the plugin's repository.
+        icon_path (Optional[str] | Optional[PluginIcons]): Path to the plugin's icon or icons.
+        author (Optional[PluginAuthor]): Author of the plugin.
+        platform (SysPlatform): Supported platform for the plugin.
+    """
+
+    plugin_id: str
+    name: str
+    description: str
+    version: SemanticVersion
+    publisher: PluginPublisher
+    repository: str
     icon_path: Optional[str] | Optional[PluginIcons] = None
-    author: Optional[PluginAuthor] = None  # Author of the plugin
-    platform: SysPlatform  # Supported platform for the plugin
+    author: Optional[PluginAuthor] = None
+    platform: SysPlatform
     _location: Optional[str] = PrivateAttr(default=None)  # Location of the plugin files
     _module: Optional[str] = PrivateAttr(default=None)  # Module name of the plugin
     # Indicates if the plugin is loaded
@@ -73,7 +86,17 @@ class PluginMetadata(BaseModel):
 
 class Plugin(ABC):
     """Base class for plugins in the system.
-    This class defines the basic structure and methods that all plugins must implement.
+
+    This abstract class defines the fundamental interface and lifecycle expected from
+    any plugin type within the application. It provides mechanisms for loading,
+    unloading, and configuring plugin behavior.
+
+    Plugins that inherit from this class must at minimum implement `load()` and
+    `unload()`, and may optionally override `on_configure()` to handle configuration updates.
+
+    Attributes:
+        metadata (PluginMetadata): Descriptive metadata for the plugin.
+        settings (Settings): Configuration object with parameters used by the plugin.
     """
 
     metadata: PluginMetadata  # Metadata for the plugin
@@ -82,31 +105,45 @@ class Plugin(ABC):
 
     @abstractmethod
     def load(self):
-        """Load the plugin.
-        This method should be implemented to initialize the plugin and prepare it for use.
-        It may include loading resources, setting up configurations, etc.
+        """Load and initialize the plugin.
+
+        This method should perform any required setup to make the plugin operational.
+        It is called once when the plugin is loaded by the system.
+
+        Typical tasks include: resource allocation, starting background tasks,
+        establishing connections, or validating initial state.
         """
         pass
 
     @abstractmethod
     def unload(self):
-        """Unload the plugin.
-        This method should be implemented to clean up resources and configurations used by the plugin.
-        It be called when the plugin is no longer needed or when the application is shutting down.
+        """Unload and clean up the plugin.
+
+        This method should release any resources acquired during `load()`, stop ongoing
+        tasks, and leave the system in a clean state. It is called when the plugin is
+        removed.
         """
         pass
 
     def configure(self, settings: Settings):
         """Configure the plugin with the provided settings.
+
+        This method updates the plugin's internal settings and invokes the
+        `on_configure()` hook to let the plugin respond to the new configuration.
+
         Args:
-            settings (Settings): The settings to configure the plugin with.
+            settings (Settings): The configuration object for the plugin.
         """
         self.settings = settings
         self.on_configure(settings)
 
     def on_configure(self, settings: Settings) -> None:
-        """Override this method to handle configuration changes.
+        """Hook for handling dynamic configuration updates.
+
+        Override this method to implement plugin-specific logic when settings are
+        updated. Called automatically by `configure()`.
+
         Args:
-            settings (Settings): The updated settings for the plugin.
+            settings (Settings): The updated configuration object.
         """
         pass

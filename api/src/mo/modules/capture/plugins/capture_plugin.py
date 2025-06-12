@@ -35,9 +35,29 @@ class CaptureData:
 
 class CapturePlugin(Plugin):
     """Abstract base class for capture plugins.
-    This class defines the interface for plugins that capture data during a session.
-    It includes methods for preparing the plugin, starting and stopping the capture,
-    pausing and resuming the capture, and saving the captured data.
+    
+    Defines the interface for plugins responsible for capturing data during a session.
+    Capture plugins are used to initialize recording, control its execution (pause/resume),
+    and persist the captured data periodically.
+
+    Subclasses must implement all abstract methods to define the behavior of a concrete
+    data capture source (e.g., video, audio, physiological signals, sensors, etc.).
+
+    Expected lifecycle:
+    - `prepare()` is called once to set up the plugin.
+    - `start()` initiates the capture process and must actively send data using `on_data`.
+      It can be blocking or non-blocking, but must keep the capture running until `stop()` is called.
+    - `pause()` and `resume()` allow temporary suspension.
+    - `stop()` finalizes the capture session.
+    - `save()` is called repeatedly with data batches.
+    - `get_file_extension()` specifies the output format.
+
+    Notes:
+    - Each call to `save()` receives a time-ordered list of `CaptureData` instances. The
+      capture system ensures `save()` is invoked regularly, and once more with `end_of_data=True`.
+    - This class inherits from `Plugin`, so implementing classes must also define
+    `load()` and `unload()` methods for plugin lifecycle management, and may override
+    `on_configure()` for handling configuration changes.
     """
 
     _module_name: str = "capture"
@@ -59,9 +79,15 @@ class CapturePlugin(Plugin):
         on_data: Callable[[CaptureData], None],
     ) -> None:
         """Start the capture process.
-        This method is called to initiate the capture process, allowing the plugin to
-        capture data asynchronously. The `on_data` callback must be called on every
-        captured data with a `CaptureData` instance containing the timestamp and data.
+
+        This method is called to initiate the data capture process. It may be implemented
+        in a blocking or non-blocking way, but must ensure that the plugin remains active
+        and continuously captures data while the session is running.
+
+        Captured data must be sent through the `on_data` callback as instances of
+        `CaptureData`, including the appropriate timestamp and data. The plugin is
+        responsible for invoking this callback for every piece of data it captures
+        until `stop()` is called.
         Args:
             start_ts (float): The timestamp when the capture starts.
             get_timestamp (Callable[[], float]): A callable that returns the current timestamp.
@@ -72,6 +98,7 @@ class CapturePlugin(Plugin):
     @abstractmethod
     def pause(self, pause_ts: float) -> None:
         """Pause the capture process.
+
         This method is called to pause the capture process, allowing the plugin to
         temporarily stop capturing data.
         Args:
@@ -82,6 +109,7 @@ class CapturePlugin(Plugin):
     @abstractmethod
     def resume(self, resume_ts: float) -> None:
         """Resume the capture process after it has been paused.
+
         This method is called to resume capturing data after a pause.
         Args:
             resume_ts (float): The timestamp when the capture is resumed.
@@ -91,6 +119,7 @@ class CapturePlugin(Plugin):
     @abstractmethod
     def stop(self, stop_ts: float) -> None:
         """Stop the capture process.
+        
         This method is called to stop the capture process, allowing the plugin to
         finalize any captured data and prepare for saving the last data.
         Args:
@@ -101,6 +130,7 @@ class CapturePlugin(Plugin):
     @abstractmethod
     def save(self, data: list[CaptureData], end_of_data: bool = False) -> None:
         """Save the captured data.
+
         This method persists a batch of data captured by the plugin, received via the
         `on_data` callback during execution of the `start` method.
         The data is a list of `CaptureData` instances, ordered chronologically within
