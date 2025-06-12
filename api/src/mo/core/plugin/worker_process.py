@@ -60,6 +60,7 @@ class PluginWorkerProcess(Process):
         keep_running: bool = False,
         timeout: Optional[float | int] = None,
         processes_queue: Optional[Queue] = None,
+        plugins_path: Optional[str] = None,
     ):
         """Initializes the PluginWorkerProcess.
         Args:
@@ -68,11 +69,13 @@ class PluginWorkerProcess(Process):
             keep_running (bool): Whether to keep the process running.
             timeout (Optional[float | int]): Timeout for the process, in seconds, or None for no timeout.
             processes_queue (Optional[Queue]): Queue for inter-process communication.
+            plugins_path (Optional[str]): Optional path to the plugins directory.
         """
         super().__init__()
         dependencies_name = "dependencies"
         plugins_dir = RELATIVE_PLUGINS_DIR_PATH
-        plugins_path = os.path.join(APP_DATA_DIR, plugins_dir)
+        if plugins_path is None:
+            plugins_path = os.path.join(APP_DATA_DIR, plugins_dir)
         plugins_path = os.path.normpath(plugins_path)
         self.plugin_dir_path = os.path.join(plugins_path, process_metadata.dir_name)
         self.plugin_dir_path = os.path.normpath(self.plugin_dir_path)

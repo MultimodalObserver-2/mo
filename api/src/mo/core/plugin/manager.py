@@ -168,7 +168,9 @@ class PluginManager:
                 status_queue,
                 self.plugin_types_to_check,
             )
-            plugin_process = PluginWorkerProcess(plugin_process_metadata, load_main_instance=True)
+            plugin_process = PluginWorkerProcess(
+                plugin_process_metadata, load_main_instance=True, plugins_path=self.plugins_path
+            )
             plugin_process.start()
             status = status_queue.get()
             plugin_metadata._is_loaded = status.get("is_loaded", False)
@@ -379,7 +381,9 @@ class PluginManager:
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(
+                process_metadata, keep_running=True, timeout=120, plugins_path=self.plugins_path
+            )
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
@@ -405,7 +409,9 @@ class PluginManager:
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
-            plugin_process = PluginWorkerProcess(process_metadata, keep_running=True, timeout=120)
+            plugin_process = PluginWorkerProcess(
+                process_metadata, keep_running=True, timeout=120, plugins_path=self.plugins_path
+            )
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
             process_metadata.status_queue.get()
