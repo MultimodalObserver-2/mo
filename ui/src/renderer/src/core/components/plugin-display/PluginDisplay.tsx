@@ -36,11 +36,12 @@ export default function PluginDisplay({
   const styleClass = styles[style]
   const textSizeClass = styles[`text-${textSize}`]
   const customClass = className ?? ""
+  const overflowHidden = header && list ? styles["overflow-hidden"] : ""
 
   return (
     <div
       id="plugin-display"
-      className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass}`}
+      className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass} ${overflowHidden}`}
     >
       {header}
       {list}
