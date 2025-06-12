@@ -1,11 +1,12 @@
 from abc import ABC, abstractmethod
-from typing import Optional
+from typing import Annotated, Optional
 
-from pydantic import BaseModel, PrivateAttr
+from pydantic import AfterValidator, BaseModel, PrivateAttr
 
 from mo.core.plugin.models.semantic_version import SemanticVersion
 from mo.core.plugin.models.settings import Settings
 from mo.core.plugin.models.sys_platform import SysPlatform
+from mo.core.plugin.models.validators import validate_id
 
 
 class PluginAuthor(BaseModel):
@@ -25,14 +26,15 @@ class PluginIcons(BaseModel):
 class PluginPublisher(BaseModel):
     """Represents the publisher of a plugin."""
 
-    id: str  # Unique identifier for the publisher
+    # Unique identifier for the publisher
+    id: Annotated[str, AfterValidator(validate_id)]
     name: str  # Name of the publisher
     url: Optional[str] = None  # URL to the publisher's website
 
 
 class PluginMetadata(BaseModel):
     """Metadata for a plugin.
-    
+
     This class contains essential information about a plugin
 
     Attributes:
@@ -47,7 +49,7 @@ class PluginMetadata(BaseModel):
         platform (SysPlatform): Supported platform for the plugin.
     """
 
-    plugin_id: str
+    plugin_id: Annotated[str, AfterValidator(validate_id)]
     name: str
     description: str
     version: SemanticVersion
