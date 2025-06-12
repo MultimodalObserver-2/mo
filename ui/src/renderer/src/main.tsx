@@ -27,6 +27,7 @@ import SelectCaptureSource from "./modules/capture/pages/select-capture-source/S
 import AddCaptureConfig from "./modules/capture/pages/add-capture-config/AddCaptureConfig"
 import UpdateCaptureConfig from "./modules/capture/pages/update-capture-config/UpdateCaptureConfig"
 import SessionPage from "./modules/capture/pages/session/Session"
+import ErrorPage from "./core/pages/error/Error"
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -41,6 +42,7 @@ createRoot(document.getElementById("root")!).render(
               element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}
             />
           </Route>
+          <Route path="/error" element={<ErrorPage />} />
           <Route path="/loading" element={<LoadingPage />} />
           <Route path="/organization/create-project" element={<CreateProjectPage />} />
           <Route path="/organization/update-project/:projectName" element={<UpdateProjectPage />} />

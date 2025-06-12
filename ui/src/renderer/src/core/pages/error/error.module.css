@@ -1,0 +1,23 @@
+.container {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  gap: 50px;
+  width: 100vw;
+  height: 100vh;
+  background-color: var(--color-primary-800);
+}
+
+.message h1 {
+  font-size: 2em;
+  font-weight: 600;
+  margin-bottom: 14px;
+}
+
+.message p {
+  font-size: 1.6em;
+  font-weight: 500;
+}
+

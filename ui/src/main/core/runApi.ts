@@ -1,3 +1,4 @@
+import http from "http"
 import { spawn } from "child_process"
 import { ipcMain } from "electron"
 import net from "net"
@@ -34,4 +35,32 @@ export async function runApi() {
     console.error("Error getting free port:", error)
     return { apiProcess: null, apiPort: null }
   }
+}
+
+export function waitForApiReady(url: string, timeout = 40000, interval = 500): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const startTime = Date.now()
+
+    const check = () => {
+      http
+        .get(url, (res) => {
+          if (res.statusCode === 200) {
+            resolve()
+          } else {
+            retry()
+          }
+        })
+        .on("error", retry)
+    }
+
+    const retry = () => {
+      if (Date.now() - startTime > timeout) {
+        reject(new Error("API did not start in time"))
+      } else {
+        setTimeout(check, interval)
+      }
+    }
+
+    check()
+  })
 }
