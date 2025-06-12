@@ -90,14 +90,16 @@ class PluginsDirHandler(FileSystemEventHandler):
             # Implemented for race condition when a directory is created
             # but the metadata file is not yet completely written
             self.logger.error(
-                f"[PluginsDirHandler] Metadata file not found for plugin {dir_name}", exc_info=True)
+                f"[PluginsDirHandler] Metadata file not found for plugin {dir_name}", exc_info=True
+            )
             return
         try:
             self.plugin_manager.register_plugin(dir_name)
             self.known_dirs.append(dir_name)
         except Exception as e:
             self.logger.error(
-                f"[PluginsDirHandler] Failed to load plugin {dir_name}: {e}", exc_info=True)
+                f"[PluginsDirHandler] Failed to load plugin {dir_name}: {e}", exc_info=True
+            )
 
     def on_deleted(self, event: DirDeletedEvent | FileDeletedEvent) -> None:
         """Handles the deletion of a directory in the plugins directory.
@@ -118,7 +120,8 @@ class PluginsDirHandler(FileSystemEventHandler):
             self.known_dirs.remove(dir_name)
         except Exception as e:
             self.logger.error(
-                f"[PluginsDirHandler] Failed to remove plugin {dir_name}: {e}", exc_info=True)
+                f"[PluginsDirHandler] Failed to remove plugin {dir_name}: {e}", exc_info=True
+            )
 
     def on_moved(self, event: DirMovedEvent | FileMovedEvent) -> None:
         """Handles the renaming of a directory in the plugins directory.
@@ -140,12 +143,15 @@ class PluginsDirHandler(FileSystemEventHandler):
             self.known_dirs.append(new_dir_name)
         except Exception as e:
             self.logger.error(
-                f"[PluginsDirHandler] Failed to rename plugin {old_dir_name} to {new_dir_name}: {e}", exc_info=True)
+                f"[PluginsDirHandler] Failed to rename plugin {old_dir_name} to {new_dir_name}: {e}",
+                exc_info=True,
+            )
 
 
 def start_plugins_dir_observer():
     """Starts the observer for the plugins directory."""
     from watchdog.observers import Observer
+
     plugins_dir_handler = PluginsDirHandler()
     observer = Observer()
     observer.schedule(
@@ -154,6 +160,7 @@ def start_plugins_dir_observer():
         recursive=False,
     )
     observer.start()
+
 
 async def start_plugins_dir_observer_async():
     """Asynchronously starts the observer for the plugins directory."""

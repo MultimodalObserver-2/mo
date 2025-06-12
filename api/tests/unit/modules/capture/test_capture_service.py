@@ -1,11 +1,11 @@
-from datetime import datetime
 import logging
 import logging.handlers
+from datetime import datetime
 from unittest.mock import MagicMock, patch
 
-from mo.core.config import constants
 import pytest
 
+from mo.core.config import constants
 from mo.core.plugin.worker_process import PluginWorkerProcess
 from mo.core.utils.http_exceptions import BadRequestException
 from mo.modules.capture.schemas.capture import PluginData
@@ -38,8 +38,12 @@ def clean_capture_service():
 def disable_file_logging():
     logger = logging.getLogger(constants.LOGGER_NAME)
 
-    file_handlers = [h for h in logger.handlers if isinstance(
-        h, logging.handlers.TimedRotatingFileHandler) or isinstance(h, logging.StreamHandler)]
+    file_handlers = [
+        h
+        for h in logger.handlers
+        if isinstance(h, logging.handlers.TimedRotatingFileHandler)
+        or isinstance(h, logging.StreamHandler)
+    ]
     for handler in file_handlers:
         logger.removeHandler(handler)
 
@@ -47,6 +51,7 @@ def disable_file_logging():
 
     for handler in file_handlers:
         logger.addHandler(handler)
+
 
 def test_get_capture_plugins_success(capture_service):
     mock_metadata = [MagicMock(), MagicMock()]
@@ -254,7 +259,8 @@ def test_pause_capture_handles_process_exception(capture_service, caplog):
 
     assert capture_service.paused is True
     assert any(
-        "Error executing pause callback for process" in message for message in caplog.messages)
+        "Error executing pause callback for process" in message for message in caplog.messages
+    )
 
 
 def test_resume_capture_invalid_state(capture_service):
@@ -395,8 +401,8 @@ def test_exec_prepare_callback_handles_exception(capture_service, caplog):
     assert not capture_service.processes_instances["plugin1"]
     mock_process.remove_plugin_instance.assert_called_with("config1")
     assert any(
-        "Error executing prepare callback for config1 in process plugin1"
-        in message for message in caplog.messages
+        "Error executing prepare callback for config1 in process plugin1" in message
+        for message in caplog.messages
     )
 
 
@@ -413,9 +419,10 @@ def test_exec_start_callback_handles_exception(capture_service, caplog):
 
     mock_process.execute_callback_on_instance.assert_called_once()
     assert any(
-        "Error executing start callback for config1 in process plugin1"
-        in message for message in caplog.messages
+        "Error executing start callback for config1 in process plugin1" in message
+        for message in caplog.messages
     )
+
 
 def test_load_processes_skips_none_plugin_process(capture_service):
     mock_config = MagicMock()

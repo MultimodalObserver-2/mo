@@ -74,7 +74,8 @@ class PluginManager:
                 dirs.append(plugin_dir_name)
             except Exception as e:
                 self.logger.error(
-                    f"[PluginManager] Failed to load plugin {plugin_dir_name}: {str(e)}", exc_info=True
+                    f"[PluginManager] Failed to load plugin {plugin_dir_name}: {str(e)}",
+                    exc_info=True,
                 )
                 continue
         return dirs

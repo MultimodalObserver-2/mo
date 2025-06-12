@@ -146,7 +146,7 @@ class CaptureService:
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing start callback for {config_name} in process {key}: {e}",
-                        exc_info=True
+                        exc_info=True,
                     )
 
     def start_capture(self, project_name: str, participant_code: str):
@@ -228,7 +228,7 @@ class CaptureService:
             except Exception as e:
                 self.logger.error(
                     f"[CaptureService] Error executing stop callback for plugin process {key}: {e}",
-                    exc_info=True
+                    exc_info=True,
                 )
                 exceptions[key] = e
         if self.session and self.project_name and self.participant_code:
@@ -274,7 +274,7 @@ class CaptureService:
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing pause callback for process {process.process_metadata.metadata.plugin_id}: {e}",
-                        exc_info=True
+                        exc_info=True,
                     )
 
         self.paused = True
@@ -303,7 +303,7 @@ class CaptureService:
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing resume callback for process {process.process_metadata.metadata.plugin_id}: {e}",
-                        exc_info=True
+                        exc_info=True,
                     )
 
         self.paused_time += resume_ts - self.paused_ts

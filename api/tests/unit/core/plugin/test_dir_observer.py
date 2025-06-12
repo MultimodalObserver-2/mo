@@ -2,10 +2,10 @@ import logging
 import logging.handlers
 from unittest.mock import MagicMock, patch
 
-from mo.core.config import constants
 import pytest
 from watchdog.events import DirCreatedEvent, DirDeletedEvent, DirMovedEvent
 
+from mo.core.config import constants
 from mo.core.plugin.dir_observer import PluginsDirHandler
 from mo.core.plugin.manager import PluginManager
 
@@ -31,8 +31,12 @@ def clean_dir_handler_singleton():
 def disable_file_logging():
     logger = logging.getLogger(constants.LOGGER_NAME)
 
-    file_handlers = [h for h in logger.handlers if isinstance(
-        h, logging.handlers.TimedRotatingFileHandler) or isinstance(h, logging.StreamHandler)]
+    file_handlers = [
+        h
+        for h in logger.handlers
+        if isinstance(h, logging.handlers.TimedRotatingFileHandler)
+        or isinstance(h, logging.StreamHandler)
+    ]
     for handler in file_handlers:
         logger.removeHandler(handler)
 
@@ -157,7 +161,8 @@ def test_on_created_wait_for_file_fails(mock_relpath, plugins_dir_handler, caplo
     with caplog.at_level("ERROR"):
         plugins_dir_handler.on_created(event)
     assert any(
-            "Metadata file not found for plugin new_plugin" in message for message in caplog.messages)
+        "Metadata file not found for plugin new_plugin" in message for message in caplog.messages
+    )
     plugins_dir_handler.plugin_manager.register_plugin.assert_not_called()
 
 
@@ -173,9 +178,7 @@ def test_on_created_handles_exception(mock_relpath, plugins_dir_handler, caplog)
         plugins_dir_handler.on_created(event)
 
     assert "new_plugin" not in plugins_dir_handler.known_dirs
-    assert any(
-        "Failed to load plugin new_plugin" in message for message in caplog.messages
-    )
+    assert any("Failed to load plugin new_plugin" in message for message in caplog.messages)
 
 
 @patch("os.path.relpath", return_value="deleted_plugin")
@@ -200,9 +203,7 @@ def test_on_deleted_handles_exception(mock_relpath, plugins_dir_handler, caplog)
         plugins_dir_handler.on_deleted(event)
 
     assert "deleted_plugin" in plugins_dir_handler.known_dirs
-    assert any(
-        "Failed to remove plugin deleted_plugin" in message for message in caplog.messages
-    )
+    assert any("Failed to remove plugin deleted_plugin" in message for message in caplog.messages)
 
 
 @patch("os.path.relpath")

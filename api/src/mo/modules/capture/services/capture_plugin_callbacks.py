@@ -19,6 +19,7 @@ environment.
 
 logger = logging.getLogger(constants.LOGGER_NAME)
 
+
 def prepare_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
     """Prepares the CapturePlugin instance with the provided session path and file name.
     This function is called before the plugin starts capturing data.
@@ -71,7 +72,9 @@ def start_callback(
                     block=False,
                 )
         except Exception as e:
-            logger.error(f"[start_callback] Error in on_data_callback for {config_name}: {e}", exc_info=True)
+            logger.error(
+                f"[start_callback] Error in on_data_callback for {config_name}: {e}", exc_info=True
+            )
 
     thread = threading.Thread(
         target=instance.start,

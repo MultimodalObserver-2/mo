@@ -35,7 +35,7 @@ class CaptureData:
 
 class CapturePlugin(Plugin):
     """Abstract base class for capture plugins.
-    
+
     Defines the interface for plugins responsible for capturing data during a session.
     Capture plugins are used to initialize recording, control its execution (pause/resume),
     and persist the captured data periodically.
@@ -119,7 +119,7 @@ class CapturePlugin(Plugin):
     @abstractmethod
     def stop(self, stop_ts: float) -> None:
         """Stop the capture process.
-        
+
         This method is called to stop the capture process, allowing the plugin to
         finalize any captured data and prepare for saving the last data.
         Args:

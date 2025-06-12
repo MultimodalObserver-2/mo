@@ -5,9 +5,9 @@ import threading
 from collections import defaultdict
 from typing import Callable, Mapping, Optional
 
-from mo.core.config import constants
 import psutil
 
+from mo.core.config import constants
 from mo.core.plugin.worker_process import PluginWorkerProcess
 from mo.core.utils.buffer import ListBuffer
 from mo.modules.capture.plugins.capture_plugin import CaptureData
@@ -152,7 +152,7 @@ class CaptureBufferManager:
                 exceptions[(plugin_id, config_name)] = e
                 self.logger.error(
                     f"[CaptureBufferManager] Error flushing buffer for {plugin_id}, {config_name}: {e}",
-                    exc_info=True
+                    exc_info=True,
                 )
         return exceptions
 
@@ -172,7 +172,10 @@ class CaptureBufferManager:
                     all_exceptions[key].append(exception)
                 threading.Event().wait(self.flush_interval)
             except Exception as e:
-                self.logger.error(f"[CaptureBufferManager] Error in flush_buffers_periodically_worker: {e}", exc_info=True)
+                self.logger.error(
+                    f"[CaptureBufferManager] Error in flush_buffers_periodically_worker: {e}",
+                    exc_info=True,
+                )
                 all_exceptions[("all", "flush_buffers_periodically_worker")].append(e)
         return all_exceptions
 
@@ -200,7 +203,9 @@ class CaptureBufferManager:
                         all_exceptions[key].append(exception)
                 threading.Event().wait(self.monitor_interval)
             except Exception as e:
-                self.logger.error(f"[CaptureBufferManager] Error in stressed_monitor_worker: {e}", exc_info=True)
+                self.logger.error(
+                    f"[CaptureBufferManager] Error in stressed_monitor_worker: {e}", exc_info=True
+                )
                 all_exceptions[("all", "stressed_monitor_worker")].append(e)
         return all_exceptions
 
@@ -226,7 +231,9 @@ class CaptureBufferManager:
                     # Await a bit to ensure no more data is coming
                     threading.Event().wait(0.05)
             except Exception as e:
-                self.logger.error(f"[CaptureBufferManager] Error moving queue to buffers: {e}", exc_info=True)
+                self.logger.error(
+                    f"[CaptureBufferManager] Error moving queue to buffers: {e}", exc_info=True
+                )
 
     def pause(self, ts: float):
         """Pauses the capture process at the given timestamp.
