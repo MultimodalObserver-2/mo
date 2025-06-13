@@ -5,7 +5,6 @@ import sys
 import time
 from dataclasses import dataclass
 from multiprocessing import Pipe, Process, Queue
-from multiprocessing.connection import PipeConnection
 from typing import Any, Callable, Optional
 
 from mo.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
@@ -40,8 +39,8 @@ class PluginWorkerProcess(Process):
     plugin_class: type[Plugin] | None
     process_metadata: PluginProcessMetadata
     properties: Properties
-    _parent_conn: PipeConnection
-    _child_conn: PipeConnection
+    _parent_conn: Any
+    _child_conn: Any
     plugins_instances: dict[str, Plugin]
     plugins_instances_ids: list[str]
     load_main_instance: bool
