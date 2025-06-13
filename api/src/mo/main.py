@@ -24,15 +24,16 @@ if __name__ == "__main__":
     # Ensure multiprocessing support is initialized for Windows
     # This is necessary to avoid issues with multiprocessing on Windows
     multiprocessing.freeze_support()
-    # Initialize application setup
-    app_setup()
+
+# Initialize application setup
+app_setup()
 
 logger = setup_global_logger()
 
 app = FastAPI(
     title="Multimodal Observer API",
     description="Multimodal Observer API",
-    version="0.1.0",
+    version="0.2.0",
     docs_url="/docs" if IS_DEV else None,
     redoc_url="/redoc" if IS_DEV else None,
     openapi_url="/openapi.json" if IS_DEV else None,
