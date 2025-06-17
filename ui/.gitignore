@@ -12,3 +12,5 @@ out
 
 # SonarQube files
 .scannerwork/
+
+/plugins/

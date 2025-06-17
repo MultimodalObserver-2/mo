@@ -7,7 +7,6 @@ import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
-import pluginService from "@renderer/core/services/PluginService"
 import { Plugin } from "@renderer/core/types/Plugin"
 import {
   showApiErrorMessage,
@@ -15,35 +14,46 @@ import {
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
 import { useEffect, useState } from "react"
-import { useParams } from "react-router"
+import { useParams, useSearchParams } from "react-router"
 import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import Button from "@renderer/core/components/button/Button"
+import pluginService from "@renderer/core/services/PluginService"
 
 export default function PluginDetails() {
-  const { pluginId } = useParams<{
+  const { pluginId, pluginTarget } = useParams<{
     pluginId: string
+    pluginTarget: "api" | "ui"
   }>()
+  const [searchParams] = useSearchParams()
   const [plugin, setPlugin] = useState<Plugin | null>(null)
 
   useEffect(() => {
     async function fetchPlugin() {
-      if (!pluginId) {
+      if (!pluginId || !pluginTarget) {
         showUnexpectedErrorMessage()
         window.close()
         return
       }
+      if (pluginTarget === "ui") {
+        // Register the plugin directory if specified in the search params.
+        // This is necessary for UI plugins to load correctly,
+        // since memory is not shared between window processes in Electron.
+        const dirName = searchParams.get("dir") ?? ""
+        await pluginService.ui.registerByDir(dirName)
+      }
 
       try {
-        const response = await pluginService.get(pluginId)
-        setPlugin(response.data)
+        const response = await pluginService.get(pluginId, pluginTarget)
+        setPlugin(response)
       } catch (error) {
+        console.error("Error fetching plugin details:", error)
         showApiErrorMessage(error)
         window.close()
       }
     }
 
     fetchPlugin()
-  }, [pluginId])
+  }, [pluginId, pluginTarget, searchParams])
 
   const handleDelete = async (plugin: Plugin) => {
     const acceptId = 0
@@ -58,7 +68,7 @@ export default function PluginDetails() {
     }
 
     try {
-      await pluginService.delete(plugin.id)
+      await pluginService.delete(plugin.id, plugin.target)
       window.core.plugins.reloadPlugins()
       window.close()
     } catch (error) {

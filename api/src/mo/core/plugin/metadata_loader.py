@@ -40,6 +40,7 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
             "repository": data.get("repository"),
             "author": PluginAuthor(**data.get("author")) if data.get("author") else None,
             "platform": SysPlatform(**data.get("platform")),
+            "target": data.get("target"),
         }
         icon = data.get("icon")
         if icon and isinstance(icon, dict):

@@ -20,6 +20,8 @@ export function showApiErrorMessage(error: unknown) {
     } else {
       errorMessage = error.response.statusText
     }
+  } else if (error instanceof Error) {
+    errorMessage = error.message
   }
   window.core.dialog.showErrorBox("Error", errorMessage)
 }

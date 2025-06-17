@@ -24,3 +24,18 @@ def validate_id(identifier: str) -> str:
             "and must be at least 2 characters long."
         )
     return identifier
+
+
+def validate_target(target: str) -> str:
+    """
+    Validate the target environment for a API plugin.
+    Args:
+        target (str): The target environment to validate.
+    Returns:
+        str: The validated target environment.
+    Raises:
+        ValueError: If the target is not "api".
+    """
+    if target not in ["api"]:
+        raise ValueError("Invalid target. Must be 'api' for API plugins.")
+    return target

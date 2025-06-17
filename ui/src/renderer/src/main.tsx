@@ -28,6 +28,9 @@ import AddCaptureConfig from "./modules/capture/pages/add-capture-config/AddCapt
 import UpdateCaptureConfig from "./modules/capture/pages/update-capture-config/UpdateCaptureConfig"
 import SessionPage from "./modules/capture/pages/session/Session"
 import ErrorPage from "./core/pages/error/Error"
+import pluginManager from "./core/plugin/PluginManager"
+
+pluginManager.loadAllPlugins()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
@@ -75,7 +78,7 @@ createRoot(document.getElementById("root")!).render(
             element={<ActivityMessagePage />}
           />
           <Route path="/organization/activity-timer" element={<ActivityTimerPage />} />
-          <Route path="/plugins/:pluginId" element={<PluginDetails />} />
+          <Route path="/plugins/:pluginTarget/:pluginId" element={<PluginDetails />} />
           <Route path="/capture/select-source/:projectName" element={<SelectCaptureSource />} />
           <Route path="/capture/:projectName/sources/:pluginId" element={<AddCaptureConfig />} />
           <Route

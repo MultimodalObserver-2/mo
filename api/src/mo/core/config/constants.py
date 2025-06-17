@@ -13,7 +13,7 @@ APP_NAME = "multimodal-observer"
 LOGGER_NAME = "mo-api"
 # Application paths
 RELATIVE_APP_DATA_PATH = "data"
-RELATIVE_PLUGINS_DIR_PATH = "plugins"
+RELATIVE_PLUGINS_DIR_PATH = "plugins" if IS_DEV else "plugins/api"
 PLUGIN_METADATA_FILE = "metadata.json"
 RELATIVE_LOG_PATH = "logs/api"
 LOG_FILE = "mo_api.log"

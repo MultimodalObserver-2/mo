@@ -34,6 +34,7 @@ class PluginRes(BaseModel):
     author: Optional[AuthorRes] = None
     platforms: PlatformsRes
     location: str
+    target: str = "api"
     module: Optional[str] = None
     error: Optional[str] = None
     is_loaded: bool = False
@@ -79,6 +80,7 @@ class PluginRes(BaseModel):
                 windows=plugin_metadata.platform.windows,
                 mac=plugin_metadata.platform.mac,
             ),
+            target=plugin_metadata.target,
             location=plugin_metadata._location or "",
             module=plugin_metadata._module,
             error=plugin_metadata._error,

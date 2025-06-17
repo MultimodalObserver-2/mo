@@ -53,7 +53,9 @@ Main React app source directory.
   - `layouts/`: Layout containers used to wrap pages.
   - `lib/`: Third-party wrappers or custom utilities.
   - `pages/`: React pages routed by the application.
+  - `services/`: API or business logic functions.
   - `store/`: Global state management (Redux).
+  - `types/`: TypeScript type definitions.
   - `utils/`: Utility functions.
 
 - **`modules/`**: Feature-specific logic organized by domain.

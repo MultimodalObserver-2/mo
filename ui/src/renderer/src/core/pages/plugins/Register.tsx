@@ -1,10 +1,10 @@
 import { useState } from "react"
 import styles from "./plugins.module.css"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
-import pluginService from "@renderer/core/services/PluginService"
 import FileUpload from "@renderer/core/components/file-upload/FileUpload"
 import NoteStackAddIcon from "@renderer/core/components/icons/NoteStackAddIcon"
 import Button from "@renderer/core/components/button/Button"
+import pluginService from "@renderer/core/services/PluginService"
 
 export default function Register() {
   const [files, setFiles] = useState<File[]>([])
@@ -16,8 +16,7 @@ export default function Register() {
     const fileInput = formData.get("plugins") as File
     setIsRegistering(true)
     try {
-      const response = await pluginService.register(fileInput)
-      const plugin = response.data
+      const plugin = await pluginService.register(fileInput)
       if (plugin.is_loaded) {
         window.core.dialog.showMessageBox({
           type: "info",
@@ -32,6 +31,7 @@ export default function Register() {
         })
       }
     } catch (error) {
+      console.error("Error registering plugin:", error)
       showApiErrorMessage(error)
     }
 

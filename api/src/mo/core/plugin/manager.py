@@ -43,6 +43,7 @@ class PluginManager:
         # Default plugin type to check for search purposes
         self.plugin_types_to_check = [Plugin]
         self.logger = logging.getLogger(constants.LOGGER_NAME)
+        self.valid_api_targets = ["api"]
 
     def _get_plugin_dir_path(self, dir_name: str) -> str:
         """Returns the absolute path to the plugin directory.
@@ -159,6 +160,10 @@ class PluginManager:
             if not plugin_metadata.platform.is_available():
                 raise ImportError(
                     f"Plugin '{plugin_metadata.name}' (v{str(plugin_metadata.version)}) is not available on this operating system"
+                )
+            if plugin_metadata.target not in self.valid_api_targets:
+                raise ImportError(
+                    f"Plugin '{plugin_metadata.name}' (v{str(plugin_metadata.version)}) is not compatible with the current API target '{plugin_metadata.target}'"
                 )
             status_queue = multiprocessing.Queue()
             plugin_process_metadata = PluginProcessMetadata(

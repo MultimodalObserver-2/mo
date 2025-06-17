@@ -5,7 +5,7 @@ import PageModal from "../page-modal/PageModal"
 import Button from "../button/Button"
 import ModalFooter from "../page-modal/modal-footer/ModalFooter"
 import { useEffect, useState } from "react"
-import pluginService from "@renderer/core/services/PluginService"
+import pluginService from "@renderer/core/services/ApiPluginService"
 import {
   PluginProperty,
   PluginPropertyTypes,

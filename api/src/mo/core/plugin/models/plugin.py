@@ -6,7 +6,7 @@ from pydantic import AfterValidator, BaseModel, PrivateAttr
 from mo.core.plugin.models.semantic_version import SemanticVersion
 from mo.core.plugin.models.settings import Settings
 from mo.core.plugin.models.sys_platform import SysPlatform
-from mo.core.plugin.models.validators import validate_id
+from mo.core.plugin.models.validators import validate_id, validate_target
 
 
 class PluginAuthor(BaseModel):
@@ -47,6 +47,7 @@ class PluginMetadata(BaseModel):
         icon_path (Optional[str] | Optional[PluginIcons]): Path to the plugin's icon or icons.
         author (Optional[PluginAuthor]): Author of the plugin.
         platform (SysPlatform): Supported platform for the plugin.
+        target (str): Target environment for the plugin, must be "api".
     """
 
     plugin_id: Annotated[str, AfterValidator(validate_id)]
@@ -58,6 +59,7 @@ class PluginMetadata(BaseModel):
     icon_path: Optional[str] | Optional[PluginIcons] = None
     author: Optional[PluginAuthor] = None
     platform: SysPlatform
+    target: Annotated[str, AfterValidator(validate_target)]
     _location: Optional[str] = PrivateAttr(default=None)  # Location of the plugin files
     _module: Optional[str] = PrivateAttr(default=None)  # Module name of the plugin
     # Indicates if the plugin is loaded

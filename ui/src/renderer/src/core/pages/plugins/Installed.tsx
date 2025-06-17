@@ -1,4 +1,3 @@
-import pluginService from "@renderer/core/services/PluginService"
 import { showApiErrorMessage, showDeletePluginMessage } from "@renderer/core/utils/dialogMessages"
 import { useEffect, useState } from "react"
 import { Plugin } from "@renderer/core/types/Plugin"
@@ -9,6 +8,7 @@ import {
   PluginDisplayHeader,
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
+import pluginService from "@renderer/core/services/PluginService"
 
 export default function Installed() {
   const [plugins, setPlugins] = useState<Plugin[]>([])
@@ -16,9 +16,9 @@ export default function Installed() {
   const fetchPlugins = async () => {
     try {
       const response = await pluginService.getAll()
-      const plugins = response.data
-      setPlugins(plugins)
+      setPlugins(response)
     } catch (error) {
+      console.log(error)
       showApiErrorMessage(error)
     }
   }
@@ -35,8 +35,12 @@ export default function Installed() {
     }
   }, [])
 
-  const openDetails = (plugin: Plugin) => {
-    openPluginDetailsModal(plugin.id)
+  const openDetails = async (plugin: Plugin) => {
+    let dirName: string = ""
+    if (plugin.target === "ui") {
+      dirName = await pluginService.getUiPluginDirName(plugin.id)
+    }
+    openPluginDetailsModal(plugin.id, plugin.target, dirName)
   }
 
   const handleDelete = async (plugin: Plugin) => {
@@ -52,7 +56,7 @@ export default function Installed() {
     }
 
     try {
-      await pluginService.delete(plugin.id)
+      await pluginService.delete(plugin.id, plugin.target)
       fetchPlugins()
     } catch (error) {
       showApiErrorMessage(error)

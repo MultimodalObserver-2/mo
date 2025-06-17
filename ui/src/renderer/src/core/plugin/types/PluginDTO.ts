@@ -19,7 +19,7 @@ export type PluginPublisher = {
   url?: string
 }
 
-export type Plugin = {
+export type PluginDTO = {
   id: string
   name: string
   description: string
