@@ -10,7 +10,17 @@ export function openPluginDetailsModal(
   pluginDir?: string
 ) {
   window.core.openModalWindow({
-    options: { width: 800, height: 650, minWidth: 800, minHeight: 650, title: "Plugin Details" },
+    options: {
+      width: 800,
+      height: 650,
+      minWidth: 800,
+      minHeight: 650,
+      title: "Plugin Details",
+      webPreferences: {
+        webSecurity: false,
+        allowRunningInsecureContent: true
+      }
+    },
     endpoint: `plugins/${pluginTarget}/${pluginId}?dir=${pluginDir || ""}`
   })
 }

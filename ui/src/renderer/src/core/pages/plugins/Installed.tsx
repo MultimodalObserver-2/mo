@@ -18,7 +18,6 @@ export default function Installed() {
       const response = await pluginService.getAll()
       setPlugins(response)
     } catch (error) {
-      console.log(error)
       showApiErrorMessage(error)
     }
   }

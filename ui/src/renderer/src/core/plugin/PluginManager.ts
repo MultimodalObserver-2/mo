@@ -1,4 +1,4 @@
-import { PluginBase } from "./types/PluginBase"
+import { PluginBase, Properties } from "./types"
 import { PluginMetadata } from "./types/PluginMetadata"
 import { validateId } from "./utils/validateId"
 import { PluginDTO } from "./types/PluginDTO"
@@ -12,6 +12,7 @@ interface PluginConstructor {
 interface InternalPlugin {
   id: string
   pluginClass?: PluginConstructor
+  properties?: Properties
   metadata: PluginMetadata
   location: string
   dirName: string
@@ -23,7 +24,8 @@ interface InternalPlugin {
 class PluginManager {
   private plugins: Map<string, InternalPlugin> = new Map()
   private entryPoints = {
-    renderer: "mo.ui.plugin.renderer"
+    rendPlugin: "mo.ui.renderer.plugin",
+    rendPluginProperties: "mo.ui.renderer.plugin.properties"
   }
 
   async loadAllPlugins(): Promise<void> {
@@ -50,7 +52,16 @@ class PluginManager {
     }
   }
 
-  private getEntryPoint(metadata: PluginMetadata, group: string): string {
+  private entryPointExists(metadata: PluginMetadata, group: string): boolean {
+    const entryPoints = metadata.entryPoints
+    if (!entryPoints) return false
+    return Boolean(entryPoints[group])
+  }
+
+  private getEntryPoint(
+    metadata: PluginMetadata,
+    group: string
+  ): { relPath: string; exportName: string } {
     const entryPoints = metadata.entryPoints
     if (!entryPoints) {
       throw new Error(`Plugin ${metadata.id} does not define a valid entry point`)
@@ -59,8 +70,59 @@ class PluginManager {
     if (!entry) {
       throw new Error(`Plugin ${metadata.id} does not define an entry point for group "${group}"`)
     }
+    const [relPath, exportName] = entry.split("#")
+    return { relPath, exportName: exportName || "default" }
+  }
 
-    return entry.startsWith("./") ? entry.slice(2) : entry
+  private async loadPluginClass(
+    pluginPath: string,
+    metadata: PluginMetadata
+  ): Promise<PluginConstructor> {
+    const { relPath, exportName } = this.getEntryPoint(metadata, this.entryPoints.rendPlugin)
+    const entry = await window.core.path.join(pluginPath, relPath)
+
+    if (!(await window.core.fs.existsSync(entry))) {
+      throw new Error(`Plugin entry point not found at ${entry}`)
+    }
+    const pluginModule = await import(/* @vite-ignore */ entry)
+
+    if (!pluginModule || !pluginModule[exportName]) {
+      throw new Error(`Plugin entry point not found in module: ${exportName}`)
+    }
+
+    const pluginClass = pluginModule[exportName] as PluginConstructor
+    if (!(pluginClass.prototype instanceof PluginBase)) {
+      throw new Error(`Plugin class does not extend PluginBase`)
+    }
+
+    return pluginClass
+  }
+
+  private async loadPropertiesInstance(
+    pluginPath: string,
+    metadata: PluginMetadata
+  ): Promise<Properties> {
+    const { relPath, exportName } = this.getEntryPoint(
+      metadata,
+      this.entryPoints.rendPluginProperties
+    )
+    const entry = await window.core.path.join(pluginPath, relPath)
+
+    if (!(await window.core.fs.existsSync(entry))) {
+      throw new Error(`Plugin properties entry point not found at ${entry}`)
+    }
+    const propertiesModule = await import(/* @vite-ignore */ entry)
+
+    if (!propertiesModule || !propertiesModule[exportName]) {
+      throw new Error(`Plugin properties entry point not found in module: ${exportName}`)
+    }
+
+    const propertiesInstance = propertiesModule[exportName] as Properties
+    if (!(propertiesInstance instanceof Properties)) {
+      throw new Error(`Plugin properties does not extend Properties`)
+    }
+
+    return propertiesInstance
   }
 
   async registerPlugin(pluginPath: string): Promise<PluginDTO> {
@@ -85,12 +147,8 @@ class PluginManager {
     }
 
     try {
-      const relPath = this.getEntryPoint(rawMetadata, this.entryPoints.renderer)
-      const entry = await window.core.path.join(pluginPath, relPath)
-      const pluginModule = await import(/* @vite-ignore */ entry)
-      if (!pluginModule.default) throw new Error(`Plugin at ${entry} must export default`)
+      const pluginClass = await this.loadPluginClass(pluginPath, rawMetadata)
 
-      const pluginClass = pluginModule.default as PluginConstructor
       const moduleName = pluginClass.__module ?? "core"
       new pluginClass()
 
@@ -103,6 +161,12 @@ class PluginManager {
         module: moduleName,
         is_loaded: true
       }
+
+      if (this.entryPointExists(rawMetadata, this.entryPoints.rendPluginProperties)) {
+        const propertiesInstance = await this.loadPropertiesInstance(pluginPath, rawMetadata)
+        internalPlugin.properties = propertiesInstance
+      }
+
       this.plugins.set(fullId, internalPlugin)
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
@@ -182,11 +246,7 @@ class PluginManager {
   }
 
   getPluginDtoById(id: string): PluginDTO {
-    console.log(`Fetching plugin with ID: ${id}`)
-    console.log(`Current plugins:`, Array.from(this.plugins.keys()))
-    console.log("Plugins", this.plugins)
     const plugin = this.plugins.get(id)
-    console.log(`Found plugin:`, plugin)
     if (!plugin) {
       throw new Error(`Plugin with ID ${id} not found`)
     }

@@ -1,6 +1,7 @@
 export const PluginPropertyTypes = {
   INT: "int",
   FLOAT: "float",
+  NUMBER: "number",
   TEXT: "text",
   BOOL: "bool",
   PATH: "path",
