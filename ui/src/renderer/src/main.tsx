@@ -9,7 +9,7 @@ import CreateProjectPage from "./modules/organization/pages/project-pages/create
 import UpdateProjectPage from "./modules/organization/pages/project-pages/update-project/UpdateProjectPage"
 import ProjectPage from "./modules/organization/pages/project-pages/project/ProjectPage"
 import { Provider } from "react-redux"
-import store from "./core/store/store"
+import store from "./store"
 import AddParticipantPage from "./modules/organization/pages/participant-pages/add-participant/AddParticipantPage"
 import UpdateParticipantPage from "./modules/organization/pages/participant-pages/update-participant/UpdateParticipantPage"
 import ParticipantPage from "./modules/organization/pages/participant-pages/participant/ParticipantPage"
@@ -29,6 +29,7 @@ import UpdateCaptureConfig from "./modules/capture/pages/update-capture-config/U
 import SessionPage from "./modules/capture/pages/session/Session"
 import ErrorPage from "./core/pages/error/Error"
 import pluginManager from "./core/plugin/PluginManager"
+import "./registrations"
 
 pluginManager.loadAllPlugins()
 

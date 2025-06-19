@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
-import { RootState } from "@renderer/core/store/store"
+import { RootState } from "@renderer/store"
 import { Participant } from "../types/Participant"
 
 export interface ParticipantsState {

@@ -1,6 +1,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Protocol } from "../types/Protocol"
-import { RootState } from "@renderer/core/store/store"
+import { RootState } from "@renderer/store"
 
 export interface ProtocolsState {
   selected: Protocol | null

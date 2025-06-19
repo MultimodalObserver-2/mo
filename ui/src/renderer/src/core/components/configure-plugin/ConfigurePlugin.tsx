@@ -5,7 +5,6 @@ import PageModal from "../page-modal/PageModal"
 import Button from "../button/Button"
 import ModalFooter from "../page-modal/modal-footer/ModalFooter"
 import { useEffect, useState } from "react"
-import pluginService from "@renderer/core/services/ApiPluginService"
 import {
   PluginProperty,
   PluginPropertyTypes,
@@ -14,12 +13,15 @@ import {
 import PluginSettingProperty from "./PluginSettingProperty"
 import Input from "../input/Input"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import pluginService from "@renderer/core/services/PluginService"
 
 type SettingType = string | number | boolean
 
 interface ConfigurePluginProps {
   /** The unique identifier for the plugin to be configured. */
   pluginId: string
+  /** The target where the plugin properties is registered, e.g., "api" or "ui". */
+  target: string
   /** The display name of the plugin, used in the modal title. */
   pluginName?: string
   /** The text label for the primary submission button. */
@@ -41,6 +43,7 @@ interface ConfigurePluginProps {
  * update dependent settings.
  *
  * @param {string} props.pluginId - The unique ID for the plugin.
+ * @param {string} props.target - The target where the plugin properties is registered (e.g., "api" or "ui").
  * @param {string} [props.pluginName="Plugin"] - The name of the plugin for the modal title.
  * @param {string} [props.submitLabel="CONFIGURE"] - The label for the submit button.
  * @param {string} [props.initialConfigName=""] - The initial value for the configuration's name input.
@@ -51,6 +54,7 @@ interface ConfigurePluginProps {
  */
 export default function ConfigurePlugin({
   pluginId,
+  target,
   pluginName = "Plugin",
   submitLabel = "CONFIGURE",
   initialConfigName = "",
@@ -124,9 +128,9 @@ export default function ConfigurePlugin({
     }
     try {
       const setts = { ...settings, [property.key]: val }
-      const response = await pluginService.getSettingProperties(pluginId, setts)
-      setProperties(response.data)
-      for (const prop of response.data) {
+      const response = await pluginService.getSettingProperties(pluginId, target, setts)
+      setProperties(response)
+      for (const prop of response) {
         if (changeToDefault(prop, setts)) {
           setts[prop.key] = prop.default !== undefined ? prop.default : ""
         }
@@ -141,10 +145,10 @@ export default function ConfigurePlugin({
     const fetchProperties = async () => {
       setIsLoading(true)
       try {
-        const response = await pluginService.getSettingProperties(pluginId, initialSettings)
-        setProperties(response.data)
+        const response = await pluginService.getSettingProperties(pluginId, target, initialSettings)
+        setProperties(response)
         const defaultSettings: Record<string, string | number | boolean> = {}
-        for (const property of response.data) {
+        for (const property of response) {
           if (property.default !== undefined) {
             defaultSettings[property.key] = property.default
           }
@@ -161,7 +165,7 @@ export default function ConfigurePlugin({
     }
 
     fetchProperties()
-  }, [pluginId])
+  }, [pluginId, target])
 
   return (
     <PageModal>

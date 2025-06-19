@@ -34,6 +34,7 @@ export default function AddCaptureConfig() {
   return (
     <ConfigurePlugin
       pluginId={pluginId}
+      target="api"
       submitLabel="ADD SOURCE"
       onSubmit={addSource}
       onClose={closeModalWindow}

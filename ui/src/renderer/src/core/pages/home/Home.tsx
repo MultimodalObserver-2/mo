@@ -1,14 +1,12 @@
-import Projects from "@renderer/modules/organization/components/projects/Projects"
 import styles from "./home.module.css"
 import Panel from "@renderer/core/components/panel/Panel"
-import Participants from "@renderer/modules/organization/components/participants/Participants"
-import Protocols from "@renderer/modules/organization/components/protocols/Protocols"
-import CaptureSources from "@renderer/modules/capture/components/capture-sources/CaptureSources"
 import CaptureButton from "@renderer/modules/capture/components/capture-actions/CaptureActions"
-import Sessions from "@renderer/modules/capture/components/sessions/Sessions"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
+import { useSelector } from "react-redux"
+import { selectPanelItems } from "@renderer/core/store/panelRegistry"
 
 export default function Home() {
+  const panelItems = useSelector(selectPanelItems)
   return (
     <main className={styles.main}>
       <div className={styles.workspace}>
@@ -21,11 +19,9 @@ export default function Home() {
         </section>
       </div>
       <Panel>
-        <Projects />
-        <Participants />
-        <Sessions />
-        <Protocols />
-        <CaptureSources />
+        {panelItems.map((item) => {
+          return <item.render key={item.id} />
+        })}
       </Panel>
     </main>
   )
