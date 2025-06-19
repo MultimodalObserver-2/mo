@@ -1,3 +1,20 @@
+.header {
+  display: flex;
+  align-items: center;
+}
+
+.select {
+  padding: 0 24px 0 4px !important;
+  height: 100%;
+  font-weight: 500 !important;
+  font-size: 0.95em !important;
+  margin: 0 !important;
+}
+
+.select option {
+  font-size: 0.9em;
+}
+
 .add-button {
   width: 20px;
   height: 20px;
@@ -40,4 +57,8 @@
   background-color: var(--color-red-400);
   border-radius: 4px;
   transition: all 150ms ease-in-out;
+}
+
+.list {
+  margin: 8px 0 10px 0;
 }

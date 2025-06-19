@@ -13,7 +13,7 @@ export async function showDeleteCaptureConfigMessage(
 ) {
   const buttons = ["Accept", "Cancel"]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Participant",
+    title: "Delete Capture Source Configuration",
     message:
       `Are you sure you want to delete the capture source` +
       ` configuration ${configName} from the project ${projectName}?`,

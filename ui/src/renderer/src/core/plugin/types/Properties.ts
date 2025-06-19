@@ -59,6 +59,18 @@ export class Property {
       reactive: this._modifiedCallback !== undefined
     }
   }
+
+  clone(): Property {
+    const cloned = new Property(this.key, this.label, this._type, { ...this.data })
+    cloned.required = this.required
+    cloned.visible = this.visible
+    cloned.enabled = this.enabled
+    cloned.default = this.default
+    if (this._modifiedCallback) {
+      cloned.setModifiedCallback(this._modifiedCallback)
+    }
+    return cloned
+  }
 }
 
 export const VALIDATORS: Record<
@@ -152,6 +164,11 @@ export class Properties {
     this._properties[key].required = required
   }
 
+  setModifiedCallback(key: string, callback: ModifiedCallback) {
+    this.ensureExists(key)
+    this._properties[key].setModifiedCallback(callback)
+  }
+
   getProperty(key: string): Property | undefined {
     return this._properties[key]
   }
@@ -165,8 +182,18 @@ export class Properties {
     return this._properties[key].getType()
   }
 
+  private cloneProperties(): Record<string, Property> {
+    const newProps: Record<string, Property> = {}
+
+    for (const key in this._properties) {
+      newProps[key] = this._properties[key].clone()
+    }
+
+    return newProps
+  }
+
   getProperties(settings?: Record<string, unknown>): Property[] {
-    const copy = structuredClone(this._properties)
+    const copy = this.cloneProperties()
 
     if (!settings) {
       return Object.values(copy)

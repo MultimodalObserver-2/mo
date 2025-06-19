@@ -20,15 +20,23 @@
 }
 
 .select {
-  background-color: var(--color-primary-800);
   border: 2px solid transparent;
   border-radius: 4px;
-  color: var(--color-text-light);
   font-size: 0.9em;
   padding: 6px 4px;
   font-weight: 500;
   outline: none;
   box-sizing: border-box;
+}
+
+.select.primary {
+  background-color: var(--color-primary-800);
+  color: var(--color-text-light);
+}
+
+.select.soft {
+  background-color: var(--color-primary-600);
+  color: var(--color-text-light);
 }
 
 .select::placeholder {

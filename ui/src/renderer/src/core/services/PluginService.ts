@@ -1,5 +1,6 @@
 import { extractMetadataFromZip } from "../plugin/utils/pluginZip"
 import { Plugin } from "../types/Plugin"
+import { PluginProperty } from "../types/PluginProperty"
 import apiPluginService, { ApiPluginService } from "./ApiPluginService"
 import uiPluginService, { UiPluginService } from "./UiPluginService"
 
@@ -68,6 +69,23 @@ class PluginService {
 
   async loadAllUiPlugins(): Promise<void> {
     await this.ui.loadAll()
+  }
+
+  async getSettingProperties(
+    id: string,
+    target: string,
+    settings?: Record<string, unknown>
+  ): Promise<PluginProperty[]> {
+    if (target === "api") {
+      const response = await this.api.getSettingProperties(id, settings)
+      return response.data
+    }
+    if (target === "ui") {
+      const properties = this.ui.getSettingProperties(id, settings)
+      return properties
+    }
+
+    throw new Error(`Unknown plugin target: ${target}`)
   }
 
   async getUiPluginDirName(pluginId: string): Promise<string> {

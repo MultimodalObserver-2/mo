@@ -19,6 +19,7 @@ from mo.modules.capture.routers.session import session_router
 from mo.modules.organization.routers.participants import participant_router
 from mo.modules.organization.routers.projects import project_router
 from mo.modules.organization.routers.protocols import protocols_router
+from mo.modules.visualization.routers.playback_config import playback_config_router
 
 if __name__ == "__main__":
     # Ensure multiprocessing support is initialized for Windows
@@ -74,6 +75,9 @@ app.include_router(protocols_router)
 app.include_router(capture_router)
 app.include_router(capture_config_router)
 app.include_router(session_router)
+
+# Visualization routers
+app.include_router(playback_config_router)
 
 
 plugin_management = PluginManager()

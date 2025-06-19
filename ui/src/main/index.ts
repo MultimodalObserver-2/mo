@@ -120,4 +120,5 @@ export function getApiPort(): number | null {
 import "./core/index"
 import "./modules/organization/index"
 import "./modules/capture/index"
+import "./modules/visualization/index"
 import { runApi, waitForApiReady } from "./core/runApi"

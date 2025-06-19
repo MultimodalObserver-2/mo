@@ -21,6 +21,8 @@ interface InternalPlugin {
   is_loaded: boolean
 }
 
+type Constructor<T = unknown> = new (...args: unknown[]) => T
+
 class PluginManager {
   private plugins: Map<string, InternalPlugin> = new Map()
   private entryPoints = {
@@ -201,16 +203,24 @@ class PluginManager {
     this.plugins.delete(pluginId)
   }
 
-  getPluginsByType<T extends PluginBase>(cls: new (...args: unknown[]) => T): T[] {
+  getPluginsByType<T extends PluginBase>(cls: Constructor): T[] {
     return Array.from(this.plugins.values())
-      .filter(
-        (p): p is InternalPlugin & { instance: T } => p.is_loaded && p.pluginClass instanceof cls
-      )
-      .map((p) => p.instance)
+      .filter((p) => p.is_loaded && p.pluginClass?.prototype instanceof cls)
+      .map((p) => (p.pluginClass ? (new p.pluginClass() as T) : undefined))
+      .filter((instance): instance is T => instance !== undefined)
   }
 
   getPluginsMetadata(): PluginDTO[] {
     return Array.from(this.plugins.values()).map((p) => this.pluginInternalToDto(p))
+  }
+
+  getPluginsMetadataByType<T extends PluginBase>(cls: new (...args: unknown[]) => T): PluginDTO[] {
+    const pluginArray = Array.from(this.plugins.values())
+    const filteredPlugins = pluginArray.filter(
+      (p) => p.is_loaded && p.pluginClass?.prototype instanceof cls
+    )
+
+    return filteredPlugins.map((p) => this.pluginInternalToDto(p))
   }
 
   private pluginInternalToDto(plugin: InternalPlugin): PluginDTO {
@@ -264,6 +274,19 @@ class PluginManager {
       throw new Error(`Plugin with ID ${id} not found`)
     }
     return plugin.dirName
+  }
+
+  getPluginProperties(id: string): Properties {
+    const plugin = this.plugins.get(id)
+    if (!plugin) {
+      throw new Error(`Plugin with ID ${id} not found`)
+    }
+
+    if (!plugin.properties) {
+      return new Properties()
+    }
+
+    return plugin.properties
   }
 }
 

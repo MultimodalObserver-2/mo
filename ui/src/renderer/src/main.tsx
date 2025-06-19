@@ -29,7 +29,11 @@ import UpdateCaptureConfig from "./modules/capture/pages/update-capture-config/U
 import SessionPage from "./modules/capture/pages/session/Session"
 import ErrorPage from "./core/pages/error/Error"
 import pluginManager from "./core/plugin/PluginManager"
+import SelectPlaybackView from "./modules/visualization/pages/select-playback-view/SelectPlaybackView"
+
 import "./registrations"
+import AddPlaybackConfig from "./modules/visualization/pages/add-playback-config/AddPlaybackConfig"
+import UpdatePlaybackConfig from "./modules/visualization/pages/update-playback-config/UpdatePlaybackConfig"
 
 pluginManager.loadAllPlugins()
 
@@ -89,6 +93,18 @@ createRoot(document.getElementById("root")!).render(
           <Route
             path="/capture/:projectName/participants/:participantCode/sessions/:sessionId"
             element={<SessionPage />}
+          />
+          <Route
+            path="/visualization/select-playback-view/:projectName"
+            element={<SelectPlaybackView />}
+          />
+          <Route
+            path="/visualization/:projectName/playback-views/:pluginId"
+            element={<AddPlaybackConfig />}
+          />
+          <Route
+            path="/visualization/:projectName/playback-configs/:configName"
+            element={<UpdatePlaybackConfig />}
           />
         </Routes>
       </HashRouter>

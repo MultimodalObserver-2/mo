@@ -6,3 +6,4 @@ export type {
   PropertySelectOption,
   ModifiedCallback
 } from "@renderer/core/plugin/types/Properties"
+export { PlaybackPlugin } from "@renderer/modules/visualization/plugin/PlaybackPlugin"

@@ -1,6 +1,8 @@
 import styles from "./select.module.css"
 
 interface SelectProps extends React.ComponentProps<"select"> {
+  /** The visual style of the select */
+  styleType?: "primary" | "soft"
   /** The text for a disabled, default option. */
   placeholder?: string
   /** An optional label displayed above the select element. */
@@ -14,6 +16,9 @@ interface SelectProps extends React.ComponentProps<"select"> {
  * label and placeholder support. It accepts all standard select attributes.
  *
  * @param {React.ReactNode} props.children - The `<option>` elements to be rendered inside the select dropdown.
+ * @param {"primary" | "soft"} [props.styleType="primary"] - The visual variant of the select box.
+ * - 'primary': Standard select box
+ * - 'soft': Muted background select box
  * @param {string} [props.placeholder] - If provided, creates a disabled, default first option with this text.
  * @param {string} [props.label] - If provided, a `<label>` element is rendered wrapping the select box.
  * @param {any} [props.defaultValue] - The default value of the select. If not set, the placeholder value is used.
@@ -26,6 +31,7 @@ interface SelectProps extends React.ComponentProps<"select"> {
  */
 export default function Select({
   children,
+  styleType = "primary",
   placeholder,
   label,
   defaultValue,
@@ -38,7 +44,7 @@ export default function Select({
   if (label == undefined) {
     return (
       <select
-        className={`${styles.select} ${className}`}
+        className={`${styles.select} ${styles[styleType]} ${className}`}
         required={required}
         disabled={disabled}
         defaultValue={defaultValue || placeholder}
@@ -60,7 +66,7 @@ export default function Select({
         {label} {required && <b className={styles.required}>*</b>}
       </h4>
       <select
-        className={`${styles.select} ${className}`}
+        className={`${styles.select} ${styles[styleType]} ${className}`}
         required={required}
         disabled={disabled}
         defaultValue={defaultValue || placeholder}

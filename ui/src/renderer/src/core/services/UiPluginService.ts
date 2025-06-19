@@ -3,6 +3,7 @@ import { PLUGIN_BASE_PATH } from "../plugin/constants"
 import pluginManager from "../plugin/PluginManager"
 import { getFolderName } from "../utils/getFolderName"
 import { PluginDTO } from "../plugin/types/PluginDTO"
+import { PluginProperty } from "../types/PluginProperty"
 
 export class UiPluginService {
   readonly endpoint = "/plugins"
@@ -57,6 +58,16 @@ export class UiPluginService {
 
   async getPluginDirName(pluginId: string): Promise<string> {
     return pluginManager.getPluginDirNameById(pluginId)
+  }
+
+  getSettingProperties(pluginId: string, settings?: Record<string, unknown>): PluginProperty[] {
+    const properties = pluginManager.getPluginProperties(pluginId)
+    return properties.getPropertiesDict(settings) as PluginProperty[]
+  }
+
+  validateSettings(pluginId: string, settings: Record<string, unknown>) {
+    const properties = pluginManager.getPluginProperties(pluginId)
+    properties.validate(settings)
   }
 }
 
