@@ -11,11 +11,7 @@ const store = configureStore({
   reducer: {
     organization: combineReducers(organizationReducers),
     core: combineReducers(coreReducers)
-  },
-  middleware: (getDefaultMiddleware) =>
-    getDefaultMiddleware({
-      serializableCheck: false
-    })
+  }
 })
 
 export default store

@@ -1,12 +1,10 @@
 import styles from "./home.module.css"
 import Panel from "@renderer/core/components/panel/Panel"
+import panelRegistry from "@renderer/core/store/panelRegistry"
 import CaptureButton from "@renderer/modules/capture/components/capture-actions/CaptureActions"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
-import { useSelector } from "react-redux"
-import { selectPanelItems } from "@renderer/core/store/panelRegistry"
 
 export default function Home() {
-  const panelItems = useSelector(selectPanelItems)
   return (
     <main className={styles.main}>
       <div className={styles.workspace}>
@@ -19,7 +17,7 @@ export default function Home() {
         </section>
       </div>
       <Panel>
-        {panelItems.map((item) => {
+        {panelRegistry.getItems().map((item) => {
           return <item.render key={item.id} />
         })}
       </Panel>

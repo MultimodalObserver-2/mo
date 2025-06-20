@@ -1,7 +1,7 @@
 import projectsReducer from "./projectsSlice"
 import participantsReducer from "./participantsSlice"
 import protocolsReducer from "./protocolsSlice"
-import configProvidersReducer from "./configProvidersSlice"
+import configProvidersReducer from "./configProviderRegistry"
 
 const organizationReducers = {
   projects: projectsReducer,
