@@ -1,0 +1,16 @@
+.playback-tab {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding-right: 12px;
+}
+
+.playback-tab .title {
+    font-size: 1.1em;
+    font-weight: 500;
+}
+
+.plugin-icon {
+    width: 14px;
+    height: 14px;
+}

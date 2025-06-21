@@ -33,6 +33,7 @@ const playbackConfigProvider: ConfigProvider = {
     if (response.response === acceptId) {
       try {
         await playbackConfigService.delete(project.name, config.name)
+        window.visualization.reloadPlaybackConfigs()
       } catch (error) {
         showApiErrorMessage(error)
       }

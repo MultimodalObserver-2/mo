@@ -17,12 +17,13 @@ class PluginService {
     }
 
     if (target === "ui") {
-      return this.ui.getAll()
+      const plugins = await this.ui.getAll()
+      return plugins
     }
 
     const [apiPlugins, uiPlugins] = await Promise.all([
       this.api.getAll().then((res) => res.data),
-      this.ui.getAll()
+      await this.ui.getAll()
     ])
 
     return [...apiPlugins, ...uiPlugins]
@@ -33,7 +34,7 @@ class PluginService {
       const response = await this.api.get(pluginId)
       return response.data
     } else if (target === "ui") {
-      const plugin = this.ui.get(pluginId)
+      const plugin = await this.ui.get(pluginId)
       return plugin
     } else {
       throw new Error(`Unknown plugin target: ${target}`)
@@ -62,7 +63,7 @@ class PluginService {
     }
 
     if (target === "ui") {
-      this.ui.delete(pluginId)
+      await this.ui.delete(pluginId)
       return
     }
   }

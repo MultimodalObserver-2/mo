@@ -9,4 +9,8 @@ app.whenReady().then(() => {
   ipcMain.handle("core:path:basename", (_event, filePath: string) => {
     return path.basename(filePath)
   })
+
+  ipcMain.handle("core:path:extname", (_event, filePath: string) => {
+    return path.extname(filePath)
+  })
 })

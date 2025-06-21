@@ -3,8 +3,8 @@ import { Plugin } from "@renderer/core/types/Plugin"
 import { PlaybackPlugin } from "../plugin/PlaybackPlugin"
 
 class PlaybackService {
-  getPlugins(): Plugin[] {
-    const plugins = pluginManager.getPluginsMetadataByType(
+  async getPlugins(): Promise<Plugin[]> {
+    const plugins = await pluginManager.getPluginsMetadataByType(
       PlaybackPlugin as unknown as new (...args: unknown[]) => PlaybackPlugin
     )
 

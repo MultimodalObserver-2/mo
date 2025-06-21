@@ -1,7 +1,7 @@
 import { PluginBase, Properties } from "./types"
 import { PluginMetadata } from "./types/PluginMetadata"
 import { validateId } from "./utils/validateId"
-import { PluginDTO } from "./types/PluginDTO"
+import { PluginDTO, PluginIcons } from "./types/PluginDTO"
 import { PLUGIN_BASE_PATH } from "./constants"
 
 interface PluginConstructor {
@@ -171,6 +171,7 @@ class PluginManager {
 
       this.plugins.set(fullId, internalPlugin)
     } catch (error) {
+      console.error(`Failed to load plugin at ${pluginPath}:`, error)
       const errorMessage = error instanceof Error ? error.message : String(error)
       const internalPlugin: InternalPlugin = {
         id: fullId,
@@ -210,20 +211,38 @@ class PluginManager {
       .filter((instance): instance is T => instance !== undefined)
   }
 
-  getPluginsMetadata(): PluginDTO[] {
-    return Array.from(this.plugins.values()).map((p) => this.pluginInternalToDto(p))
+  async getPluginsMetadata(): Promise<PluginDTO[]> {
+    return Promise.all(Array.from(this.plugins.values()).map((p) => this.pluginInternalToDto(p)))
   }
 
-  getPluginsMetadataByType<T extends PluginBase>(cls: new (...args: unknown[]) => T): PluginDTO[] {
+  async getPluginsMetadataByType<T extends PluginBase>(
+    cls: new (...args: unknown[]) => T
+  ): Promise<PluginDTO[]> {
     const pluginArray = Array.from(this.plugins.values())
     const filteredPlugins = pluginArray.filter(
       (p) => p.is_loaded && p.pluginClass?.prototype instanceof cls
     )
 
-    return filteredPlugins.map((p) => this.pluginInternalToDto(p))
+    return Promise.all(filteredPlugins.map((p) => this.pluginInternalToDto(p)))
   }
 
-  private pluginInternalToDto(plugin: InternalPlugin): PluginDTO {
+  private async getPluginIconPaths(
+    pluginLocation: string,
+    metadata: PluginMetadata
+  ): Promise<PluginIcons> {
+    if (typeof metadata.icon === "object" && metadata.icon !== null) {
+      return {
+        light: await window.core.path.join(pluginLocation, metadata.icon.light ?? ""),
+        dark: await window.core.path.join(pluginLocation, metadata.icon.dark ?? "")
+      }
+    }
+    return {
+      light: await window.core.path.join(pluginLocation, metadata.icon ?? ""),
+      dark: await window.core.path.join(pluginLocation, metadata.icon ?? "")
+    }
+  }
+
+  private async pluginInternalToDto(plugin: InternalPlugin): Promise<PluginDTO> {
     return {
       id: plugin.id,
       name: plugin.metadata.name,
@@ -234,13 +253,7 @@ class PluginManager {
         url: plugin.metadata.publisher.url
       },
       repository: plugin.metadata.repository ?? "",
-      icon_path:
-        typeof plugin.metadata?.icon === "object" && plugin.metadata?.icon !== null
-          ? {
-              light: plugin.metadata.icon.light ?? "",
-              dark: plugin.metadata.icon.dark ?? ""
-            }
-          : (plugin.metadata?.icon ?? ""),
+      icon_path: await this.getPluginIconPaths(plugin.location, plugin.metadata),
       author: plugin.metadata.author,
       platforms: {
         linux: plugin.metadata.platform?.linux ?? false,
@@ -255,13 +268,13 @@ class PluginManager {
     }
   }
 
-  getPluginDtoById(id: string): PluginDTO {
+  async getPluginDtoById(id: string): Promise<PluginDTO> {
     const plugin = this.plugins.get(id)
     if (!plugin) {
       throw new Error(`Plugin with ID ${id} not found`)
     }
 
-    return this.pluginInternalToDto(plugin)
+    return await this.pluginInternalToDto(plugin)
   }
 
   getPluginFinalId(metadata: PluginMetadata): string {

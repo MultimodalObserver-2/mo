@@ -22,16 +22,16 @@ export class UiPluginService {
     return pluginManager.registerPlugin(destPath)
   }
 
-  getAll(): Plugin[] {
+  async getAll(): Promise<Plugin[]> {
     return pluginManager.getPluginsMetadata()
   }
 
-  get(id: string): Plugin {
+  async get(id: string): Promise<Plugin> {
     return pluginManager.getPluginDtoById(id)
   }
 
   async delete(id: string): Promise<void> {
-    const plugin = pluginManager.getPluginDtoById(id)
+    const plugin = await pluginManager.getPluginDtoById(id)
     if (!plugin) {
       throw new Error(`Plugin with ID ${id} not found`)
     }

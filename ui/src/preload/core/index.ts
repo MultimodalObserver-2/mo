@@ -90,6 +90,9 @@ const core = {
     },
     basename: (filePath: string) => {
       return ipcRenderer.invoke("core:path:basename", filePath)
+    },
+    extname: (filePath: string) => {
+      return ipcRenderer.invoke("core:path:extname", filePath)
     }
   }
 }

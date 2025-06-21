@@ -20,32 +20,34 @@ class PlaybackConfigService {
   async getAll(projectName: string): Promise<PlaybackConfig[]> {
     const response = await axios.get(`/projects/${projectName}/playback/configs/`)
     const configs: PlaybackConfigApi[] = response.data
-    return configs.map((config) => {
-      try {
-        const plugin = uiPluginService.get(config.plugin_id)
-        return {
-          name: config.name,
-          plugin_id: config.plugin_id,
-          plugin_icon: plugin.icon_path,
-          plugin_is_loaded: plugin.is_loaded,
-          settings: config.settings
-        } as PlaybackConfig
-      } catch {
-        return {
-          name: config.name,
-          plugin_id: config.plugin_id,
-          plugin_icon: undefined,
-          plugin_is_loaded: false,
-          settings: config.settings
-        } as PlaybackConfig
-      }
-    })
+    return Promise.all(
+      configs.map(async (config) => {
+        try {
+          const plugin = await uiPluginService.get(config.plugin_id)
+          return {
+            name: config.name,
+            plugin_id: config.plugin_id,
+            plugin_icon: plugin.icon_path,
+            plugin_is_loaded: plugin.is_loaded,
+            settings: config.settings
+          } as PlaybackConfig
+        } catch {
+          return {
+            name: config.name,
+            plugin_id: config.plugin_id,
+            plugin_icon: undefined,
+            plugin_is_loaded: false,
+            settings: config.settings
+          } as PlaybackConfig
+        }
+      })
+    )
   }
 
   async get(projectName: string, configName: string): Promise<PlaybackConfig> {
     const response = await axios.get(`/projects/${projectName}/playback/configs/${configName}`)
     const config: PlaybackConfigApi = response.data
-    const plugin = uiPluginService.get(config.plugin_id)
+    const plugin = await uiPluginService.get(config.plugin_id)
     if (!plugin || !plugin.is_loaded) {
       throw new Error(`Plugin with ID ${config.plugin_id} is not loaded or does not exist.`)
     }

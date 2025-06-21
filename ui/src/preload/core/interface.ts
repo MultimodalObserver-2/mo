@@ -54,5 +54,6 @@ export default interface CoreAPI {
   path: {
     join: (...paths: string[]) => Promise<string>
     basename: (filePath: string) => Promise<string>
+    extname: (filePath: string) => Promise<string>
   }
 }

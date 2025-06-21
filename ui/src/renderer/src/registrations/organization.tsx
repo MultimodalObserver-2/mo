@@ -1,6 +1,6 @@
 import captureConfigProvider from "@renderer/modules/capture/components/capture-sources/captureSourceConfigs"
 import configProviderRegistry from "@renderer/modules/organization/store/configProviderRegistry"
-import playbackConfigProvider from "@renderer/modules/visualization/components/playback-views/playbackViewsConfigs"
+import playbackConfigProvider from "@renderer/modules/visualization/components/playback-views-configs/playbackViewsConfigs"
 
 configProviderRegistry.registerMany([
   {

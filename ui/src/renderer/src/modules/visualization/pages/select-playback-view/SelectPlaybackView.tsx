@@ -27,7 +27,7 @@ export default function SelectPlaybackView() {
     const fetchPlugins = async () => {
       try {
         await pluginService.ui.loadAll()
-        const response = playbackService.getPlugins()
+        const response = await playbackService.getPlugins()
         setPlugins(response)
         setSelectedView(response[0] || null)
       } catch (error) {

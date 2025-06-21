@@ -5,12 +5,10 @@
  */
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
 import organizationReducers from "@renderer/modules/organization/store/reducers"
-import coreReducers from "./core/store/reducers"
 
 const store = configureStore({
   reducer: {
-    organization: combineReducers(organizationReducers),
-    core: combineReducers(coreReducers)
+    organization: combineReducers(organizationReducers)
   }
 })
 
