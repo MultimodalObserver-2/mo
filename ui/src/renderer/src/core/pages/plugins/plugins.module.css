@@ -36,3 +36,15 @@
   height: 22px;
   fill: var(--color-primary-800);
 }
+
+/* Installed */
+.plugins-installed {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  overflow: hidden;
+}
+
+.plugin-display {
+  flex: 1 1 auto;
+}

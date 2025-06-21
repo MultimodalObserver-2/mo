@@ -1,5 +1,7 @@
+import { cloneElement, isValidElement, useState } from "react"
 import styles from "./plugin-display.module.css"
 import { findChildByDisplayName } from "@renderer/core/utils/findChildByDisplayName"
+import { PluginDisplayHeaderProps } from "./PluginDisplayHeader"
 
 interface PluginDisplayProps {
   /** The child elements. Should include `PluginDisplayHeader` and `PluginDisplayList`. */
@@ -10,6 +12,8 @@ interface PluginDisplayProps {
   style?: "light" | "dark"
   /** The font size variant for the component's text. */
   textSize?: "sm" | "md"
+  /** Optional flag to indicate if the component is expandable. */
+  isExpandable?: boolean
 }
 
 /**
@@ -21,16 +25,30 @@ interface PluginDisplayProps {
  * @param {string} [props.className] - An optional CSS class for the main container `div`.
  * @param {"light" | "dark"} [props.style="light"] - The color theme variant for the component.
  * @param {"sm" | "md"} [props.textSize="md"] - The font size variant for the component's text.
+ * @param {boolean} [props.isExpandable=false] - Optional flag to indicate if the component is expandable.
  * @returns {React.ReactElement} The rendered plugin display component.
  */
 export default function PluginDisplay({
   children,
   className,
   style = "light",
-  textSize = "md"
+  textSize = "md",
+  isExpandable = false
 }: Readonly<PluginDisplayProps>) {
-  const header = findChildByDisplayName(children, "PluginDisplayHeader")
+  const [isExpanded, setIsExpanded] = useState(true)
+  const header = findChildByDisplayName(
+    children,
+    "PluginDisplayHeader"
+  ) as React.ReactElement<PluginDisplayHeaderProps>
   const list = findChildByDisplayName(children, "PluginDisplayList")
+  let finalHeader = header
+  if (isExpandable && isValidElement(header)) {
+    finalHeader = cloneElement(header, {
+      isExpandable: true,
+      isExpanded,
+      onToggleExpand: () => setIsExpanded((prev) => !prev)
+    })
+  }
 
   const baseClass = styles["plugin-display"]
   const styleClass = styles[style]
@@ -43,8 +61,8 @@ export default function PluginDisplay({
       id="plugin-display"
       className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass} ${overflowHidden}`}
     >
-      {header}
-      {list}
+      {finalHeader}
+      {isExpanded && list}
     </div>
   )
 }

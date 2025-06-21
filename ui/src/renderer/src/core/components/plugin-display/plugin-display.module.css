@@ -226,3 +226,38 @@
   height: 22px;
   fill: var(--color-text-light);
 }
+
+
+.header .left {
+  display: flex;
+  align-items: center;
+  gap: 2px;
+}
+
+.header .toggle {
+  appearance: none;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.header .arrow {
+  width: 28px;
+  height: 28px;
+  fill: var(--color-primary-700);
+  transition: all 150ms ease-in-out;
+}
+
+.header .arrow.right {
+  transform: rotate(-90deg);
+}
+
+.header .arrow:hover.right {
+  transform: scale(1.1) rotate(-90deg);
+}
+
+.header .arrow:hover {
+  transform: scale(1.1);
+  fill: var(--color-primary-800);
+}
