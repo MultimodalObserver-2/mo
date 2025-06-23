@@ -14,17 +14,18 @@ class PlaybackConfigService {
     data: PlaybackConfigCreate
   ): Promise<AxiosResponse<PlaybackConfigApi, unknown>> {
     uiPluginService.validateSettings(data.plugin_id, data.settings)
-    return axios.post(`/projects/${projectName}/playback/configs/`, data)
+    return axios.post(`/projects/${projectName}/playback/configs`, data)
   }
 
   async getAll(projectName: string): Promise<PlaybackConfig[]> {
-    const response = await axios.get(`/projects/${projectName}/playback/configs/`)
+    const response = await axios.get(`/projects/${projectName}/playback/configs`)
     const configs: PlaybackConfigApi[] = response.data
     return Promise.all(
       configs.map(async (config) => {
         try {
           const plugin = await uiPluginService.get(config.plugin_id)
           return {
+            id: config.id,
             name: config.name,
             plugin_id: config.plugin_id,
             plugin_icon: plugin.icon_path,
@@ -33,6 +34,7 @@ class PlaybackConfigService {
           } as PlaybackConfig
         } catch {
           return {
+            id: config.id,
             name: config.name,
             plugin_id: config.plugin_id,
             plugin_icon: undefined,
@@ -53,6 +55,7 @@ class PlaybackConfigService {
     }
 
     return {
+      id: config.id,
       name: config.name,
       plugin_id: config.plugin_id,
       plugin_icon: plugin.icon_path,
@@ -76,6 +79,18 @@ class PlaybackConfigService {
     configName: string
   ): Promise<AxiosResponse<PlaybackConfigApi, unknown>> {
     return axios.delete(`/projects/${projectName}/playback/configs/${configName}`)
+  }
+
+  async saveLayout(
+    projectName: string,
+    layout: Record<string, unknown>
+  ): Promise<AxiosResponse<void, unknown>> {
+    return axios.post(`/projects/${projectName}/playback/layout`, layout)
+  }
+
+  async getLayout(projectName: string): Promise<Record<string, unknown>> {
+    const response = await axios.get(`/projects/${projectName}/playback/layout`)
+    return response.data
   }
 }
 

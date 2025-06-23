@@ -1,12 +1,14 @@
 import { PluginIcons } from "@renderer/core/types/Plugin"
 
 export type PlaybackConfigApi = {
+  id: string
   name: string
   plugin_id: string
   settings: Record<string, string | number | boolean>
 }
 
 export type PlaybackConfig = {
+  id: string
   name: string
   plugin_id: string
   plugin_icon?: string | PluginIcons
