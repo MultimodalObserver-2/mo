@@ -7,6 +7,7 @@ import {
   PlaybackConfigUpdate
 } from "../types/PlaybackConfig"
 import uiPluginService from "@renderer/core/services/UiPluginService"
+import { deepEqual } from "@renderer/core/utils/deepEqual"
 
 class PlaybackConfigService {
   async create(
@@ -91,6 +92,17 @@ class PlaybackConfigService {
   async getLayout(projectName: string): Promise<Record<string, unknown>> {
     const response = await axios.get(`/projects/${projectName}/playback/layout`)
     return response.data
+  }
+
+  isEqual(a: PlaybackConfig, b: PlaybackConfig): boolean {
+    return (
+      a.id === b.id &&
+      a.name === b.name &&
+      a.plugin_id === b.plugin_id &&
+      a.plugin_is_loaded === b.plugin_is_loaded &&
+      deepEqual(a.plugin_icon, b.plugin_icon) &&
+      deepEqual(a.settings, b.settings)
+    )
   }
 }
 

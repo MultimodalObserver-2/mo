@@ -1,5 +1,5 @@
 import { PluginBase } from "@renderer/core/plugin/types"
-import { ReactElement } from "react"
+import { JSX, ReactElement } from "react"
 
 export type PauseInterval = [number, number]
 
@@ -10,24 +10,23 @@ export interface PlaybackContext {
   pauseIntervals: PauseInterval[] // Intervals during which the visualization is paused
 }
 
+export interface PlaybackControls {
+  onPlay: (callback: (fromTimeMs: number) => void) => () => void
+  onPause: (callback: () => void) => () => void
+  onSeek: (callback: (toTimeMs: number) => void) => () => void
+  onSync: (callback: (currentTimeMs: number) => void) => () => void
+}
+
+export interface PluginViewProps {
+  controls: PlaybackControls
+  context: PlaybackContext
+  settings: Record<string, unknown>
+}
+
 export abstract class PlaybackPlugin extends PluginBase {
   protected context!: PlaybackContext
   static readonly __module: string = "playback"
 
-  initialize(context: PlaybackContext): void {
-    this.context = context
-    this.onInitialize(context)
-  }
-
-  protected abstract onInitialize(context: PlaybackContext): void
-
-  abstract getView(): ReactElement
-  abstract play(fromTimeMs: number): void
-  abstract pause(): void
-  abstract seek(toTimeMs: number): void
-  abstract onTick(currentTimeMs: number): void
-
-  protected getStartOffset(): number {
-    return this.context.fileCaptureStartTimestamp - this.context.captureStartTimestamp
-  }
+  abstract getView(props: PluginViewProps): JSX.Element | ReactElement
+  abstract getPreview(): JSX.Element | ReactElement
 }

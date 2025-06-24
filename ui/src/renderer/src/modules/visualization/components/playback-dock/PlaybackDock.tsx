@@ -1,21 +1,21 @@
-import { PlaybackConfig } from "../../types/PlaybackConfig"
+import { memo, useEffect, useState } from "react"
 import { useSelector } from "react-redux"
-import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
-import playbackConfigService from "../../services/PlaybackConfigService"
 import {
   DockviewApi,
+  DockviewIDisposable,
   DockviewReact,
-  DockviewReadyEvent,
   DockviewTheme,
   SerializedDockview
 } from "dockview"
-import fallbackimgDark from "@renderer/core/assets/images/plugin_fallback.svg"
-import { memo, useCallback, useEffect, useRef, useState } from "react"
+import playbackConfigService from "../../services/PlaybackConfigService"
+import playbackService from "../../services/PlaybackService"
+import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
+import { PlaybackConfig } from "../../types/PlaybackConfig"
 import { PluginIcons } from "@renderer/core/types/Plugin"
+import fallbackimgDark from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./playback-dock.module.css"
 import "dockview/dist/styles/dockview.css"
 import "./mo-theme-dockview.css"
-import { Project } from "@renderer/modules/organization/types/Project"
 
 const moTheme: DockviewTheme = {
   name: "mo",
@@ -27,145 +27,113 @@ const moTheme: DockviewTheme = {
 
 export default function PlaybackDock() {
   const selectedProject = useSelector(selectSelectedProject)
-  const apiRef = useRef<DockviewApi | null>(null)
-  const [configs, setConfigs] = useState<PlaybackConfig[]>([])
-  const load = useCallback(async () => {
-    if (!selectedProject) {
-      setConfigs([])
+  const [api, setApi] = useState<DockviewApi | null>(null)
+
+  useEffect(() => {
+    if (!selectedProject || !api) {
       return
     }
-    const loadedConfigs = await playbackConfigService.getAll(selectedProject.name)
-    setConfigs(loadedConfigs)
-  }, [selectedProject])
+    const loadConfigs = async () => {
+      const configs = await playbackConfigService.getAll(selectedProject.name)
+      const existing = new Set(api.panels.map((p) => p.id))
+      const desired = new Set(configs.map((c) => c.id))
 
-  useEffect(() => {
-    window.visualization.onReloadPlaybackConfigs(load)
-    load()
+      configs.forEach((cfg) => {
+        const panel = api.getPanel(cfg.id)
+        if (!existing.has(cfg.id)) {
+          api.addPanel({
+            id: cfg.id,
+            component: "playbackPanel",
+            tabComponent: "playbackTab",
+            title: cfg.name,
+            params: cfg
+          })
+        } else if (panel) {
+          const old = panel.params as PlaybackConfig
+          if (!playbackConfigService.isEqual(old, cfg)) {
+            panel.api.setTitle(cfg.name)
+            panel.api.updateParameters(cfg)
+          }
+        }
+      })
+
+      api.panels.forEach((p) => {
+        if (!desired.has(p.id)) {
+          api.removePanel(p)
+        }
+      })
+    }
+    let sub: DockviewIDisposable
+    const loadAll = async () => {
+      sub = api.onDidLayoutChange(() => {
+        playbackConfigService
+          .saveLayout(selectedProject.name, api.toJSON() as unknown as Record<string, unknown>)
+          .catch((err) => console.error("Error saving layout:", err))
+      })
+      try {
+        const saved = (await playbackConfigService.getLayout(
+          selectedProject.name
+        )) as unknown as SerializedDockview
+        if (saved) {
+          api.fromJSON(saved)
+        }
+      } catch (err) {
+        console.warn("Error loading the layout: ", err)
+      }
+
+      await loadConfigs()
+    }
+    loadAll()
+    window.visualization.onReloadPlaybackConfigs(loadConfigs)
     return () => {
       window.visualization.removeReloadPlaybackConfigsListeners()
+      sub.dispose()
     }
-  }, [load])
+  }, [selectedProject, api])
 
-  useEffect(() => {
-    const api = apiRef.current
-    if (!api) return
-
-    const existingPanelIds = new Set(api.panels.map((p) => p.id))
-    const desiredPanelIds = new Set(configs.map((c) => c.id))
-
-    for (const config of configs) {
-      const panelId = config.id
-      const panel = api.getPanel(panelId)
-      if (!existingPanelIds.has(panelId)) {
-        api.addPanel({
-          id: panelId,
-          component: "playbackPanel",
-          tabComponent: "playbackTab",
-          title: config.name,
-          params: config
-        })
-      } else if (
-        panel &&
-        (panel.title !== config.name || panel.params?.plugin_icon !== config.plugin_icon)
-      ) {
-        panel.api.updateParameters(config)
-        panel.api.setTitle(config.name)
-      }
-    }
-
-    for (const panel of api.panels) {
-      if (!desiredPanelIds.has(panel.id)) {
-        api.removePanel(panel)
-      }
-    }
-  }, [configs])
-
-  useEffect(() => {
-    const api = apiRef.current
-    if (!api || !selectedProject) return
-    const loadLayoutFunc = async () => {
-      await loadLayout(api, selectedProject)
-    }
-    loadLayoutFunc()
-    const disposable = api.onDidLayoutChange(async () => {
-      await saveLayout(api.toJSON(), selectedProject)
-    })
-    return () => {
-      disposable.dispose()
-    }
-  }, [selectedProject])
-
-  const saveLayout = useCallback(async (layout, project: Project) => {
-    if (!apiRef.current || !project) return
-    try {
-      await playbackConfigService.saveLayout(project.name, layout)
-    } catch (error) {
-      console.error("Failed to save playback layout:", error)
-    }
-  }, [])
-
-  const loadLayout = useCallback(async (api: DockviewApi, project: Project) => {
-    if (!project) return
-    try {
-      const layout = (await playbackConfigService.getLayout(
-        project.name
-      )) as unknown as SerializedDockview
-      api.fromJSON(layout)
-    } catch (error) {
-      console.error("Failed to load playback layout:", error)
-    }
-  }, [])
-
-  return (
-    <>
-      {selectedProject && (
-        <DockviewReact
-          theme={moTheme}
-          components={{
-            playbackPanel: PlaybackPanel
-          }}
-          tabComponents={{
-            playbackTab: PlaybackTab
-          }}
-          onReady={async (event: DockviewReadyEvent) => {
-            apiRef.current = event.api
-            await loadLayout(event.api, selectedProject)
-          }}
-          defaultRenderer="always"
-        />
-      )}
-    </>
-  )
+  return selectedProject ? (
+    <DockviewReact
+      theme={moTheme}
+      components={{ playbackPanel: PlaybackPanel }}
+      tabComponents={{ playbackTab: PlaybackTab }}
+      onReady={(event) => {
+        setApi(event.api)
+      }}
+      defaultRenderer="always"
+    />
+  ) : null
 }
 
 const PlaybackPanel = memo(function PlaybackPanel({ params }: { params: PlaybackConfig }) {
-  return (
-    <div style={{ color: "var(--color-text-dark)" }}>
-      <h2>{params.name}</h2>
-      <p>Plugin ID: {params.plugin_id}</p>
-    </div>
-  )
+  if (!params.plugin_is_loaded) {
+    return (
+      <p>
+        The plugin with id <strong>{params.plugin_id}</strong> is not loaded or does not exist.
+        Please ensure the plugin is installed and loaded correctly.
+      </p>
+    )
+  }
+  const plugin = playbackService.getPluginInstanceById(params.plugin_id)
+  plugin.configure(params.settings)
+  return plugin.getPreview()
 })
 
 const PlaybackTab = memo(function PlaybackTab({ params }: { params: PlaybackConfig }) {
-  const pluginImg = (src: string | PluginIcons, pluginName: string) => {
-    const finalSrc = typeof src === "string" ? src : src.dark
-    return (
+  const src =
+    typeof params.plugin_icon === "string"
+      ? params.plugin_icon
+      : (params.plugin_icon as PluginIcons).dark
+  return (
+    <div className={styles["playback-tab"]}>
       <img
-        src={finalSrc}
-        alt={pluginName}
+        src={src}
+        alt={params.name}
         className={styles["plugin-icon"]}
         onError={(e) => {
           e.currentTarget.onerror = null
           e.currentTarget.src = fallbackimgDark
         }}
       />
-    )
-  }
-
-  return (
-    <div className={styles["playback-tab"]}>
-      {pluginImg(params.plugin_icon || fallbackimgDark, params.name)}
       <h4 className={styles.title}>{params.name}</h4>
     </div>
   )

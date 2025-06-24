@@ -10,6 +10,13 @@ class PlaybackService {
 
     return plugins as Plugin[]
   }
+
+  getPluginInstanceById(pluginId: string) {
+    return pluginManager.getPluginInstanceByIdAndType(
+      pluginId,
+      PlaybackPlugin as unknown as new (...args: unknown[]) => PlaybackPlugin
+    )
+  }
 }
 
 const playbackService = new PlaybackService()

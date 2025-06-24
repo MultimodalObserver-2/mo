@@ -4,7 +4,7 @@ import path from "path"
 
 export function getPluginBasePath(): string {
   return is.dev
-    ? path.resolve(process.cwd(), "plugins")
+    ? path.resolve(process.cwd(), "src/renderer/src/plugins-dev")
     : path.resolve(app.getPath("userData"), "multimodal-observer", "plugins", "ui")
 }
 

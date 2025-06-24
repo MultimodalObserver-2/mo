@@ -4,7 +4,7 @@ import { validateId } from "./utils/validateId"
 import { PluginDTO, PluginIcons } from "./types/PluginDTO"
 import { PLUGIN_BASE_PATH } from "./constants"
 
-interface PluginConstructor {
+export interface PluginConstructor {
   new (): PluginBase
   __module?: string
 }
@@ -76,14 +76,21 @@ class PluginManager {
     return { relPath, exportName: exportName || "default" }
   }
 
+  private async joinPaths(pluginPath: string, relPath: string): Promise<string> {
+    if (import.meta.env.DEV) {
+      return pluginPath + "/" + relPath
+    }
+    return await window.core.path.join(pluginPath, relPath)
+  }
+
   private async loadPluginClass(
     pluginPath: string,
     metadata: PluginMetadata
   ): Promise<PluginConstructor> {
     const { relPath, exportName } = this.getEntryPoint(metadata, this.entryPoints.rendPlugin)
-    const entry = await window.core.path.join(pluginPath, relPath)
+    const entry = await this.joinPaths(pluginPath, relPath)
 
-    if (!(await window.core.fs.existsSync(entry))) {
+    if (!import.meta.env.DEV && !(await window.core.fs.existsSync(entry))) {
       throw new Error(`Plugin entry point not found at ${entry}`)
     }
     const pluginModule = await import(/* @vite-ignore */ entry)
@@ -108,11 +115,12 @@ class PluginManager {
       metadata,
       this.entryPoints.rendPluginProperties
     )
-    const entry = await window.core.path.join(pluginPath, relPath)
+    const entry = await this.joinPaths(pluginPath, relPath)
 
-    if (!(await window.core.fs.existsSync(entry))) {
+    if (!import.meta.env.DEV && !(await window.core.fs.existsSync(entry))) {
       throw new Error(`Plugin properties entry point not found at ${entry}`)
     }
+
     const propertiesModule = await import(/* @vite-ignore */ entry)
 
     if (!propertiesModule || !propertiesModule[exportName]) {
@@ -133,8 +141,6 @@ class PluginManager {
       throw new Error(`Plugin metadata not found at ${metadataPath}`)
     }
 
-    const dirName = await window.core.path.basename(pluginPath)
-
     const metadataContent = await window.core.fs.readFileSync(metadataPath, "utf-8")
     const rawMetadata = JSON.parse(
       typeof metadataContent === "string" ? metadataContent : metadataContent.toString("utf-8")
@@ -148,8 +154,14 @@ class PluginManager {
       throw new Error(`Plugin ID already loaded: ${fullId}`)
     }
 
+    const dirName = await window.core.path.basename(pluginPath)
+    let loadPath = pluginPath
+    if (import.meta.env.DEV) {
+      loadPath = "../../plugins-dev/" + dirName
+    }
+
     try {
-      const pluginClass = await this.loadPluginClass(pluginPath, rawMetadata)
+      const pluginClass = await this.loadPluginClass(loadPath, rawMetadata)
 
       const moduleName = pluginClass.__module ?? "core"
       new pluginClass()
@@ -165,7 +177,7 @@ class PluginManager {
       }
 
       if (this.entryPointExists(rawMetadata, this.entryPoints.rendPluginProperties)) {
-        const propertiesInstance = await this.loadPropertiesInstance(pluginPath, rawMetadata)
+        const propertiesInstance = await this.loadPropertiesInstance(loadPath, rawMetadata)
         internalPlugin.properties = propertiesInstance
       }
 
@@ -275,6 +287,28 @@ class PluginManager {
     }
 
     return await this.pluginInternalToDto(plugin)
+  }
+
+  getPluginClassById(id: string): PluginConstructor {
+    const plugin = this.plugins.get(id)
+    if (!plugin) {
+      throw new Error(`Plugin with ID ${id} not found`)
+    }
+    if (!plugin.pluginClass) {
+      throw new Error(`Plugin with ID ${id} is not loaded`)
+    }
+    return plugin.pluginClass
+  }
+
+  getPluginInstanceByIdAndType<T extends PluginBase>(
+    id: string,
+    cls: new (...args: unknown[]) => T
+  ): T {
+    const pluginClass = this.getPluginClassById(id)
+    if (!(pluginClass.prototype instanceof cls)) {
+      throw new Error(`Plugin with ID ${id} is not of type ${cls.name}`)
+    }
+    return new pluginClass() as T
   }
 
   getPluginFinalId(metadata: PluginMetadata): string {

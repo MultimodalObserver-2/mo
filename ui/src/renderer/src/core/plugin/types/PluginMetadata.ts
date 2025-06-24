@@ -14,7 +14,8 @@ export interface PluginMetadata {
     | string
   platform?: { linux?: boolean; windows?: boolean; macos?: boolean }
   entryPoints: {
-    "mo.ui.plugin.renderer"?: string
+    "mo.ui.renderer.plugin"?: string
+    "mo.ui.renderer.plugin.properties"?: string
     [key: string]: string | undefined
   }
   target: "api" | "ui"

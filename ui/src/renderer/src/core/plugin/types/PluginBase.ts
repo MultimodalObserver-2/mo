@@ -10,5 +10,8 @@ export abstract class PluginBase {
     this.onConfigure(settings)
   }
 
-  abstract onConfigure(settings: Record<string, unknown>): void
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  onConfigure(settings: Record<string, unknown>): void {
+    // No default implementation
+  }
 }
