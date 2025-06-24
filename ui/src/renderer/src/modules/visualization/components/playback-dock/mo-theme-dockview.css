@@ -101,3 +101,18 @@
 .dockview-theme-mo .dv-tabs-container {
   gap: 0px;
 }
+.dockview-theme-mo .dv-react-part {
+  overflow: auto;
+}
+
+.dockview-theme-mo .dv-react-part::-webkit-scrollbar {
+  background-color: var(--color-primary-50);
+  width: 8px;
+  height: 8px;
+}
+
+.dockview-theme-mo .dv-react-part::-webkit-scrollbar-thumb {
+  background-color: var(--color-primary-300);
+  width: 8px;
+  height: 8px;
+}
