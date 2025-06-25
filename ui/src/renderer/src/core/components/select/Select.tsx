@@ -47,11 +47,11 @@ export default function Select({
         className={`${styles.select} ${styles[styleType]} ${className}`}
         required={required}
         disabled={disabled}
-        defaultValue={defaultValue || placeholder}
+        defaultValue={defaultValue || ""}
         {...props}
       >
         {placeholder && (
-          <option value={placeholder} disabled>
+          <option value="" disabled>
             {placeholder}
           </option>
         )}
@@ -69,11 +69,11 @@ export default function Select({
         className={`${styles.select} ${styles[styleType]} ${className}`}
         required={required}
         disabled={disabled}
-        defaultValue={defaultValue || placeholder}
+        defaultValue={defaultValue || ""}
         {...props}
       >
         {placeholder && (
-          <option value={placeholder} disabled>
+          <option value="" disabled>
             {placeholder}
           </option>
         )}
