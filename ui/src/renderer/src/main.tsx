@@ -16,36 +16,34 @@ import AppLayout from "./core/layouts/AppLayout"
 import { OrganizationRoutes } from "./modules/organization/routes"
 import { CaptureRoutes } from "./modules/capture/routes"
 import { VisualizationRoutes } from "./modules/visualization/routes"
-import RegistrationProvider from "./registrations/RegistrationProvider"
-import registrations from "./registrations"
+import { registerAll } from "./registrations"
 
+registerAll()
 pluginManager.loadAllPlugins()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
     <Provider store={store}>
-      <RegistrationProvider registrations={registrations}>
-        <HashRouter>
-          <Routes>
-            <Route element={<SideBarLayout />}>
-              <Route path="/plugins" element={<PluginsPage />} />
-              <Route
-                path="/settings"
-                element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}
-              />
-            </Route>
-            <Route element={<AppLayout />}>
-              <Route path="/" element={<Home />} />
-            </Route>
-            <Route path="/error" element={<ErrorPage />} />
-            <Route path="/loading" element={<LoadingPage />} />
-            <Route path="/plugins/:pluginTarget/:pluginId" element={<PluginDetails />} />
-            <Route path="/organization/*">{OrganizationRoutes}</Route>
-            <Route path="/capture/*">{CaptureRoutes}</Route>
-            <Route path="/visualization/*">{VisualizationRoutes}</Route>
-          </Routes>
-        </HashRouter>
-      </RegistrationProvider>
+      <HashRouter>
+        <Routes>
+          <Route element={<SideBarLayout />}>
+            <Route path="/plugins" element={<PluginsPage />} />
+            <Route
+              path="/settings"
+              element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}
+            />
+          </Route>
+          <Route element={<AppLayout />}>
+            <Route path="/" element={<Home />} />
+          </Route>
+          <Route path="/error" element={<ErrorPage />} />
+          <Route path="/loading" element={<LoadingPage />} />
+          <Route path="/plugins/:pluginTarget/:pluginId" element={<PluginDetails />} />
+          <Route path="/organization/*">{OrganizationRoutes}</Route>
+          <Route path="/capture/*">{CaptureRoutes}</Route>
+          <Route path="/visualization/*">{VisualizationRoutes}</Route>
+        </Routes>
+      </HashRouter>
     </Provider>
   </StrictMode>
 )
