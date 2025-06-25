@@ -14,30 +14,32 @@ The `order` property is optional, and if not provided, the item will be placed a
 The `render` property is a function that returns the component to be rendered in the panel
 */
 
-panelRegistry.registerMany([
-  {
-    id: "projects",
-    order: 1,
-    render: Projects
-  },
-  {
-    id: "participants",
-    order: 2,
-    render: Participants
-  },
-  {
-    id: "sessions",
-    order: 3,
-    render: Sessions
-  },
-  {
-    id: "configurations",
-    order: 4,
-    render: ConfigsPanelWrapper
-  },
-  {
-    id: "protocols",
-    order: 5,
-    render: Protocols
-  }
-])
+export function registerPanelItems() {
+  panelRegistry.registerMany([
+    {
+      id: "projects",
+      order: 1,
+      render: Projects
+    },
+    {
+      id: "participants",
+      order: 2,
+      render: Participants
+    },
+    {
+      id: "sessions",
+      order: 3,
+      render: Sessions
+    },
+    {
+      id: "configurations",
+      order: 4,
+      render: ConfigsPanelWrapper
+    },
+    {
+      id: "protocols",
+      order: 5,
+      render: Protocols
+    }
+  ])
+}
