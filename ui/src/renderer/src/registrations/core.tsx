@@ -1,9 +1,11 @@
-import Sessions from "@renderer/modules/capture/components/sessions/Sessions"
 import Participants from "../modules/organization/components/participants/Participants"
 import Projects from "../modules/organization/components/projects/Projects"
 import Protocols from "../modules/organization/components/protocols/Protocols"
 import ConfigsPanelWrapper from "@renderer/modules/organization/components/configurations-panel/ConfigsPanelWrapper"
 import panelRegistry from "@renderer/core/store/panelRegistry"
+import ControlsPanelElement from "@renderer/core/components/controls-panel-element/ControlsPanelElement"
+import CaptureActions from "@renderer/modules/capture/components/capture-actions/CaptureActions"
+import panelControlsRegistry from "@renderer/core/store/panelControlsRegistry"
 
 /**
 Panel items registration
@@ -27,19 +29,29 @@ export function registerPanelItems() {
       render: Participants
     },
     {
-      id: "sessions",
-      order: 3,
-      render: Sessions
-    },
-    {
       id: "configurations",
-      order: 4,
+      order: 3,
       render: ConfigsPanelWrapper
     },
     {
       id: "protocols",
-      order: 5,
+      order: 4,
       render: Protocols
+    },
+    {
+      id: "controls",
+      order: 5,
+      render: ControlsPanelElement
+    }
+  ])
+}
+
+export function registerPanelControlItems() {
+  panelControlsRegistry.registerMany([
+    {
+      id: "controls",
+      order: 1,
+      render: CaptureActions
     }
   ])
 }

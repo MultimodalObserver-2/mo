@@ -9,11 +9,8 @@ import { OrganizationRoutes } from "./modules/organization/routes"
 import { CaptureRoutes } from "./modules/capture/routes"
 import { AppLayoutVisualizationRoutes, VisualizationRoutes } from "./modules/visualization/routes"
 import pluginManager from "./core/plugin/PluginManager"
-import { registerAll } from "./registrations"
 import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
-
-registerAll()
 
 export default function App() {
   const navigate = useNavigate()

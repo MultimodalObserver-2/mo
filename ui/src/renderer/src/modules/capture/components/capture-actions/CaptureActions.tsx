@@ -91,10 +91,10 @@ export default function CaptureActions() {
 
   return (
     <section className={styles["capture-actions"]}>
-      <abbr title={getAbbrText()}>
+      <abbr className={styles.abbr} title={getAbbrText()}>
         <Button
           className={styles["main-button"]}
-          borderRadius="xl"
+          borderRadius="sm"
           styleType={isCapturing ? "danger" : "default"}
           onClick={handleCaptureToggle}
           disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
@@ -113,22 +113,24 @@ export default function CaptureActions() {
           )}
         </Button>
       </abbr>
-      <abbr>
-        <Button
-          className={`${styles["secondary-button"]} ${isCapturing ? styles.visible : ""}`}
-          borderRadius="xl"
-          styleType="extra-soft"
-          onClick={handlePauseToggle}
-          disabled={!isCapturing || isLoading}
-          isLoading={isLoadingPause}
-        >
-          {isPaused ? (
-            <ResumeCircleIcon className={styles.icon} />
-          ) : (
-            <PauseCircleIcon className={styles.icon} />
-          )}
-        </Button>
-      </abbr>
+      {isCapturing && (
+        <abbr title={isPaused ? "Resume capture" : "Pause capture"}>
+          <Button
+            className={`${styles["secondary-button"]}`}
+            borderRadius="sm"
+            styleType="extra-soft"
+            onClick={handlePauseToggle}
+            disabled={!isCapturing || isLoading}
+            isLoading={isLoadingPause}
+          >
+            {isPaused ? (
+              <ResumeCircleIcon className={styles.icon} />
+            ) : (
+              <PauseCircleIcon className={styles.icon} />
+            )}
+          </Button>
+        </abbr>
+      )}
     </section>
   )
 }

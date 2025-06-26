@@ -4,7 +4,6 @@ import {
   WorkspaceFooter,
   WorkspaceHeader
 } from "@renderer/core/components/app-shell"
-import CaptureButton from "@renderer/modules/capture/components/capture-actions/CaptureActions"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
 import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
 
@@ -17,9 +16,7 @@ export default function Home() {
       <WorkspaceBody>
         <PreviewDock />
       </WorkspaceBody>
-      <WorkspaceFooter>
-        <CaptureButton />
-      </WorkspaceFooter>
+      <WorkspaceFooter></WorkspaceFooter>
     </Workspace>
   )
 }

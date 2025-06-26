@@ -6,6 +6,9 @@ import { HashRouter } from "react-router"
 import { Provider } from "react-redux"
 import store from "./store"
 import App from "./app"
+import { registerAll } from "./registrations"
+
+registerAll()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
