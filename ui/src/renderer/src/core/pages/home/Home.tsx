@@ -6,7 +6,7 @@ import {
 } from "@renderer/core/components/app-shell"
 import CaptureButton from "@renderer/modules/capture/components/capture-actions/CaptureActions"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
-import PlaybackDock from "@renderer/modules/visualization/components/playback-dock/PlaybackDock"
+import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
 
 export default function Home() {
   return (
@@ -15,7 +15,7 @@ export default function Home() {
         <CaptureHeader />
       </WorkspaceHeader>
       <WorkspaceBody>
-        <PlaybackDock />
+        <PreviewDock />
       </WorkspaceBody>
       <WorkspaceFooter>
         <CaptureButton />

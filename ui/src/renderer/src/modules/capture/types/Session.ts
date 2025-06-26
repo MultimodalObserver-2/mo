@@ -4,7 +4,7 @@ export type CaptureConfigDetails = {
   plugin_name: string
   plugin_version: string
   settings: Record<string, unknown>
-  start_timestamp?: string
+  start_timestamp?: number
   file_extension?: string
   location?: string
 }
@@ -18,5 +18,6 @@ export type CaptureSession = {
   started_at: string
   ended_at?: string
   duration: number
+  paused_intervals?: [number, number][]
   capture_sources: CaptureConfigDetails[]
 }

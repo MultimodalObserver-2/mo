@@ -3,6 +3,7 @@ import SelectPlaybackView from "./pages/select-playback-view/SelectPlaybackView"
 import AddPlaybackConfig from "./pages/add-playback-config/AddPlaybackConfig"
 import UpdatePlaybackConfig from "./pages/update-playback-config/UpdatePlaybackConfig"
 import StartPlayback from "./pages/start-playback/StartPlayback"
+import Playback from "./pages/playback/Playback"
 
 export const VisualizationRoutes = (
   <>
@@ -12,6 +13,15 @@ export const VisualizationRoutes = (
     <Route
       path=":projectName/participants/:participantCode/sessions/:sessionId/start-playback"
       element={<StartPlayback />}
+    />
+  </>
+)
+
+export const AppLayoutVisualizationRoutes = (
+  <>
+    <Route
+      path=":projectName/participants/:participantCode/sessions/:sessionId/playback"
+      element={<Playback />}
     />
   </>
 )

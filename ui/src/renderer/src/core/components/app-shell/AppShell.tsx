@@ -10,7 +10,7 @@ export default function AppShell({ children }: AppShellProps) {
   return (
     <main className={styles.main}>
       {children}
-      <Panel>
+      <Panel className={styles.panel}>
         {panelRegistry.getItems().map((item) => {
           return <item.render key={item.id} />
         })}

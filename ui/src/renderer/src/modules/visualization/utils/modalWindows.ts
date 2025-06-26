@@ -63,3 +63,29 @@ export function openUpdatePlaybackViewModal(projectName: string, configName: str
     }
   })
 }
+
+export function openStartPlaybackModal(
+  projectName: string,
+  participantCode: string,
+  sessionId: string
+): void {
+  window.core.openModalWindow({
+    options: {
+      width: 550,
+      minWidth: 550,
+      minHeight: 250,
+      title: "Start Playback",
+      webPreferences: {
+        webSecurity: false,
+        allowRunningInsecureContent: true
+      }
+    },
+    endpoint: `visualization/${projectName}/participants/${participantCode}/sessions/${sessionId}/start-playback`,
+    autoAdjustHeight: {
+      elementId: "start-playback",
+      extraHeight: 165,
+      errorHeight: 250,
+      setMinimumSize: true
+    }
+  })
+}

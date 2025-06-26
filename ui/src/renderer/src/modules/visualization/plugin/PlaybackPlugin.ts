@@ -29,4 +29,5 @@ export abstract class PlaybackPlugin extends PluginBase {
 
   abstract getView(props: PluginViewProps): JSX.Element | ReactElement
   abstract getPreview(): JSX.Element | ReactElement
+  abstract validExtensions(): string[]
 }

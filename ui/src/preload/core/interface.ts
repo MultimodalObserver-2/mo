@@ -1,4 +1,5 @@
 import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogReturnValue } from "electron"
+import { NavigateOptions } from "react-router"
 
 export default interface CoreAPI {
   openModalWindow: (args: {
@@ -55,5 +56,9 @@ export default interface CoreAPI {
     join: (...paths: string[]) => Promise<string>
     basename: (filePath: string) => Promise<string>
     extname: (filePath: string) => Promise<string>
+  }
+  router: {
+    navigate: (path: string, options?: NavigateOptions) => void
+    onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => () => void
   }
 }

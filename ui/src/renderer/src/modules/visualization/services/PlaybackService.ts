@@ -17,6 +17,14 @@ class PlaybackService {
       PlaybackPlugin as unknown as new (...args: unknown[]) => PlaybackPlugin
     )
   }
+
+  getPluginValidExtensions(pluginId: string): string[] {
+    const plugin = this.getPluginInstanceById(pluginId)
+    if (plugin) {
+      return plugin.validExtensions()
+    }
+    return []
+  }
 }
 
 const playbackService = new PlaybackService()

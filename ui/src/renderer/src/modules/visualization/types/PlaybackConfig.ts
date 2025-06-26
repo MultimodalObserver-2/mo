@@ -14,6 +14,7 @@ export type PlaybackConfig = {
   plugin_icon?: string | PluginIcons
   plugin_is_loaded: boolean
   settings: Record<string, string | number | boolean>
+  capture_config_id?: string
 }
 
 export type PlaybackConfigCreate = {

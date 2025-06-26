@@ -59,6 +59,7 @@ function createWindow(): BrowserWindow {
 
 let apiProcess: ChildProcess | null = null
 let apiPort: number | null = null
+let mainWindow: BrowserWindow | null = null
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -80,7 +81,7 @@ app.whenReady().then(async () => {
     apiPort = apiInfo.apiPort
   }
 
-  const mainWindow = createWindow()
+  mainWindow = createWindow()
 
   app.on("activate", function () {
     // On macOS it's common to re-create a window in the app when the
@@ -113,6 +114,16 @@ app.on("window-all-closed", () => {
 
 export function getApiPort(): number | null {
   return apiPort
+}
+
+export function getMainWindow(): BrowserWindow | null {
+  return mainWindow
+}
+
+export function broadcast(channel: string, ...args: unknown[]): void {
+  BrowserWindow.getAllWindows().forEach((window) => {
+    window.webContents.send(channel, ...args)
+  })
 }
 
 // In this file you can include the rest of your app's specific main process

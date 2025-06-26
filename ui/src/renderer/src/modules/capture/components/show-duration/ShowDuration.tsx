@@ -6,7 +6,7 @@ export default function ShowDuration({ duration }: { readonly duration: number }
   return (
     <div className={styles.box}>
       <TimerIcon className={styles.icon} />
-      <span className={styles.text}>{formatDuration(duration, false)}</span>
+      <span className={styles.text}>{formatDuration(duration, false, true)}</span>
     </div>
   )
 }

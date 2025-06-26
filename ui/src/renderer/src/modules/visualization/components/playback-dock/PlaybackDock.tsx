@@ -1,14 +1,14 @@
-import { memo, useEffect, useState } from "react"
+import { FunctionComponent, memo, useEffect, useState } from "react"
 import { useSelector } from "react-redux"
 import {
   DockviewApi,
   DockviewIDisposable,
   DockviewReact,
   DockviewTheme,
+  IDockviewPanelProps,
   SerializedDockview
 } from "dockview"
 import playbackConfigService from "../../services/PlaybackConfigService"
-import playbackService from "../../services/PlaybackService"
 import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
 import { PluginIcons } from "@renderer/core/types/Plugin"
@@ -25,7 +25,11 @@ const moTheme: DockviewTheme = {
   dndPanelOverlay: "group"
 }
 
-export default function PlaybackDock() {
+interface PlaybackDockProps {
+  playbackPanel: FunctionComponent<IDockviewPanelProps<PlaybackConfig>>
+}
+
+export default function PlaybackDock({ playbackPanel }: PlaybackDockProps) {
   const selectedProject = useSelector(selectSelectedProject)
   const [api, setApi] = useState<DockviewApi | null>(null)
 
@@ -94,7 +98,7 @@ export default function PlaybackDock() {
   return selectedProject ? (
     <DockviewReact
       theme={moTheme}
-      components={{ playbackPanel: PlaybackPanel }}
+      components={{ playbackPanel: playbackPanel }}
       tabComponents={{ playbackTab: PlaybackTab }}
       onReady={(event) => {
         setApi(event.api)
@@ -103,20 +107,6 @@ export default function PlaybackDock() {
     />
   ) : null
 }
-
-const PlaybackPanel = memo(function PlaybackPanel({ params }: { params: PlaybackConfig }) {
-  if (!params.plugin_is_loaded) {
-    return (
-      <p>
-        The plugin with id <strong>{params.plugin_id}</strong> is not loaded or does not exist.
-        Please ensure the plugin is installed and loaded correctly.
-      </p>
-    )
-  }
-  const plugin = playbackService.getPluginInstanceById(params.plugin_id)
-  plugin.configure(params.settings)
-  return plugin.getPreview()
-})
 
 const PlaybackTab = memo(function PlaybackTab({ params }: { params: PlaybackConfig }) {
   const src =

@@ -7,3 +7,5 @@ app.whenReady().then(() => {
     })
   })
 })
+
+import "./playbackControls"

@@ -1,4 +1,5 @@
 import { contextBridge, ipcRenderer, MessageBoxOptions } from "electron"
+import { NavigateOptions } from "react-router"
 
 const core = {
   openModalWindow: (args: {
@@ -93,6 +94,22 @@ const core = {
     },
     extname: (filePath: string) => {
       return ipcRenderer.invoke("core:path:extname", filePath)
+    }
+  },
+  router: {
+    navigate: (path: string, options?: NavigateOptions) => {
+      ipcRenderer.send("core:router:navigate", path, options)
+    },
+    onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => {
+      const listener = (
+        _event: Electron.IpcRendererEvent,
+        path: string,
+        options?: NavigateOptions
+      ) => callback(path, options)
+      ipcRenderer.on("core:router:on-navigate", listener)
+      return () => {
+        ipcRenderer.removeListener("core:router:on-navigate", listener)
+      }
     }
   }
 }

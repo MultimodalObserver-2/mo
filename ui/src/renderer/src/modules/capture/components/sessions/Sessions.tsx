@@ -19,6 +19,7 @@ import { formatDatetime } from "../../utils/helpers"
 import { openSessionDetailsModal } from "../../utils/modalWindows"
 import { showDeleteSessionMessage } from "../../utils/dialogMessages"
 import ShowDuration from "../show-duration/ShowDuration"
+import sessionRegistry from "../../store/SessionRegistry"
 
 export default function Sessions() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -97,6 +98,20 @@ export default function Sessions() {
             showActions={{ info: true, delete: true }}
             onInfo={() => openSessionInfo(session)}
             onDelete={() => handleDelete(session)}
+            extraActions={
+              <>
+                {sessionRegistry.getActions().map((action) => {
+                  const ActionElement = action.element
+                  return (
+                    <ActionElement
+                      key={action.id}
+                      className={styles["session-action"]}
+                      onClick={() => action.onClick(selectedProject, selectedParticipant, session)}
+                    />
+                  )
+                })}
+              </>
+            }
           />
         ))}
       </ElementList>

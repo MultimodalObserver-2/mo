@@ -40,8 +40,12 @@ export function getDuration(duration: number): { hours: number; minutes: number;
  * @param {boolean} [showHours=true] - If false and hours are zero, the hours part will be omitted (e.g., 'MM:SS').
  * @returns {string} The formatted duration string.
  */
-export function formatDuration(duration: number, showHours = true) {
-  const { hours, minutes, seconds } = getDuration(duration)
+export function formatDuration(duration: number, showHours = true, ceil = false): string {
+  let totalSeconds = duration
+  if (ceil) {
+    totalSeconds = Math.ceil(duration)
+  }
+  const { hours, minutes, seconds } = getDuration(totalSeconds)
   const pad = (num: number) => String(num).padStart(2, "0")
   if (hours === 0 && !showHours) {
     const formattedMinutes = minutes == 0 ? "0" : pad(minutes)

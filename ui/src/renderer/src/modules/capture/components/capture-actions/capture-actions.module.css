@@ -20,6 +20,7 @@
 }
 
 .icon.danger {
+  color: var(--color-text-light);
   fill: var(--color-text-light);
 }
 
