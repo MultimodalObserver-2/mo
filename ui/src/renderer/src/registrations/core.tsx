@@ -6,6 +6,9 @@ import panelRegistry from "@renderer/core/store/panelRegistry"
 import ControlsPanelElement from "@renderer/core/components/controls-panel-element/ControlsPanelElement"
 import CaptureActions from "@renderer/modules/capture/components/capture-actions/CaptureActions"
 import panelControlsRegistry from "@renderer/core/store/panelControlsRegistry"
+import homePageRegistry from "@renderer/core/store/homePageRegistry"
+import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
+import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
 
 /**
 Panel items registration
@@ -52,6 +55,21 @@ export function registerPanelControlItems() {
       id: "controls",
       order: 1,
       render: CaptureActions
+    }
+  ])
+}
+
+export function registerHomePage() {
+  homePageRegistry.setBody({
+    id: "playback-preview",
+    render: PreviewDock
+  })
+
+  homePageRegistry.registerManyHeaders([
+    {
+      id: "capture-header",
+      priority: 1,
+      render: CaptureHeader
     }
   ])
 }

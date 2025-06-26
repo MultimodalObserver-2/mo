@@ -4,18 +4,17 @@ import {
   WorkspaceFooter,
   WorkspaceHeader
 } from "@renderer/core/components/app-shell"
-import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
-import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
+import homePageRegistry from "@renderer/core/store/homePageRegistry"
 
 export default function Home() {
   return (
     <Workspace>
       <WorkspaceHeader>
-        <CaptureHeader />
+        {homePageRegistry.getHeaders().map((header) => (
+          <header.render key={header.id} />
+        ))}
       </WorkspaceHeader>
-      <WorkspaceBody>
-        <PreviewDock />
-      </WorkspaceBody>
+      <WorkspaceBody>{homePageRegistry.getBody()?.render()}</WorkspaceBody>
       <WorkspaceFooter></WorkspaceFooter>
     </Workspace>
   )
