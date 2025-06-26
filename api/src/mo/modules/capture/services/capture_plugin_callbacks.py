@@ -48,7 +48,7 @@ def start_callback(
     Args:
         instance (Plugin): The CapturePlugin instance to start.
         extra_args (Optional[dict[str, Any]]): A dictionary containing additional arguments,
-            including 'config_name' and 'start_ts'.
+            including 'config_id' and 'start_ts'.
         process_queue (Optional[multiprocessing.Queue]): A queue for sending captured data
             to the main process.
         process_metadata (PluginProcessMetadata): Metadata about the plugin process,
@@ -57,7 +57,7 @@ def start_callback(
     if not isinstance(instance, CapturePlugin) or extra_args is None:
         return
 
-    config_name = extra_args.get("config_name", "")
+    config_id = extra_args.get("config_id", "")
 
     def on_data_callback(data: CaptureData):
         try:
@@ -65,7 +65,7 @@ def start_callback(
                 process_queue.put(
                     PluginData(
                         plugin_id=process_metadata.metadata.get_final_id(),
-                        config_name=config_name,
+                        config_id=config_id,
                         timestamp=data.timestamp,
                         data=data.data,
                     ),
@@ -73,7 +73,7 @@ def start_callback(
                 )
         except Exception as e:
             logger.error(
-                f"[start_callback] Error in on_data_callback for {config_name}: {e}", exc_info=True
+                f"[start_callback] Error in on_data_callback for config {config_id}: {e}", exc_info=True
             )
 
     thread = threading.Thread(

@@ -21,6 +21,6 @@ class CaptureStatusResponse(BaseModel):
 @dataclass
 class PluginData:
     plugin_id: str
-    config_name: str
+    config_id: str
     timestamp: float
     data: PicklableType

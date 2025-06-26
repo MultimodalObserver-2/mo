@@ -9,6 +9,7 @@ from mo.modules.organization.services.paths import PROJECTS_PATH
 
 # Stored schemas
 class CaptureConfigDetails(BaseModel):
+    config_id: str
     config_name: str
     plugin_id: str
     plugin_name: str
@@ -34,6 +35,7 @@ class SessionData(BaseModel):
 
 # Response schemas
 class CaptureConfigDetailsRes(BaseModel):
+    config_id: str
     config_name: str
     plugin_id: str
     plugin_name: str
@@ -50,6 +52,7 @@ class CaptureConfigDetailsRes(BaseModel):
         participant_rel_location: str,
     ):
         return CaptureConfigDetailsRes(
+            config_id=capture_source_setting.config_id,
             config_name=capture_source_setting.config_name,
             plugin_id=capture_source_setting.plugin_id,
             plugin_name=capture_source_setting.plugin_name,
@@ -108,6 +111,7 @@ class SessionRes(BaseModel):
 
 # Post schemas
 class CaptureConfigDetailsPost(BaseModel):
+    config_id: str
     config_name: str
     plugin_id: str
     plugin_name: str
@@ -125,7 +129,7 @@ class SessionPost(BaseModel):
 
 # Put schemas
 class CaptureConfigDetailsPut(BaseModel):
-    config_name: str
+    config_id: str
     start_timestamp: Optional[float] = None
 
 
@@ -151,7 +155,8 @@ class SessionPut(BaseModel):
             paused_intervals=session_res.paused_intervals,
             capture_sources=[
                 CaptureConfigDetailsPut(
-                    config_name=source.config_name, start_timestamp=source.start_timestamp
+                    config_id=source.config_id,
+                    start_timestamp=source.start_timestamp
                 )
                 for source in session_res.capture_sources
             ],

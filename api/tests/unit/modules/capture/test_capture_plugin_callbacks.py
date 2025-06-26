@@ -87,7 +87,7 @@ def test_start_callback_on_data_callback_puts_to_queue():
     with patch("threading.Thread") as mock_thread:
         start_callback(
             MagicMock(spec=CapturePlugin),
-            {"config_name": "c1", "start_ts": time.monotonic()},
+            {"config_id": "c1", "start_ts": time.monotonic()},
             mock_queue,
             mock_metadata,
         )
@@ -99,7 +99,7 @@ def test_start_callback_on_data_callback_puts_to_queue():
     mock_queue.put.assert_called_once()
     plugin_data_arg = mock_queue.put.call_args[0][0]
     assert isinstance(plugin_data_arg, PluginData)
-    assert plugin_data_arg.config_name == "c1"
+    assert plugin_data_arg.config_id == "c1"
     assert plugin_data_arg.data == b"some_data"
 
 

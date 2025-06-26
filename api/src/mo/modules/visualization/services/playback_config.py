@@ -88,6 +88,7 @@ class PlaybackConfigService:
         final_config = PlaybackConfigData(
             name=config.name,
             plugin_id=config.plugin_id,
+            capture_config_id=config.capture_config_id,
             settings=config.settings,
         )
         configurations_storage.insert_one(final_config.model_dump())
@@ -96,6 +97,7 @@ class PlaybackConfigService:
             id=final_config.id,
             name=config.name,
             plugin_id=config.plugin_id,
+            capture_config_id=config.capture_config_id,
             settings=config.settings,
         )
 
@@ -119,6 +121,7 @@ class PlaybackConfigService:
                 id=config_data["id"],
                 name=config_data["name"],
                 plugin_id=config_data["plugin_id"],
+                capture_config_id=config_data["capture_config_id"],
                 settings=config_data["settings"],
             )
             for config_data in configs_dict
@@ -149,6 +152,7 @@ class PlaybackConfigService:
             id=settings_data.id,
             name=settings_data.name,
             plugin_id=settings_data.plugin_id,
+            capture_config_id=settings_data.capture_config_id,
             settings=settings_data.settings,
         )
 
@@ -171,6 +175,9 @@ class PlaybackConfigService:
         existing_config = self.get_playback_config(project_name, config_name)
 
         existing_config.settings = config.settings if config.settings else existing_config.settings
+        existing_config.capture_config_id = (
+            config.capture_config_id if config.capture_config_id else existing_config.capture_config_id
+        )
 
         if config.name != None and config.name != config_name:
             if self.exists(project_name, config.name):
@@ -183,6 +190,7 @@ class PlaybackConfigService:
             id=existing_config.id,
             name=existing_config.name,
             plugin_id=existing_config.plugin_id,
+            capture_config_id=existing_config.capture_config_id,
             settings=existing_config.settings,
         )
 

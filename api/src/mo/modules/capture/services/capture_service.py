@@ -20,6 +20,7 @@ from mo.modules.capture.schemas.session import (
     SessionPut,
     SessionRes,
 )
+from mo.modules.capture.services import config_service
 from mo.modules.capture.services.capture_buffer_manager import CaptureBufferManager
 from mo.modules.capture.services.capture_plugin_callbacks import (
     get_file_extension_callback,
@@ -73,6 +74,7 @@ class CaptureService:
         # A dictionary to hold instances of processes, mapping plugin IDs to a list of instances
         # identified by their configuration names
         self.processes_instances = {}  # type: dict[str, list[str]]
+        self.configs_names = {} # type: dict[tuple[str, str], str]
         self.started = False
         self.paused = False
         self.project_name = None  # type: str | None
@@ -117,17 +119,17 @@ class CaptureService:
         """
         valid_processes_instances = self.processes_instances.copy()
         for key, process in self.running_processes.items():
-            for config_name in self.processes_instances[key]:
-                file_name = self._format_data_file_name(config_name)
+            for config_id in self.processes_instances[key]:
+                file_name = self._format_data_file_name(self.configs_names.get((key, config_id), ""))
                 extra_args = {"session_path": session_path, "file_name": file_name}
                 try:
-                    process.execute_callback_on_instance(config_name, prepare_callback, extra_args)
+                    process.execute_callback_on_instance(config_id, prepare_callback, extra_args)
                 except Exception as e:
                     self.logger.error(
-                        f"[CaptureService] Error executing prepare callback for {config_name} in process {key}: {e}"
+                        f"[CaptureService] Error executing prepare callback for {config_id} in process {key}: {e}"
                     )
-                    valid_processes_instances[key].remove(config_name)
-                    process.remove_plugin_instance(config_name)
+                    valid_processes_instances[key].remove(config_id)
+                    process.remove_plugin_instance(config_id)
         self.processes_instances = valid_processes_instances
 
     def exec_start_callback(self):
@@ -136,16 +138,17 @@ class CaptureService:
         executing the start callback with the start timestamp and configuration name.
         """
         for key, process in self.running_processes.items():
-            for config_name in self.processes_instances[key]:
+            for config_id in self.processes_instances[key]:
                 extra_args = {
-                    "config_name": config_name,
+                    "config_id": config_id,
                     "start_ts": self.start_ts,
                 }
                 try:
-                    process.execute_callback_on_instance(config_name, start_callback, extra_args)
+                    process.execute_callback_on_instance(
+                        config_id, start_callback, extra_args)
                 except Exception as e:
                     self.logger.error(
-                        f"[CaptureService] Error executing start callback for {config_name} in process {key}: {e}",
+                        f"[CaptureService] Error executing start callback for {config_id} in process {key}: {e}",
                         exc_info=True,
                     )
 
@@ -183,8 +186,8 @@ class CaptureService:
         self.capture_buffer_manager.clear_paused_intervals()
         buffer_tuples = []
         for key, configs in self.processes_instances.items():
-            for config_name in configs:
-                buffer_tuples.append((key, config_name))
+            for config_id in configs:
+                buffer_tuples.append((key, config_id))
         self.capture_buffer_manager.start(buffer_tuples, processes_queue, self.running_processes)
 
     def on_capture_data_callback(self, data: PluginData):
@@ -194,15 +197,15 @@ class CaptureService:
         Args:
             data (PluginData): The data received from the plugin, containing configuration name and timestamp.
         """
-        if data.config_name not in self.first_timestamp and self.session is not None:
-            self.first_timestamp[data.config_name] = data.timestamp
+        if data.config_id not in self.first_timestamp and self.session is not None:
+            self.first_timestamp[data.config_id] = data.timestamp
             threading.Thread(
                 target=self.session_service.add_capture_source_setting_start_timestamp,
                 args=(
                     self.project_name or "",
                     self.participant_code or "",
                     self.session.session_id,
-                    data.config_name,
+                    data.config_id,
                     data.timestamp,
                 ),
             ).start()
@@ -310,12 +313,12 @@ class CaptureService:
         self.paused_ts = 0.0
         self.paused = False
 
-    def get_capture_plugin_file_name(self, plugin_id: str, config_name: str) -> str:
+    def get_capture_plugin_file_name(self, plugin_id: str, config_id: str) -> str:
         """Get the file name for the capture plugin data based on the plugin ID and configuration name.
         This method retrieves the file extension from the plugin's instance and formats the file name accordingly.
         Args:
             plugin_id (str): The ID of the plugin for which the file name is being generated.
-            config_name (str): The name of the configuration for which the file name is being generated.
+            config_id (str): The id of the configuration for which the file name is being generated.
         Returns:
             str: The formatted file name for the capture plugin data.
         Raises:
@@ -325,9 +328,9 @@ class CaptureService:
         if process is None:
             raise BadRequestException(f"No running process found for plugin {plugin_id}.")
         file_extension = process.execute_callback_on_instance(
-            config_name, get_file_extension_callback
+            config_id, get_file_extension_callback
         )
-        file_name = self._format_data_file_name(config_name)
+        file_name = self._format_data_file_name(self.configs_names.get((plugin_id, config_id), ""))
         if not file_extension:
             return file_name
         file_extension = file_extension.lstrip(".").lower()
@@ -345,17 +348,18 @@ class CaptureService:
         configs = self.config_service.get_all_configs_loaded(project_name)
         capture_configs = []
         for config in configs:
-            file_name = self.get_capture_plugin_file_name(config.plugin_id, config.name)
+            file_name = self.get_capture_plugin_file_name(config.plugin_id, config.id)
             file_extension = file_name.split(".")[-1] if "." in file_name else ""
             capture_configs.append(
                 CaptureConfigDetailsPost(
+                    config_id=config.id,
                     config_name=config.name,
                     plugin_id=config.plugin_id,
                     plugin_name=config.plugin_metadata.name,
                     plugin_version=str(config.plugin_metadata.version),
                     settings=config.settings,
                     file_extension=file_extension,
-                    file_name=self.get_capture_plugin_file_name(config.plugin_id, config.name),
+                    file_name=file_name,
                 )
             )
         return capture_configs
@@ -384,9 +388,10 @@ class CaptureService:
                 self.running_processes[config.plugin_id] = plugin_process
                 self.processes_instances[config.plugin_id] = []
             self.running_processes[config.plugin_id].add_plugin_instance(
-                config.name, Settings(config.settings)
+                config.id, Settings(config.settings)
             )
-            self.processes_instances[config.plugin_id].append(config.name)
+            self.configs_names[(config.plugin_id, config.id)] = config.name
+            self.processes_instances[config.plugin_id].append(config.id)
         return processes_queue
 
     def unload_running_processes(self):

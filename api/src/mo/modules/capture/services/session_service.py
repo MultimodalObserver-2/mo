@@ -85,6 +85,7 @@ class SessionService:
             started_at=session.started_at,
             capture_sources=[
                 CaptureConfigDetails(
+                    config_id=source.config_id,
                     config_name=source.config_name,
                     plugin_id=source.plugin_id,
                     plugin_name=source.plugin_name,
@@ -126,7 +127,7 @@ class SessionService:
         for source in session.capture_sources:
             for existing_source in existing_sources:
                 if (
-                    existing_source.config_name == source.config_name
+                    existing_source.config_id == source.config_id
                     and source.start_timestamp is not None
                 ):
                     existing_source.start_timestamp = source.start_timestamp
@@ -167,7 +168,7 @@ class SessionService:
         project_name: str,
         participant_code: str,
         session_id: str,
-        setting_name: str,
+        config_id: str,
         start_timestamp: float,
     ) -> SessionData:
         """Adds a start timestamp to a specific capture source setting in an existing session.
@@ -175,7 +176,7 @@ class SessionService:
             project_name (str): The name of the project.
             participant_code (str): The code of the participant.
             session_id (str): The ID of the session to be updated.
-            setting_name (str): The name of the capture source setting to update.
+            config_id (str): The id of the capture source config to update.
             start_timestamp (float): The start timestamp to be added.
         Returns:
             SessionData: The updated session data with the capture source setting start timestamp.
@@ -186,7 +187,7 @@ class SessionService:
         session = self._get_session_data(project_name, participant_code, session_id)
 
         for source in session.capture_sources:
-            if source.config_name == setting_name:
+            if source.config_id == config_id:
                 source.start_timestamp = start_timestamp
                 break
         session_storage = self._get_session_storage(project_name, participant_code)

@@ -146,8 +146,9 @@ def test_is_stressed_returns_false_on_low_memory(mock_swap, mock_mem, capture_bu
 
 def test_move_queue_to_buffers_transfers_data(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
-    d1 = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=1.0, data=b"a")
-    d2 = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=2.0, data=b"b")
+    d1 = PluginData(plugin_id=plugin_id, config_id=config_name, timestamp=1.0, data=b"a")
+    d2 = PluginData(plugin_id=plugin_id, config_id=config_name,
+                    timestamp=2.0, data=b"b")
 
     capture_buffer_manager.queue.empty.side_effect = [False, False, False, True, True]
     capture_buffer_manager.queue.get_nowait.side_effect = [d1, d2]
@@ -163,7 +164,7 @@ def test_move_queue_to_buffers_transfers_data(capture_buffer_manager):
 
 def test_get_captured_data_worker_processes_item_from_queue(capture_buffer_manager):
     plugin_id, config_name = "plugin1", "config1"
-    plugin_data = PluginData(plugin_id=plugin_id, config_name=config_name, timestamp=1.0, data=b"a")
+    plugin_data = PluginData(plugin_id=plugin_id, config_id=config_name, timestamp=1.0, data=b"a")
 
     capture_buffer_manager.on_capture_data = MagicMock()
     capture_buffer_manager.started = True

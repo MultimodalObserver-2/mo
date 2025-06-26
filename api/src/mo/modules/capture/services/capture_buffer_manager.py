@@ -61,8 +61,8 @@ class CaptureBufferManager:
         self.processes = processes
         self.last_pause = None
         self.buffers.clear()
-        for plugin_id, config_name in buffer_tuples:
-            self.buffers[(plugin_id, config_name)] = ListBuffer[CaptureData]()
+        for plugin_id, config_id in buffer_tuples:
+            self.buffers[(plugin_id, config_id)] = ListBuffer[CaptureData]()
         self.started = True
         self.captured_data_thread = threading.Thread(
             target=self.get_captured_data_worker, daemon=True
@@ -103,7 +103,7 @@ class CaptureBufferManager:
                 if data is None or not isinstance(data, PluginData):
                     continue
                 threading.Thread(target=self.on_capture_data, args=(data,), daemon=True).start()
-                self.buffers[(data.plugin_id, data.config_name)].add(
+                self.buffers[(data.plugin_id, data.config_id)].add(
                     CaptureData(
                         timestamp=data.timestamp,
                         data=data.data,
@@ -130,10 +130,10 @@ class CaptureBufferManager:
         Args:
             end_of_data (bool): If True, indicates that no more data will be added to the buffers.
         Returns:
-            dict[tuple[str, str], Exception]: A dictionary mapping (plugin_id, config_name) to any exceptions raised during flushing.
+            dict[tuple[str, str], Exception]: A dictionary mapping (plugin_id, config_id) to any exceptions raised during flushing.
         """
         exceptions = {}
-        for (plugin_id, config_name), buffer in self.buffers.items():
+        for (plugin_id, config_id), buffer in self.buffers.items():
             if buffer.is_empty():
                 continue
             try:
@@ -147,11 +147,11 @@ class CaptureBufferManager:
                     continue
                 args = {"data": filtered_data, "end_of_data": end_of_data}
                 with self.execution_lock:
-                    process.execute_callback_on_instance(config_name, save_callback, args)
+                    process.execute_callback_on_instance(config_id, save_callback, args)
             except Exception as e:
-                exceptions[(plugin_id, config_name)] = e
+                exceptions[(plugin_id, config_id)] = e
                 self.logger.error(
-                    f"[CaptureBufferManager] Error flushing buffer for {plugin_id}, {config_name}: {e}",
+                    f"[CaptureBufferManager] Error flushing buffer for {plugin_id}, {config_id}: {e}",
                     exc_info=True,
                 )
         return exceptions
@@ -160,7 +160,7 @@ class CaptureBufferManager:
         """Periodically flushes the buffers to ensure data is saved and processed.
         This worker runs in a separate thread and checks the buffers at regular intervals.
         Returns:
-            dict[tuple[str, str], list[Exception]]: A dictionary mapping (plugin_id, config_name) to lists of exceptions raised during flushing.
+            dict[tuple[str, str], list[Exception]]: A dictionary mapping (plugin_id, config_id) to lists of exceptions raised during flushing.
         """
         all_exceptions = defaultdict(list)
         while self.started:
@@ -192,7 +192,7 @@ class CaptureBufferManager:
         """Monitors the system for stress conditions and flushes buffers if stressed.
         This worker runs in a separate thread and checks the system memory and swap usage at regular intervals.
         Returns:
-            dict[tuple[str, str], list[Exception]]: A dictionary mapping (plugin_id, config_name) to lists of exceptions raised during monitoring.
+            dict[tuple[str, str], list[Exception]]: A dictionary mapping (plugin_id, config_id) to lists of exceptions raised during monitoring.
         """
         all_exceptions = defaultdict(list)
         while self.started:
@@ -221,7 +221,7 @@ class CaptureBufferManager:
                 if data is None or not isinstance(data, PluginData):
                     threading.Event().wait(0.05)
                     continue
-                self.buffers[(data.plugin_id, data.config_name)].add(
+                self.buffers[(data.plugin_id, data.config_id)].add(
                     CaptureData(
                         timestamp=data.timestamp,
                         data=data.data,

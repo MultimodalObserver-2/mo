@@ -31,6 +31,7 @@ class PlaybackConfigService {
             plugin_id: config.plugin_id,
             plugin_icon: plugin.icon_path,
             plugin_is_loaded: plugin.is_loaded,
+            capture_config_id: config.capture_config_id,
             settings: config.settings
           } as PlaybackConfig
         } catch {
@@ -40,6 +41,7 @@ class PlaybackConfigService {
             plugin_id: config.plugin_id,
             plugin_icon: undefined,
             plugin_is_loaded: false,
+            capture_config_id: config.capture_config_id,
             settings: config.settings
           } as PlaybackConfig
         }
@@ -61,6 +63,7 @@ class PlaybackConfigService {
       plugin_id: config.plugin_id,
       plugin_icon: plugin.icon_path,
       plugin_is_loaded: plugin.is_loaded,
+      capture_config_id: config.capture_config_id,
       settings: config.settings
     } as PlaybackConfig
   }
@@ -100,6 +103,7 @@ class PlaybackConfigService {
       a.name === b.name &&
       a.plugin_id === b.plugin_id &&
       a.plugin_is_loaded === b.plugin_is_loaded &&
+      a.capture_config_id === b.capture_config_id &&
       deepEqual(a.plugin_icon, b.plugin_icon) &&
       deepEqual(a.settings, b.settings)
     )

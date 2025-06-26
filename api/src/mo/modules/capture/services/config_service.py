@@ -18,6 +18,7 @@ from mo.modules.capture.schemas.capture_config import (
     CaptureConfigPutReq,
     CaptureConfigRes,
 )
+from mo.modules.capture.services.capture_plugin_callbacks import get_file_extension_callback
 from mo.modules.capture.services.paths import CAPTURE_CONFIGS_DIR, CAPTURE_CONFIGS_FILE
 from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from mo.modules.organization.services.project_service import ProjectService
@@ -108,19 +109,35 @@ class CaptureConfigService:
             plugin_metadata._location or "", plugin_metadata.icon_path or ""
         )
 
+        plugin_file_extension = None
+        try:
+            plugin_process = self.plugin_management.get_plugin_process(config.plugin_id)
+            if plugin_process:
+                plugin_process.add_plugin_instance(
+                    config.name, Settings(config.settings))
+                plugin_file_extension = plugin_process.execute_callback_on_instance(
+                    config.name, get_file_extension_callback)
+        except Exception as e:
+            raise BadRequestException(
+                f"Error while getting file extension for plugin {config.plugin_id}: {str(e)}"
+            )
+
         final_config = CaptureConfigData(
             name=config.name,
             plugin_id=config.plugin_id,
             settings=config.settings,
+            file_extension=plugin_file_extension,
         )
         configurations_storage.insert_one(final_config.model_dump())
 
         return CaptureConfigRes(
+            id=final_config.id,
             name=config.name,
             plugin_id=config.plugin_id,
             plugin_icon=plugin_icon,
             settings=config.settings,
             plugin_is_loaded=plugin_metadata._is_loaded,
+            file_extension=plugin_file_extension,
         )
 
     def get_all_capture_configs(self, project_name: str) -> list[CaptureConfigRes]:
@@ -142,9 +159,11 @@ class CaptureConfigService:
             config_data = CaptureConfigData(**config_dict)
             plugin_metadata = self.plugin_management.get_plugin_metadata(config_data.plugin_id)
             config = CaptureConfigRes(
+                id=config_data.id,
                 name=config_data.name,
                 plugin_id=config_data.plugin_id,
                 settings=config_data.settings,
+                file_extension=config_data.file_extension,
             )
             if plugin_metadata:
                 plugin_icon = PluginRes.get_icon_path(
@@ -177,9 +196,11 @@ class CaptureConfigService:
         settings_data = CaptureConfigData(**settings)
         plugin_metadata = self.plugin_management.get_plugin_metadata(settings_data.plugin_id)
         settings = CaptureConfigRes(
+            id=settings_data.id,
             name=settings_data.name,
             plugin_id=settings_data.plugin_id,
             settings=settings_data.settings,
+            file_extension=settings_data.file_extension,
         )
         if plugin_metadata:
             plugin_icon = PluginRes.get_icon_path(
@@ -225,10 +246,26 @@ class CaptureConfigService:
                 )
             existing_config.name = config.name
 
+        plugin_file_extension = None
+        try:
+            plugin_process = self.plugin_management.get_plugin_process(
+                existing_config.plugin_id)
+            if plugin_process:
+                plugin_process.add_plugin_instance(
+                    config.name, Settings(config.settings))
+                plugin_file_extension = plugin_process.execute_callback_on_instance(
+                    config.name, get_file_extension_callback)
+        except Exception as e:
+            raise BadRequestException(
+                f"Error while getting file extension for plugin {existing_config.plugin_id}: {str(e)}"
+            )
+
         config_data = CaptureConfigData(
+            id=existing_config.id,
             name=existing_config.name,
             plugin_id=existing_config.plugin_id,
             settings=existing_config.settings,
+            file_extension=plugin_file_extension,
         )
 
         configs_storage = self._get_configurations_storage(project_name)
@@ -285,10 +322,12 @@ class CaptureConfigService:
             plugin_metadata = self.plugin_management.get_plugin_metadata(config_data.plugin_id)
             if plugin_metadata and plugin_metadata._is_loaded:
                 config = CaptureConfigLoaded(
+                    id=config_data.id,
                     name=config_data.name,
                     plugin_id=config_data.plugin_id,
                     plugin_metadata=plugin_metadata,
                     settings=config_data.settings,
+                    file_extension=config_data.file_extension,
                 )
                 configs.append(config)
         return configs

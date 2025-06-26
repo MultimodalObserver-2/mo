@@ -30,8 +30,16 @@ interface ConfigurePluginProps {
   initialConfigName?: string
   /** An initial set of settings to pre-fill the form and send to the API on load. */
   initialSettings?: Record<string, SettingType>
-  /** Callback function executed with the config name and final settings when the form is submitted. */
-  onSubmit: (name: string, settings: Record<string, SettingType>) => void
+  /** Optional children to render inside the modal, typically for additional instructions or inputs */
+  children?: React.ReactNode
+  /** Position of the children in the modal, can be "top", "middle", or "bottom". */
+  childrenPosition?: "top" | "middle" | "bottom"
+  /** Callback function executed with the config name and final settings and extra inputs when the form is submitted */
+  onSubmit: (
+    name: string,
+    settings: Record<string, SettingType>,
+    extra?: Record<string, SettingType>
+  ) => void
   /** Callback function executed when the modal is requested to be closed. */
   onClose: () => void
 }
@@ -47,8 +55,10 @@ interface ConfigurePluginProps {
  * @param {string} [props.pluginName="Plugin"] - The name of the plugin for the modal title.
  * @param {string} [props.submitLabel="CONFIGURE"] - The label for the submit button.
  * @param {string} [props.initialConfigName=""] - The initial value for the configuration's name input.
- * @param {Record<string, any>} [props.initialSettings={}] - Initial settings to populate the form.
- * @param {(name: string, settings: Record<string, any>) => void} props.onSubmit - Callback for form submission.
+ * @param {Record<string, SettingType>} [props.initialSettings={}] - Initial settings to populate the form.
+ * @param {React.ReactNode} [props.children] - Optional children to render inside the modal.
+ * @param {"top" | "middle" | "bottom"} [props.childrenPosition="middle"] - Position of the children in the modal.
+ * @param {(name: string, settings: Record<string, any>, extra?: Record<string, any>) => void} props.onSubmit - Callback for form submission.
  * @param {() => void} props.onClose - Callback to close the modal.
  * @returns {React.ReactElement} The rendered modal component for plugin configuration.
  */
@@ -59,6 +69,8 @@ export default function ConfigurePlugin({
   submitLabel = "CONFIGURE",
   initialConfigName = "",
   initialSettings = {},
+  children,
+  childrenPosition = "middle",
   onSubmit,
   onClose
 }: Readonly<ConfigurePluginProps>) {
@@ -69,7 +81,24 @@ export default function ConfigurePlugin({
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
-    onSubmit(configName, settings)
+    // Send extra inputs (if any) to the onSubmit callback
+    const extraInputs: Record<string, SettingType> = {}
+    if (children) {
+      const form = e.currentTarget as HTMLFormElement
+      const formData = new FormData(form)
+      formData.forEach((value, key) => {
+        extraInputs[key] = value as SettingType
+      })
+
+      // Remove the configName from extra inputs
+      delete extraInputs.name
+      // Remove the settings from extra inputs
+      for (const key of Object.keys(settings)) {
+        delete extraInputs[key]
+      }
+    }
+
+    onSubmit(configName, settings, extraInputs)
   }
 
   const changeToDefault = (property: PluginProperty, settings: Record<string, SettingType>) => {
@@ -173,6 +202,7 @@ export default function ConfigurePlugin({
         <ModalTitle title={`${pluginName} configuration`} />
       </ModalHeader>
       <ModalBody type="form" id="submit-config" onSubmit={handleSubmit}>
+        {children && childrenPosition === "top" && <>{children}</>}
         <Input
           id="name"
           label="Name"
@@ -182,6 +212,7 @@ export default function ConfigurePlugin({
           value={configName}
           onChange={(e) => setConfigName(e.target.value)}
         />
+        {children && childrenPosition === "middle" && <>{children}</>}
         {properties.map((property) => (
           <PluginSettingProperty
             key={property.key}
@@ -190,6 +221,7 @@ export default function ConfigurePlugin({
             onChange={(val) => handleChangeProperty(val, property)}
           />
         ))}
+        {children && childrenPosition === "bottom" && <>{children}</>}
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="submit-config" isLoading={isLoading}>
