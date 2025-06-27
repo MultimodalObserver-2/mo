@@ -71,7 +71,9 @@ export default function SessionPage() {
         <section className={styles["session-section"]}>
           <DisplayData
             name="Duration"
-            value={session.duration ? formatDuration(session.duration) : "No duration set"}
+            value={
+              session.duration ? formatDuration(session.duration, true, true) : "No duration set"
+            }
           />
           <DisplayData
             name="Paused time"

@@ -8,7 +8,6 @@ import AppLayout from "./core/layouts/AppLayout"
 import { OrganizationRoutes } from "./modules/organization/routes"
 import { CaptureRoutes } from "./modules/capture/routes"
 import { AppLayoutVisualizationRoutes, VisualizationRoutes } from "./modules/visualization/routes"
-import pluginManager from "./core/plugin/PluginManager"
 import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
 
@@ -16,7 +15,6 @@ export default function App() {
   const navigate = useNavigate()
 
   useEffect(() => {
-    pluginManager.loadAllPlugins()
     const unsubscribe = window.core.router.onNavigate((path: string, options?: NavigateOptions) => {
       navigate(path, options)
     })

@@ -1,0 +1,57 @@
+.container {
+  position: absolute;
+  top: 0;
+  right: -200px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 22px 60px 22px;
+  background-color: color-mix(in srgb, var(--color-primary-700), transparent 10%);
+  width: 22vw;
+  height: 100%;
+  z-index: 100;
+  border-top: 12px solid var(--color-primary-600);
+  visibility: hidden;
+  transition: all 150ms ease-in-out;
+}
+
+.container.visible {
+  top: 0;
+  right: 0;
+  visibility: visible;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.sessions {
+  visibility: hidden;
+  background-color: color-mix(in srgb, var(--color-primary-600), transparent 15%) !important;
+}
+
+.container.visible .sessions {
+  visibility: visible;
+}
+
+.title {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.help-text {
+  font-size: 0.9em;
+  color: var(--color-primary-50);
+  font-weight: 500;
+}
+
+.close {
+  width: 22px !important;
+  height: 22px !important;
+  cursor: pointer;
+  fill: var(--color-primary-50);
+  transition: color 150ms ease-in-out;
+}

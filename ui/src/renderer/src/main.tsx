@@ -7,8 +7,10 @@ import { Provider } from "react-redux"
 import store from "./store"
 import App from "./app"
 import { registerAll } from "./registrations"
+import pluginManager from "./core/plugin/PluginManager"
 
 registerAll()
+pluginManager.loadAllPlugins()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

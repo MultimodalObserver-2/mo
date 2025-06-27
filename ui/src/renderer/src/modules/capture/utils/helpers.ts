@@ -38,6 +38,7 @@ export function getDuration(duration: number): { hours: number; minutes: number;
  * Formats a total duration in seconds into a time string (e.g., 'HH:MM:SS').
  * @param {number} duration - The total duration in seconds.
  * @param {boolean} [showHours=true] - If false and hours are zero, the hours part will be omitted (e.g., 'MM:SS').
+ * @param {boolean} [ceil=false] - If true, rounds the duration up to the nearest second.
  * @returns {string} The formatted duration string.
  */
 export function formatDuration(duration: number, showHours = true, ceil = false): string {

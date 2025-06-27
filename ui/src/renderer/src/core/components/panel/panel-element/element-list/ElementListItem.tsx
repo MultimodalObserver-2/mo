@@ -21,15 +21,15 @@ interface ElementListItemProps {
   /** Indicates whether the item is currently locked */
   isLocked?: boolean
   /** Click handler for the item itself */
-  onClick?: () => void
+  onClick?: (event: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void
   /** Handler for info icon click */
-  onInfo?: () => void
+  onInfo?: (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => void
   /** Handler for lock/unlock icon click */
-  onLock?: () => void
+  onLock?: (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => void
   /** Handler for edit icon click */
-  onEdit?: () => void
+  onEdit?: (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => void
   /** Handler for delete icon click */
-  onDelete?: () => void
+  onDelete?: (event: React.MouseEvent<SVGSVGElement, MouseEvent>) => void
   /** Indicates if the item is draggable */
   draggable?: boolean
   /** Indicates the order */

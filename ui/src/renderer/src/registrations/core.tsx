@@ -9,6 +9,7 @@ import panelControlsRegistry from "@renderer/core/store/panelControlsRegistry"
 import homePageRegistry from "@renderer/core/store/homePageRegistry"
 import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
+import OpenSessionsPlayback from "@renderer/modules/visualization/components/open-sessions-playback/OpenSessionsPlayback"
 
 /**
 Panel items registration
@@ -52,9 +53,14 @@ export function registerPanelItems() {
 export function registerPanelControlItems() {
   panelControlsRegistry.registerMany([
     {
-      id: "controls",
+      id: "capture-actions",
       order: 1,
       render: CaptureActions
+    },
+    {
+      id: "open-sessions-playback",
+      order: 2,
+      render: OpenSessionsPlayback
     }
   ])
 }

@@ -1,5 +1,5 @@
-import { useState } from "react"
 import styles from "./plugins.module.css"
+import { useState } from "react"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import FileUpload from "@renderer/core/components/file-upload/FileUpload"
 import NoteStackAddIcon from "@renderer/core/components/icons/NoteStackAddIcon"
@@ -41,13 +41,7 @@ export default function Register() {
   return (
     <form className={styles["upload-container"]} onSubmit={handleSubmitPlugin}>
       <FileUpload id="plugins" name="plugins" accept={[".zip"]} files={files} required />
-      <Button
-        styleType="default"
-        borderRadius="md"
-        type="submit"
-        className={styles.button}
-        isLoading={isRegistering}
-      >
+      <Button className={styles.button} borderRadius="md" type="submit" isLoading={isRegistering}>
         <NoteStackAddIcon className={styles.icon} />
         Register plugin
       </Button>

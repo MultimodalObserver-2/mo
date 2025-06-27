@@ -1,8 +1,57 @@
 .header {
-  padding: 8px 12px;
-  font-size: 1.1em;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 0 0 6px;
+}
+
+.header .left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.header .icon {
+  width: 22px;
+  height: 22px;
+  fill: var(--color-primary-700);
+  cursor: pointer;
+  transition: all 200ms ease;
+}
+
+.header .icon:hover {
+  fill: var(--color-accent-900);
+  transform: scale(1.1);
+}
+
+.header .title {
+  font-size: 16px;
   font-weight: 500;
   color: var(--color-text-dark);
+}
+
+.header .bold {
+  font-weight: 600;
+  color: var(--color-text-dark);
+}
+
+.workspace {
+  position: relative;
+}
+
+.sessions {
+  position: absolute;
+  top: 0;
+  right: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 20px 12px 60px 12px;
+  background-color: color-mix(in srgb, var(--color-primary-600), transparent 25%);
+  width: 200px;
+  height: 100%;
+  z-index: 10;
 }
 
 .player-controls {
@@ -12,12 +61,19 @@
   height: 90%;
   background-color: var(--color-primary-600);
   color: var(--color-text-light);
-  gap: 16px;
+  gap: 18px;
   padding: 0 24px;
   align-self: flex-end;
+  z-index: 1000;
 }
 
-.left .playback-button {
+.left-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.left-controls .playback-button {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -26,18 +82,33 @@
   height: 26px;
   border-radius: 50%;
   background-color: var(--color-text-light);
+  transition: background-color 200ms ease;
 }
 
-.left .playback-button .playback-icon {
+.left-controls .playback-button:hover {
+  background-color: var(--color-accent-100);
+}
+
+.left-controls .playback-button:hover .playback-icon {
+  fill: var(--color-primary-800);
+}
+
+.left-controls .playback-button .playback-icon {
   width: 22px;
   height: 22px;
   fill: var(--color-primary-600);
+  transition: fill 200ms ease;
 }
 
-.left .playback-button .replay-icon {
+.left-controls .playback-button .replay-icon {
   width: 20px;
   height: 20px;
   fill: var(--color-primary-600);
+  transition: fill 200ms ease;
+}
+
+.left-controls .playback-button:hover .replay-icon {
+  fill: var(--color-primary-800);
 }
 
 .player-controls .progress-bar {
@@ -61,14 +132,49 @@
 }
 
 .progress-bar .slider:hover {
-    accent-color: var(--color-primary-700);
+  accent-color: var(--color-primary-700);
 }
 
 .progress-bar .slider:active {
-    accent-color: var(--color-primary-600);
-    color: var(--color-primary-600);
+  accent-color: var(--color-primary-600);
+  color: var(--color-primary-600);
 }
 
 .progress-bar .slider:focus {
-    accent-color: var(--color-primary-900);
+  accent-color: var(--color-primary-900);
+}
+
+.right-controls {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.right-controls .sessions-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.right-controls .sessions-button:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.right-controls .sessions-icon {
+  width: 30px;
+  height: 30px;
+  fill: var(--color-text-light);
+  transition: all 200ms ease;
+}
+
+.right-controls .sessions-icon:hover {
+  transform: scale(1.1);
+  fill: var(--color-accent-100);
+}
+
+.right-controls .sessions-button:disabled .sessions-icon:hover {
+  transform: none;
+  fill: var(--color-text-light);
 }

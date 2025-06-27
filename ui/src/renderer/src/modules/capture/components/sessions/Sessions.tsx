@@ -19,7 +19,7 @@ import { formatDatetime } from "../../utils/helpers"
 import { openSessionDetailsModal } from "../../utils/modalWindows"
 import { showDeleteSessionMessage } from "../../utils/dialogMessages"
 import ShowDuration from "../show-duration/ShowDuration"
-import sessionRegistry from "../../store/SessionRegistry"
+import sessionRegistry, { SessionAction } from "../../store/SessionRegistry"
 
 export default function Sessions() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -73,6 +73,13 @@ export default function Sessions() {
     }
   }
 
+  const handleExtraActionOnClick = (action: SessionAction, session: CaptureSession) => {
+    if (!selectedProject || !selectedParticipant) {
+      return
+    }
+    action.onClick(selectedProject, selectedParticipant, session)
+  }
+
   useEffect(() => {
     window.capture.onReloadSessions(() => {
       fetchSessions(selectedProject, selectedParticipant)
@@ -106,7 +113,7 @@ export default function Sessions() {
                     <ActionElement
                       key={action.id}
                       className={styles["session-action"]}
-                      onClick={() => action.onClick(selectedProject, selectedParticipant, session)}
+                      onClick={() => handleExtraActionOnClick(action, session)}
                     />
                   )
                 })}

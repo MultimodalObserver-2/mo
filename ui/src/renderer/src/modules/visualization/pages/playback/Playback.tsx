@@ -4,58 +4,59 @@ import {
   WorkspaceFooter,
   WorkspaceHeader
 } from "@renderer/core/components/app-shell"
-import { useParams, useSearchParams } from "react-router"
 import styles from "./playback.module.css"
 import PlaybackDock from "../../components/playback-dock/PlaybackDock"
 import sessionService from "@renderer/modules/capture/services/SessionService"
-import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 import { useEffect, useRef, useState } from "react"
 import { formatDatetime, formatDuration } from "@renderer/modules/capture/utils/helpers"
 import { CaptureSession } from "@renderer/modules/capture/types/Session"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
-import { PlaybackConfig } from "../../types/PlaybackConfig"
-import playbackService from "../../services/PlaybackService"
-import { PlaybackContext } from "../../plugin/PlaybackPlugin"
 import PauseIcon from "@renderer/core/components/icons/PauseIcon"
 import PlayArrowIcon from "@renderer/core/components/icons/PlayArrowIcon"
 import ReplayIcon from "@renderer/core/components/icons/ReplayIcon"
+import { useSelector } from "react-redux"
+import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
+import { selectSelectedParticipant } from "@renderer/modules/organization/store/participantsSlice"
+import { getPlaybackPanel } from "./PlaybackPanel"
+import InfoIcon from "@renderer/core/components/icons/InfoIcon"
+import { openSessionDetailsModal } from "@renderer/modules/capture/utils/modalWindows"
+import { Project } from "@renderer/modules/organization/types/Project"
+import { Participant } from "@renderer/modules/organization/types/Participant"
+import PlaylistPlayIcon from "@renderer/core/components/icons/PlaylistPlayIcon"
+import SessionsList from "../../components/sessions-list/SessionsList"
+import PlaylistRemoveIcon from "@renderer/core/components/icons/PlaylistRemoveIcon"
 
 export default function Playback() {
-  const { projectName, participantCode, sessionId } = useParams<{
-    projectName: string
-    participantCode: string
-    sessionId: string
-  }>()
-  const [searchParams] = useSearchParams()
+  const selectedProject = useSelector(selectSelectedProject)
+  const selectedParticipant = useSelector(selectSelectedParticipant)
   const [session, setSession] = useState<CaptureSession | null>(null)
   const [isPlaying, setIsPlaying] = useState(false)
   const [time, setTime] = useState(0)
+  const [showSessionsList, setShowSessionsList] = useState(false)
   const loopRef = useRef<NodeJS.Timeout | null>(null)
   const loopInterval = 10 // ms
   const syncInterval = 1000 // ms
-  const controls = {
-    onPlay: window.visualization.playback.onPlay,
-    onPause: window.visualization.playback.onPause,
-    onSeek: window.visualization.playback.onSeek,
-    onSync: window.visualization.playback.onSync
-  }
 
   useEffect(() => {
     const fetchSession = async () => {
-      if (!projectName || !participantCode || !sessionId) {
+      if (!selectedProject || !selectedParticipant) {
         return
       }
 
       try {
-        const response = await sessionService.get(projectName, participantCode, sessionId)
-        setSession(response.data)
+        const sessionRes = await sessionService.getLast(
+          selectedProject.name,
+          selectedParticipant.code
+        )
+
+        setSession(sessionRes)
       } catch (error) {
         showApiErrorMessage(error)
       }
     }
 
     fetchSession()
-  }, [projectName, participantCode, sessionId])
+  }, [selectedProject, selectedParticipant])
 
   const setLoopRefInterval = () => {
     if (!session) {
@@ -125,39 +126,6 @@ export default function Playback() {
     }
   }
 
-  const getCaptureConfigId = (playbackConfig: PlaybackConfig) => {
-    return searchParams.get(playbackConfig.id || "") || ""
-  }
-
-  function PlaybackPanel({ params }: { params: PlaybackConfig }) {
-    if (!params.plugin_is_loaded) {
-      return (
-        <p>
-          The plugin with id <strong>{params.plugin_id}</strong> is not loaded or does not exist.
-          Please ensure the plugin is installed and loaded correctly.
-        </p>
-      )
-    }
-
-    const plugin = playbackService.getPluginInstanceById(params.plugin_id)
-    plugin.configure(params.settings)
-    const captureConfig = session?.capture_sources.find(
-      (source) => source.config_name === getCaptureConfigId(params)
-    )
-    const context: PlaybackContext = {
-      filePath: captureConfig?.location || "",
-      captureStartTimestamp: session?.start_timestamp || 0,
-      fileCaptureStartTimestamp: captureConfig?.start_timestamp || 0,
-      pauseIntervals: session?.paused_intervals || []
-    }
-
-    return (
-      plugin.getView({ controls, context, settings: params.settings }) || (
-        <div>No view available</div>
-      )
-    )
-  }
-
   const renderPlaybackIcon = () => {
     if (isPlaying) {
       return <PauseIcon className={styles["playback-icon"]} />
@@ -170,26 +138,102 @@ export default function Playback() {
     return <PlayArrowIcon className={styles["playback-icon"]} />
   }
 
-  if (!projectName || !participantCode || !sessionId) {
-    return <ErrorElement name="Playback Error" />
+  const getPlaybackTitle = () => {
+    if (!session) {
+      return "No session available"
+    }
+
+    if (isPlaying) {
+      return "Pause playback"
+    }
+
+    if (session.duration && time >= session.duration * 1000) {
+      return "Replay session"
+    }
+
+    return "Play session"
+  }
+
+  const openSessionInfo = (project: Project, participant: Participant, session: CaptureSession) => {
+    openSessionDetailsModal(project?.name, participant?.code, session?.session_id)
+  }
+
+  const getOpenSessionsTitle = () => {
+    if (!selectedProject || !selectedParticipant || !session) {
+      return "No sessions available"
+    }
+
+    return showSessionsList ? "Hide sessions list" : "Show sessions list"
+  }
+
+  if (!selectedProject || !selectedParticipant) {
+    return (
+      <Workspace>
+        <WorkspaceBody>
+          <h4>
+            {!selectedProject
+              ? "No project selected, please select to play a session"
+              : "No participant selected, please select to play a session"}
+          </h4>
+        </WorkspaceBody>
+      </Workspace>
+    )
   }
 
   return (
-    <Workspace>
+    <Workspace className={styles.workspace}>
       <WorkspaceHeader>
-        <h4 className={styles.header}>
-          {session
-            ? `Playing session from ${formatDatetime(session.started_at)}`
-            : "Session not found"}
-        </h4>
+        {session ? (
+          <div className={styles.header}>
+            <section className={styles.left}>
+              <InfoIcon
+                className={styles.icon}
+                onClick={() => openSessionInfo(selectedProject, selectedParticipant, session)}
+              >
+                <title>Session details</title>
+              </InfoIcon>
+              <h4 className={styles.title}>
+                Playing session from{" "}
+                <b className={styles.bold}>{formatDatetime(session.started_at)}</b>
+              </h4>
+            </section>
+          </div>
+        ) : (
+          <h4 className={styles.header}>Session not found</h4>
+        )}
       </WorkspaceHeader>
-      <WorkspaceBody>
-        <PlaybackDock playbackPanel={PlaybackPanel} />
+      <WorkspaceBody className={styles.body}>
+        {session ? (
+          <PlaybackDock key={session.session_id} playbackPanel={getPlaybackPanel(session)} />
+        ) : (
+          <h4 className={styles["no-session"]}>No sessions available</h4>
+        )}
+        {session && (
+          <SessionsList
+            projectName={selectedProject.name}
+            participantCode={selectedParticipant.code}
+            selectedSession={session}
+            onSessionSelected={(selectedSession) => {
+              setSession(selectedSession)
+              window.visualization.playback.pause()
+              window.visualization.playback.seek(0)
+              setTime(0)
+              setIsPlaying(false)
+              if (loopRef.current) {
+                clearInterval(loopRef.current)
+                loopRef.current = null
+              }
+            }}
+            onClose={() => setShowSessionsList(false)}
+            visible={showSessionsList}
+          />
+        )}
       </WorkspaceBody>
       <WorkspaceFooter borderless>
         <div className={styles["player-controls"]}>
-          <section className={styles.left}>
+          <section className={styles["left-controls"]}>
             <button
+              title={getPlaybackTitle()}
               className={styles["playback-button"]}
               onClick={handlePlaybackToggle}
               disabled={!session}
@@ -213,6 +257,22 @@ export default function Playback() {
             <span className={styles["time"]}>
               {formatDuration(session ? session.duration : 0, false, true)}
             </span>
+          </section>
+          <section className={styles["right-controls"]}>
+            <button
+              title={getOpenSessionsTitle()}
+              className={styles["sessions-button"]}
+              onClick={() => {
+                setShowSessionsList((prev) => !prev)
+              }}
+              disabled={!session}
+            >
+              {showSessionsList ? (
+                <PlaylistRemoveIcon className={styles["sessions-icon"]} />
+              ) : (
+                <PlaylistPlayIcon className={styles["sessions-icon"]} />
+              )}
+            </button>
           </section>
         </div>
       </WorkspaceFooter>

@@ -3,9 +3,10 @@ import styles from "./app-shell.module.css"
 
 interface WorkspaceProps {
   readonly children: React.ReactNode
+  readonly className?: string
 }
 
-export default function Workspace({ children }: WorkspaceProps) {
+export default function Workspace({ children, className }: WorkspaceProps) {
   const header = findChildByDisplayName(children, "WorkspaceHeader") || (
     <section className={styles["workspace-header"]} />
   )
@@ -15,11 +16,11 @@ export default function Workspace({ children }: WorkspaceProps) {
   )
 
   const footer = findChildByDisplayName(children, "WorkspaceFooter") || (
-    <section className={styles["workspace-footer"]} />
+    <section className={`${styles["workspace-footer"]} ${styles.bordered}`} />
   )
 
   return (
-    <div className={styles.workspace}>
+    <div className={`${styles.workspace} ${className}`}>
       {header}
       {body}
       {footer}

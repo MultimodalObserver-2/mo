@@ -1,4 +1,5 @@
 export type CaptureConfigDetails = {
+  config_id: string
   config_name: string
   plugin_id: string
   plugin_name: string

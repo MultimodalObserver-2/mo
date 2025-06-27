@@ -19,9 +19,6 @@ export const VisualizationRoutes = (
 
 export const AppLayoutVisualizationRoutes = (
   <>
-    <Route
-      path=":projectName/participants/:participantCode/sessions/:sessionId/playback"
-      element={<Playback />}
-    />
+    <Route path="sessions/playback" element={<Playback />} />
   </>
 )

@@ -2,7 +2,7 @@ import styles from "./button.module.css"
 
 type ButtonProps = React.ComponentProps<"button"> & {
   /** The visual style of the button */
-  styleType?: "default" | "danger" | "soft" | "extra-soft"
+  styleType?: "default" | "danger" | "soft" | "extra-soft" | "primary-light"
   /** The border radius of the button */
   borderRadius?: "sm" | "md" | "xl"
   /** Shows a loading spinner and disables the button */
@@ -15,11 +15,12 @@ type ButtonProps = React.ComponentProps<"button"> & {
  *
  * @param {string} [props.className=""] - Additional classes for custom styling.
  * @param {React.ReactNode} props.children - The content to be displayed inside the button.
- * @param {"default" | "danger" | "soft" | "extra-soft"} [props.styleType="default"] - The visual variant of the button.
+ * @param {"default" | "danger" | "soft" | "extra-soft" | "accent-dark"} [props.styleType="default"] - The visual variant of the button.
  * - 'default': Standard button
  * - 'danger': Warning/destructive actions
  * - 'soft': Muted background
  * - 'extra-soft': Even lighter background
+ * - 'primary-light': Light primary button
  * @param {"sm" | "md" | "xl"} [props.borderRadius="sm"] - Defines the border radius.
  * - 'sm': Small radius
  * - 'md': Medium radius
