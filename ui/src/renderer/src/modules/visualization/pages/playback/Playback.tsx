@@ -25,6 +25,8 @@ import { Participant } from "@renderer/modules/organization/types/Participant"
 import PlaylistPlayIcon from "@renderer/core/components/icons/PlaylistPlayIcon"
 import SessionsList from "../../components/sessions-list/SessionsList"
 import PlaylistRemoveIcon from "@renderer/core/components/icons/PlaylistRemoveIcon"
+import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
+import RightHeaderActions from "./RightHeaderActions"
 
 export default function Playback() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -204,7 +206,11 @@ export default function Playback() {
       </WorkspaceHeader>
       <WorkspaceBody className={styles.body}>
         {session ? (
-          <PlaybackDock key={session.session_id} playbackPanel={getPlaybackPanel(session)} />
+          <PlaybackDock
+            key={session.session_id}
+            playbackPanel={getPlaybackPanel(session)}
+            rightHeaderActions={RightHeaderActions}
+          />
         ) : (
           <h4 className={styles["no-session"]}>No sessions available</h4>
         )}

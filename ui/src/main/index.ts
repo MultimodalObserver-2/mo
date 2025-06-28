@@ -54,6 +54,30 @@ function createWindow(): BrowserWindow {
     mainWindow.loadFile(join(__dirname, "../renderer/index.html"), { hash: "#/loading" })
   }
 
+  mainWindow.webContents.setWindowOpenHandler((details) => {
+    const url = details.url
+    const isInternal = url.includes("internal=true")
+    if (isInternal) {
+      // Allow internal links to be opened in the same window
+      return {
+        action: "allow",
+        overrideBrowserWindowOptions: {
+          autoHideMenuBar: true,
+          title: "Multimodal Observer",
+          webPreferences: {
+            preload: join(__dirname, "../preload/index.js"),
+            sandbox: false,
+            webSecurity: !is.dev
+          }
+        }
+      }
+    }
+
+    // Open external links in the default browser
+    shell.openExternal(details.url)
+    return { action: "deny" }
+  })
+
   return mainWindow
 }
 

@@ -14,6 +14,7 @@ export const VisualizationRoutes = (
       path=":projectName/participants/:participantCode/sessions/:sessionId/start-playback"
       element={<StartPlayback />}
     />
+    <Route path="sessions/playback/popout" element={<></>} />
   </>
 )
 

@@ -5,6 +5,7 @@ import {
   DockviewIDisposable,
   DockviewReact,
   DockviewTheme,
+  IDockviewHeaderActionsProps,
   IDockviewPanelProps,
   SerializedDockview
 } from "dockview"
@@ -27,9 +28,10 @@ const moTheme: DockviewTheme = {
 
 interface PlaybackDockProps {
   playbackPanel: FunctionComponent<IDockviewPanelProps<PlaybackConfig>>
+  rightHeaderActions?: FunctionComponent<IDockviewHeaderActionsProps>
 }
 
-export default function PlaybackDock({ playbackPanel }: PlaybackDockProps) {
+export default function PlaybackDock({ playbackPanel, rightHeaderActions }: PlaybackDockProps) {
   const selectedProject = useSelector(selectSelectedProject)
   const [api, setApi] = useState<DockviewApi | null>(null)
 
@@ -100,6 +102,7 @@ export default function PlaybackDock({ playbackPanel }: PlaybackDockProps) {
       theme={moTheme}
       components={{ playbackPanel: playbackPanel }}
       tabComponents={{ playbackTab: PlaybackTab }}
+      rightHeaderActionsComponent={rightHeaderActions}
       onReady={(event) => {
         setApi(event.api)
       }}
