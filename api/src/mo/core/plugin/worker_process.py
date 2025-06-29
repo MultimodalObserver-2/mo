@@ -188,22 +188,28 @@ class PluginWorkerProcess(Process):
             return {"is_valid": False, "exception": e}
 
     def _handle_add_plugin_instance(
-        self, instance_id: str, settings: Optional[Settings]
+        self, instance_id: str, settings: Optional[Settings], overwrite: bool = False
     ) -> dict[str, bool]:
         """Handles the 'add_plugin_instance' command to add a new plugin instance.
         Args:
             instance_id (str): The unique identifier for the plugin instance.
             settings (Optional[Settings]): Optional settings for the plugin instance.
+            overwrite (bool): Whether to overwrite an existing instance with the same ID.
         Returns:
             dict[str, bool]: A dictionary indicating whether the instance was added successfully.
         Raises:
             ValueError: If an instance with the same ID already exists.
             RuntimeError: If the plugin class is not loaded.
         """
-        if instance_id in self.plugins_instances:
+        if instance_id in self.plugins_instances and not overwrite:
             raise ValueError(f"Plugin instance with id '{instance_id}' already exists.")
         if self.plugin_class is None:
             raise RuntimeError("Plugin class is not loaded.")
+        if overwrite and instance_id in self.plugins_instances:
+            actual_instance = self.plugins_instances[instance_id]
+            actual_instance.unload()
+            self.plugins_instances.pop(instance_id)
+            self.plugins_instances_ids.remove(instance_id)
         plugin_instance = self.plugin_class()
         plugin_instance.load()
         plugin_instance.configure(settings or Settings())
@@ -311,21 +317,24 @@ class PluginWorkerProcess(Process):
             exception = res.get("exception", UnknownError())
             raise exception
 
-    def add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None) -> None:
+    def add_plugin_instance(self, instance_id: str, settings: Optional[Settings] = None, overwrite: bool = False) -> None:
         """Adds a new plugin instance with the given ID and settings.
         Args:
             instance_id (str): The unique identifier for the plugin instance.
             settings (Optional[Settings]): Optional settings for the plugin instance.
+            overwrite (bool): Whether to overwrite an existing instance with the same ID.
         Raises:
             ValueError: If an instance with the same ID already exists.
             RuntimeError: If the plugin class is not loaded.
             UnknownError: If an error occurs while adding the plugin instance.
         """
-        self._parent_conn.send(("add_plugin_instance", instance_id, settings))
+        self._parent_conn.send(("add_plugin_instance", instance_id, settings, overwrite))
         res = self._parent_conn.recv()
         if not res.get("is_ok", False):
             exception = res.get("exception", UnknownError())
             raise exception
+        if instance_id in self.plugins_instances and overwrite:
+            return
         # If the instance was added successfully, store it in the local state.
         self.plugins_instances_ids.append(instance_id)
 
