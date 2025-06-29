@@ -33,8 +33,7 @@ export interface Config {
 export interface ConfigProvider {
   title: string
   fetchConfigs: (project: Project) => Promise<Config[]>
-  onReloadConfigs: (callback: () => void) => void
-  removeReloadConfigsListener: () => void
+  onReloadConfigs: (callback: () => void) => () => void
   onAddConfig: (project: Project) => void
   onDeleteConfig: (project: Project, config: Config) => Promise<void>
   onOpenConfig: (project: Project, config: Config) => void
@@ -104,13 +103,13 @@ export default function ConfigurationsPanel({
   }
 
   useEffect(() => {
-    configProviders[selectedIdx]?.onReloadConfigs(() => {
+    const unsubReloadConfigs = configProviders[selectedIdx]?.onReloadConfigs(() => {
       fetchPluginConfigs(selectedProject)
     })
 
     fetchPluginConfigs(selectedProject)
     return () => {
-      configProviders[selectedIdx]?.removeReloadConfigsListener()
+      unsubReloadConfigs?.()
     }
   }, [selectedProject, selectedIdx])
 

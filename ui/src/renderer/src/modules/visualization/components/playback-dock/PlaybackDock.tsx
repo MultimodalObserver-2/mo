@@ -27,8 +27,8 @@ const moTheme: DockviewTheme = {
 }
 
 interface PlaybackDockProps {
-  playbackPanel: FunctionComponent<IDockviewPanelProps<PlaybackConfig>>
-  rightHeaderActions?: FunctionComponent<IDockviewHeaderActionsProps>
+  readonly playbackPanel: FunctionComponent<IDockviewPanelProps<PlaybackConfig>>
+  readonly rightHeaderActions?: FunctionComponent<IDockviewHeaderActionsProps>
 }
 
 export default function PlaybackDock({ playbackPanel, rightHeaderActions }: PlaybackDockProps) {
@@ -90,10 +90,20 @@ export default function PlaybackDock({ playbackPanel, rightHeaderActions }: Play
       await loadConfigs()
     }
     loadAll()
-    window.visualization.onReloadPlaybackConfigs(loadConfigs)
+    const unsubReloadConfigs = window.visualization.onReloadPlaybackConfigs(loadConfigs)
+    const unsubUpdateParams = window.visualization.onUpdatePanelParameters((params: unknown) => {
+      const cfgParams = params as PlaybackConfig
+      const panel = api.getPanel(cfgParams.id)
+      if (panel) {
+        panel.api.updateParameters(cfgParams)
+      } else {
+        console.warn(`Panel with id ${cfgParams.id} not found`)
+      }
+    })
     return () => {
-      window.visualization.removeReloadPlaybackConfigsListeners()
       sub.dispose()
+      unsubReloadConfigs()
+      unsubUpdateParams()
     }
   }, [selectedProject, api])
 

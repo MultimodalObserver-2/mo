@@ -56,8 +56,6 @@ export default function SessionsList({
     }
   }, [projectName, participantCode])
 
-  useEffect(() => {})
-
   const openSessionInfo = (session: CaptureSession) => {
     openSessionDetailsModal(projectName, participantCode, session.session_id)
   }
@@ -94,7 +92,7 @@ export default function SessionsList({
     <PanelElement className={`${styles.container} ${visible ? styles.visible : ""}`}>
       <ElementHeader className={styles.header}>
         <ElementTitle className={styles.title}>
-          <h4>Available Sessions</h4>
+          <span>Available Sessions</span>
           <p className={styles["help-text"]}>Select a session for playback</p>
         </ElementTitle>
         <ElementActions>

@@ -1,7 +1,8 @@
 export default interface VisualizationAPI {
   reloadPlaybackConfigs: () => void
-  onReloadPlaybackConfigs: (callback: () => void) => void
-  removeReloadPlaybackConfigsListeners: () => void
+  onReloadPlaybackConfigs: (callback: () => void) => () => void
+  updatePanelParameters: (params: unknown) => void
+  onUpdatePanelParameters: (callback: (params: unknown) => void) => () => void
   playback: {
     play: (fromTimeMs: number) => void
     onPlay: (callback: (fromTimeMs: number) => void) => () => void

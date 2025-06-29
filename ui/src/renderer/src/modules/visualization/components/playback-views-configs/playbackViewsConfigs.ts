@@ -23,7 +23,6 @@ const playbackConfigProvider: ConfigProvider = {
     }
   },
   onReloadConfigs: window.visualization.onReloadPlaybackConfigs,
-  removeReloadConfigsListener: window.visualization.removeReloadPlaybackConfigsListeners,
   onAddConfig: (project: Project) => {
     openPlaybackViewsModal(project.name)
   },

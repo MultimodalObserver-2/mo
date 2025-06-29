@@ -27,6 +27,8 @@ import SessionsList from "../../components/sessions-list/SessionsList"
 import PlaylistRemoveIcon from "@renderer/core/components/icons/PlaylistRemoveIcon"
 import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
 import RightHeaderActions from "./RightHeaderActions"
+import PlaybackCapturedFiles from "../../components/playback-captured-files/PlaybackCapturedFiles"
+import SettingsAlertIcon from "@renderer/core/components/icons/SettingsAlertIcon"
 
 export default function Playback() {
   const selectedProject = useSelector(selectSelectedProject)
@@ -35,28 +37,36 @@ export default function Playback() {
   const [isPlaying, setIsPlaying] = useState(false)
   const [time, setTime] = useState(0)
   const [showSessionsList, setShowSessionsList] = useState(false)
+  const [showChangeConfig, setShowChangeConfig] = useState(false)
+  const [configWarning, setConfigWarning] = useState(false)
   const loopRef = useRef<NodeJS.Timeout | null>(null)
   const loopInterval = 10 // ms
   const syncInterval = 1000 // ms
-
-  useEffect(() => {
-    const fetchSession = async () => {
-      if (!selectedProject || !selectedParticipant) {
-        return
-      }
-
-      try {
-        const sessionRes = await sessionService.getLast(
-          selectedProject.name,
-          selectedParticipant.code
-        )
-
-        setSession(sessionRes)
-      } catch (error) {
-        showApiErrorMessage(error)
-      }
+  const fetchSession = async (unsubReloadSessions?) => {
+    if (!selectedProject || !selectedParticipant) {
+      return
     }
 
+    try {
+      const sessionRes = await sessionService.getLast(
+        selectedProject.name,
+        selectedParticipant.code
+      )
+
+      setSession(sessionRes)
+      if (sessionRes === null) {
+        const unsub = window.capture.onReloadSessions(() => {
+          console.log("Reloading sessions")
+          fetchSession(unsub)
+        })
+      }
+    } catch (error) {
+      showApiErrorMessage(error)
+    }
+    unsubReloadSessions?.()
+  }
+
+  useEffect(() => {
     fetchSession()
   }, [selectedProject, selectedParticipant])
 
@@ -199,6 +209,22 @@ export default function Playback() {
                 <b className={styles.bold}>{formatDatetime(session.started_at)}</b>
               </h4>
             </section>
+            <section className={styles.right}>
+              <button
+                title="Change playback captured files"
+                className={styles["settings-button"]}
+                onClick={() => {
+                  setShowSessionsList(false)
+                  setShowChangeConfig(true)
+                }}
+              >
+                {configWarning ? (
+                  <SettingsAlertIcon className={styles.icon} />
+                ) : (
+                  <SettingsIcon className={styles.icon} />
+                )}
+              </button>
+            </section>
           </div>
         ) : (
           <h4 className={styles.header}>Session not found</h4>
@@ -229,9 +255,27 @@ export default function Playback() {
                 clearInterval(loopRef.current)
                 loopRef.current = null
               }
+
+              if (selectedSession === null) {
+                fetchSession()
+              }
             }}
             onClose={() => setShowSessionsList(false)}
             visible={showSessionsList}
+          />
+        )}
+        {session && (
+          <PlaybackCapturedFiles
+            projectName={selectedProject.name}
+            session={session}
+            onClose={() => setShowChangeConfig(false)}
+            onChange={(newPlaybackConfig) => {
+              window.visualization.updatePanelParameters(newPlaybackConfig)
+            }}
+            onWarning={(warn: boolean) => {
+              setConfigWarning(warn)
+            }}
+            visible={showChangeConfig}
           />
         )}
       </WorkspaceBody>
@@ -269,7 +313,12 @@ export default function Playback() {
               title={getOpenSessionsTitle()}
               className={styles["sessions-button"]}
               onClick={() => {
-                setShowSessionsList((prev) => !prev)
+                setShowSessionsList((prev) => {
+                  if (showChangeConfig && !prev) {
+                    setShowChangeConfig(false)
+                  }
+                  return !prev
+                })
               }}
               disabled={!session}
             >

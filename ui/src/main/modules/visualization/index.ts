@@ -6,6 +6,12 @@ app.whenReady().then(() => {
       window.webContents.send("vis:on-reload-playback-configs")
     })
   })
+
+  ipcMain.on("vis:update-panel-parameters", (_event, params) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("vis:on-update-panel-parameters", params)
+    })
+  })
 })
 
 import "./playbackControls"

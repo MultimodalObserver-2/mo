@@ -5,10 +5,25 @@ const visualization = {
     ipcRenderer.send("vis:reload-playback-configs")
   },
   onReloadPlaybackConfigs: (callback: () => void) => {
-    ipcRenderer.on("vis:on-reload-playback-configs", () => callback())
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("vis:on-reload-playback-configs", listener)
+    return () => {
+      ipcRenderer.removeListener("vis:on-reload-playback-configs", listener)
+    }
   },
-  removeReloadPlaybackConfigsListeners: () => {
-    ipcRenderer.removeAllListeners("vis:on-reload-playback-configs")
+  updatePanelParameters: (params: unknown) => {
+    ipcRenderer.send("vis:update-panel-parameters", params)
+  },
+  onUpdatePanelParameters: (callback: (params: unknown) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, params: unknown) => {
+      callback(params)
+    }
+    ipcRenderer.on("vis:on-update-panel-parameters", listener)
+    return () => {
+      ipcRenderer.removeListener("vis:on-update-panel-parameters", listener)
+    }
   },
   playback: {
     play: (fromTimeMs: number) => {

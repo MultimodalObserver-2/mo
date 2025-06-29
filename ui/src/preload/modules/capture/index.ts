@@ -5,10 +5,13 @@ const capture = {
     ipcRenderer.send("capture:reload-configs")
   },
   onReloadConfigs: (callback: () => void) => {
-    ipcRenderer.on("capture:on-reload-configs", () => callback())
-  },
-  removeReloadConfigsListeners: () => {
-    ipcRenderer.removeAllListeners("capture:on-reload-configs")
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("capture:on-reload-configs", listener)
+    return () => {
+      ipcRenderer.removeListener("capture:on-reload-configs", listener)
+    }
   },
   reloadSessions: () => {
     ipcRenderer.send("capture:reload-sessions")

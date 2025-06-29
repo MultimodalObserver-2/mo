@@ -23,7 +23,6 @@ const captureConfigProvider: ConfigProvider = {
     }
   },
   onReloadConfigs: window.capture.onReloadConfigs,
-  removeReloadConfigsListener: window.capture.removeReloadConfigsListeners,
   onAddConfig: (project: Project) => {
     openCaptureSourceModal(project.name)
   },
