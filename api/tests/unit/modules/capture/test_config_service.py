@@ -40,6 +40,7 @@ def mock_plugin_metadata():
         repository="http://example.com/repo",
         platform=SysPlatform(linux=True, windows=True),
         icon_path="icon.png",
+        target="api",
     )
     metadata._location = "/path/to/plugin"
     metadata._is_loaded = True
@@ -52,15 +53,21 @@ def test_add_capture_config_success(config_service, mock_plugin_metadata):
     config_data = {
         "name": "TestSetting",
         "plugin_id": plugin_final_id,
-        "settings": {"param": "value"},
+        "settings": {"param": "value"}
     }
     config_req = CaptureConfigPostReq(**config_data)
+
 
     config_service.project_service.exists.return_value = True
     config_service.plugin_management.plugin_from_type_exists.return_value = True
     config_service.plugin_management.get_plugin_metadata.return_value = mock_plugin_metadata
     config_service.file_management.exists.return_value = False
     config_service.file_management.create_directory.return_value = ""
+    
+    process_mock = MagicMock()
+    config_service.plugin_management.get_plugin_process.return_value = process_mock
+    process_mock.add_plugin_instance.return_value = MagicMock()
+    process_mock.execute_callback_on_instance.return_value = "json"
 
     with patch("mo.modules.capture.services.config_service.JsonStorage") as mock_json_storage_class:
         mock_storage_instance = MagicMock()
@@ -234,11 +241,16 @@ def test_update_capture_config_success(config_service):
     update_req = CaptureConfigPutReq(**update_data)
 
     existing_config = CaptureConfigRes(
-        name=config_name, plugin_id="pub.plugin1", settings={"key": "old_val"}
+        id=config_name, name=config_name, plugin_id="pub.plugin1", settings={"key": "old_val"}, file_extension="json"
     )
 
     config_service.get_capture_config = MagicMock(return_value=existing_config)
     config_service.exists = MagicMock(return_value=False)
+
+    process_mock = MagicMock()
+    config_service.plugin_management.get_plugin_process.return_value = process_mock
+    process_mock.add_plugin_instance.return_value = MagicMock()
+    process_mock.execute_callback_on_instance.return_value = "json"
 
     with patch("mo.modules.capture.services.config_service.JsonStorage") as mock_json_storage_class:
         mock_storage_instance = MagicMock()
@@ -257,7 +269,7 @@ def test_update_capture_config_invalid_settings_validation(config_service):
     config_name = "MySetting"
     update_req = CaptureConfigPutReq(name=config_name, settings={"invalid": "data"})
 
-    existing_config = CaptureConfigRes(name=config_name, plugin_id="pub.plugin1", settings={})
+    existing_config = CaptureConfigRes(id=config_name, name=config_name, plugin_id="pub.plugin1", settings={})
     config_service.get_capture_config = MagicMock(return_value=existing_config)
     config_service.plugin_management.validate_plugin_settings.side_effect = Exception(
         "Invalid property"
@@ -272,7 +284,7 @@ def test_update_capture_config_name_already_exists(config_service):
     config_name = "MySetting"
     update_req = CaptureConfigPutReq(name="ExistingName", settings={})
 
-    existing_config = CaptureConfigRes(name=config_name, plugin_id="pub.plugin1", settings={})
+    existing_config = CaptureConfigRes(id="existing_config", name=config_name, plugin_id="pub.plugin1", settings={})
     config_service.get_capture_config = MagicMock(return_value=existing_config)
     config_service.exists = MagicMock(return_value=True)
 

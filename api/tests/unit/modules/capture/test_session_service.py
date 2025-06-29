@@ -42,6 +42,7 @@ def mock_session_data():
         started_at=datetime(2025, 6, 6, 18, 30, 0),
         capture_sources=[
             CaptureConfigDetails(
+                config_id="test_setting",
                 config_name="test_setting",
                 plugin_id="pub.plugin",
                 plugin_name="Test",
@@ -63,6 +64,7 @@ def test_create_session_success(session_service, mock_participant):
         started_at=now,
         capture_sources=[
             CaptureConfigDetailsPost(
+                config_id="test_setting",
                 config_name="test_setting",
                 plugin_id="pub.plugin",
                 plugin_name="Test",
@@ -103,7 +105,8 @@ def test_update_session_success(session_service, mock_session_data):
     session_put = SessionPut(
         end_timestamp=1749268800.0,
         capture_sources=[
-            CaptureConfigDetailsPut(config_name="test_setting", start_timestamp=1749268300.0)
+            CaptureConfigDetailsPut(
+                config_id="test_setting", start_timestamp=1749268300.0)
         ],
     )
 

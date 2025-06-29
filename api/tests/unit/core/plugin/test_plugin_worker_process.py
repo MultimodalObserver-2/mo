@@ -122,10 +122,23 @@ def test_add_plugin_instance_sends_command(worker_process):
     mock_settings = MagicMock(spec=Settings)
     worker_process._parent_conn.recv.return_value = {"is_ok": True}
 
-    worker_process.add_plugin_instance("instance1", mock_settings)
+    worker_process.add_plugin_instance("instance1", mock_settings, False)
 
     worker_process._parent_conn.send.assert_called_with(
-        ("add_plugin_instance", "instance1", mock_settings)
+        ("add_plugin_instance", "instance1", mock_settings, False)
+    )
+    assert "instance1" in worker_process.plugins_instances_ids
+
+
+def test_add_plugin_instance_sends_command_overwrite(worker_process):
+    mock_settings = MagicMock(spec=Settings)
+    worker_process._parent_conn.recv.return_value = {"is_ok": True}
+
+    worker_process.add_plugin_instance("instance1", mock_settings, True)
+    worker_process.add_plugin_instance("instance1", mock_settings, True)
+
+    worker_process._parent_conn.send.assert_called_with(
+        ("add_plugin_instance", "instance1", mock_settings, True)
     )
     assert "instance1" in worker_process.plugins_instances_ids
 

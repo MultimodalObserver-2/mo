@@ -66,6 +66,7 @@ def test_load_metadata_file_not_found(mock_exists, plugin_manager):
 def test_register_plugin_success(mock_load_meta, mock_process, mock_queue, plugin_manager):
     mock_meta = MagicMock(spec=PluginMetadata)
     mock_meta.platform = MagicMock()
+    mock_meta.target = "api"
     mock_meta.platform.is_available = MagicMock(return_value=True)
     mock_load_meta.return_value = mock_meta
     plugin_manager.get_entry_points = MagicMock(return_value={})

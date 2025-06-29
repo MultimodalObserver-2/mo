@@ -163,7 +163,7 @@ def test_on_capture_data_callback_first_time(mock_thread, capture_service):
     capture_service.participant_code = "p1"
     capture_service.session = MagicMock(spec=SessionRes, session_id="s1")
     capture_service.first_timestamp = {}
-    mock_data = MagicMock(spec=PluginData, config_name="config1", timestamp=1234.5)
+    mock_data = MagicMock(spec=PluginData, config_id="config1", timestamp=1234.5)
 
     capture_service.on_capture_data_callback(mock_data)
 
@@ -209,7 +209,7 @@ def test_exec_start_callback_success(capture_service):
     capture_service.exec_start_callback()
 
     mock_process.execute_callback_on_instance.assert_called_with(
-        "config1", start_callback, {"config_name": "config1", "start_ts": 12345.0}
+        "config1", start_callback, {"config_id": "config1", "start_ts": 12345.0}
     )
 
 
@@ -311,6 +311,7 @@ def test_get_capture_configs_success(capture_service):
     mock_config = MagicMock()
     mock_config.plugin_id = "p1"
     mock_config.name = "c1"
+    mock_config.id = "c1"
     mock_config.settings = {"k": "v"}
     mock_config.plugin_metadata.name = "Plugin Name"
     mock_config.plugin_metadata.version = MagicMock(__str__=lambda self: "1.0")
@@ -329,6 +330,7 @@ def test_load_processes_success(capture_service):
     mock_config = MagicMock()
     mock_config.plugin_id = "plugin1"
     mock_config.name = "config1"
+    mock_config.id = "config1"
     mock_config.settings = {}
     mock_process = MagicMock(spec=PluginWorkerProcess)
 
