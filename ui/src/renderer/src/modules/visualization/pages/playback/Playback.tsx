@@ -56,7 +56,6 @@ export default function Playback() {
       setSession(sessionRes)
       if (sessionRes === null) {
         const unsub = window.capture.onReloadSessions(() => {
-          console.log("Reloading sessions")
           fetchSession(unsub)
         })
       }
@@ -70,7 +69,7 @@ export default function Playback() {
     fetchSession()
   }, [selectedProject, selectedParticipant])
 
-  const setLoopRefInterval = () => {
+  const setLoopRefInterval = (startTime?: number) => {
     if (!session) {
       return
     }
@@ -78,24 +77,24 @@ export default function Playback() {
       clearInterval(loopRef.current)
       loopRef.current = null
     }
-    const factor = syncInterval / loopInterval
-    let count = 0
+    const playTimestamp = Date.now()
+    const playStartTime = startTime ?? time
+    let lastSyncTime = Date.now()
     loopRef.current = setInterval(() => {
-      setTime((prevTime) => {
-        let newTime = prevTime + loopInterval
-        if (newTime >= session.duration * 1000) {
-          clearInterval(loopRef.current!)
-          loopRef.current = null
-          setIsPlaying(false)
-          window.visualization.playback.pause()
-          newTime = session.duration * 1000
-        }
-        if (++count >= factor) {
-          count = 0
-          window.visualization.playback.sync(newTime)
-        }
-        return newTime
-      })
+      const now = Date.now()
+      let newTime = playStartTime + (now - playTimestamp)
+      if (newTime >= session.duration * 1000) {
+        clearInterval(loopRef.current!)
+        loopRef.current = null
+        setIsPlaying(false)
+        window.visualization.playback.pause()
+        newTime = session.duration * 1000
+      }
+      setTime(newTime)
+      if (now - lastSyncTime >= syncInterval) {
+        lastSyncTime = now
+        window.visualization.playback.sync(newTime)
+      }
     }, loopInterval)
   }
 
@@ -113,10 +112,11 @@ export default function Playback() {
       if (time >= session.duration * 1000) {
         setTime(0)
         window.visualization.playback.play(0)
+        setLoopRefInterval(0)
       } else {
         window.visualization.playback.play(time)
+        setLoopRefInterval()
       }
-      setLoopRefInterval()
     }
     setIsPlaying((prev) => !prev)
   }
@@ -134,7 +134,7 @@ export default function Playback() {
     }
 
     if (isPlaying) {
-      setLoopRefInterval()
+      setLoopRefInterval(newTime)
     }
   }
 
