@@ -11,8 +11,7 @@ from mo.core.utils.http_exceptions import (
 
 from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from mo.modules.organization.services.project_service import ProjectService
-from mo.modules.visualization.routers.playback_config import PlaybackConfigPostReq, PlaybackConfigPutReq, PlaybackConfigRes
-from mo.modules.visualization.schemas.playback_config import PlaybackConfigData
+from mo.modules.visualization.schemas.playback_config import PlaybackConfigData, PlaybackConfigPostReq, PlaybackConfigPutReq, PlaybackConfigRes
 from mo.modules.visualization.services.paths import PLAYBACK_CONFIGS_FILE, PLAYBACK_LAYOUT_FILE, VISUALIZATION_CONFIGS_DIR
 
 
@@ -80,17 +79,18 @@ class PlaybackConfigService:
             raise NotFoundException(
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
-        configurations_storage = self._get_configurations_storage(project_name)
         if self.exists(project_name, config.name):
             raise AlreadyExistsException(
                 f"Configuration with name {config.name} already exists.")
 
+        
         final_config = PlaybackConfigData(
             name=config.name,
             plugin_id=config.plugin_id,
             capture_config_id=config.capture_config_id,
             settings=config.settings,
         )
+        configurations_storage = self._get_configurations_storage(project_name)
         configurations_storage.insert_one(final_config.model_dump())
 
         return PlaybackConfigRes(
