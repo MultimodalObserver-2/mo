@@ -135,12 +135,12 @@ export default function ConfigurePlugin({
     if (property.property_type === PluginPropertyTypes.PATH) {
       const value = settings[property.key] as string
       const data = property.data as { file_types?: string[] }
-      return !value || (data.file_types && !data.file_types.includes(value.split(".").pop() || ""))
+      return !value || (data.file_types && !data.file_types.includes(value.split(".").pop() ?? ""))
     }
 
     if (property.property_type === PluginPropertyTypes.SELECT) {
       const value = settings[property.key]
-      const data = property.data as { options: { value: string | number | boolean }[] }
+      const data = property.data as { options: { value: SettingType }[] }
       return !data.options.some((option) => option.value === value)
     }
 
@@ -161,7 +161,7 @@ export default function ConfigurePlugin({
       setProperties(response)
       for (const prop of response) {
         if (changeToDefault(prop, setts)) {
-          setts[prop.key] = prop.default !== undefined ? prop.default : ""
+          setts[prop.key] = prop.default ?? ""
         }
       }
       setSettings(setts)
@@ -176,7 +176,7 @@ export default function ConfigurePlugin({
       try {
         const response = await pluginService.getSettingProperties(pluginId, target, initialSettings)
         setProperties(response)
-        const defaultSettings: Record<string, string | number | boolean> = {}
+        const defaultSettings: Record<string, SettingType> = {}
         for (const property of response) {
           if (property.default !== undefined) {
             defaultSettings[property.key] = property.default

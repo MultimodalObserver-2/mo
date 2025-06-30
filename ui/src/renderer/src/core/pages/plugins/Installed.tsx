@@ -74,11 +74,11 @@ export default function Installed() {
   const capitalize = (str: string) => str.charAt(0).toUpperCase() + str.slice(1)
 
   const groupedPlugins = plugins.reduce<Record<string, Plugin[]>>((groups, plugin) => {
-    const module = plugin.module || "core"
-    if (!groups[module]) {
-      groups[module] = []
+    const mod = plugin.module ?? "core"
+    if (!groups[mod]) {
+      groups[mod] = []
     }
-    groups[module].push(plugin)
+    groups[mod].push(plugin)
     return groups
   }, {})
 

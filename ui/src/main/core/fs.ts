@@ -1,6 +1,5 @@
-import { ipcMain } from "electron"
+import { ipcMain, app } from "electron"
 import fs from "fs"
-import { app } from "electron"
 
 app.whenReady().then(() => {
   ipcMain.handle("core:fs:readFileSync", async (_event, filePath: string, encoding = "utf-8") => {

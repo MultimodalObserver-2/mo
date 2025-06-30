@@ -24,8 +24,8 @@ interface InternalPlugin {
 type Constructor<T = unknown> = new (...args: unknown[]) => T
 
 class PluginManager {
-  private plugins: Map<string, InternalPlugin> = new Map()
-  private entryPoints = {
+  private readonly plugins: Map<string, InternalPlugin> = new Map()
+  private readonly entryPoints = {
     rendPlugin: "mo.ui.renderer.plugin",
     rendPluginProperties: "mo.ui.renderer.plugin.properties"
   }
@@ -95,7 +95,7 @@ class PluginManager {
     }
     const pluginModule = await import(/* @vite-ignore */ entry)
 
-    if (!pluginModule || !pluginModule[exportName]) {
+    if (!pluginModule[exportName]) {
       throw new Error(`Plugin entry point not found in module: ${exportName}`)
     }
 
@@ -123,7 +123,7 @@ class PluginManager {
 
     const propertiesModule = await import(/* @vite-ignore */ entry)
 
-    if (!propertiesModule || !propertiesModule[exportName]) {
+    if (!propertiesModule[exportName]) {
       throw new Error(`Plugin properties entry point not found in module: ${exportName}`)
     }
 

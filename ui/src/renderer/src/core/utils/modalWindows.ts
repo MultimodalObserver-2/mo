@@ -21,6 +21,6 @@ export function openPluginDetailsModal(
         allowRunningInsecureContent: true
       }
     },
-    endpoint: `plugins/${pluginTarget}/${pluginId}?dir=${pluginDir || ""}`
+    endpoint: `plugins/${pluginTarget}/${pluginId}?dir=${pluginDir ?? ""}`
   })
 }

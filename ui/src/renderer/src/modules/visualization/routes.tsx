@@ -14,7 +14,5 @@ export const VisualizationRoutes = (
 )
 
 export const AppLayoutVisualizationRoutes = (
-  <>
-    <Route path="sessions/playback" element={<Playback />} />
-  </>
+  <Route path="sessions/playback" element={<Playback />} />
 )

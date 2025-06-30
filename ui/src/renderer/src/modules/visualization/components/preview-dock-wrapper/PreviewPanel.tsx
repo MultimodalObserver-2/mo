@@ -1,7 +1,11 @@
 import playbackService from "../../services/PlaybackService"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
 
-export default function PreviewPanel({ params }: { params: PlaybackConfig }) {
+interface PreviewPanelProps {
+  params: PlaybackConfig
+}
+
+export default function PreviewPanel({ params }: Readonly<PreviewPanelProps>) {
   if (!params.plugin_is_loaded) {
     return (
       <p>

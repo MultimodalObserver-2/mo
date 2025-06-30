@@ -59,12 +59,8 @@ class PluginService {
   async delete(pluginId: string, target: string): Promise<void> {
     if (target === "api") {
       await this.api.delete(pluginId)
-      return
-    }
-
-    if (target === "ui") {
+    } else if (target === "ui") {
       await this.ui.delete(pluginId)
-      return
     }
   }
 

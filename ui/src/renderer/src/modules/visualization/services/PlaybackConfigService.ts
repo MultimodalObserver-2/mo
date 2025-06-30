@@ -53,7 +53,7 @@ class PlaybackConfigService {
     const response = await axios.get(`/projects/${projectName}/playback/configs/${configName}`)
     const config: PlaybackConfigApi = response.data
     const plugin = await uiPluginService.get(config.plugin_id)
-    if (!plugin || !plugin.is_loaded) {
+    if (!plugin.is_loaded) {
       throw new Error(`Plugin with ID ${config.plugin_id} is not loaded or does not exist.`)
     }
 

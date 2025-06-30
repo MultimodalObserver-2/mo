@@ -73,7 +73,7 @@ export default function SessionsList({
         await sessionService.delete(projectName, participantCode, session.session_id)
         setSessions((prevSessions) => {
           const newSessions = prevSessions.filter((s) => s.session_id !== session.session_id)
-          const newSessionsSorted = newSessions.sort(
+          const newSessionsSorted = newSessions.toSorted(
             (a, b) => new Date(b.started_at).getTime() - new Date(a.started_at).getTime()
           )
           if (selectedSession?.session_id === session.session_id) {

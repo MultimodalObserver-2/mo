@@ -24,7 +24,7 @@ export class Property {
   enabled = true
   default?: unknown
   data: Record<string, unknown> = {}
-  private _type: PropertyType
+  private readonly _type: PropertyType
   private _modifiedCallback?: ModifiedCallback
 
   constructor(key: string, label: string, type: PropertyType, data: Record<string, unknown> = {}) {

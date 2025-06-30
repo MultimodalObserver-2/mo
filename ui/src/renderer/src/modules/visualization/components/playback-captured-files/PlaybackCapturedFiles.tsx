@@ -32,23 +32,29 @@ export default function PlaybackCapturedFiles({
 
   visible = true
 }: PlaybackCapturedFilesProps) {
+  const getValidCaptures = (config, session, playbackService) => {
+    const validExts = playbackService.getPluginValidExtensions(config.plugin_id)
+    return session.capture_sources.filter((source) => {
+      const ext = source.file_extension?.toLowerCase()
+      return ext ? validExts.includes(ext) : false
+    })
+  }
+
+  const hasDefaultCapture = (captures, config) =>
+    captures.some((capture) => capture.config_id === config.capture_config_id)
+
+  const buildPlaybackData = (configs, session, playbackService) =>
+    configs.map((config) => {
+      const captures = getValidCaptures(config, session, playbackService)
+      const hasDefault = hasDefaultCapture(captures, config)
+      return { ...config, captures, hasDefault }
+    })
+
   const playbackDataPromise = useMemo(() => {
     return (async () => {
       const configs = await playbackConfigService.getAll(projectName)
-      const data: PlaybackData[] = configs.map((config) => {
-        const validExts = playbackService.getPluginValidExtensions(config.plugin_id)
-        const captures = session.capture_sources.filter((source) => {
-          const ext = source.file_extension?.toLowerCase()
-          return ext ? validExts.includes(ext) : false
-        })
-        const hasDefault = captures.some(
-          (capture) => capture.config_id === config.capture_config_id
-        )
-        return { ...config, captures, hasDefault }
-      })
-
+      const data: PlaybackData[] = buildPlaybackData(configs, session, playbackService)
       onWarning(data.some((d) => !d.hasDefault))
-
       return data
     })()
   }, [projectName, session, onWarning])
@@ -88,7 +94,7 @@ export default function PlaybackCapturedFiles({
                 >
                   {data.captures.map((capture) => (
                     <option key={capture.config_id} value={capture.config_id}>
-                      {`${capture.location?.split(/[/\\]/).pop() || ""} – ${capture.plugin_name}`}
+                      {`${capture.location?.split(/[/\\]/).pop() ?? ""} – ${capture.plugin_name}`}
                     </option>
                   ))}
                 </Select>

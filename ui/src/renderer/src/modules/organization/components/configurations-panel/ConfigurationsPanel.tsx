@@ -47,7 +47,7 @@ export default function ConfigurationsPanel({
   configProviders
 }: Readonly<ConfigurationsPanelProps>) {
   const selectedProject = useSelector(selectSelectedProject)
-  const [selectedIdx, setSelectedIndex] = useState<number>(configProviders.length > 0 ? 0 : -1)
+  const [selectedIdx, setSelectedIdx] = useState<number>(configProviders.length > 0 ? 0 : -1)
   const [configs, setConfigs] = useState<Config[]>([])
 
   const fetchPluginConfigs = async (project: Project | null) => {
@@ -125,7 +125,7 @@ export default function ConfigurationsPanel({
             styleType="soft"
             className={styles.select}
             value={selectedIdx}
-            onChange={(e) => setSelectedIndex(Number(e.target.value))}
+            onChange={(e) => setSelectedIdx(Number(e.target.value))}
           >
             {configProviders.map((config: ConfigProvider, idx) => (
               <option key={`${config.title}-${idx}`} value={idx}>

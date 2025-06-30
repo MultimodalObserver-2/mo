@@ -35,6 +35,20 @@ export default function PlaybackDock({ playbackPanel, rightHeaderActions }: Play
   const selectedProject = useSelector(selectSelectedProject)
   const [api, setApi] = useState<DockviewApi | null>(null)
 
+  const saveLayout = async () => {
+    if (!selectedProject || !api) {
+      return
+    }
+    try {
+      await playbackConfigService.saveLayout(
+        selectedProject.name,
+        api.toJSON() as unknown as Record<string, unknown>
+      )
+    } catch (err) {
+      console.error("Error saving layout:", err)
+    }
+  }
+
   useEffect(() => {
     if (!selectedProject || !api) {
       return
@@ -71,11 +85,7 @@ export default function PlaybackDock({ playbackPanel, rightHeaderActions }: Play
     }
     let sub: DockviewIDisposable
     const loadAll = async () => {
-      sub = api.onDidLayoutChange(() => {
-        playbackConfigService
-          .saveLayout(selectedProject.name, api.toJSON() as unknown as Record<string, unknown>)
-          .catch((err) => console.error("Error saving layout:", err))
-      })
+      sub = api.onDidLayoutChange(saveLayout)
       try {
         const saved = (await playbackConfigService.getLayout(
           selectedProject.name
