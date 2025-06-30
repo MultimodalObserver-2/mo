@@ -29,7 +29,6 @@ export default function PlaybackCapturedFiles({
   onClose = () => {},
   onChange = () => {},
   onWarning = () => {},
-
   visible = true
 }: PlaybackCapturedFilesProps) {
   const getValidCaptures = (config, session, playbackService) => {
@@ -57,7 +56,7 @@ export default function PlaybackCapturedFiles({
       onWarning(data.some((d) => !d.hasDefault))
       return data
     })()
-  }, [projectName, session, onWarning])
+  }, [projectName, session])
 
   return (
     <section className={`${styles.container} ${visible ? styles.visible : ""}`}>
