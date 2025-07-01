@@ -69,6 +69,17 @@ export default function Playback() {
     fetchSession()
   }, [selectedProject, selectedParticipant])
 
+  useEffect(() => {
+    setIsPlaying(false)
+    setTime(0)
+    window.visualization?.playback?.pause?.()
+    window.visualization?.playback?.seek?.(0)
+    if (loopRef.current) {
+      clearInterval(loopRef.current)
+      loopRef.current = null
+    }
+  }, [selectedProject, selectedParticipant])
+
   const setLoopRefInterval = (startTime?: number) => {
     if (!session) {
       return
