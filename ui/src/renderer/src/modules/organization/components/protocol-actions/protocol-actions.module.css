@@ -1,0 +1,44 @@
+.protocol-actions {
+  display: flex;
+  gap: 8px;
+  padding: 6px 8px;
+  width: 100%;
+}
+
+.abbr {
+  width: 100%;
+}
+
+.main-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em !important;
+  font-weight: 700 !important;
+  width: 100% !important;
+  padding: 5px 10px !important;
+  box-shadow: -1px 1px 3px var(--color-primary-800) !important;
+}
+
+.icon.danger {
+  color: var(--color-text-light);
+  fill: var(--color-text-light);
+}
+
+.secondary-button {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 4px;
+  font-size: 0.9em !important;
+  font-weight: 700 !important;
+  padding: 5px 14px !important;
+  box-shadow: -1px 1px 3px var(--color-primary-800) !important;
+}
+
+.icon {
+  width: 18px;
+  height: 18px;
+  fill: var(--color-primary-900);
+}

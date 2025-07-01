@@ -10,6 +10,7 @@ import homePageRegistry from "@renderer/core/store/homePageRegistry"
 import PreviewDock from "@renderer/modules/visualization/components/preview-dock-wrapper/PreviewDock"
 import CaptureHeader from "@renderer/modules/capture/components/capture-header/CaptureHeader"
 import OpenSessionsPlayback from "@renderer/modules/visualization/components/open-sessions-playback/OpenSessionsPlayback"
+import ProtocolActions from "@renderer/modules/organization/components/protocol-actions/ProtocolActions"
 
 /**
 Panel items registration
@@ -58,8 +59,13 @@ export function registerPanelControlItems() {
       render: CaptureActions
     },
     {
-      id: "open-sessions-playback",
+      id: "protocol-actions",
       order: 2,
+      render: ProtocolActions
+    },
+    {
+      id: "open-sessions-playback",
+      order: 3,
       render: OpenSessionsPlayback
     }
   ])

@@ -69,10 +69,19 @@ const organization = {
     ipcRenderer.send("organization:exec-protocol", projectName, protocolName)
   },
   onExecProtocolFinished: (callback: () => void) => {
-    ipcRenderer.on("organization:on-exec-protocol-finished", () => callback())
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-exec-protocol-finished", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-exec-protocol-finished", listener)
+    }
   },
-  removeExecProtocolFinished: () => {
-    ipcRenderer.removeAllListeners("organization:on-exec-protocol-finished")
+  stopProtocolExecution: () => {
+    ipcRenderer.send("organization:stop-protocol-execution")
+  },
+  getProtocolExecutionStatus: () => {
+    return ipcRenderer.invoke("organization:get-protocol-execution-status")
   },
   activityMessageButtonClicked: (idx) => {
     ipcRenderer.send("organization:activity-message:button-clicked", idx)

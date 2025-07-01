@@ -20,8 +20,13 @@ export default interface OrganizationAPI {
   changeSelectedProtocol: (protocol) => void
   onChangeSelectedProtocol: (callback: (protocol) => void) => void
   execProtocol: (projectName: string, protocolName: string) => void
-  onExecProtocolFinished: (callback: () => void) => void
-  removeExecProtocolFinished: () => void
+  onExecProtocolFinished: (callback: () => void) => () => void
+  stopProtocolExecution: () => void
+  getProtocolExecutionStatus: () => Promise<{
+    isRunning: boolean
+    projectName: string | null
+    protocolName: string | null
+  }>
   activityMessageButtonClicked: (idx) => void
   setActivityMessageHeight: (height) => void
   onActivityTimerChange: (callback: (seconds: number) => void) => void

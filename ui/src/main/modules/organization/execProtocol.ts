@@ -1,7 +1,8 @@
 import { is } from "@electron-toolkit/utils"
 import { app, BrowserWindow, dialog, ipcMain, screen } from "electron"
 import { join } from "path"
-import { getApiPort } from "../.."
+import { broadcast, getApiPort } from "../.."
+import EventEmitter from "events"
 
 type ProtocolExecMsg = {
   activity_name: string
@@ -12,6 +13,8 @@ type ProtocolExecMsg = {
   has_time_limit: boolean
   show_timer: boolean
 }
+
+const events = new EventEmitter()
 
 function showMessageWindow(name: string, message: string, buttons: string[]): Promise<number> {
   return new Promise((resolve) => {
@@ -42,6 +45,13 @@ function showMessageWindow(name: string, message: string, buttons: string[]): Pr
         hash: "#" + endpoint
       })
     }
+
+    events.once("close-message-window", () => {
+      ipcMain.removeAllListeners("organization:activity-message:button-clicked")
+      ipcMain.removeAllListeners("organization:activity-message:set-height")
+      resolve(-1)
+      msgWin.destroy()
+    })
 
     msgWin.once("ready-to-show", () => msgWin.show())
     ipcMain.on("organization:activity-message:button-clicked", (_event, idx) => {
@@ -110,6 +120,9 @@ function createTimerWindow() {
 
 app.whenReady().then(() => {
   let isProtocolRunning = false
+  let protocolProjectName: string | null = null
+  let protocolNameStatus: string | null = null
+  let socket: WebSocket | null = null
   ipcMain.on("organization:exec-protocol", async (_event, projectName, protocolName) => {
     if (isProtocolRunning) {
       dialog.showErrorBox(
@@ -125,22 +138,30 @@ app.whenReady().then(() => {
       API_PORT = getApiPort() ?? 8000
     }
 
-    const socket = new WebSocket(
+    socket = new WebSocket(
       `ws://localhost:${API_PORT}/projects/${projectName}/protocols/${protocolName}/execute`
     )
     const timerWindow = createTimerWindow()
 
     socket.onopen = () => {
       isProtocolRunning = true
+      protocolProjectName = projectName
+      protocolNameStatus = protocolName
     }
 
     socket.onclose = () => {
+      events.emit("close-message-window")
       isProtocolRunning = false
+      protocolProjectName = null
+      protocolNameStatus = null
       timerWindow.destroy()
+      broadcast("organization:on-exec-protocol-finished")
     }
 
     socket.onerror = () => {
       isProtocolRunning = false
+      protocolProjectName = null
+      protocolNameStatus = null
       timerWindow.destroy()
       dialog.showErrorBox(
         "Protocol Execution Error",
@@ -177,28 +198,27 @@ app.whenReady().then(() => {
         ])
         if (completeResponse === 0) {
           stopTimer()
-          socket.send("completed")
+          socket?.send("completed")
         }
       }
 
       if (data.message_type === "start") {
         const startResponse = await showMessageWindow(data.activity_name, data.message, ["Start"])
         if (startResponse === 0) {
-          socket.send("start")
+          socket?.send("start")
           showTimer()
-        }
-
-        if (!data.has_time_limit) {
-          await handleCompleteActivity()
+          if (!data.has_time_limit) {
+            await handleCompleteActivity()
+          }
         }
       }
 
       if (data.message_type === "end") {
         const button = data.total_activities === data.activity_num ? "Finish" : "Next"
         const endResponse = await showMessageWindow(data.activity_name, data.message, [button])
-        stopTimer()
         if (endResponse === 0) {
-          socket.send("next")
+          stopTimer()
+          socket?.send("next")
         }
       }
 
@@ -210,9 +230,23 @@ app.whenReady().then(() => {
       }
 
       if (data.message_type === "finish") {
-        socket.close()
+        socket?.close()
         isProtocolRunning = false
       }
+    }
+  })
+
+  ipcMain.on("organization:stop-protocol-execution", () => {
+    if (socket) {
+      socket.close()
+    }
+  })
+
+  ipcMain.handle("organization:get-protocol-execution-status", () => {
+    return {
+      isRunning: isProtocolRunning,
+      projectName: protocolProjectName,
+      protocolName: protocolNameStatus
     }
   })
 })
