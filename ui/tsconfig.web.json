@@ -7,6 +7,9 @@
     "src/preload/*.d.ts",
     "src/renderer/shared"
   ],
+  "exclude": [
+    "**/plugins-dev/**"
+  ],
   "compilerOptions": {
     "composite": true,
     "jsx": "react-jsx",
