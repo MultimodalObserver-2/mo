@@ -74,6 +74,45 @@ class FileManagement:
         with open(file_path, "w") as f:
             f.write(content)
         return file_path
+    
+    def create_json_file(self, file_name: str, content: dict | list[dict], rel_path: str = "") -> str:
+        """Creates a new JSON file with the provided content.
+        Args:
+            file_name (str): Name of the JSON file to create.
+            content (dict | list[dict]): Content to write into the JSON file.
+            rel_path (str, optional): Subdirectory path where the file will be created. Defaults to "".
+        Returns:
+            str: Path of the created JSON file.
+        Raises:
+            InvalidFileNameError: If the file name is invalid.
+        """
+        if not FileValidators.is_valid_file_name(file_name):
+            raise InvalidFileNameError(file_name)
+        file_path = os.path.join(self._path, rel_path, file_name)
+        file_path = os.path.normpath(file_path)
+        with open(file_path, "w") as f:
+            import json
+            json.dump(content, f, indent=2, ensure_ascii=False)
+
+        return file_path
+    
+    def read_json_file(self, file_name: str, rel_path: str = "") -> dict | list[dict]:
+        """Reads a JSON file and returns its content.
+        Args:
+            file_name (str): Name of the JSON file to read.
+            rel_path (str, optional): Subdirectory path where the file is located. Defaults to "".
+        Returns:
+            dict | list[dict]: Content of the JSON file.
+        Raises:
+            NotFoundError: If the file does not exist.
+        """
+        file_path = os.path.join(self._path, rel_path, file_name)
+        file_path = os.path.normpath(file_path)
+        if not os.path.exists(file_path):
+            raise NotFoundError(f"File {file_path} does not exist.")
+        with open(file_path, "r") as f:
+            import json
+            return json.load(f)
 
     def exists(self, rel_path: str) -> bool:
         """Checks if a file or directory exists at a relative path.

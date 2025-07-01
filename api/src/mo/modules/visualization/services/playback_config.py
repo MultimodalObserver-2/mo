@@ -245,10 +245,7 @@ class PlaybackConfigService:
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
 
         dir_path = self._get_configurations_dir_path(project_name)
-        file_path = os.path.join(dir_path, self._layout_file_name)
-        with open(file_path, "w") as layout_file:
-            json.dump(layout, layout_file, indent=2, ensure_ascii=False)
-    
+        self.file_management.create_json_file(self._layout_file_name, layout, dir_path)
 
     def get_playback_layout(self, project_name: str) -> dict:
         """Retrieves the playback layout for a given project.
@@ -266,7 +263,11 @@ class PlaybackConfigService:
         dir_path = self._get_configurations_dir_path(project_name)
         file_path = os.path.join(dir_path, self._layout_file_name)
         if not self.file_management.exists(file_path):
-            raise NotFoundException("Playback layout file does not exist.")
+            self.file_management.create_json_file(
+                self._layout_file_name, {}, dir_path)
 
-        with open(file_path, "r") as layout_file:
-            return json.load(layout_file)
+        layout = self.file_management.read_json_file(file_path)
+        if not layout or not isinstance(layout, dict):
+            layout = {}
+
+        return layout
