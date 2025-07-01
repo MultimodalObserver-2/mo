@@ -1,3 +1,17 @@
+/**
+ * @fileoverview
+ * Defines the root application router for the renderer process.
+ *
+ * This component configures all top-level routes for the app, composing
+ * each module’s route definitions and wrapping them in shared layouts.
+ *
+ * - SideBarLayout: Main layout for sidebar-based navigation routes.
+ * - AppLayout: Main app content area, includes the sidebar and a bottom panel.
+ * - Module routes (organization, capture, visualization) are included via their own route trees.
+ *
+ * All new module routes should be added here via the corresponding `ModuleRoutes` import.
+ */
+
 import SideBarLayout from "./core/layouts/SideBarLayout"
 import Home from "./core/pages/home/Home"
 import LoadingPage from "./core/pages/loading/Loading"
