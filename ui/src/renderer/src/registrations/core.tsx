@@ -1,3 +1,11 @@
+/**
+ * @fileoverview
+ * Registration functions for core UI elements.
+ *
+ * This file defines and exports functions to statically register panel items,
+ * panel controls, and home page elements into their respective registries.
+ */
+
 import Participants from "../modules/organization/components/participants/Participants"
 import Projects from "../modules/organization/components/projects/Projects"
 import Protocols from "../modules/organization/components/protocols/Protocols"
@@ -13,14 +21,13 @@ import OpenSessionsPlayback from "@renderer/modules/visualization/components/ope
 import ProtocolActions from "@renderer/modules/organization/components/protocol-actions/ProtocolActions"
 
 /**
-Panel items registration
-These components will be rendered in the panel on the bottom of the core main layout
-The order of registration determines the order in which they appear in the panel
-The `id` property must be unique, and if an item with the same id is registered again, it will replace the previous one
-The `order` property is optional, and if not provided, the item will be placed at the end of the panel
-The `render` property is a function that returns the component to be rendered in the panel
-*/
-
+ * Registers main panel items to be displayed in the bottom panel of the core app layout.
+ *
+ * Each registered item must have:
+ * - `id` (string): Unique identifier for the panel item. Used for replacement and ordering.
+ * - `order` (number, optional): Determines the item's order in the panel. Lower values appear first. Items without order are placed at the end.
+ * - `render` (function): Returns the ReactNode/component to render in the panel.
+ */
 export function registerPanelItems() {
   panelRegistry.registerMany([
     {
@@ -51,6 +58,14 @@ export function registerPanelItems() {
   ])
 }
 
+/**
+ * Registers control panel items to be rendered in the panel controls area.
+ *
+ * Each control must provide:
+ * - `id` (string): Unique identifier for the control. Used for replacement and ordering.
+ * - `order` (number, optional): Determines the control's position. Lower values appear first.
+ * - `render` (function): Returns the ReactNode/component to render as a control.
+ */
 export function registerPanelControlItems() {
   panelControlsRegistry.registerMany([
     {
@@ -71,6 +86,18 @@ export function registerPanelControlItems() {
   ])
 }
 
+/**
+ * Registers the home page body and header components.
+ *
+ * Body:
+ * - `id` (string): Unique identifier for the home page body.
+ * - `render` (function): Returns the ReactNode/component for the body content.
+ *
+ * Headers:
+ * - `id` (string): Unique identifier for the header.
+ * - `priority` (number): Determines the order of headers; lower numbers are shown first.
+ * - `render` (function): Returns the ReactNode/component for the header.
+ */
 export function registerHomePage() {
   homePageRegistry.setBody({
     id: "playback-preview",
