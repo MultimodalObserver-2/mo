@@ -82,6 +82,17 @@ export default function Installed() {
     return groups
   }, {})
 
+  if (plugins.length === 0) {
+    return (
+      <div className={styles["plugins-installed"]}>
+        <PluginDisplay className={styles["plugin-display"]}>
+          <PluginDisplayHeader title="Plugins" num={0} />
+          <PluginDisplayList></PluginDisplayList>
+        </PluginDisplay>
+      </div>
+    )
+  }
+
   return (
     <div className={styles["plugins-installed"]}>
       {Object.entries(groupedPlugins).map(([moduleName, modulePlugins]) => (
