@@ -1,3 +1,8 @@
+/**
+ * @module core/plugins
+ * @description Provides functionality plugin related operations
+ */
+
 import { app, BrowserWindow, ipcMain } from "electron"
 
 app.whenReady().then(() => {

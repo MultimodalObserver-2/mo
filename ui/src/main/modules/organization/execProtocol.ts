@@ -1,3 +1,8 @@
+/**
+ * @module organization/execProtocol
+ * @description Handles the execution of protocols in the organization module, including message handling and timer management.
+ */
+
 import { is } from "@electron-toolkit/utils"
 import { app, BrowserWindow, dialog, ipcMain, screen } from "electron"
 import { join } from "path"

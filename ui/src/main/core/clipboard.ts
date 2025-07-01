@@ -1,3 +1,8 @@
+/**
+ * @module core/clipboard
+ * @description Provides functions to interact with the system clipboard.
+ */
+
 import { app, clipboard, ipcMain } from "electron"
 
 app.whenReady().then(() => {

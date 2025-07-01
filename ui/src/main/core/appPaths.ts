@@ -1,3 +1,8 @@
+/**
+ * @module core/appPaths
+ * @description Provides functions to get application paths for different resources.
+ */
+
 import { is } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
 import path from "path"

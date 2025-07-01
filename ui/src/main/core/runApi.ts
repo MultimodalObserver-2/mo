@@ -1,3 +1,8 @@
+/**
+ * @module core/runApi
+ * @description Provides functions to run the API server and check its readiness.
+ */
+
 import http from "http"
 import { spawn } from "child_process"
 import { ipcMain } from "electron"

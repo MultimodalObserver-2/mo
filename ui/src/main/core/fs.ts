@@ -1,3 +1,8 @@
+/**
+ * @module core/fs
+ * @description Provides functions to interact with the file system, such as reading and writing files, checking existence, and directory operations.
+ */
+
 import { ipcMain, app } from "electron"
 import fs from "fs"
 

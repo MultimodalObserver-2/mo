@@ -1,3 +1,8 @@
+/**
+ * @module core/path
+ * @description Provides functions to handle file paths, such as joining paths and extracting base names and extensions.
+ */
+
 import { app, ipcMain } from "electron"
 import path from "path"
 

@@ -1,3 +1,8 @@
+/**
+ * @module core/shell
+ * @description Provides functions to interact with the system shell.
+ */
+
 import { app, ipcMain, shell } from "electron"
 
 app.whenReady().then(() => {

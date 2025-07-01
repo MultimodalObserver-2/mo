@@ -1,3 +1,8 @@
+/**
+ * @module core/setup
+ * @description Initializes the application setup, including creating necessary directories.
+ */
+
 import { getPluginBasePath } from "./appPaths"
 import fs from "fs"
 

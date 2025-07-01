@@ -1,3 +1,8 @@
+/**
+ * @module core/dialog
+ * @description Provides functions to show dialog boxes for errors, messages, and file selection.
+ */
+
 import { app, dialog, ipcMain, MessageBoxOptions, OpenDialogOptions } from "electron"
 
 app.whenReady().then(() => {

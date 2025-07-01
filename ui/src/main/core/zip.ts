@@ -1,3 +1,8 @@
+/**
+ * @module core/zip
+ * @description Provides functionality to extract zip files with constraints on file count, size, and compression ratio.
+ */
+
 import { app, ipcMain } from "electron"
 import extract from "extract-zip"
 import { tmpdir } from "os"

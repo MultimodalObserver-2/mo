@@ -1,3 +1,9 @@
+/**
+ * @module visualization/playbackControls
+ * @description Provides playback control functionalities for the visualization module, including play, pause, seek, and sync operations.
+ *
+ */
+
 import { app, ipcMain } from "electron"
 import { broadcast } from "../.."
 

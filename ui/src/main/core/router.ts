@@ -1,3 +1,8 @@
+/**
+ * @module core/router
+ * @description Provides functions to handle navigation within the application, allowing windows to navigate to different paths.
+ */
+
 import { app, ipcMain } from "electron"
 import { getMainWindow } from ".."
 

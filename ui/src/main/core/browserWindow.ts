@@ -1,3 +1,8 @@
+/**
+ * @module core/browserWindow
+ * @description Provides functions to create and manage modal windows in the Electron application.
+ */
+
 import { is } from "@electron-toolkit/utils"
 import { app, BrowserWindow, dialog, ipcMain, screen } from "electron"
 import { join } from "path"
