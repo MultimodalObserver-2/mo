@@ -132,10 +132,13 @@ export default function PlaybackDock({ playbackPanel, rightHeaderActions }: Play
 }
 
 const PlaybackTab = memo(function PlaybackTab({ params }: { params: PlaybackConfig }) {
-  const src =
-    typeof params.plugin_icon === "string"
-      ? params.plugin_icon
-      : (params.plugin_icon as PluginIcons).dark
+  let src = fallbackimgDark
+  if (params.plugin_icon === "string") {
+    src = params.plugin_icon
+  } else if (typeof params.plugin_icon === "object") {
+    src = (params.plugin_icon as PluginIcons)?.dark
+  }
+
   return (
     <div className={styles["playback-tab"]}>
       <img
