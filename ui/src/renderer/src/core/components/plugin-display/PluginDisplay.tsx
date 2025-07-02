@@ -14,6 +14,8 @@ interface PluginDisplayProps {
   textSize?: "sm" | "md"
   /** Optional flag to indicate if the component is expandable. */
   isExpandable?: boolean
+  /** Optional flag to indicate if the component is loading. */
+  isLoading?: boolean
 }
 
 /**
@@ -26,6 +28,7 @@ interface PluginDisplayProps {
  * @param {"light" | "dark"} [props.style="light"] - The color theme variant for the component.
  * @param {"sm" | "md"} [props.textSize="md"] - The font size variant for the component's text.
  * @param {boolean} [props.isExpandable=false] - Optional flag to indicate if the component is expandable.
+ * @param {boolean} [props.isLoading=false] - Optional flag to indicate if the component is loading.
  * @returns {React.ReactElement} The rendered plugin display component.
  */
 export default function PluginDisplay({
@@ -33,7 +36,8 @@ export default function PluginDisplay({
   className,
   style = "light",
   textSize = "md",
-  isExpandable = false
+  isExpandable = false,
+  isLoading = false
 }: Readonly<PluginDisplayProps>) {
   const [isExpanded, setIsExpanded] = useState(true)
   const header = findChildByDisplayName(
@@ -46,6 +50,7 @@ export default function PluginDisplay({
     finalHeader = cloneElement(header, {
       isExpandable: true,
       isExpanded,
+      isLoading,
       onToggleExpand: () => setIsExpanded((prev) => !prev)
     })
   }
@@ -55,11 +60,12 @@ export default function PluginDisplay({
   const textSizeClass = styles[`text-${textSize}`]
   const customClass = className ?? ""
   const overflowHidden = header && list ? styles["overflow-hidden"] : ""
+  const loadingClass = isLoading ? styles["loading"] : ""
 
   return (
     <div
       id="plugin-display"
-      className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass} ${overflowHidden}`}
+      className={`${baseClass} ${styleClass} ${textSizeClass} ${customClass} ${overflowHidden} ${loadingClass}`}
     >
       {finalHeader}
       {isExpanded && list}

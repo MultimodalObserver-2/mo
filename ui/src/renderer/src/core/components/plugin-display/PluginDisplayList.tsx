@@ -10,6 +10,8 @@ interface PluginDisplayListProps {
   className?: string
   /** If true, applies styling to indicate the list items are selectable. */
   selectable?: boolean
+  /** Optional flag to indicate if the component is loading. */
+  isLoading?: boolean
 }
 
 /**
@@ -20,14 +22,24 @@ interface PluginDisplayListProps {
  * @param {React.ReactNode} [props.children] - The list items to be rendered, typically plugin cards.
  * @param {string} [props.className] - An optional CSS class for the list container.
  * @param {boolean} [props.selectable=false] - If true, applies styling to indicate the list items are selectable.
+ * @param {boolean} [props.isLoading=false] - If true, indicates that the component is in a loading state.
  * @returns {React.ReactElement} The rendered list component or an empty state message.
  */
 function PluginDisplayList({
   id = "plugin-display-list",
   children,
   className,
-  selectable = false
+  selectable = false,
+  isLoading = false
 }: Readonly<PluginDisplayListProps>) {
+  if (isLoading) {
+    return (
+      <article id={id} className={`${styles.plugins} ${className}`}>
+        <h3 className={styles["list-loading"]}>Loading plugins...</h3>
+      </article>
+    )
+  }
+
   if (Children.count(children) === 0) {
     return (
       <article id={id} className={`${styles.plugins} ${className}`}>

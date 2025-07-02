@@ -10,6 +10,8 @@ export interface PluginDisplayHeaderProps {
   isExpandable?: boolean
   /** Optional flag to indicate if the header is currently expanded. */
   isExpanded?: boolean
+  /** Optional flag to indicate if the component is loading. */
+  isLoading?: boolean
   /** Callback function to handle toggling the expanded state. */
   onToggleExpand?: () => void
 }
@@ -22,6 +24,7 @@ export interface PluginDisplayHeaderProps {
  * @param {number} props.num - The number to display in a badge next to the title.
  * @param {boolean} [props.isExpandable=false] - Indicates if the header is expandable.
  * @param {boolean} [props.isExpanded=true] - Indicates if the header is currently expanded.
+ * @param {boolean} [props.isLoading=false] - Indicates if the component is loading.
  * @param {function} [props.onToggleExpand] - Callback function to handle toggling the expanded state.
  * @returns {React.ReactElement} The rendered plugin display header component.
  */
@@ -30,10 +33,11 @@ function PluginDisplayHeader({
   num,
   isExpandable = false,
   isExpanded = true,
+  isLoading = false,
   onToggleExpand
 }: Readonly<PluginDisplayHeaderProps>) {
   return (
-    <section className={styles.header}>
+    <section className={`${styles.header} ${isLoading ? styles.loading : ""}`}>
       <div className={styles.left}>
         {isExpandable && (
           <button
@@ -47,7 +51,15 @@ function PluginDisplayHeader({
         )}
         <h3 className={styles.title}>{title}</h3>
       </div>
-      <div className={styles.num}>{num}</div>
+      <div className={styles.num}>
+        {isLoading ? (
+          <div className={styles.loader}>
+            <div className={styles.circle}></div>
+          </div>
+        ) : (
+          num
+        )}
+      </div>
     </section>
   )
 }

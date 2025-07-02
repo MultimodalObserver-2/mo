@@ -261,3 +261,51 @@
   transform: scale(1.1);
   fill: var(--color-primary-800);
 }
+
+
+.header.loading .num {
+  position: relative;
+  width: 1.6rem;
+}
+
+.loader {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+.loader .circle {
+  width: 1.2rem;
+  height: 1.2rem;
+  border-radius: 50%;
+  border: 3px solid var(--color-text-light);
+  border-top: 3px solid var(--color-text-dark);
+  animation: spin 1s infinite linear;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+.light .plugins .list-loading {
+  color: var(--color-primary-800);
+}
+
+.text-md .plugins .list-loading {
+  font-size: 1.2em;
+  font-weight: 600;
+  text-align: center;
+}
+
+.text-sm .plugins .list-loading {
+  font-size: 1em;
+  font-weight: 500;
+  text-align: center;
+}

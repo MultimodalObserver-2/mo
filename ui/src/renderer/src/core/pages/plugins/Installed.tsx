@@ -13,14 +13,17 @@ import styles from "./plugins.module.css"
 
 export default function Installed() {
   const [plugins, setPlugins] = useState<Plugin[]>([])
+  const [isLoading, setIsLoading] = useState(true)
 
   const fetchPlugins = async () => {
+    setIsLoading(true)
     try {
       const response = await pluginService.getAll()
       setPlugins(response)
     } catch (error) {
       showApiErrorMessage(error)
     }
+    setIsLoading(false)
   }
 
   useEffect(() => {
@@ -85,9 +88,9 @@ export default function Installed() {
   if (plugins.length === 0) {
     return (
       <div className={styles["plugins-installed"]}>
-        <PluginDisplay className={styles["plugin-display"]}>
-          <PluginDisplayHeader title="Plugins" num={0} />
-          <PluginDisplayList></PluginDisplayList>
+        <PluginDisplay isLoading={isLoading} className={styles["plugin-display"]}>
+          <PluginDisplayHeader title="Plugins" isLoading={isLoading} num={0} />
+          <PluginDisplayList isLoading={isLoading}></PluginDisplayList>
         </PluginDisplay>
       </div>
     )
@@ -96,12 +99,17 @@ export default function Installed() {
   return (
     <div className={styles["plugins-installed"]}>
       {Object.entries(groupedPlugins).map(([moduleName, modulePlugins]) => (
-        <PluginDisplay key={moduleName} className={styles["plugin-display"]} isExpandable>
+        <PluginDisplay
+          key={moduleName}
+          className={styles["plugin-display"]}
+          isExpandable
+          isLoading={isLoading}
+        >
           <PluginDisplayHeader
             title={`${capitalize(moduleName)} plugins`}
             num={modulePlugins.length}
           />
-          <PluginDisplayList>
+          <PluginDisplayList isLoading={isLoading}>
             {modulePlugins.map((plugin) => (
               <PluginCard
                 key={plugin.id}
