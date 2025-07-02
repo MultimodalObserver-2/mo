@@ -2,7 +2,7 @@ import UploadFileIcon from "../icons/UploadFileIcon"
 import styles from "./file-upload.module.css"
 import useUpload from "./useUpload"
 
-interface FileUploadProps {
+export interface FileUploadProps {
   /** The ID for the file input element and its associated label. */
   id?: string
   /** The name attribute for the file input, used in form submission. */
@@ -29,7 +29,7 @@ interface FileUploadProps {
  * @param {string[]} [props.accept] - An array of accepted file type specifiers.
  * @param {boolean} [props.multiple=false] - If true, allows multiple file selection.
  * @param {boolean} [props.required=false] - If true, the input is required for form submission.
- * @param {File[]} [props.files=[]] - The list of currently selected files for controlled usage.
+ * @param {File[]} [props.files] - The list of currently selected files for controlled usage.
  * @param {(files: File[]) => void} [props.onChangeFiles] - The callback function to handle file changes.
  * @returns {React.ReactElement} The rendered file upload component.
  */
@@ -39,9 +39,9 @@ export default function FileUpload({
   accept,
   multiple = false,
   required = false,
-  files = [],
+  files,
   onChangeFiles
-}: Readonly<FileUploadProps>) {
+}: Readonly<FileUploadProps>): React.ReactElement {
   const upload = useUpload(accept, multiple, files, onChangeFiles)
 
   const acceptedFilesText = () => {

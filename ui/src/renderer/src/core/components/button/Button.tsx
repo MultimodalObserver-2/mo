@@ -39,7 +39,7 @@ export default function Button({
   isLoading = false,
   disabled = false,
   ...rest
-}: ButtonProps) {
+}: ButtonProps): React.ReactElement {
   return (
     <button
       className={`${className} ${styles.button} ${isLoading ? styles.loading : ""} ${styles[styleType]} ${styles[borderRadius]}`}

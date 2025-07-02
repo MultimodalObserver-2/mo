@@ -93,20 +93,40 @@ export default function ElementListItem({
           <div className={styles.actions}>
             {extraActions}
             <Show show={showAction("info")}>
-              <InfoIcon className={`${styles.action} ${styles.normal}`} onClick={onInfo} />
+              <InfoIcon
+                aria-label="info"
+                className={`${styles.action} ${styles.normal}`}
+                onClick={onInfo}
+              />
             </Show>
             <Show show={showAction("lock")}>
               {isLocked ? (
-                <LockIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
+                <LockIcon
+                  aria-label="lock"
+                  className={`${styles.action} ${styles.normal}`}
+                  onClick={onLock}
+                />
               ) : (
-                <LockOpenIcon className={`${styles.action} ${styles.normal}`} onClick={onLock} />
+                <LockOpenIcon
+                  aria-label="unlock"
+                  className={`${styles.action} ${styles.normal}`}
+                  onClick={onLock}
+                />
               )}
             </Show>
             <Show show={showAction("edit")}>
-              <EditIcon className={`${styles.action} ${styles.normal}`} onClick={onEdit} />
+              <EditIcon
+                aria-label="edit"
+                className={`${styles.action} ${styles.normal}`}
+                onClick={onEdit}
+              />
             </Show>
             <Show show={showAction("delete")}>
-              <DeleteIcon className={`${styles.action} ${styles.danger}`} onClick={onDelete} />
+              <DeleteIcon
+                aria-label="delete"
+                className={`${styles.action} ${styles.danger}`}
+                onClick={onDelete}
+              />
             </Show>
           </div>
         </Show>

@@ -66,6 +66,13 @@ class PanelControlsRegistry {
   getControls(): PanelControl[] {
     return this.controls
   }
+
+  /**
+   * Clears all registered controls.
+   */
+  clearAll(): void {
+    this.controls = []
+  }
 }
 
 const panelControlsRegistry = new PanelControlsRegistry()

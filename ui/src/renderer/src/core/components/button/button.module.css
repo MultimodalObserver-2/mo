@@ -63,7 +63,7 @@
 /* soft */
 .button.soft {
   background-color: var(--color-primary-600);
-  color: var(--color-text-dark);
+  color: var(--color-primary-50);
   box-shadow: -2px 2px 1px var(--color-primary-800);
 }
 

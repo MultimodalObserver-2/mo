@@ -84,6 +84,7 @@ export default function PlaybackCapturedFiles({
                       plugin_id: data.plugin_id,
                       plugin_icon: data.plugin_icon,
                       plugin_is_loaded: data.plugin_is_loaded,
+                      visible: true,
                       capture_config_id: e.target.value,
                       settings: data.settings
                     }
