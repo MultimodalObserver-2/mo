@@ -64,6 +64,8 @@ The following scripts are defined in `package.json` to simplify development and 
 | `npm run build:mac`    | Build the application for macOS.                                       |
 | `npm run build:linux`  | Build the application for Linux.                                       |
 | `npm run build:unpack` | Build without packaging into an installer.                             |
+| `npm run storybook`     | Start Storybook for UI component development and documentation.                       |
+| `npm run build-storybook` | Build the Storybook static files.                                      |
 | `npm run sonar`        | Run SonarQube scan. Requires `SONAR_TOKEN` to be configured in `.env`. |
 | `npm run format`       | Format the codebase using Prettier.                                    |
 | `npm run lint`         | Run ESLint checks.                                                     |
@@ -76,5 +78,7 @@ The following scripts are defined in `package.json` to simplify development and 
 - **Build targets**:
   - Ensure you're on the correct operating system when running platform-specific builds (e.g., `build:mac` on macOS).
   - You can use `build:unpack` for raw builds without creating platform installers.
-
+- **Storybook**:
+  - Use `npm run storybook` to explore and visually test all React UI components.
+  - Use `npm run build-storybook` to generate a static Storybook for documentation hosting.
 ---

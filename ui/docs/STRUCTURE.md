@@ -85,6 +85,21 @@ Main React app source directory.
 
 ---
 
+### `src/renderer/stories/`
+
+All visual documentation and interaction/unit tests for UI components are maintained using [Storybook](https://storybook.js.org/).
+
+- **Purpose**:  
+  This directory contains all Storybook stories for the app, organized into subfolders by core, modules, and component type.
+- **Structure**:  
+  - `core/`: Stories for core components.
+  - `modules/`: Stories for module-specific components.
+- Each story uses the `.stories.ts` or `.stories.tsx` format and includes controls, usage examples, and interaction tests when relevant.
+
+> **Tip:** To run Storybook locally, use `npm run storybook`. For details, see the [UI README](../README.md).
+
+---
+
 ## 🧭 Routing System
 
 - **Module-based Routing**:  
