@@ -1,3 +1,16 @@
+/**
+ * @module core/plugin/PluginManager
+ * @description
+ * Singleton class for discovering, loading, registering, and managing plugins.
+ * Handles plugin initialization, dynamic imports, error tracking, and
+ * conversion between internal representations and DTOs for UI consumption.
+ *
+ * All plugins are expected to follow a metadata convention (metadata.json)
+ * and provide one or more entry points for their main class and properties.
+ *
+ * This manager supports dynamic extension of app capabilities via plugins.
+ */
+
 import { PluginBase, Properties } from "./types"
 import { PluginMetadata } from "./types/PluginMetadata"
 import { validateId } from "./utils/validateId"
@@ -30,6 +43,10 @@ class PluginManager {
     rendPluginProperties: "mo.ui.renderer.plugin.properties"
   }
 
+  /**
+   * Loads and registers all plugins found in the plugins directory.
+   * Errors are logged and do not prevent other plugins from loading.
+   */
   async loadAllPlugins(): Promise<void> {
     const dirs = await window.core.fs.readdirSync(PLUGIN_BASE_PATH)
 
@@ -54,12 +71,25 @@ class PluginManager {
     }
   }
 
+  /**
+   * Checks if the plugin metadata declares an entry point for the given group.
+   * @param metadata - The plugin's metadata object.
+   * @param group - The entry point group to check (e.g., main class or properties).
+   * @returns True if the entry point exists, false otherwise.
+   */
   private entryPointExists(metadata: PluginMetadata, group: string): boolean {
     const entryPoints = metadata.entryPoints
     if (!entryPoints) return false
     return Boolean(entryPoints[group])
   }
 
+  /**
+   * Retrieves the relative path and export name of the entry point for a given group.
+   * @param metadata - The plugin's metadata object.
+   * @param group - The entry point group to resolve.
+   * @throws Error if no entry point is defined for the group.
+   * @returns An object containing { relPath, exportName }.
+   */
   private getEntryPoint(
     metadata: PluginMetadata,
     group: string
@@ -76,6 +106,12 @@ class PluginManager {
     return { relPath, exportName: exportName || "default" }
   }
 
+  /**
+   * Resolves the full file system path for a plugin entry, considering DEV and PROD environments.
+   * @param pluginPath - Absolute path to the plugin root directory.
+   * @param relPath - Relative path as defined in metadata.
+   * @returns The full resolved file path to the entry point.
+   */
   private async joinPaths(pluginPath: string, relPath: string): Promise<string> {
     if (import.meta.env.DEV) {
       return pluginPath + "/" + relPath
@@ -83,6 +119,14 @@ class PluginManager {
     return await window.core.path.join(pluginPath, relPath)
   }
 
+  /**
+   * Dynamically imports and validates the main plugin class for a given plugin.
+   * Ensures the class extends PluginBase.
+   * @param pluginPath - Path to the plugin directory.
+   * @param metadata - The plugin's metadata.
+   * @throws Error if the class is missing or invalid.
+   * @returns The validated PluginConstructor.
+   */
   private async loadPluginClass(
     pluginPath: string,
     metadata: PluginMetadata
@@ -107,6 +151,14 @@ class PluginManager {
     return pluginClass
   }
 
+  /**
+   * Dynamically imports and validates the properties instance for a given plugin.
+   * Ensures the instance extends Properties.
+   * @param pluginPath - Path to the plugin directory.
+   * @param metadata - The plugin's metadata.
+   * @throws Error if the properties entry point is missing or invalid.
+   * @returns The validated Properties instance.
+   */
   private async loadPropertiesInstance(
     pluginPath: string,
     metadata: PluginMetadata
@@ -135,6 +187,13 @@ class PluginManager {
     return propertiesInstance
   }
 
+  /**
+   * Registers a single plugin found at the given path.
+   * Loads metadata, main class, properties (if present), and handles errors.
+   * @param pluginPath - Absolute path to the plugin directory.
+   * @returns The registered plugin as a DTO.
+   * @throws Error if plugin is invalid or cannot be loaded.
+   */
   async registerPlugin(pluginPath: string): Promise<PluginDTO> {
     const metadataPath = await window.core.path.join(pluginPath, "metadata.json")
     if (!(await window.core.fs.existsSync(metadataPath))) {
@@ -198,15 +257,28 @@ class PluginManager {
     return this.getPluginDtoById(fullId)
   }
 
+  /**
+   * Registers a plugin by its directory name (relative to plugins base path).
+   * @param dir - Directory name of the plugin.
+   * @returns The registered plugin as a DTO.
+   */
   async registerPluginByDir(dir: string): Promise<PluginDTO> {
     const pluginPath = await window.core.path.join(PLUGIN_BASE_PATH, dir)
     return this.registerPlugin(pluginPath)
   }
 
+  /**
+   * Removes all loaded plugins from the manager.
+   */
   async removeAll(): Promise<void> {
     this.plugins.clear()
   }
 
+  /**
+   * Removes a single plugin by its unique ID.
+   * @param pluginId - The plugin's unique identifier.
+   * @throws Error if the plugin does not exist.
+   */
   async removePlugin(pluginId: string): Promise<void> {
     const plugin = this.plugins.get(pluginId)
     if (!plugin) {
@@ -216,6 +288,10 @@ class PluginManager {
     this.plugins.delete(pluginId)
   }
 
+  /**
+   * Returns all loaded plugin instances matching a given PluginBase subclass.
+   * @param cls - The plugin class constructor to match.
+   */
   getPluginsByType<T extends PluginBase>(cls: Constructor): T[] {
     return Array.from(this.plugins.values())
       .filter((p) => p.is_loaded && p.pluginClass?.prototype instanceof cls)
@@ -223,10 +299,17 @@ class PluginManager {
       .filter((instance): instance is T => instance !== undefined)
   }
 
+  /**
+   * Returns all registered plugins as DTOs (for UI use).
+   */
   async getPluginsMetadata(): Promise<PluginDTO[]> {
     return Promise.all(Array.from(this.plugins.values()).map((p) => this.pluginInternalToDto(p)))
   }
 
+  /**
+   * Returns plugin DTOs filtered by plugin type (PluginBase subclass).
+   * @param cls - The plugin class constructor to match.
+   */
   async getPluginsMetadataByType<T extends PluginBase>(
     cls: new (...args: unknown[]) => T
   ): Promise<PluginDTO[]> {
@@ -238,6 +321,12 @@ class PluginManager {
     return Promise.all(filteredPlugins.map((p) => this.pluginInternalToDto(p)))
   }
 
+  /**
+   * Retrieves and resolves the icon paths for a plugin, handling both object and string icon definitions.
+   * @param pluginLocation - The plugin's directory location.
+   * @param metadata - The plugin's metadata (must define icon/light/dark).
+   * @returns Object containing absolute paths to light and dark icons.
+   */
   private async getPluginIconPaths(
     pluginLocation: string,
     metadata: PluginMetadata
@@ -254,6 +343,11 @@ class PluginManager {
     }
   }
 
+  /**
+   * Converts an internal plugin representation to a PluginDTO for UI/API consumption.
+   * @param plugin - The internal plugin object.
+   * @returns The PluginDTO representation.
+   */
   private async pluginInternalToDto(plugin: InternalPlugin): Promise<PluginDTO> {
     return {
       id: plugin.id,
@@ -280,6 +374,10 @@ class PluginManager {
     }
   }
 
+  /**
+   * Returns the plugin DTO for a specific plugin ID.
+   * @param id - The plugin's unique identifier.
+   */
   async getPluginDtoById(id: string): Promise<PluginDTO> {
     const plugin = this.plugins.get(id)
     if (!plugin) {
@@ -289,6 +387,11 @@ class PluginManager {
     return await this.pluginInternalToDto(plugin)
   }
 
+  /**
+   * Gets the plugin class constructor for a specific plugin ID.
+   * @param id - The plugin's unique identifier.
+   * @throws Error if not found or not loaded.
+   */
   getPluginClassById(id: string): PluginConstructor {
     const plugin = this.plugins.get(id)
     if (!plugin) {
@@ -300,6 +403,12 @@ class PluginManager {
     return plugin.pluginClass
   }
 
+  /**
+   * Instantiates a plugin by its ID and type, ensuring type compatibility.
+   * @param id - The plugin's unique identifier.
+   * @param cls - The expected plugin class.
+   * @throws Error if not found or not of the expected type.
+   */
   getPluginInstanceByIdAndType<T extends PluginBase>(
     id: string,
     cls: new (...args: unknown[]) => T
@@ -311,10 +420,19 @@ class PluginManager {
     return new pluginClass() as T
   }
 
+  /**
+   * Constructs the canonical unique ID for a plugin, based on publisher and id.
+   * @param metadata - The plugin metadata.
+   * @returns The full unique ID string.
+   */
   getPluginFinalId(metadata: PluginMetadata): string {
     return `${metadata.publisher.id}.${metadata.id}`
   }
 
+  /**
+   * Gets the directory name for a plugin by its ID.
+   * @param id - The plugin's unique identifier.
+   */
   getPluginDirNameById(id: string): string {
     const plugin = this.plugins.get(id)
     if (!plugin) {
@@ -323,6 +441,11 @@ class PluginManager {
     return plugin.dirName
   }
 
+  /**
+   * Gets the properties instance for a plugin by its ID.
+   * @param id - The plugin's unique identifier.
+   * @returns The plugin properties instance, or a default if none found.
+   */
   getPluginProperties(id: string): Properties {
     const plugin = this.plugins.get(id)
     if (!plugin) {
