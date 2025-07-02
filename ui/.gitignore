@@ -15,3 +15,5 @@ out
 
 /plugins/
 plugins-dev
+*storybook.log
+storybook-static
