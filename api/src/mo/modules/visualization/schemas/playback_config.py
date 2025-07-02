@@ -3,6 +3,7 @@ import uuid
 
 from pydantic import BaseModel, Field
 
+
 class PlaybackConfigPostReq(BaseModel):
     name: str
     plugin_id: str
@@ -16,10 +17,15 @@ class PlaybackConfigPutReq(BaseModel):
     settings: dict[str, Any]
 
 
+class PlaybackConfigVisibilityReq(BaseModel):
+    visible: bool
+
+
 class PlaybackConfigRes(BaseModel):
     id: str
     name: str
     plugin_id: str
+    visible: bool
     capture_config_id: Optional[str] = None
     settings: dict[str, Any]
 
@@ -28,5 +34,6 @@ class PlaybackConfigData(BaseModel):
     id: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     plugin_id: str
+    visible: bool = True
     capture_config_id: Optional[str] = None
     settings: dict[str, Any]

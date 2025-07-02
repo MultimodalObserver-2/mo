@@ -16,7 +16,7 @@ import pluginOffimg from "@renderer/core/assets/images/plugin_off_light.svg"
 import SettingsIcon from "@renderer/core/components/icons/SettingsIcon"
 import ReportIcon from "@renderer/core/components/icons/ReportIcon"
 import { Project } from "../../types/Project"
-import { useEffect, useState } from "react"
+import { ReactNode, useEffect, useState } from "react"
 import { showUnexpectedErrorMessage } from "@renderer/core/utils/dialogMessages"
 import Select from "@renderer/core/components/select/Select"
 
@@ -37,6 +37,7 @@ export interface ConfigProvider {
   onAddConfig: (project: Project) => void
   onDeleteConfig: (project: Project, config: Config) => Promise<void>
   onOpenConfig: (project: Project, config: Config) => void
+  extraAction?: (project: Project, config: Config) => ReactNode
 }
 
 export interface ConfigurationsPanelProps {
@@ -102,6 +103,14 @@ export default function ConfigurationsPanel({
     )
   }
 
+  const renderExtraAction = (config: Config) => {
+    if (!configProviders[selectedIdx].extraAction || !selectedProject) {
+      return null
+    }
+    const extraAction = configProviders[selectedIdx].extraAction
+    return extraAction(selectedProject, config)
+  }
+
   useEffect(() => {
     const unsubReloadConfigs = configProviders[selectedIdx]?.onReloadConfigs(() => {
       fetchPluginConfigs(selectedProject)
@@ -158,10 +167,13 @@ export default function ConfigurationsPanel({
             showActions={{ delete: true }}
             onDelete={() => deleteConfig(config)}
             extraActions={
-              <SettingsIcon
-                className={config.plugin_is_loaded ? "" : styles.disabled}
-                onClick={() => handleOpenConfig(config)}
-              />
+              <>
+                {renderExtraAction(config)}
+                <SettingsIcon
+                  className={config.plugin_is_loaded ? "" : styles.disabled}
+                  onClick={() => handleOpenConfig(config)}
+                />
+              </>
             }
           />
         ))}

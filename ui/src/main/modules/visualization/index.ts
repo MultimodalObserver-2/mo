@@ -12,6 +12,12 @@ app.whenReady().then(() => {
       window.webContents.send("vis:on-update-panel-parameters", params)
     })
   })
+
+  ipcMain.on("vis:update-config-visibility", (_event, configId, visible) => {
+    BrowserWindow.getAllWindows().forEach((window) => {
+      window.webContents.send("vis:on-update-config-visibility", configId, visible)
+    })
+  })
 })
 
 import "./playbackControls"

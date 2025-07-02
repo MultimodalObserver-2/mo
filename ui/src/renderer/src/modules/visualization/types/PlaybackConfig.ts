@@ -4,6 +4,7 @@ export type PlaybackConfigApi = {
   id: string
   name: string
   plugin_id: string
+  visible: boolean
   capture_config_id: string
   settings: Record<string, string | number | boolean>
 }
@@ -14,6 +15,7 @@ export type PlaybackConfig = {
   plugin_id: string
   plugin_icon?: string | PluginIcons
   plugin_is_loaded: boolean
+  visible: boolean
   capture_config_id: string
   settings: Record<string, string | number | boolean>
 }

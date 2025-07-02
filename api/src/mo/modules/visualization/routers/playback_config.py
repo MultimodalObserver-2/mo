@@ -4,12 +4,13 @@ from mo.modules.visualization.schemas.playback_config import (
     PlaybackConfigPostReq,
     PlaybackConfigPutReq,
     PlaybackConfigRes,
+    PlaybackConfigVisibilityReq,
 )
 from mo.modules.visualization.services.playback_config import PlaybackConfigService
 
 playback_config_router = APIRouter(
     prefix="/projects/{project_name}/playback",
-    tags=["projects", "playback", "configurations", "visualization"],
+    tags=["configurations", "visualization"],
 )
 
 
@@ -97,6 +98,26 @@ async def delete_playback_settings(
     return service.delete_playback_config(project_name, config_name)
 
 
+@playback_config_router.put(
+    "/configs/{config_name}/visibility",
+    status_code=200,
+    response_model=PlaybackConfigRes,
+    summary="Update playback configuration visibility",
+    description="Update visibility of playback configuration for the specified project.",
+    responses={
+        404: {"description": "Playback configuration not found"},
+        400: {"description": "Invalid playback configuration name"},
+    },
+)
+async def update_playback_config_visibility(
+    project_name: str,
+    config_name: str,
+    visible: PlaybackConfigVisibilityReq,
+    service: PlaybackConfigService = Depends(),
+) -> PlaybackConfigRes:
+    return service.update_playback_config_visibility(project_name, config_name, visible.visible)
+
+
 @playback_config_router.post(
     "/layout",
     status_code=200,
@@ -113,6 +134,7 @@ async def save_playback_layout(
     service: PlaybackConfigService = Depends(),
 ) -> None:
     return service.save_playback_layout(project_name, layout)
+
 
 @playback_config_router.get(
     "/layout",

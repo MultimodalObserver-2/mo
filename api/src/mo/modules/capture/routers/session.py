@@ -5,7 +5,7 @@ from mo.modules.capture.services.session_service import SessionService
 
 session_router = APIRouter(
     prefix="/projects/{project_name}/participants/{participant_code}/sessions",
-    tags=["session", "projects", "participants", "capture"],
+    tags=["session"],
 )
 
 

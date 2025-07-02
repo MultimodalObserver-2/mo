@@ -55,10 +55,11 @@ export default function PlaybackDock({ playbackPanel, rightHeaderActions }: Play
     }
     const loadConfigs = async () => {
       const configs = await playbackConfigService.getAll(selectedProject.name)
+      const visibleConfigs = configs.filter((c) => c.visible)
       const existing = new Set(api.panels.map((p) => p.id))
-      const desired = new Set(configs.map((c) => c.id))
+      const desired = new Set(visibleConfigs.map((c) => c.id))
 
-      configs.forEach((cfg) => {
+      visibleConfigs.forEach((cfg) => {
         const panel = api.getPanel(cfg.id)
         if (!existing.has(cfg.id)) {
           api.addPanel({

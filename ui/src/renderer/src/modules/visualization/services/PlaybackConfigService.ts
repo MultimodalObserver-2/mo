@@ -31,6 +31,7 @@ class PlaybackConfigService {
             plugin_id: config.plugin_id,
             plugin_icon: plugin.icon_path,
             plugin_is_loaded: plugin.is_loaded,
+            visible: config.visible,
             capture_config_id: config.capture_config_id,
             settings: config.settings
           } as PlaybackConfig
@@ -41,6 +42,7 @@ class PlaybackConfigService {
             plugin_id: config.plugin_id,
             plugin_icon: undefined,
             plugin_is_loaded: false,
+            visible: config.visible,
             capture_config_id: config.capture_config_id,
             settings: config.settings
           } as PlaybackConfig
@@ -63,6 +65,7 @@ class PlaybackConfigService {
       plugin_id: config.plugin_id,
       plugin_icon: plugin.icon_path,
       plugin_is_loaded: plugin.is_loaded,
+      visible: config.visible,
       capture_config_id: config.capture_config_id,
       settings: config.settings
     } as PlaybackConfig
@@ -76,6 +79,16 @@ class PlaybackConfigService {
   ): Promise<AxiosResponse<PlaybackConfigApi, unknown>> {
     uiPluginService.validateSettings(pluginId, config.settings)
     return axios.put(`/projects/${projectName}/playback/configs/${configName}`, config)
+  }
+
+  async updateVisibility(
+    projectName: string,
+    configName: string,
+    visible: boolean
+  ): Promise<AxiosResponse<PlaybackConfigApi, unknown>> {
+    return axios.put(`/projects/${projectName}/playback/configs/${configName}/visibility`, {
+      visible
+    })
   }
 
   async delete(

@@ -3,6 +3,8 @@ export default interface VisualizationAPI {
   onReloadPlaybackConfigs: (callback: () => void) => () => void
   updatePanelParameters: (params: unknown) => void
   onUpdatePanelParameters: (callback: (params: unknown) => void) => () => void
+  updateConfigVisibility: (configId: string, visible: boolean) => void
+  onUpdateConfigVisibility: (callback: (configId: string, visible: boolean) => void) => () => void
   playback: {
     play: (fromTimeMs: number) => void
     onPlay: (callback: (fromTimeMs: number) => void) => () => void

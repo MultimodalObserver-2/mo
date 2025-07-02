@@ -9,7 +9,7 @@ from mo.modules.capture.services.config_service import CaptureConfigService
 
 capture_config_router = APIRouter(
     prefix="/projects/{project_name}/capture/configs",
-    tags=["projects", "capture", "configurations"],
+    tags=["capture", "configurations"],
 )
 
 

@@ -87,6 +87,7 @@ class PlaybackConfigService:
         final_config = PlaybackConfigData(
             name=config.name,
             plugin_id=config.plugin_id,
+            visible=True,
             capture_config_id=config.capture_config_id,
             settings=config.settings,
         )
@@ -97,6 +98,7 @@ class PlaybackConfigService:
             id=final_config.id,
             name=config.name,
             plugin_id=config.plugin_id,
+            visible=final_config.visible,
             capture_config_id=config.capture_config_id,
             settings=config.settings,
         )
@@ -121,6 +123,7 @@ class PlaybackConfigService:
                 id=config_data["id"],
                 name=config_data["name"],
                 plugin_id=config_data["plugin_id"],
+                visible=config_data.get("visible", True),
                 capture_config_id=config_data["capture_config_id"],
                 settings=config_data["settings"],
             )
@@ -152,6 +155,7 @@ class PlaybackConfigService:
             id=settings_data.id,
             name=settings_data.name,
             plugin_id=settings_data.plugin_id,
+            visible=settings_data.visible,
             capture_config_id=settings_data.capture_config_id,
             settings=settings_data.settings,
         )
@@ -190,6 +194,7 @@ class PlaybackConfigService:
             id=existing_config.id,
             name=existing_config.name,
             plugin_id=existing_config.plugin_id,
+            visible=existing_config.visible,
             capture_config_id=existing_config.capture_config_id,
             settings=existing_config.settings,
         )
@@ -198,6 +203,27 @@ class PlaybackConfigService:
         configs_storage.update({"name": config_name}, config_data.model_dump())
 
         return existing_config
+    
+    def update_playback_config_visibility(
+        self, project_name: str, config_name: str, visible: bool
+    ) -> PlaybackConfigRes:
+        """Sets the visibility of a specific playback configuration.
+        Args:
+            project_name (str): The name of the project in which the configuration exists.
+            config_name (str): The name of the configuration to update.
+            visible (bool): The visibility status to set for the configuration.
+        Returns:
+            PlaybackConfigRes: The response containing the updated configuration details.
+        Raises:
+            NotFoundException: If the project does not exist or if the configuration does not exist.
+        """
+        config = self.get_playback_config(project_name, config_name)
+        config.visible = visible
+
+        configs_storage = self._get_configurations_storage(project_name)
+        configs_storage.update({"name": config_name}, config.model_dump())
+
+        return config
 
     def delete_playback_config(self, project_name: str, config_name: str) -> None:
         """Deletes a specific playback configuration by name for a given project.
@@ -229,7 +255,7 @@ class PlaybackConfigService:
                 PROJECT_DOES_NOT_EXIST.format(name=project_name))
         configs_storage = self._get_configurations_storage(project_name)
         return configs_storage.exists({"name": config_name})
-
+    
     def save_playback_layout(
         self, project_name: str, layout: dict
     ) -> None:

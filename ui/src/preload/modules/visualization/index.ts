@@ -25,6 +25,18 @@ const visualization = {
       ipcRenderer.removeListener("vis:on-update-panel-parameters", listener)
     }
   },
+  updateConfigVisibility: (configId: string, visible: boolean) => {
+    ipcRenderer.send("vis:update-config-visibility", configId, visible)
+  },
+  onUpdateConfigVisibility: (callback: (configId: string, visible: boolean) => void) => {
+    const listener = (_event: Electron.IpcRendererEvent, configId: string, visible: boolean) => {
+      callback(configId, visible)
+    }
+    ipcRenderer.on("vis:on-update-config-visibility", listener)
+    return () => {
+      ipcRenderer.removeListener("vis:on-update-config-visibility", listener)
+    }
+  },
   playback: {
     play: (fromTimeMs: number) => {
       ipcRenderer.send("vis:playback:play", fromTimeMs)
