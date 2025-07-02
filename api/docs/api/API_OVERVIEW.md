@@ -38,4 +38,4 @@ Select a module or the core endpoints to explore:
 - [⚙️ Core Endpoints](core.md)
 - [📦 Organization Module](organization.md)
 - [🎥 Capture Module](capture.md)
-
+- [🖼️ Visualization Module](visualization.md)
