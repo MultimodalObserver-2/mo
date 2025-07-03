@@ -1,6 +1,6 @@
 [project]
 name = "mo"
-version = "0.2.0"
+version = "0.3.0"
 description = ""
 authors = [
     { name = "Matías Figueroa Contreras", email = "matias.figueroa.c@usach.cl" },
