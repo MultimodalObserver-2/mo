@@ -16,6 +16,11 @@ export default defineConfig({
         "@renderer": resolve("src/renderer/src")
       }
     },
+    server: {
+      watch: {
+        ignored: ["**/src/renderer/src/plugins-dev/**"]
+      }
+    },
     plugins: [
       react(),
       injectImportMap([
