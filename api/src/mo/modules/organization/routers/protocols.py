@@ -69,6 +69,25 @@ async def get_protocol(
     return service.get_protocol(project_name, protocol_name)
 
 
+@protocols_router.get(
+    "/byuuid/{protocol_uuid}",
+    response_model=ProtocolRes,
+    summary="Get a protocol by UUID",
+    description="Retrieve details of a specific protocol by UUID.",
+    status_code=status.HTTP_200_OK,
+    responses={
+        404: {"description": "Protocol not found"},
+        400: {"description": "Protocol is locked"},
+    },
+)
+async def get_protocol_by_uuid(
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    protocol_uuid: str = Path(..., description="UUID of the protocol"),
+    service: ProtocolService = Depends(),
+):
+    return service.get_protocol_by_uuid(project_name, protocol_uuid)
+
+
 @protocols_router.put(
     "/{protocol_name}",
     response_model=ProtocolRes,

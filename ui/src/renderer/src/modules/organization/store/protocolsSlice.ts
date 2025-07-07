@@ -12,6 +12,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Protocol } from "../types/Protocol"
 import { RootState } from "@renderer/store"
+import protocolService from "../services/ProtocolService"
 
 /**
  * State shape for protocol selection.
@@ -22,7 +23,7 @@ export interface ProtocolsState {
 }
 
 const initialState: ProtocolsState = {
-  selected: null
+  selected: await protocolService.getSelectedProtocol()
 }
 
 const protocolsSlice = createSlice({
@@ -36,6 +37,7 @@ const protocolsSlice = createSlice({
      */
     setSelectedProtocol: (state, action: PayloadAction<Protocol>) => {
       state.selected = action.payload
+      window.organization.preferences.state.setProtocol(state.selected.uuid)
     },
     /**
      * Clears the currently selected protocol (sets to null).

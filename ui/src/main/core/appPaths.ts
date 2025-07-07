@@ -22,6 +22,18 @@ function getLocalAppDataFolder() {
   }
 }
 
+export function getMainAppPath(): string {
+  return is.dev
+    ? path.resolve(process.cwd(), "data")
+    : path.resolve(getLocalAppDataFolder(), "multimodal-observer")
+}
+
+export function getPreferencesPath(): string {
+  return is.dev
+    ? path.resolve(getMainAppPath(), "preferences.json")
+    : path.resolve(getMainAppPath(), "preferences.json")
+}
+
 export function getPluginBasePath(): string {
   return is.dev
     ? path.resolve(process.cwd(), "src/renderer/src/plugins-dev")

@@ -17,3 +17,4 @@ out
 plugins-dev
 *storybook.log
 storybook-static
+/data/

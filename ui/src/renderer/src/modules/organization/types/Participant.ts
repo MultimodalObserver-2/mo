@@ -1,4 +1,5 @@
 export type Participant = {
+  uuid: string
   code: string
   name: string
   notes: string[]

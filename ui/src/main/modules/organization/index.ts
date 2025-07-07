@@ -51,3 +51,4 @@ app.whenReady().then(() => {
 })
 
 import "./execProtocol"
+import "./preferences"

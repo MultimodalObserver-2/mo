@@ -32,4 +32,14 @@ export default interface OrganizationAPI {
   onActivityTimerChange: (callback: (seconds: number) => void) => void
   onActivityTimerStart: (callback: (initialSeconds) => void) => void
   onActivityTimerStop: (callback: () => void) => void
+  preferences: {
+    state: {
+      getProject: () => Promise<string | null>
+      getParticipant: () => Promise<string | null>
+      getProtocol: () => Promise<string | null>
+      setProject: (projectUuid: string | null) => Promise<void>
+      setParticipant: (participantUuid: string | null) => Promise<void>
+      setProtocol: (protocolUuid: string | null) => Promise<void>
+    }
+  }
 }

@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from "react-redux"
 import {
   clearSelectedProject,
   selectSelectedProject,
-  setSelectedProject
 } from "../../store/projectsSlice"
 import { clearSelectedParticipant } from "../../store/participantsSlice"
 import {
@@ -30,10 +29,12 @@ import {
   showUnexpectedErrorMessage
 } from "@renderer/core/utils/dialogMessages"
 import { clearSelectedProtocol } from "../../store/protocolsSlice"
+import { selectProjectThunk } from "../../store/organizationThunk"
+import { AppDispatch } from "@renderer/store"
 
 export default function Projects() {
   const selectedProject = useSelector(selectSelectedProject)
-  const dispatch = useDispatch()
+  const dispatch = useDispatch<AppDispatch>()
   const [projects, setProjects] = useState<Project[]>([])
 
   const fetchProjects = async () => {
@@ -96,7 +97,7 @@ export default function Projects() {
 
     window.organization.onChangeSelectedProject((project) => {
       if (project) {
-        dispatch(setSelectedProject(project))
+        dispatch(selectProjectThunk(project))
       } else {
         dispatch(clearSelectedProject())
         dispatch(clearSelectedParticipant())
@@ -127,7 +128,7 @@ export default function Projects() {
             showActions={true}
             onClick={() => {
               if (selectedProject?.name !== project.name) {
-                dispatch(setSelectedProject(project))
+                dispatch(selectProjectThunk(project))
                 dispatch(clearSelectedParticipant())
                 dispatch(clearSelectedProtocol())
               }

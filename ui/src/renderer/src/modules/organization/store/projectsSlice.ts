@@ -12,6 +12,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Project } from "../types/Project"
 import { RootState } from "@renderer/store"
+import projectService from "../services/ProjectService"
 
 /**
  * State shape for project selection.
@@ -22,7 +23,7 @@ export interface ProjectsState {
 }
 
 const initialState: ProjectsState = {
-  selected: null
+  selected: await projectService.getSelectedProject()
 }
 
 const projectsSlice = createSlice({
@@ -36,6 +37,7 @@ const projectsSlice = createSlice({
      */
     setSelectedProject: (state, action: PayloadAction<Project>) => {
       state.selected = action.payload
+      window.organization.preferences.state.setProject(state.selected.uuid)
     },
     /**
      * Clears the currently selected project (sets to null).
@@ -43,6 +45,7 @@ const projectsSlice = createSlice({
      */
     clearSelectedProject: (state) => {
       state.selected = null
+      window.organization.preferences.state.setProject(null)
     }
   }
 })

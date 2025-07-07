@@ -251,6 +251,23 @@ class ProjectService:
             bool: True if the project exists, False otherwise.
         """
         return self.projects_storage.exists({"name": project_name})
+    
+    def get_project_by_uuid(self, project_uuid: str) -> ProjectRes:
+        """Retrieves a project by its UUID.
+
+        Args:
+            project_uuid (str): UUID of the project.
+
+        Returns:
+            ProjectRes: The project details.
+
+        Raises:
+            NotFoundException: If the project does not exist.
+        """
+        project = self.projects_storage.find_one({"uuid": project_uuid})
+        if project is None:
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_uuid))
+        return ProjectRes.from_data(ProjectData(**project))
 
     def get_project_dir_path(self, project_name: str) -> str:
         """Generates the directory path for a given project.

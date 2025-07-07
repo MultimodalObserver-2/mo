@@ -1,13 +1,15 @@
 import os
 from datetime import datetime
 from typing import Optional
+import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from mo.modules.organization.services.paths import PROJECTS_PATH
 
 
 class ProjectData(BaseModel):
+    uuid: str = Field(default_factory=lambda: str(uuid.uuid4()))
     name: str
     description: str = ""
     rel_location: str
@@ -17,6 +19,7 @@ class ProjectData(BaseModel):
 
 
 class ProjectRes(BaseModel):
+    uuid: str
     name: str
     description: str
     location: str
@@ -27,6 +30,7 @@ class ProjectRes(BaseModel):
     @staticmethod
     def from_data(data: ProjectData) -> "ProjectRes":
         return ProjectRes(
+            uuid=data.uuid,
             name=data.name,
             description=data.description,
             location=os.path.join(PROJECTS_PATH, data.rel_location),

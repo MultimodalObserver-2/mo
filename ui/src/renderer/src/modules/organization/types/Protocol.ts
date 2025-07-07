@@ -12,6 +12,7 @@ export type Activity = {
 }
 
 export type Protocol = {
+  uuid: string
   name: string
   activities: Activity[]
   locked: boolean

@@ -67,6 +67,20 @@ async def get_project(
     return service.get_project(project_name)
 
 
+@project_router.get(
+        "/byuuid/{project_uuid}",
+        response_model=ProjectRes,
+        summary="Get a project by UUID",
+        description="Retrieve details of a specific project by its UUID.",
+        responses={404: {"description": "Project not found"}},
+)
+async def get_project_by_uuid(
+    project_uuid: str = Path(..., description="UUID of the project to retrieve"),
+    service: ProjectService = Depends(),
+):
+    return service.get_project_by_uuid(project_uuid)
+
+
 @project_router.delete(
     "/{project_name}",
     summary="Delete a project",

@@ -99,6 +99,28 @@ const organization = {
   },
   onActivityTimerStop: (callback: () => void) => {
     ipcRenderer.on("organization:on-activity-timer-stop", () => callback())
+  },
+  preferences: {
+    state: {
+      getProject: () => {
+        return ipcRenderer.invoke("organization:preferences:get:state:project")
+      },
+      getParticipant: () => {
+        return ipcRenderer.invoke("organization:preferences:get:state:participant")
+      },
+      getProtocol: () => {
+        return ipcRenderer.invoke("organization:preferences:get:state:protocol")
+      },
+      setProject: (projectUuid: string | null) => {
+        ipcRenderer.invoke("organization:preferences:set:state:project", projectUuid)
+      },
+      setParticipant: (participantUuid: string | null) => {
+        ipcRenderer.invoke("organization:preferences:set:state:participant", participantUuid)
+      },
+      setProtocol: (protocolUuid: string | null) => {
+        ipcRenderer.invoke("organization:preferences:set:state:protocol", protocolUuid)
+      }
+    }
   }
 }
 

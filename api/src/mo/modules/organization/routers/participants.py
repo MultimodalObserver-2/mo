@@ -89,6 +89,23 @@ async def get_participant(
     return service.get_participant(project_name, participant_code)
 
 
+@participant_router.get(
+    "/byuuid/{participant_uuid}",
+    response_model=ParticipantRes,
+    summary="Get a participant by UUID",
+    description="Retrieve details of a specific participant by UUID.",
+    responses={
+        404: {"description": "Participant or project not found"},
+    },
+)
+async def get_participant_by_uuid(
+    project_name: str = Path(..., description=PROJECT_NAME_DESC),
+    participant_uuid: str = Path(..., description="UUID of the participant to retrieve"),
+    service: ParticipantService = Depends(),
+):
+    return service.get_participant_by_uuid(project_name, participant_uuid)
+
+
 @participant_router.delete(
     "/{participant_code}",
     summary="Delete a participant",

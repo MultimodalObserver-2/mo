@@ -111,6 +111,29 @@ const core = {
         ipcRenderer.removeListener("core:router:on-navigate", listener)
       }
     }
+  },
+  preferences: {
+    get: (key: string) => {
+      return ipcRenderer.invoke("core:preferences:get", key)
+    },
+    set: (key: string, value: unknown) => {
+      ipcRenderer.invoke("core:preferences:set", key, value)
+    },
+    remove: (key: string) => {
+      ipcRenderer.invoke("core:preferences:remove", key)
+    },
+    getAll: () => {
+      return ipcRenderer.invoke("core:preferences:getAll")
+    },
+    reset: () => {
+      ipcRenderer.invoke("core:preferences:reset")
+    },
+    has: (key: string) => {
+      return ipcRenderer.invoke("core:preferences:has", key)
+    },
+    extend: (key: string, partialValue: Record<string, unknown>) => {
+      ipcRenderer.invoke("core:preferences:extend", key, partialValue)
+    }
   }
 }
 

@@ -21,6 +21,7 @@ from mo.modules.organization.schemas.protocol import (
     Activity,
     ActivityPostReq,
     ActivityPutReq,
+    ProtocolData,
     ProtocolPostReq,
     ProtocolPutReq,
     ProtocolRes,
@@ -81,17 +82,17 @@ class ProtocolService:
 
         activities_data = self._validate_and_format_activities(protocol.activities, protocol.name)
 
-        protocol_data = {
-            "name": protocol.name,
-            "activities": activities_data,
-            "locked": False,
-            "created_at": datetime.now(),
-            "updated_at": datetime.now(),
-        }
+        protocol_data = ProtocolData(
+            name=protocol.name,
+            activities=activities_data,
+            locked=False,
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+        )
 
         protocols_storage = self._get_protocols_storage(project_name)
-        protocols_storage.insert_one(protocol_data)
-        return ProtocolRes(**protocol_data)
+        protocols_storage.insert_one(protocol_data.model_dump())
+        return ProtocolRes.from_data(protocol_data)
 
     def get_all_protocols(self, project_name: str) -> list[ProtocolRes]:
         """Retrieves all protocols from a project.
@@ -106,7 +107,7 @@ class ProtocolService:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocols = protocols_storage.find_all()
-        return [ProtocolRes(**protocol) for protocol in protocols]
+        return [ProtocolRes.from_data(ProtocolData(**protocol)) for protocol in protocols]
 
     def get_protocol(self, project_name: str, protocol_name: str) -> ProtocolRes:
         """Retrieves a specific protocol from a project.
@@ -128,7 +129,7 @@ class ProtocolService:
                     protocol_name=protocol_name, project_name=project_name
                 )
             )
-        return ProtocolRes(**protocol)
+        return ProtocolRes.from_data(ProtocolData(**protocol))
 
     def update_protocol(
         self, project_name: str, protocol_name: str, protocol: ProtocolPutReq
@@ -164,18 +165,14 @@ class ProtocolService:
             else existing_protocol.activities
         )
 
-        updated_protocol = ProtocolRes(
-            name=new_name,
-            activities=updated_activities,
-            locked=existing_protocol.locked,
-            created_at=existing_protocol.created_at,
-            updated_at=datetime.now(),
-        )
+        existing_protocol.name = new_name
+        existing_protocol.activities = updated_activities
+        existing_protocol.updated_at = datetime.now()
 
         self._get_protocols_storage(project_name).update(
-            {"name": protocol_name}, updated_protocol.model_dump()
+            {"name": protocol_name}, existing_protocol.model_dump()
         )
-        return updated_protocol
+        return existing_protocol
 
     def delete_protocol(self, project_name: str, protocol_name: str) -> None:
         """Delete a protocol from a project.
@@ -278,6 +275,30 @@ class ProtocolService:
             raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         return protocols_storage.exists({"name": protocol_name})
+    
+    def get_protocol_by_uuid(
+        self, project_name: str, protocol_uuid: str
+    ) -> ProtocolRes:
+        """Retrieve a protocol by its UUID.
+        Args:
+            project_name (str): Name of the project.
+            protocol_uuid (str): UUID of the protocol.
+        Returns:
+            ProtocolRes: The requested protocol.
+        Raises:
+            NotFoundException: If the project or protocol does not exist.
+        """
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+        protocols_storage = self._get_protocols_storage(project_name)
+        protocol = protocols_storage.find_one({"uuid": protocol_uuid})
+        if not protocol:
+            raise NotFoundException(
+                PROTOCOL_DOES_NOT_EXIST.format(
+                    protocol_name=protocol_uuid, project_name=project_name
+                )
+            )
+        return ProtocolRes.from_data(ProtocolData(**protocol))
 
     def _validate_and_format_activities(
         self, activities: list[ActivityPostReq] | list[ActivityPutReq], protocol_name: str

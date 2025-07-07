@@ -1,6 +1,7 @@
 import axios from "@renderer/core/lib/axios"
 import { Protocol, ProtocolCreate } from "../types/Protocol"
 import { AxiosResponse } from "axios"
+import projectService from "./ProjectService"
 
 class ProtocolService {
   readonly endpoint = "/projects"
@@ -19,6 +20,15 @@ class ProtocolService {
 
   async get(projectName: string, protocolName: string): Promise<AxiosResponse<Protocol, unknown>> {
     return axios.get(`${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}`)
+  }
+
+  async getByUuid(
+    projectName: string,
+    protocolUuid: string
+  ): Promise<AxiosResponse<Protocol, unknown>> {
+    return axios.get(
+      `${this.endpoint}/${projectName}${this.protocolEndpoint}/byuuid/${protocolUuid}`
+    )
   }
 
   async update(
@@ -52,6 +62,24 @@ class ProtocolService {
     return axios.post(
       `${this.endpoint}/${projectName}${this.protocolEndpoint}/${protocolName}/unlock`
     )
+  }
+
+  async getSelectedProtocol(): Promise<Protocol | null> {
+    const project = await projectService.getSelectedProject()
+    if (!project) {
+      return null
+    }
+    const protocolUuid = await window.organization.preferences.state.getProtocol()
+    if (!protocolUuid) {
+      return null
+    }
+    try {
+      const response = await this.getByUuid(project.name, protocolUuid)
+      return response.data
+    } catch (error) {
+      console.error("Failed to fetch protocol by UUID:", error)
+      return null
+    }
   }
 }
 

@@ -12,6 +12,7 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "@renderer/store"
 import { Participant } from "../types/Participant"
+import participantService from "../services/ParticipantService"
 
 /**
  * State shape for participant selection.
@@ -22,7 +23,7 @@ export interface ParticipantsState {
 }
 
 const initialState: ParticipantsState = {
-  selected: null
+  selected: await participantService.getSelectedParticipant()
 }
 
 const participantsSlice = createSlice({
@@ -36,6 +37,7 @@ const participantsSlice = createSlice({
      */
     setSelectedParticipant: (state, action: PayloadAction<Participant>) => {
       state.selected = action.payload
+      window.organization.preferences.state.setParticipant(state.selected.uuid)
     },
     /**
      * Clears the currently selected participant (sets to null).

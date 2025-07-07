@@ -117,7 +117,6 @@ class CaptureConfigService:
                     config.name, Settings(config.settings), overwrite=True)
                 plugin_file_extension = plugin_process.execute_callback_on_instance(
                     config.name, get_file_extension_callback)
-                print(f"Plugin file extension: {plugin_file_extension}")
         except Exception as e:
             raise BadRequestException(
                 f"Error while getting file extension for plugin {config.plugin_id}: {str(e)}"
@@ -256,12 +255,10 @@ class CaptureConfigService:
                     existing_config.id, Settings(config.settings), overwrite=True)
                 plugin_file_extension = plugin_process.execute_callback_on_instance(
                     existing_config.id, get_file_extension_callback)
-                print(f"Plugin file extension: {plugin_file_extension}")
         except Exception as e:
             raise BadRequestException(
                 f"Error while getting file extension for plugin {existing_config.plugin_id}: {str(e)}"
             )
-        print(f"Plugin file extension: {plugin_file_extension}")
         config_data = CaptureConfigData(
             id=existing_config.id,
             name=existing_config.name,

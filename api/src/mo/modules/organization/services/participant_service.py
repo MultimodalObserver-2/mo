@@ -372,3 +372,28 @@ class ParticipantService:
 
         participants_storage = self._get_participants_storage(project_name)
         return participants_storage.exists({"code": participant_code})
+
+    def get_participant_by_uuid(self, project_name: str, participant_uuid: str) -> ParticipantRes:
+        """Retrieves a participant by their UUID from a project.
+
+        Args:
+            project_name (str): Name of the project.
+            participant_uuid (str): UUID of the participant.
+
+        Returns:
+            ParticipantRes: The participant details.
+
+        Raises:
+            NotFoundException: If the project or participant does not exist.
+        """
+        if not self.project_service.exists(project_name):
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+
+        participants_storage = self._get_participants_storage(project_name)
+        participant = participants_storage.find_one({"uuid": participant_uuid})
+        if not participant:
+            raise NotFoundException(
+                PARTICIPANT_DOES_NOT_EXIST.format(uuid=participant_uuid, project_name=project_name)
+            )
+        project_rel_location = self.project_service.get_rel_project_location(project_name)
+        return ParticipantRes.from_data(ParticipantData(**participant), project_rel_location)

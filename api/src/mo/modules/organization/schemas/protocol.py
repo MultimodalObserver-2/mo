@@ -1,8 +1,9 @@
 from datetime import datetime
 from email import message
 from typing import Optional
+import uuid
 
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 
 class Activity(BaseModel):
@@ -18,12 +19,33 @@ class Activity(BaseModel):
     show_timer: bool
 
 
+class ProtocolData(BaseModel):
+    uuid: str = Field(default_factory=lambda: str(uuid.uuid4()))
+    name: str
+    activities: list[Activity]
+    locked: bool = False
+    created_at: datetime
+    updated_at: datetime
+
+
 class ProtocolRes(BaseModel):
+    uuid: str
     name: str
     activities: list[Activity]
     locked: bool
     created_at: datetime
     updated_at: datetime
+
+    @staticmethod
+    def from_data(data: ProtocolData) -> "ProtocolRes":
+        return ProtocolRes(
+            uuid=data.uuid,
+            name=data.name,
+            activities=data.activities,
+            locked=data.locked,
+            created_at=data.created_at,
+            updated_at=data.updated_at,
+        )
 
 
 class ActivityPostReq(BaseModel):

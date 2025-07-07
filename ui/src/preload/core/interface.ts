@@ -235,5 +235,55 @@ export default interface CoreAPI {
      * @returns Unsubscribe function.
      */
     onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => () => void
+  },
+
+  /**
+   * Preferences management API for storing and retrieving application settings.
+   */
+  preferences: {
+    /**
+     * Gets a preference value by key.
+     * @param key - The preference key.
+     * @returns The preference value or undefined if not set.
+     */
+    get: <T = unknown>(key: string) => T | undefined
+
+    /**
+     * Sets a preference value by key.
+     * @param key - The preference key.
+     * @param value - The value to set.
+     */
+    set: <T = unknown>(key: string, value: T) => void
+
+    /**
+     * Removes a preference by key.
+     * @param key - The preference key to remove.
+     */
+    remove: (key: string) => void
+
+    /**
+     * Gets all preferences as an object.
+     * @returns All stored preferences.
+     */
+    getAll: () => Record<string, unknown>
+
+    /**
+     * Resets all preferences to their default state.
+     */
+    reset: () => void
+
+    /**
+     * Checks if a preference exists by key.
+     * @param key - The preference key to check.
+     * @returns True if the preference exists, false otherwise.
+     */
+    has: (key: string) => boolean
+
+    /**
+     * Extends a preference with additional properties.
+     * @param key - The preference key to extend.
+     * @param partialValue - Partial value to merge into the existing preference.
+     */
+    extend: (key: string, partialValue: Record<string, unknown>) => void
   }
 }
