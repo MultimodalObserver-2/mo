@@ -1,5 +1,6 @@
 import playbackService from "../../services/PlaybackService"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
+import PanelError from "../panel-error/PanelError"
 
 interface PreviewPanelProps {
   params: PlaybackConfig
@@ -7,14 +8,13 @@ interface PreviewPanelProps {
 
 export default function PreviewPanel({ params }: Readonly<PreviewPanelProps>) {
   if (!params.plugin_is_loaded) {
-    return (
-      <p>
-        The plugin with id <strong>{params.plugin_id}</strong> is not loaded or does not exist.
-        Please ensure the plugin is installed and loaded correctly.
-      </p>
-    )
+    return <PanelError pluginId={params.plugin_id} />
   }
-  const plugin = playbackService.getPluginInstanceById(params.plugin_id)
-  plugin.configure(params.settings)
-  return plugin.getPreview()
+  try {
+    const plugin = playbackService.getPluginInstanceById(params.plugin_id)
+    plugin.configure(params.settings)
+    return plugin.getPreview()
+  } catch {
+    return <PanelError pluginId={params.plugin_id} />
+  }
 }
