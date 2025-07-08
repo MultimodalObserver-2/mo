@@ -32,6 +32,8 @@ export default interface OrganizationAPI {
   onActivityTimerChange: (callback: (seconds: number) => void) => void
   onActivityTimerStart: (callback: (initialSeconds) => void) => void
   onActivityTimerStop: (callback: () => void) => void
+  setProject: (projectUuid: string | null) => Promise<void>
+  setParticipant: (participantUuid: string | null) => Promise<void>
   preferences: {
     state: {
       getProject: () => Promise<string | null>

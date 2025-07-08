@@ -23,14 +23,29 @@ export default function CaptureActions() {
       const response = await captureService.getStatus()
       setIsCapturing(response.data.started)
       setIsPaused(response.data.paused)
+      window.capture.reloadCaptureStatus({
+        isCapturing: response.data.started,
+        isPaused: response.data.paused
+      })
     } catch {
       setIsCapturing(false)
       setIsPaused(false)
+      window.capture.reloadCaptureStatus({
+        isCapturing: false,
+        isPaused: false
+      })
     }
   }
 
   useEffect(() => {
+    const removeListener = window.capture.onChangeCaptureStatusTray(() => {
+      console.log("Capture status changed in tray")
+      checkCaptureStatus()
+    })
     checkCaptureStatus()
+    return () => {
+      removeListener()
+    }
   }, [])
 
   const handleCaptureToggle = async () => {
@@ -46,6 +61,10 @@ export default function CaptureActions() {
         }
         await captureService.startCapture(data)
       }
+      window.capture.reloadCaptureStatus({
+        isCapturing: !isCapturing,
+        isPaused: false
+      })
       setIsCapturing(!isCapturing)
       setIsPaused(false)
     } catch (error) {
@@ -55,7 +74,7 @@ export default function CaptureActions() {
       checkCaptureStatus()
       showApiErrorMessage(error)
     }
-    window.capture.reloadCaptureStatus()
+
     setIsLoading(false)
   }
 
@@ -65,9 +84,17 @@ export default function CaptureActions() {
       if (isPaused) {
         await captureService.resumeCapture()
         setIsPaused(false)
+        window.capture.reloadCaptureStatus({
+          isCapturing: true,
+          isPaused: false
+        })
       } else {
         await captureService.pauseCapture()
         setIsPaused(true)
+        window.capture.reloadCaptureStatus({
+          isCapturing: true,
+          isPaused: true
+        })
       }
     } catch (error) {
       checkCaptureStatus()

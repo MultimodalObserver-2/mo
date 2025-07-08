@@ -22,8 +22,17 @@ export interface ParticipantsState {
   selected: Participant | null
 }
 
+let initialSelectedParticipant: Participant | null = null
+
+try {
+  initialSelectedParticipant = await participantService.getSelectedParticipant()
+  window.organization.setParticipant(initialSelectedParticipant?.code || null)
+} catch (error) {
+  console.error("Error fetching initial selected participant:", error)
+}
+
 const initialState: ParticipantsState = {
-  selected: await participantService.getSelectedParticipant()
+  selected: initialSelectedParticipant
 }
 
 const participantsSlice = createSlice({
@@ -38,6 +47,7 @@ const participantsSlice = createSlice({
     setSelectedParticipant: (state, action: PayloadAction<Participant>) => {
       state.selected = action.payload
       window.organization.preferences.state.setParticipant(state.selected.uuid)
+      window.organization.setParticipant(state.selected.code)
     },
     /**
      * Clears the currently selected participant (sets to null).

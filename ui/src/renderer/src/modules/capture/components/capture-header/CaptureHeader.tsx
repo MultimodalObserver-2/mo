@@ -23,13 +23,18 @@ export default function CaptureHeader() {
       }
     }
 
-    window.capture.onReloadCaptureStatus(() => {
+    const removeListener = window.capture.onReloadCaptureStatus(() => {
+      fetchStatus()
+    })
+
+    const removeTrayListener = window.capture.onChangeCaptureStatusTray(() => {
       fetchStatus()
     })
 
     fetchStatus()
     return () => {
-      window.capture.removeReloadCaptureStatusListeners()
+      removeListener()
+      removeTrayListener()
     }
   }, [])
 

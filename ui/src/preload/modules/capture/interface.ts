@@ -4,7 +4,9 @@ export default interface CaptureAPI {
   reloadSessions: () => void
   onReloadSessions: (callback: () => void) => void
   removeReloadSessionsListeners: () => void
-  reloadCaptureStatus: () => void
-  onReloadCaptureStatus: (callback: () => void) => void
-  removeReloadCaptureStatusListeners: () => void
+  reloadCaptureStatus: (status: { isCapturing: boolean; isPaused: boolean }) => void
+  onReloadCaptureStatus: (callback: () => void) => () => void
+  onChangeCaptureStatusTray: (
+    callback: (status: { isCapturing: boolean; isPaused: boolean }) => void
+  ) => () => void
 }

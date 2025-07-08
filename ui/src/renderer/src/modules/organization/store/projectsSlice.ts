@@ -22,8 +22,17 @@ export interface ProjectsState {
   selected: Project | null
 }
 
+let initialSelectedProject: Project | null = null
+
+try {
+  initialSelectedProject = await projectService.getSelectedProject()
+  window.organization.setProject(initialSelectedProject?.name || null)
+} catch (error) {
+  console.error("Error fetching initial selected project:", error)
+}
+
 const initialState: ProjectsState = {
-  selected: await projectService.getSelectedProject()
+  selected: initialSelectedProject
 }
 
 const projectsSlice = createSlice({
@@ -38,6 +47,7 @@ const projectsSlice = createSlice({
     setSelectedProject: (state, action: PayloadAction<Project>) => {
       state.selected = action.payload
       window.organization.preferences.state.setProject(state.selected.uuid)
+      window.organization.setProject(state.selected.name)
     },
     /**
      * Clears the currently selected project (sets to null).

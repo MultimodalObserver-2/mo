@@ -100,6 +100,12 @@ const organization = {
   onActivityTimerStop: (callback: () => void) => {
     ipcRenderer.on("organization:on-activity-timer-stop", () => callback())
   },
+  setProject: (projectName: string | null) => {
+    ipcRenderer.send("organization:set-project", projectName)
+  },
+  setParticipant: (participantCode: string | null) => {
+    ipcRenderer.send("organization:set-participant", participantCode)
+  },
   preferences: {
     state: {
       getProject: () => {

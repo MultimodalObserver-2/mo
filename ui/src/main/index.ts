@@ -5,6 +5,7 @@ import icon from "../../resources/icon.png?asset"
 import { ChildProcess } from "child_process"
 import treeKill from "tree-kill"
 import { loadWindowState, saveWindowState } from "./core/preferences/windowState"
+import { SystemTray } from "./core/systemTray"
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
@@ -94,6 +95,7 @@ function createWindow(): BrowserWindow {
 let apiProcess: ChildProcess | null = null
 let apiPort: number | null = null
 let mainWindow: BrowserWindow | null = null
+let systemTray: SystemTray | null = null
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -132,6 +134,9 @@ app.whenReady().then(async () => {
       mainWindow.loadFile(join(__dirname, "../renderer/index.html"), { hash: "#/error" })
     }
   }
+
+  // Create system tray
+  systemTray = new SystemTray()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -158,6 +163,10 @@ export function broadcast(channel: string, ...args: unknown[]): void {
   BrowserWindow.getAllWindows().forEach((window) => {
     window.webContents.send(channel, ...args)
   })
+}
+
+export function getSystemTray(): SystemTray | null {
+  return systemTray
 }
 
 // In this file you can include the rest of your app's specific main process

@@ -22,14 +22,28 @@ const capture = {
   removeReloadSessionsListeners: () => {
     ipcRenderer.removeAllListeners("capture:on-reload-sessions")
   },
-  reloadCaptureStatus: () => {
-    ipcRenderer.send("capture:reload-status")
+  reloadCaptureStatus: (status) => {
+    ipcRenderer.send("capture:reload-status", status)
   },
   onReloadCaptureStatus: (callback: () => void) => {
-    ipcRenderer.on("capture:on-reload-status", () => callback())
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("capture:on-reload-status", listener)
+    return () => {
+      ipcRenderer.removeListener("capture:on-reload-status", listener)
+    }
   },
-  removeReloadCaptureStatusListeners: () => {
-    ipcRenderer.removeAllListeners("capture:on-reload-status")
+  onChangeCaptureStatusTray: (
+    callback: (status: { isCapturing: boolean; isPaused: boolean }) => void
+  ) => {
+    const listener = (_, status) => {
+      callback(status)
+    }
+    ipcRenderer.on("capture:on-change-status", listener)
+    return () => {
+      ipcRenderer.removeListener("capture:on-change-status", listener)
+    }
   }
 }
 
