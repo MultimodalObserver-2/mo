@@ -58,7 +58,7 @@ export default function SelectPlaybackView() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Capture sources" Icon={CameraIcon} />
+        <ModalTitle title="Playback Views" Icon={CameraIcon} />
       </ModalHeader>
       <ModalBody id="modal-body">
         <PluginDisplay style="dark" textSize="sm">
