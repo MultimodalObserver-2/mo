@@ -4,6 +4,7 @@ import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset"
 import { ChildProcess } from "child_process"
 import treeKill from "tree-kill"
+import { loadWindowState, saveWindowState } from "./core/preferences/windowState"
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
@@ -14,11 +15,14 @@ function createWindow(): BrowserWindow {
   const minHeight = Math.floor(screenHeight * 0.8)
   const minWidth = Math.floor(minHeight * (4 / 3))
   // Create the browser window.
+  const windowState = loadWindowState()
   const mainWindow = new BrowserWindow({
-    width: adjustedWidth,
-    height: adjustedHeight,
+    width: windowState?.width || adjustedWidth,
+    height: windowState?.height || adjustedHeight,
     minWidth: minWidth,
     minHeight: minHeight,
+    x: windowState?.x,
+    y: windowState?.y,
     show: false,
     autoHideMenuBar: true,
     title: "Multimodal Observer",
@@ -32,6 +36,9 @@ function createWindow(): BrowserWindow {
 
   mainWindow.on("ready-to-show", () => {
     mainWindow.show()
+    if (windowState?.maximized) {
+      mainWindow.maximize()
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -45,6 +52,9 @@ function createWindow(): BrowserWindow {
         window.close()
       }
     })
+
+    // Save the window state before closing
+    saveWindowState(mainWindow)
   })
 
   // Loading api process
