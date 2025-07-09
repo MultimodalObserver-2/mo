@@ -5,7 +5,7 @@ import icon from "../../resources/icon.png?asset"
 import { ChildProcess } from "child_process"
 import treeKill from "tree-kill"
 import { loadWindowState, saveWindowState } from "./core/preferences/windowState"
-import { SystemTray } from "./core/systemTray"
+import { SystemTray } from "./core/SystemTray"
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
