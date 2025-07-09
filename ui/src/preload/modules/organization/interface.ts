@@ -1,13 +1,12 @@
 export default interface OrganizationAPI {
   reloadProjects: () => void
-  onReloadProjects: (callback: () => void) => void
-  reloadParticipants: () => void
-  onReloadParticipants: (callback: () => void) => void
-  removeReloadParticipants: () => void
+  onReloadProjects: (callback: () => void) => () => void
+  reloadParticipants: () => () => void
+  onReloadParticipants: (callback: () => void) => () => void
   changeSelectedProject: (project) => void
-  onChangeSelectedProject: (callback: (project) => void) => void
+  onChangeSelectedProject: (callback: (project) => void) => () => void
   changeSelectedParticipant: (participant) => void
-  onChangeSelectedParticipant: (callback: (participant) => void) => void
+  onChangeSelectedParticipant: (callback: (participant) => void) => () => void
   addActivity: (activity) => void
   onAddActivity: (callback: (activity) => void) => void
   removeAddActivity: () => void
@@ -15,10 +14,9 @@ export default interface OrganizationAPI {
   onUpdateActivity: (callback: (originalName, activity) => void) => void
   removeUpdateActivity: () => void
   reloadProtocols: () => void
-  onReloadProtocols: (callback: () => void) => void
-  removeReloadProtocols: () => void
+  onReloadProtocols: (callback: () => void) => () => void
   changeSelectedProtocol: (protocol) => void
-  onChangeSelectedProtocol: (callback: (protocol) => void) => void
+  onChangeSelectedProtocol: (callback: (protocol) => void) => () => () => void
   execProtocol: (projectName: string, protocolName: string) => void
   onExecProtocolFinished: (callback: () => void) => () => void
   stopProtocolExecution: () => void

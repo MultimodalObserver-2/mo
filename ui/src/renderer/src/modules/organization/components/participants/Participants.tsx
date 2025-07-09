@@ -61,23 +61,26 @@ export default function Participants() {
   )
 
   useEffect(() => {
-    window.organization.onChangeSelectedParticipant((participant) => {
+    const removeListener = window.organization.onChangeSelectedParticipant((participant) => {
       if (participant) {
         dispatch(setSelectedParticipant(participant))
       } else {
         dispatch(clearSelectedParticipant())
       }
     })
+    return () => {
+      removeListener()
+    }
   }, [dispatch])
 
   useEffect(() => {
-    window.organization.onReloadParticipants(() => {
+    const removeListener = window.organization.onReloadParticipants(() => {
       fetchParticipants(selectedProject)
     })
 
     fetchParticipants(selectedProject)
     return () => {
-      window.organization.removeReloadParticipants()
+      removeListener()
     }
   }, [selectedProject, fetchParticipants])
 

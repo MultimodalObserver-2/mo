@@ -12,7 +12,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Protocol } from "../types/Protocol"
 import { RootState } from "@renderer/store"
-import protocolService from "../services/ProtocolService"
 
 /**
  * State shape for protocol selection.
@@ -23,7 +22,7 @@ export interface ProtocolsState {
 }
 
 const initialState: ProtocolsState = {
-  selected: await protocolService.getSelectedProtocol()
+  selected: null
 }
 
 const protocolsSlice = createSlice({

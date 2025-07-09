@@ -142,22 +142,25 @@ export default function Protocols() {
   }
 
   useEffect(() => {
-    window.organization.onChangeSelectedProtocol((protocol) => {
+    const removeListener = window.organization.onChangeSelectedProtocol((protocol) => {
       if (protocol) {
         dispatch(setSelectedProtocol(protocol))
       } else {
         dispatch(clearSelectedProtocol())
       }
     })
+    return () => {
+      removeListener()
+    }
   }, [dispatch])
 
   useEffect(() => {
-    window.organization.onReloadProtocols(() => {
+    const removeListener = window.organization.onReloadProtocols(() => {
       fetchProtocols(selectedProject)
     })
     fetchProtocols(selectedProject)
     return () => {
-      window.organization.removeReloadProtocols()
+      removeListener()
     }
   }, [selectedProject, fetchProtocols])
 

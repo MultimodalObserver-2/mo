@@ -12,7 +12,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Project } from "../types/Project"
 import { RootState } from "@renderer/store"
-import projectService from "../services/ProjectService"
 
 /**
  * State shape for project selection.
@@ -22,17 +21,8 @@ export interface ProjectsState {
   selected: Project | null
 }
 
-let initialSelectedProject: Project | null = null
-
-try {
-  initialSelectedProject = await projectService.getSelectedProject()
-  window.organization.setProject(initialSelectedProject?.name || null)
-} catch (error) {
-  console.error("Error fetching initial selected project:", error)
-}
-
 const initialState: ProjectsState = {
-  selected: initialSelectedProject
+  selected: null
 }
 
 const projectsSlice = createSlice({

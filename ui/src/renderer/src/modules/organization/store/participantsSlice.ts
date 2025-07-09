@@ -12,7 +12,6 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { RootState } from "@renderer/store"
 import { Participant } from "../types/Participant"
-import participantService from "../services/ParticipantService"
 
 /**
  * State shape for participant selection.
@@ -22,17 +21,8 @@ export interface ParticipantsState {
   selected: Participant | null
 }
 
-let initialSelectedParticipant: Participant | null = null
-
-try {
-  initialSelectedParticipant = await participantService.getSelectedParticipant()
-  window.organization.setParticipant(initialSelectedParticipant?.code || null)
-} catch (error) {
-  console.error("Error fetching initial selected participant:", error)
-}
-
 const initialState: ParticipantsState = {
-  selected: initialSelectedParticipant
+  selected: null
 }
 
 const participantsSlice = createSlice({

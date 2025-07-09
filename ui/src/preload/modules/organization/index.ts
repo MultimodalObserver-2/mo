@@ -5,30 +5,49 @@ const organization = {
     ipcRenderer.send("organization:reload-projects")
   },
   onReloadProjects: (callback: () => void) => {
-    ipcRenderer.on("organization:on-reload-projects", () => callback())
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-reload-projects", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-reload-projects", listener)
+    }
   },
   reloadParticipants: () => {
     ipcRenderer.send("organization:reload-participants")
   },
   onReloadParticipants: (callback: () => void) => {
-    ipcRenderer.on("organization:on-reload-participants", () => callback())
-  },
-  removeReloadParticipants: () => {
-    ipcRenderer.removeAllListeners("organization:on-reload-participants")
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-reload-participants", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-reload-participants", listener)
+    }
   },
   changeSelectedProject: (project) => {
     ipcRenderer.send("organization:change-selected-project", project)
   },
   onChangeSelectedProject: (callback: (project) => void) => {
-    ipcRenderer.on("organization:on-change-selected-project", (_, project) => callback(project))
+    const listener = (_, project) => {
+      callback(project)
+    }
+    ipcRenderer.on("organization:on-change-selected-project", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-change-selected-project", listener)
+    }
   },
   changeSelectedParticipant: (participant) => {
     ipcRenderer.send("organization:change-selected-participant", participant)
   },
   onChangeSelectedParticipant: (callback: (participant) => void) => {
-    ipcRenderer.on("organization:on-change-selected-participant", (_, participant) =>
+    const listener = (_, participant) => {
       callback(participant)
-    )
+    }
+    ipcRenderer.on("organization:on-change-selected-participant", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-change-selected-participant", listener)
+    }
   },
   addActivity: (activity) => {
     ipcRenderer.send("organization:add-activity", activity)
@@ -54,16 +73,25 @@ const organization = {
     ipcRenderer.send("organization:reload-protocols")
   },
   onReloadProtocols: (callback: () => void) => {
-    ipcRenderer.on("organization:on-reload-protocols", () => callback())
-  },
-  removeReloadProtocols: () => {
-    ipcRenderer.removeAllListeners("organization:on-reload-protocols")
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-reload-protocols", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-reload-protocols", listener)
+    }
   },
   changeSelectedProtocol: (protocol) => {
     ipcRenderer.send("organization:change-selected-protocol", protocol)
   },
   onChangeSelectedProtocol: (callback: (protocol) => void) => {
-    ipcRenderer.on("organization:on-change-selected-protocol", (_, protocol) => callback(protocol))
+    const listener = (_, protocol) => {
+      callback(protocol)
+    }
+    ipcRenderer.on("organization:on-change-selected-protocol", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-change-selected-protocol", listener)
+    }
   },
   execProtocol: (projectName, protocolName) => {
     ipcRenderer.send("organization:exec-protocol", projectName, protocolName)

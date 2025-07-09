@@ -91,11 +91,25 @@ export default function Projects() {
   }
 
   useEffect(() => {
-    window.organization.onReloadProjects(() => {
+    const fetchSelectedProject = async () => {
+      if (selectedProject) {
+        return
+      }
+      try {
+        const response = await projectService.getSelectedProject()
+        if (response) {
+          dispatch(selectProjectThunk(response))
+        }
+      } catch (error) {
+        console.error("Error fetching selected project:", error)
+      }
+    }
+
+    const removeReloadListener = window.organization.onReloadProjects(() => {
       fetchProjects()
     })
 
-    window.organization.onChangeSelectedProject((project) => {
+    const removeSelectedListener = window.organization.onChangeSelectedProject((project) => {
       if (project) {
         dispatch(selectProjectThunk(project))
       } else {
@@ -106,6 +120,12 @@ export default function Projects() {
     })
 
     fetchProjects()
+    fetchSelectedProject()
+
+    return () => {
+      removeReloadListener()
+      removeSelectedListener()
+    }
   }, [dispatch])
 
   return (
