@@ -1,3 +1,4 @@
+import asyncio
 import logging
 import multiprocessing
 import threading
@@ -74,7 +75,7 @@ class CaptureService:
         # A dictionary to hold instances of processes, mapping plugin IDs to a list of instances
         # identified by their configuration names
         self.processes_instances = {}  # type: dict[str, list[str]]
-        self.configs_names = {} # type: dict[tuple[str, str], str]
+        self.configs_names = {}  # type: dict[tuple[str, str], str]
         self.started = False
         self.paused = False
         self.project_name = None  # type: str | None
@@ -104,13 +105,14 @@ class CaptureService:
         Returns:
             list[PluginRes]: A list of PluginRes objects representing the available capture plugins.
         """
-        plugins_metadata = self.plugin_management.get_plugins_metadata_from_type(CapturePlugin)
+        plugins_metadata = self.plugin_management.get_plugins_metadata_from_type(
+            CapturePlugin)
         plugins_res = [
             PluginRes.from_plugin_metadata(plugin_metadata) for plugin_metadata in plugins_metadata
         ]
         return plugins_res
 
-    def exec_prepare_callback(self, session_path: str):
+    async def exec_prepare_callback(self, session_path: str):
         """Execute the prepare callback for all running processes and their instances.
         This method iterates through all running processes and their instances,
         executing the prepare callback with the provided session path and file name.
@@ -120,19 +122,22 @@ class CaptureService:
         valid_processes_instances = self.processes_instances.copy()
         for key, process in self.running_processes.items():
             for config_id in self.processes_instances[key]:
-                file_name = self._format_data_file_name(self.configs_names.get((key, config_id), ""))
-                extra_args = {"session_path": session_path, "file_name": file_name}
+                file_name = self._format_data_file_name(
+                    self.configs_names.get((key, config_id), ""))
+                extra_args = {"session_path": session_path,
+                              "file_name": file_name}
                 try:
-                    process.execute_callback_on_instance(config_id, prepare_callback, extra_args)
+                    await asyncio.to_thread(process.execute_callback_on_instance,
+                                            config_id, prepare_callback, extra_args)
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing prepare callback for {config_id} in process {key}: {e}"
                     )
                     valid_processes_instances[key].remove(config_id)
-                    process.remove_plugin_instance(config_id)
+                    await asyncio.to_thread(process.remove_plugin_instance, config_id)
         self.processes_instances = valid_processes_instances
 
-    def exec_start_callback(self):
+    async def exec_start_callback(self):
         """Execute the start callback for all running processes and their instances.
         This method iterates through all running processes and their instances,
         executing the start callback with the start timestamp and configuration name.
@@ -144,15 +149,15 @@ class CaptureService:
                     "start_ts": self.start_ts,
                 }
                 try:
-                    process.execute_callback_on_instance(
-                        config_id, start_callback, extra_args)
+                    await asyncio.to_thread(process.execute_callback_on_instance,
+                                            config_id, start_callback, extra_args)
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing start callback for {config_id} in process {key}: {e}",
                         exc_info=True,
                     )
 
-    def start_capture(self, project_name: str, participant_code: str):
+    async def start_capture(self, project_name: str, participant_code: str):
         """Start a capture session for the specified project and participant.
         This method initializes the capture session, loads the necessary processes,
         and starts the capture buffer manager.
@@ -164,9 +169,10 @@ class CaptureService:
         """
         if self.started:
             raise BadRequestException("Capture is already started.")
-        processes_queue = self.load_processes(project_name)
+        processes_queue = await self.load_processes(project_name)
         if len(self.running_processes) == 0:
-            raise BadRequestException("No capture configurations loaded for the project")
+            raise BadRequestException(
+                "No capture configurations loaded for the project")
         self.start_ts = time.monotonic()
         self.project_name = project_name
         self.participant_code = participant_code
@@ -179,8 +185,8 @@ class CaptureService:
                 capture_sources=self._get_capture_configs(project_name),
             ),
         )
-        self.exec_prepare_callback(self.session.location)
-        self.exec_start_callback()
+        await self.exec_prepare_callback(self.session.location)
+        await self.exec_start_callback()
         self.started = True
         self.paused = False
         self.capture_buffer_manager.clear_paused_intervals()
@@ -188,7 +194,8 @@ class CaptureService:
         for key, configs in self.processes_instances.items():
             for config_id in configs:
                 buffer_tuples.append((key, config_id))
-        self.capture_buffer_manager.start(buffer_tuples, processes_queue, self.running_processes)
+        self.capture_buffer_manager.start(
+            buffer_tuples, processes_queue, self.running_processes)
 
     def on_capture_data_callback(self, data: PluginData):
         """Callback function to handle capture data from plugins.
@@ -210,7 +217,30 @@ class CaptureService:
                 ),
             ).start()
 
-    def stop_capture(self):
+    async def exec_stop_callback(self, stop_ts: float):
+        """Execute the stop callback for all running processes and their instances.
+        This method iterates through all running processes and executes the stop callback
+        with the provided stop timestamp.
+        Args:
+            stop_ts (float): The timestamp when the capture session is stopped.
+        Returns:
+            dict: A dictionary containing exceptions raised during the execution of stop callbacks,
+            keyed by plugin process ID.
+        """
+        exceptions = {}
+        for key, process in self.running_processes.items():
+            try:
+                await asyncio.to_thread(process.execute_callback_on_all_instances,
+                                        stop_callback, {"stop_ts": stop_ts})
+            except Exception as e:
+                self.logger.error(
+                    f"[CaptureService] Error executing stop callback for plugin process {key}: {e}",
+                    exc_info=True,
+                )
+                exceptions[key] = e
+        return exceptions
+
+    async def stop_capture(self):
         """Stop the capture session safely.
         This method stops the capture session, executes the stop callback for all running processes,
         updates the session with the final duration and paused intervals, and unloads the running processes.
@@ -219,21 +249,12 @@ class CaptureService:
         """
         if not self.started:
             raise BadRequestException("Capture is not started.")
-        exceptions = {}
         self.started = False
         self.paused = False
         stop_ts = time.monotonic()
         stop_datetime = datetime.now()
         self.capture_buffer_manager.add_paused_interval(stop_ts, None)
-        for key, process in self.running_processes.items():
-            try:
-                process.execute_callback_on_all_instances(stop_callback, {"stop_ts": stop_ts})
-            except Exception as e:
-                self.logger.error(
-                    f"[CaptureService] Error executing stop callback for plugin process {key}: {e}",
-                    exc_info=True,
-                )
-                exceptions[key] = e
+        exceptions = await self.exec_stop_callback(stop_ts)
         if self.session and self.project_name and self.participant_code:
             duration = stop_ts - self.start_ts - self.paused_time
             self.session.duration = duration
@@ -249,15 +270,15 @@ class CaptureService:
                 self.project_name, self.participant_code, self.session.session_id, session_put
             )
 
-        self.capture_buffer_manager.stop(timeout=2)
-        self.unload_running_processes()
+        await asyncio.to_thread(self.capture_buffer_manager.stop, timeout=2)
+        await self.unload_running_processes()
         self._initialize()
         if len(exceptions) > 0:
             raise BadRequestException(
                 "Failed to stop safely some processes, some data may be lost."
             )
 
-    def pause_capture(self):
+    async def pause_capture(self):
         """Pause the capture session.
         This method pauses the capture session, updates the capture buffer manager,
         and executes the pause callback for all running processes.
@@ -265,15 +286,16 @@ class CaptureService:
             BadRequestException: If the capture is not started or already paused.
         """
         if not self.started or self.paused:
-            raise BadRequestException("Capture is not started or already paused.")
+            raise BadRequestException(
+                "Capture is not started or already paused.")
         self.paused_ts = time.monotonic()
         self.capture_buffer_manager.pause(self.paused_ts)
         with self.execute_lock:
             for process in self.running_processes.values():
                 try:
-                    process.execute_callback_on_all_instances(
-                        pause_callback, {"pause_ts": self.paused_ts}, need_response=False
-                    )
+                    await asyncio.to_thread(process.execute_callback_on_all_instances,
+                                            pause_callback, {"pause_ts": self.paused_ts}, need_response=False
+                                            )
                 except Exception as e:
                     self.logger.error(
                         f"[CaptureService] Error executing pause callback for process {process.process_metadata.metadata.plugin_id}: {e}",
@@ -282,7 +304,7 @@ class CaptureService:
 
         self.paused = True
 
-    def resume_capture(self):
+    async def resume_capture(self):
         """Resume the paused capture session.
         This method resumes the capture session, updates the capture buffer manager,
         and executes the resume callback for all running processes.
@@ -296,7 +318,7 @@ class CaptureService:
         with self.execute_lock:
             for process in self.running_processes.values():
                 try:
-                    process.execute_callback_on_all_instances(
+                    await asyncio.to_thread(process.execute_callback_on_all_instances,
                         resume_callback,
                         {
                             "resume_ts": resume_ts,
@@ -326,11 +348,13 @@ class CaptureService:
         """
         process = self.running_processes.get(plugin_id)
         if process is None:
-            raise BadRequestException(f"No running process found for plugin {plugin_id}.")
+            raise BadRequestException(
+                f"No running process found for plugin {plugin_id}.")
         file_extension = process.execute_callback_on_instance(
             config_id, get_file_extension_callback
         )
-        file_name = self._format_data_file_name(self.configs_names.get((plugin_id, config_id), ""))
+        file_name = self._format_data_file_name(
+            self.configs_names.get((plugin_id, config_id), ""))
         if not file_extension:
             return file_name
         file_extension = file_extension.lstrip(".").lower()
@@ -348,8 +372,10 @@ class CaptureService:
         configs = self.config_service.get_all_configs_loaded(project_name)
         capture_configs = []
         for config in configs:
-            file_name = self.get_capture_plugin_file_name(config.plugin_id, config.id)
-            file_extension = file_name.split(".")[-1] if "." in file_name else ""
+            file_name = self.get_capture_plugin_file_name(
+                config.plugin_id, config.id)
+            file_extension = file_name.split(
+                ".")[-1] if "." in file_name else ""
             capture_configs.append(
                 CaptureConfigDetailsPost(
                     config_id=config.id,
@@ -364,7 +390,7 @@ class CaptureService:
             )
         return capture_configs
 
-    def load_processes(self, project_name: str) -> multiprocessing.Queue:
+    async def load_processes(self, project_name: str) -> multiprocessing.Queue:
         """Load the capture processes for the specified project.
         This method retrieves all capture configurations for the given project name,
         initializes the necessary plugin worker processes, and prepares them for capturing data.
@@ -380,27 +406,26 @@ class CaptureService:
         self.running_processes = {}
         for config in configs:
             if self.running_processes.get(config.plugin_id) is None:
-                plugin_process = self.plugin_management.get_active_plugin_process(
-                    config.plugin_id, processes_queue
-                )
+                plugin_process = await asyncio.to_thread(self.plugin_management.get_active_plugin_process,
+                                                         config.plugin_id, processes_queue)
                 if plugin_process is None:
                     continue
                 self.running_processes[config.plugin_id] = plugin_process
                 self.processes_instances[config.plugin_id] = []
-            self.running_processes[config.plugin_id].add_plugin_instance(
-                config.id, Settings(config.settings)
-            )
+            await asyncio.to_thread(
+                self.running_processes[config.plugin_id].add_plugin_instance,
+                config.id, Settings(config.settings))
             self.configs_names[(config.plugin_id, config.id)] = config.name
             self.processes_instances[config.plugin_id].append(config.id)
         return processes_queue
 
-    def unload_running_processes(self):
+    async def unload_running_processes(self):
         """Unload all running processes and reset the internal state of the CaptureService.
         This method stops all running processes, clears the internal state, and prepares the service for a new capture session.
         It ensures that all processes are stopped gracefully, and any resources are released.
         """
         for process in self.running_processes.values():
-            process.stop(timeout=10, force=True)
+            await asyncio.to_thread(process.stop, timeout=10, force=True)
 
     def is_capturing(self) -> bool:
         """Check if the capture session is currently active.

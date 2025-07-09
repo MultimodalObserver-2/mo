@@ -263,7 +263,7 @@ class SessionService:
         )
         return session_res
 
-    def delete_session(self, project_name: str, participant_code: str, session_id: str) -> None:
+    async def delete_session(self, project_name: str, participant_code: str, session_id: str) -> None:
         """Deletes a specific session for a participant in a project.
         Args:
             project_name (str): The name of the project.
@@ -276,7 +276,7 @@ class SessionService:
         session = self.get_session(project_name, participant_code, session_id)
         if self.participant_service.is_participant_locked(project_name, participant_code):
             raise BadRequestException("Cannot delete session, participant is locked.")
-        self.file_management.send_to_trash(session.location)
+        await self.file_management.send_to_trash_async(session.location)
         session_storage = self._get_session_storage(project_name, participant_code)
         session_storage.delete_one({"session_id": session_id})
 

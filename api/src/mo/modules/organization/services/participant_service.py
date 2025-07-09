@@ -245,7 +245,7 @@ class ParticipantService:
         project_rel_location = self.project_service.get_rel_project_location(project_name)
         return ParticipantRes.from_data(existing_participant, project_rel_location)
 
-    def delete_participant(self, project_name: str, participant_code) -> None:
+    async def delete_participant(self, project_name: str, participant_code) -> None:
         """Deletes a participant from a project.
 
         Args:
@@ -268,7 +268,7 @@ class ParticipantService:
 
         dir_name = self._get_participant_dir_name(participant_code)
         rel_path = os.path.join(project_name, dir_name)
-        self.file_management.send_to_trash(rel_path)
+        await self.file_management.send_to_trash_async(rel_path)
 
         participants_storage = self._get_participants_storage(project_name)
         participants_storage.delete_one({"code": participant_code})

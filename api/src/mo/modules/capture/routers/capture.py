@@ -38,7 +38,7 @@ async def start_capture(
     capture_start_request: CaptureStartRequest,
     service: CaptureService = Depends(get_capture_service),
 ) -> None:
-    return service.start_capture(
+    return await service.start_capture(
         capture_start_request.project_name, capture_start_request.participant_code
     )
 
@@ -53,7 +53,7 @@ async def start_capture(
     },
 )
 async def stop_capture(service: CaptureService = Depends(get_capture_service)) -> None:
-    return service.stop_capture()
+    return await service.stop_capture()
 
 
 @capture_router.post(
@@ -66,7 +66,7 @@ async def stop_capture(service: CaptureService = Depends(get_capture_service)) -
     },
 )
 async def pause_capture(service: CaptureService = Depends(get_capture_service)) -> None:
-    return service.pause_capture()
+    return await service.pause_capture()
 
 
 @capture_router.post(
@@ -79,7 +79,7 @@ async def pause_capture(service: CaptureService = Depends(get_capture_service)) 
     },
 )
 async def resume_capture(service: CaptureService = Depends(get_capture_service)) -> None:
-    return service.resume_capture()
+    return await service.resume_capture()
 
 
 @capture_router.get(

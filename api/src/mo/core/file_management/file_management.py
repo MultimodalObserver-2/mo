@@ -1,3 +1,4 @@
+import asyncio
 import os
 import platform
 import re
@@ -5,6 +6,7 @@ import shutil
 import stat
 import unicodedata
 import zipfile
+import aiofiles
 from typing import BinaryIO, Optional
 
 import psutil
@@ -171,6 +173,22 @@ class FileManagement:
             raise NotFoundError(f"Path {path} does not exist.")
         send2trash.send2trash(path)
         return path
+    
+    async def send_to_trash_async(self, rel_path: str = "") -> str:
+        """Asynchronously moves a file or directory to the trash.
+        Args:
+            rel_path (str): Path of the file or directory to move to trash.
+        Returns:
+            str: Path of the moved item.
+        Raises:
+            NotFoundError: If the path does not exist.
+        """
+        rel_path = os.path.normpath(rel_path)
+        path = os.path.normpath(os.path.join(self._path, rel_path))
+        if not os.path.exists(path):
+            raise NotFoundError(f"Path {path} does not exist.")
+        await asyncio.to_thread(send2trash.send2trash, path)
+        return path
 
     def delete_directory(self, dir_name: str, rel_path: str = "") -> str:
         """Deletes a directory and its contents.
@@ -194,6 +212,28 @@ class FileManagement:
 
         shutil.rmtree(dir_path, onexc=remove_readonly)
         return dir_path
+    
+    async def delete_directory_async(self, dir_name: str, rel_path: str = "") -> str:
+        """Asynchronously deletes a directory and its contents. 
+        Args:
+            dir_name (str): Name of the directory to delete.
+            rel_path (str): Relative path where the directory is located.
+        Returns:
+            str: Path of the deleted directory.
+        Raises:
+            NotFoundError: If the directory does not exist.
+        """
+        rel_path = os.path.normpath(rel_path)
+        dir_path = os.path.normpath(os.path.join(self._path, rel_path, dir_name))
+        if not os.path.exists(dir_path):
+            raise NotFoundError(f"Directory {dir_path} does not exist.")
+
+        def _delete():
+            shutil.rmtree(dir_path, onexc=lambda func, path,
+                        _: os.chmod(path, stat.S_IWRITE) or func(path))
+
+        await asyncio.to_thread(_delete)
+        return dir_path
 
     def delete_file(self, file_name: str, rel_path: str = "") -> str:
         """Deletes a file.
@@ -211,6 +251,23 @@ class FileManagement:
             raise NotFoundError(f"File {file_path} does not exist.")
         os.remove(file_path)
         return file_path
+    
+    async def delete_file_async(self, file_name: str, rel_path: str = "") -> str:
+        """Asynchronously deletes a file.
+        Args:
+            file_name (str): Name of the file to delete.
+            rel_path (str): Relative path where the file is located.
+        Returns:
+            str: Path of the deleted file.
+        Raises:
+            NotFoundError: If the file does not exist.
+        """
+        rel_path = os.path.normpath(rel_path)
+        file_path = os.path.normpath(os.path.join(self._path, rel_path, file_name))
+        if not os.path.exists(file_path):
+            raise NotFoundError(f"File {file_path} does not exist.")
+        await asyncio.to_thread(os.remove, file_path)
+        return file_path
 
     def copy_file_obj(self, file_obj: BinaryIO, file_name: str, rel_path: str = "") -> str:
         """Copies a file object to a specified location.
@@ -224,6 +281,24 @@ class FileManagement:
         file_path = os.path.normpath(file_path)
         with open(file_path, "wb") as f:
             shutil.copyfileobj(file_obj, f)
+        return file_path
+    
+    async def copy_file_obj_async(self, file_obj: BinaryIO, file_name: str, rel_path: str = "") -> str:
+        """Asynchronously copies a file object to a specified location.
+        Args:
+            file_obj (BinaryIO): File object to copy.
+            file_name (str): Name of the new file.
+            rel_path (str): Relative path where the file will be copied.
+        Returns:
+            str: Path of the copied file.
+        """
+        file_path = os.path.normpath(os.path.join(self._path, rel_path, file_name))
+
+        def _copy():
+            with open(file_path, "wb") as f:
+                shutil.copyfileobj(file_obj, f)
+
+        await asyncio.to_thread(_copy)
         return file_path
 
     def extract_zip(self, zip_path: str, extract_to: str = ""):
@@ -242,6 +317,24 @@ class FileManagement:
             os.makedirs(extract_to, exist_ok=True)
         with zipfile.ZipFile(zip_path, "r") as zip_ref:
             zip_ref.extractall(extract_to)
+
+    async def extract_zip_async(self, zip_path: str, extract_to: str = ""):
+        """Asynchronously extracts a ZIP file to a specified directory.
+        Args:
+            zip_path (str): Path to the ZIP file.
+            extract_to (str): Directory where the contents will be extracted.
+        """
+        zip_path = os.path.normpath(os.path.join(self._path, zip_path))
+        extract_to = os.path.normpath(os.path.join(self._path, extract_to))
+        if not os.path.exists(zip_path):
+            raise NotFoundError(f"ZIP file {zip_path} does not exist.")
+        os.makedirs(extract_to, exist_ok=True)
+
+        def _extract():
+            with zipfile.ZipFile(zip_path, "r") as zip_ref:
+                zip_ref.extractall(extract_to)
+
+        await asyncio.to_thread(_extract)
 
     def get_unique_name(self, name: str, rel_path: str = "") -> str:
         """Generates a unique name by appending a number if the name already exists.

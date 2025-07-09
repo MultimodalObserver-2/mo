@@ -28,7 +28,7 @@ class PluginService:
         self.plugins_dir = RELATIVE_PLUGINS_DIR_PATH
         self.file_management = FileManagement(self.plugins_dir)
 
-    def add_plugin(self, file: UploadFile) -> PluginRes:
+    async def add_plugin(self, file: UploadFile) -> PluginRes:
         """Adds a new plugin from a zip file.
         Args:
             file (UploadFile): The zip file containing the plugin to be added.
@@ -45,14 +45,15 @@ class PluginService:
         dir_name = self.file_management.get_unique_name(file_name.replace(".zip", ""))
 
         dir_path = self.file_management.create_directory(dir_name)
-        zip_path = self.file_management.copy_file_obj(file.file, dir_name, dir_path)
-        self.file_management.extract_zip(zip_path, dir_path)
-        self.file_management.delete_file(zip_path)
+        zip_path = await self.file_management.copy_file_obj_async(
+            file.file, dir_name, dir_path)
+        await self.file_management.extract_zip_async(zip_path, dir_path)
+        await self.file_management.delete_file_async(zip_path)
         try:
             plugin_metadata = self.plugin_manager.register_plugin(dir_name)
         except Exception as e:
             # If registration fails, we need to clean up the directory
-            self.file_management.delete_directory(dir_name)
+            await self.file_management.delete_directory_async(dir_name)
             self.plugins_dir_handler.resume()
             raise BadRequestException(f"Failed to add plugin '{file_name}'. \nError: {e}")
         self.plugins_dir_handler.add_known_dir(dir_name)
@@ -81,7 +82,7 @@ class PluginService:
             raise BadRequestException(f"Plugin '{final_id}' not found.")
         return PluginRes.from_plugin_metadata(plugin_metadata)
 
-    def remove_plugin(self, final_id: str) -> None:
+    async def remove_plugin(self, final_id: str) -> None:
         """Removes a plugin by its final ID.
         Args:
             final_id (str): The final ID of the plugin to remove.
@@ -96,7 +97,7 @@ class PluginService:
         dir_name = self.plugin_manager.get_plugin_dir_name(final_id)
         try:
             dir_name = self.plugin_manager.remove_plugin(final_id)
-            self.file_management.delete_directory(dir_name)
+            await self.file_management.delete_directory_async(dir_name)
             self.plugins_dir_handler.remove_known_dir(dir_name)
         except Exception as e:
             # If removal fails, we need to re-register the plugin and resume the handler

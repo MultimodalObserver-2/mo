@@ -21,7 +21,7 @@ plugin_router = APIRouter(prefix="/plugins", tags=["plugins"])
     },
 )
 async def add_plugin(file: UploadFile, service: PluginService = Depends()):
-    return service.add_plugin(file)
+    return await service.add_plugin(file)
 
 
 @plugin_router.get(
@@ -68,7 +68,7 @@ async def get_plugin(final_id: str, service: PluginService = Depends()):
     },
 )
 async def delete_plugin(final_id: str, service: PluginService = Depends()):
-    return service.remove_plugin(final_id)
+    return await service.remove_plugin(final_id)
 
 
 @plugin_router.get(

@@ -95,7 +95,7 @@ async def delete_project(
     project_name: str = Path(..., description="Name of the project to delete"),
     service: ProjectService = Depends(),
 ):
-    return service.delete_project(project_name)
+    return await service.delete_project(project_name)
 
 
 @project_router.post(

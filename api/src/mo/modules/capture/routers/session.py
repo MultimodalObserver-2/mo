@@ -50,4 +50,4 @@ async def get_session_by_id(
 async def delete_session(
     project_name: str, participant_code: str, session_id: str, service: SessionService = Depends()
 ):
-    return service.delete_session(project_name, participant_code, session_id)
+    return await service.delete_session(project_name, participant_code, session_id)

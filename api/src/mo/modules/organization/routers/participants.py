@@ -121,7 +121,7 @@ async def delete_participant(
     participant_code: str = Path(..., description=PARTICIPANT_CODE_DESC),
     service: ParticipantService = Depends(),
 ):
-    return service.delete_participant(project_name, participant_code)
+    return await service.delete_participant(project_name, participant_code)
 
 
 @participant_router.post(
