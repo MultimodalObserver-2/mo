@@ -13,10 +13,10 @@ import {
   PluginDisplay,
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
-import CameraIcon from "@renderer/core/components/icons/CameraIcon"
 import playbackService from "../../services/PlaybackService"
 import pluginService from "@renderer/core/services/PluginService"
 import { openConfigurePlaybackViewModal } from "../../utils/modalWindows"
+import DashboardIcon from "@renderer/core/components/icons/DashboardIcon"
 
 export default function SelectPlaybackView() {
   const { projectName } = useParams<{ projectName: string }>()
@@ -58,7 +58,7 @@ export default function SelectPlaybackView() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Playback Views" Icon={CameraIcon} />
+        <ModalTitle title="Playback Views" Icon={DashboardIcon} />
       </ModalHeader>
       <ModalBody id="modal-body">
         <PluginDisplay style="dark" textSize="sm">
