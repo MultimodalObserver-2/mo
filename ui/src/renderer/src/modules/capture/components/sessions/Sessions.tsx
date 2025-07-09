@@ -81,13 +81,13 @@ export default function Sessions() {
   }
 
   useEffect(() => {
-    window.capture.onReloadSessions(() => {
+    const removeListener = window.capture.onReloadSessions(() => {
       fetchSessions(selectedProject, selectedParticipant)
     })
 
     fetchSessions(selectedProject, selectedParticipant)
     return () => {
-      window.capture.removeReloadSessionsListeners()
+      removeListener()
     }
   }, [selectedProject, selectedParticipant])
 

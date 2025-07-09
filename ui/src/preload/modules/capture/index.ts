@@ -17,10 +17,13 @@ const capture = {
     ipcRenderer.send("capture:reload-sessions")
   },
   onReloadSessions: (callback: () => void) => {
-    ipcRenderer.on("capture:on-reload-sessions", () => callback())
-  },
-  removeReloadSessionsListeners: () => {
-    ipcRenderer.removeAllListeners("capture:on-reload-sessions")
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("capture:on-reload-sessions", listener)
+    return () => {
+      ipcRenderer.removeListener("capture:on-reload-sessions", listener)
+    }
   },
   reloadCaptureStatus: (status) => {
     ipcRenderer.send("capture:reload-status", status)
