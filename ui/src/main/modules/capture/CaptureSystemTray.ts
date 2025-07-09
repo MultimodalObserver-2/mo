@@ -1,6 +1,7 @@
 import { MenuItemConstructorOptions } from "electron"
 import { apiClient } from "../../core/apiClient"
 import { broadcast, getSystemTray } from "../.."
+import hotkeysManager from "../../core/hotkeys/HotkeysManager"
 
 export class CaptureSystemTray {
   private isBusy = false
@@ -11,6 +12,44 @@ export class CaptureSystemTray {
 
   constructor() {
     this.updateMenu()
+    hotkeysManager.registerAction({
+      type: "complementary",
+      action: {
+        id: "capture.startStop",
+        actions: [
+          {
+            id: "capture.start",
+            label: "Start Capture",
+            callback: () => this.startCapture()
+          },
+          {
+            id: "capture.stop",
+            label: "Stop Capture",
+            callback: () => this.stopCapture()
+          }
+        ],
+        getState: () => (this.isCapturing ? 1 : 0)
+      }
+    })
+    hotkeysManager.registerAction({
+      type: "complementary",
+      action: {
+        id: "capture.pauseResume",
+        actions: [
+          {
+            id: "capture.pause",
+            label: "Pause Capture",
+            callback: () => this.pauseCapture()
+          },
+          {
+            id: "capture.resume",
+            label: "Resume Capture",
+            callback: () => this.resumeCapture()
+          }
+        ],
+        getState: () => (this.isPaused ? 1 : 0)
+      }
+    })
   }
 
   private notifyRenderer() {
