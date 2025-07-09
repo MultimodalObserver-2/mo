@@ -24,6 +24,7 @@ import { CaptureRoutes } from "./modules/capture/routes"
 import { AppLayoutVisualizationRoutes, VisualizationRoutes } from "./modules/visualization/routes"
 import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
+import SettingsPage from "./core/pages/settings/Settings"
 
 export default function App() {
   const navigate = useNavigate()
@@ -41,10 +42,7 @@ export default function App() {
     <Routes>
       <Route element={<SideBarLayout />}>
         <Route path="/plugins" element={<PluginsPage />} />
-        <Route
-          path="/settings"
-          element={<div style={{ color: "black" }}>Settings Not Implemented Yet</div>}
-        />
+        <Route path="/settings" element={<SettingsPage />} />
       </Route>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />

@@ -11,6 +11,20 @@
 import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogReturnValue } from "electron"
 import { NavigateOptions } from "react-router"
 
+/**
+ * Represents the status of a registered hotkey action.
+ * Contains information about the hotkey's ID, label, key combination,
+ * type (simple/complementary), and optional group ID and warning message.
+ */
+export interface HotkeyStatus {
+  id: string
+  label: string
+  actualKey: string
+  defaultKey?: string
+  type: "simple" | "complementary"
+  groupId?: string
+}
+
 export default interface CoreAPI {
   /**
    * Opens a modal window with the given options and endpoint.
@@ -235,7 +249,7 @@ export default interface CoreAPI {
      * @returns Unsubscribe function.
      */
     onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => () => void
-  },
+  }
 
   /**
    * Preferences management API for storing and retrieving application settings.
@@ -285,5 +299,46 @@ export default interface CoreAPI {
      * @param partialValue - Partial value to merge into the existing preference.
      */
     extend: (key: string, partialValue: Record<string, unknown>) => void
+  }
+
+  /**
+   * Hotkeys management API for registering and managing keyboard shortcuts
+   * on defined actions.
+   */
+  hotkeys: {
+    /**
+     * Retrieves all registered hotkeys.
+     * @returns Promise resolving to an array of hotkey objects.
+     */
+    getAll: () => Promise<HotkeyStatus[]>
+
+    /**
+     * Gets the hotkey for a specific action by its ID.
+     * @param actionId - The action ID to retrieve the hotkey for.
+     * @returns Promise resolving to the hotkey string or undefined if not set.
+     */
+    get: (actionId: string) => Promise<string | undefined>
+
+    /**
+     * Sets a new hotkey for a specific action.
+     * @param actionId - The action ID to set the hotkey for.
+     * @param keyCombination - The new key combination string.
+     */
+    set: (actionId: string, keyCombination: string) => Promise<boolean>
+
+    /**
+     * Resets the hotkey for a specific action to its default state.
+     * @param actionId - The action ID to reset the hotkey for.
+     */
+    reset: (actionId: string) => void
+    /**
+     * Disables all hotkeys, unregistering them from the system.
+     */
+    disable: () => void
+
+    /**
+     * Enables all hotkeys, re-registering them with the system.
+     */
+    enable: () => void
   }
 }

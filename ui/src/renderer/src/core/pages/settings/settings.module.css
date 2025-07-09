@@ -1,0 +1,37 @@
+.main {
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 820px;
+  height: 100vh;
+  padding: 3vh 4vw;
+  gap: 24px;
+}
+
+.main .title {
+  font-size: 1.5em;
+  font-weight: bold;
+  color: var(--color-text-dark);
+}
+
+.settings-group {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  background-color: var(--color-primary-50);
+  color: var(--color-text-dark);
+  padding: 16px 24px;
+  border-radius: 6px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.settings-group .group-title {
+  font-size: 1.2em;
+  font-weight: bold;
+}
+
+.settings-group .group {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}

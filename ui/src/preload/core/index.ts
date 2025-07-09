@@ -134,6 +134,26 @@ const core = {
     extend: (key: string, partialValue: Record<string, unknown>) => {
       ipcRenderer.invoke("core:preferences:extend", key, partialValue)
     }
+  },
+  hotkeys: {
+    getAll: () => {
+      return ipcRenderer.invoke("core:hotkeys:getAll")
+    },
+    get: (actionId: string) => {
+      return ipcRenderer.invoke("core:hotkeys:get", actionId)
+    },
+    set: (actionId: string, keyCombination: string) => {
+      return ipcRenderer.invoke("core:hotkeys:set", actionId, keyCombination)
+    },
+    reset: (actionId: string) => {
+      return ipcRenderer.invoke("core:hotkeys:reset", actionId)
+    },
+    disable: () => {
+      return ipcRenderer.invoke("core:hotkeys:disable")
+    },
+    enable: () => {
+      return ipcRenderer.invoke("core:hotkeys:enable")
+    }
   }
 }
 

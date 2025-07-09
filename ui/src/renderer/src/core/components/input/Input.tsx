@@ -5,6 +5,7 @@ interface InputProps extends React.ComponentProps<"input"> {
   label?: string
   /** Optional custom class for the label container */
   boxClassName?: string
+  styleType?: "primary-dark" | "primary"
 }
 
 /**
@@ -24,6 +25,7 @@ export default function Input({
   label,
   boxClassName = "",
   className = "",
+  styleType = "primary-dark",
   required = false,
   disabled = false,
   ref,
@@ -33,7 +35,7 @@ export default function Input({
     return (
       <input
         ref={ref}
-        className={`${className} ${styles.input}`}
+        className={`${className} ${styles.input} ${styles[styleType]}`}
         required={required}
         disabled={disabled}
         {...rest}
