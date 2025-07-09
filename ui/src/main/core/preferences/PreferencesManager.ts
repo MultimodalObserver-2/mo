@@ -27,7 +27,7 @@ export class PreferencesManager {
     }
   }
 
-  private save(): void {
+  public save(): void {
     try {
       fs.writeFileSync(this.preferencesPath, JSON.stringify(this.preferences, null, 2))
     } catch (error) {
@@ -41,12 +41,10 @@ export class PreferencesManager {
 
   public set<T = unknown>(key: string, value: T): void {
     this.preferences[key] = value
-    this.save()
   }
 
   public remove(key: string): void {
     delete this.preferences[key]
-    this.save()
   }
 
   public getAll(): Preferences {
@@ -55,7 +53,6 @@ export class PreferencesManager {
 
   public reset(): void {
     this.preferences = {}
-    this.save()
   }
 
   public has(key: string): boolean {
@@ -72,8 +69,6 @@ export class PreferencesManager {
       ...current,
       ...partialValue
     }
-
-    this.save()
   }
 }
 

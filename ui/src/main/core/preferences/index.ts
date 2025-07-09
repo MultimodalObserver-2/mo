@@ -32,4 +32,8 @@ app.whenReady().then(() => {
       preferencesManager.extend(key, partialValue)
     }
   )
+
+  app.on("window-all-closed", () => {
+    preferencesManager.save()
+  })
 })
