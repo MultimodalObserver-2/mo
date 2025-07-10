@@ -59,6 +59,12 @@ export default function AddProtocolPage() {
       name: e.target.name.value,
       activities: activities
     }
+
+    if (activities.length === 0) {
+      showApiErrorMessage(Error("You must add at least one activity to the protocol."))
+      return
+    }
+
     try {
       await protocolService.create(projectName, protocol)
       window.organization.reloadProtocols()
