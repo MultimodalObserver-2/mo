@@ -1,4 +1,8 @@
 import { app, BrowserWindow, ipcMain } from "electron"
+import protocolExecution from "./ProtocolExecution"
+import "./preferences"
+import { captureTray } from "../capture/CaptureSystemTray"
+import optionsManager from "../../core/preferences/OptionsManager"
 
 app.whenReady().then(() => {
   ipcMain.on("organization:reload-projects", async () => {
@@ -48,7 +52,54 @@ app.whenReady().then(() => {
       window.webContents.send("organization:on-change-selected-protocol", protocol)
     })
   })
-})
 
-import "./execProtocol"
-import "./preferences"
+  ipcMain.on("organization:exec-protocol", async (_event, projectName, protocolName) => {
+    protocolExecution.start(projectName, protocolName)
+  })
+
+  ipcMain.on("organization:stop-protocol-execution", () => {
+    protocolExecution.stop()
+  })
+
+  ipcMain.handle("organization:get-protocol-execution-status", () => {
+    return protocolExecution.getStatus()
+  })
+
+  let protocolNameExec: string | null = null
+  ipcMain.on("organization:set-protocol", async (_event, protocolName: string | null) => {
+    protocolNameExec = protocolName
+  })
+
+  optionsManager.registerOption({
+    id: "organization:startProtocolOnCapture",
+    defaultValue: false,
+    label: "Start protocol execution when capture starts",
+    type: "boolean"
+  })
+
+  captureTray.onStartCapture((projectName) => {
+    if (!optionsManager.get("organization:startProtocolOnCapture")) {
+      return
+    }
+
+    if (!projectName || !protocolNameExec) {
+      console.warn("Cannot start protocol execution: projectName or protocolName is missing.")
+      return
+    }
+    protocolExecution.start(projectName, protocolNameExec)
+  })
+
+  optionsManager.registerOption({
+    id: "organization:stopProtocolOnStopCapture",
+    defaultValue: false,
+    label: "Stop protocol execution when capture stops",
+    type: "boolean"
+  })
+
+  captureTray.onStopCapture(() => {
+    if (!optionsManager.get("organization:stopProtocolOnStopCapture")) {
+      return
+    }
+    protocolExecution.stop()
+  })
+})

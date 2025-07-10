@@ -37,6 +37,7 @@ const protocolsSlice = createSlice({
     setSelectedProtocol: (state, action: PayloadAction<Protocol>) => {
       state.selected = action.payload
       window.organization.preferences.state.setProtocol(state.selected.uuid)
+      window.organization.setProtocol(state.selected.name)
     },
     /**
      * Clears the currently selected protocol (sets to null).

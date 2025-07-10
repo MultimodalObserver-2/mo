@@ -18,6 +18,9 @@ export default interface OrganizationAPI {
   changeSelectedProtocol: (protocol) => void
   onChangeSelectedProtocol: (callback: (protocol) => void) => () => () => void
   execProtocol: (projectName: string, protocolName: string) => void
+  onExecProtocolStarted: (
+    callback: (projectName: string, protocolName: string) => void
+  ) => () => void
   onExecProtocolFinished: (callback: () => void) => () => void
   stopProtocolExecution: () => void
   getProtocolExecutionStatus: () => Promise<{
@@ -32,6 +35,7 @@ export default interface OrganizationAPI {
   onActivityTimerStop: (callback: () => void) => void
   setProject: (projectUuid: string | null) => Promise<void>
   setParticipant: (participantUuid: string | null) => Promise<void>
+  setProtocol: (protocolUuid: string | null) => Promise<void>
   preferences: {
     state: {
       getProject: () => Promise<string | null>

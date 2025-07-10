@@ -24,11 +24,16 @@ export default function ProtocolActions() {
 
   useEffect(() => {
     checkProtocolStatus()
-    const unsub = window.organization.onExecProtocolFinished(() => {
+    const removeStartedListener = window.organization.onExecProtocolStarted(() => {
+      setIsExecuting(true)
+    })
+
+    const removeFinishedListener = window.organization.onExecProtocolFinished(() => {
       setIsExecuting(false)
     })
     return () => {
-      unsub()
+      removeStartedListener()
+      removeFinishedListener()
     }
   }, [])
 

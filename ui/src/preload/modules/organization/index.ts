@@ -96,6 +96,15 @@ const organization = {
   execProtocol: (projectName, protocolName) => {
     ipcRenderer.send("organization:exec-protocol", projectName, protocolName)
   },
+  onExecProtocolStarted: (callback: (projectName: string, protocolName: string) => void) => {
+    const listener = (_, { projectName, protocolName }) => {
+      callback(projectName, protocolName)
+    }
+    ipcRenderer.on("organization:on-exec-protocol-started", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-exec-protocol-started", listener)
+    }
+  },
   onExecProtocolFinished: (callback: () => void) => {
     const listener = () => {
       callback()
@@ -133,6 +142,9 @@ const organization = {
   },
   setParticipant: (participantCode: string | null) => {
     ipcRenderer.send("organization:set-participant", participantCode)
+  },
+  setProtocol: (protocolName: string | null) => {
+    ipcRenderer.send("organization:set-protocol", protocolName)
   },
   preferences: {
     state: {
