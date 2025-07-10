@@ -135,6 +135,12 @@ export default interface CoreAPI {
        * @returns Promise that resolves to the plugin directory path.
        */
       plugins: () => Promise<string>
+
+      /**
+       * Gets the path to the locales directory.
+       * @returns Promise that resolves to the locales directory path.
+       */
+      locales: () => Promise<string>
     }
   }
 
@@ -372,5 +378,32 @@ export default interface CoreAPI {
         value: boolean
       }>
     >
+  }
+
+  /**
+   * Internationalization (i18n) API for managing translations and language settings.
+   */
+  i18n: {
+    /**
+     * Gets the initial i18n data, including current language and resources.
+     * @returns Promise resolving to the initial i18n data.
+     */
+    getInitialData: () => Promise<{
+      lng: string
+      fallbackLng: string
+      ns: string[]
+      fallbackNS: string
+      resources: Record<string, Record<string, unknown>>
+    }>
+
+    /**
+     * Changes the current language for translations.
+     * @param language - The new language code (e.g., "en", "es").
+     * @returns Promise resolving when the language change is complete.
+     */
+    changeLanguage: (language: string) => Promise<{
+      language: string
+      resources: Record<string, Record<string, string>>
+    }>
   }
 }

@@ -60,6 +60,9 @@ const core = {
     paths: {
       plugins: () => {
         return ipcRenderer.invoke("core:app:paths:plugins")
+      },
+      locales: () => {
+        return ipcRenderer.invoke("core:app:paths:locales")
       }
     }
   },
@@ -164,6 +167,14 @@ const core = {
     },
     getAll: () => {
       return ipcRenderer.invoke("core:options:getAll")
+    }
+  },
+  i18n: {
+    getInitialData: () => {
+      return ipcRenderer.invoke("core:i18n:getInitialData")
+    },
+    changeLanguage: (language: string) => {
+      return ipcRenderer.invoke("core:i18n:changeLanguage", language)
     }
   }
 }

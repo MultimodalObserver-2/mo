@@ -1,0 +1,20 @@
+{
+	"pages": {
+		"settings": {
+			"title": "Ajustes",
+			"languages": {
+				"title": "Lenguajes",
+				"options": {
+					"en": "Inglés",
+					"es": "Español"
+				}
+			},
+			"hotkeys": {
+				"title": "Atajos de Teclado"
+			},
+			"options": {
+				"title": "Opciones"
+			}
+		}
+	}
+}

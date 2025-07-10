@@ -30,7 +30,7 @@ import {
 } from "@renderer/core/utils/dialogMessages"
 import { clearSelectedProtocol } from "../../store/protocolsSlice"
 import { selectProjectThunk } from "../../store/organizationThunk"
-import { AppDispatch } from "@renderer/store"
+import { AppDispatch } from "@renderer/utils/store"
 
 export default function Projects() {
   const selectedProject = useSelector(selectSelectedProject)

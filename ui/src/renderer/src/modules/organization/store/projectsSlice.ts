@@ -11,7 +11,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Project } from "../types/Project"
-import { RootState } from "@renderer/store"
+import { RootState } from "@renderer/utils/store"
 
 /**
  * State shape for project selection.

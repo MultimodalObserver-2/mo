@@ -34,6 +34,22 @@ export class OptionsManager {
     }
   }
 
+  updateOption(id: string, newDefinition: Partial<OptionDefinition>): void {
+    const existing = this.definitions.get(id)
+    if (!existing) {
+      throw new Error(`Option with id "${id}" does not exist`)
+    }
+    const updatedDefinition: OptionDefinition = {
+      ...existing,
+      ...newDefinition
+    }
+    this.definitions.set(id, updatedDefinition)
+
+    if (!(id in this.values)) {
+      this.set(id, updatedDefinition.defaultValue)
+    }
+  }
+
   get(id: string): OptionValue | undefined {
     if (id in this.values) return this.values[id]
     const def = this.definitions.get(id)

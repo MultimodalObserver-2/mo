@@ -2,6 +2,7 @@ import styles from "./options.module.css"
 import { useEffect, useState } from "react"
 import Checkbox from "@renderer/core/components/checkbox/Checkbox"
 import SettingsGroup from "../SettingsGroup"
+import { useTranslation } from "react-i18next"
 
 interface Option {
   id: string
@@ -10,11 +11,19 @@ interface Option {
 }
 
 export default function Options() {
+  const { t, i18n } = useTranslation("core", { keyPrefix: "pages.settings.options" })
   const [options, setOptions] = useState<Option[]>([])
 
   useEffect(() => {
-    window.core.options.getAll().then(setOptions)
-  }, [])
+    const init = () => {
+      window.core.options.getAll().then(setOptions)
+    }
+    init()
+    i18n.on("languageChanged", init)
+    return () => {
+      i18n.off("languageChanged", init)
+    }
+  }, [i18n])
 
   const handleChange = (id: string, checked: boolean) => {
     window.core.options.set(id, checked)
@@ -24,7 +33,7 @@ export default function Options() {
   }
 
   return (
-    <SettingsGroup title="Options">
+    <SettingsGroup title={t("title")}>
       {options.map((opt) => (
         <Checkbox
           key={opt.id}

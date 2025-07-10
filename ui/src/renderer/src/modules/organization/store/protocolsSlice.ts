@@ -11,7 +11,7 @@
 
 import { createSlice, PayloadAction } from "@reduxjs/toolkit"
 import { Protocol } from "../types/Protocol"
-import { RootState } from "@renderer/store"
+import { RootState } from "@renderer/utils/store"
 
 /**
  * State shape for protocol selection.

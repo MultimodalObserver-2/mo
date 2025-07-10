@@ -1,0 +1,20 @@
+{
+  "pages": {
+    "settings": {
+      "title": "Settings",
+      "languages": {
+        "title": "Languages",
+        "options": {
+          "en": "English",
+          "es": "Spanish"
+        }
+      },
+      "hotkeys": {
+        "title": "Hotkeys"
+      },
+      "options": {
+        "title": "Options"
+      }
+    }
+  }
+}

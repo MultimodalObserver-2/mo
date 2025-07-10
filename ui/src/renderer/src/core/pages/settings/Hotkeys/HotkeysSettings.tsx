@@ -1,8 +1,10 @@
 import { useEffect, useState } from "react"
 import Hotkey, { HotkeyProps } from "./Hotkey"
 import SettingsGroup from "../SettingsGroup"
+import { useTranslation } from "react-i18next"
 
 export default function HotkeysSettings() {
+  const { t, i18n } = useTranslation("core", { keyPrefix: "pages.settings.hotkeys" })
   const [hotkeys, setHotkeys] = useState<HotkeyProps[]>([])
   const [currentCombos, setCurrentCombos] = useState<Record<string, string>>({})
 
@@ -13,8 +15,28 @@ export default function HotkeysSettings() {
       const initialCombos = Object.fromEntries(data.map((h) => [h.id, h.actualKey]))
       setCurrentCombos(initialCombos)
     })
+
     return () => window.core.hotkeys.enable()
   }, [])
+
+  useEffect(() => {
+    const listener = () => {
+      window.core.hotkeys.getAll().then((data) => {
+        setHotkeys(
+          (data as HotkeyProps[]).map((h) => ({
+            ...h,
+            currentCombo: currentCombos[h.id] ?? h.actualKey,
+            onComboChange: handleComboChange,
+            onSaved: () => {}
+          }))
+        )
+      })
+    }
+    i18n.on("languageChanged", listener)
+    return () => {
+      i18n.off("languageChanged", listener)
+    }
+  }, [currentCombos, i18n])
 
   const handleComboChange = (id: string, newCombo: string) => {
     setCurrentCombos((prev) => ({ ...prev, [id]: newCombo }))
@@ -61,7 +83,7 @@ export default function HotkeysSettings() {
   }
 
   return (
-    <SettingsGroup title="Hotkeys">
+    <SettingsGroup title={t("title")}>
       {hotkeys.map((hk) => (
         <Hotkey
           key={hk.id}

@@ -19,10 +19,11 @@ import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
 import { HashRouter } from "react-router"
 import { Provider } from "react-redux"
-import store from "./store"
+import store from "./utils/store"
 import App from "./app"
 import { registerAll } from "./registrations"
 import pluginManager from "./core/plugin/PluginManager"
+import "./utils/i18n"
 
 registerAll()
 pluginManager.loadAllPlugins()

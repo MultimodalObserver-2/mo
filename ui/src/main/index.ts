@@ -8,6 +8,8 @@ import { loadWindowState, saveWindowState } from "./core/preferences/windowState
 import { SystemTray } from "./core/SystemTray"
 import optionsManager from "./core/preferences/OptionsManager"
 import preferencesManager from "./core/preferences/PreferencesManager"
+import { initI18n } from "./core/i18n/i18n"
+import { runApi, waitForApiReady } from "./core/runApi"
 
 let forceQuit = false
 
@@ -35,7 +37,8 @@ function createWindow(): BrowserWindow {
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
       sandbox: false,
-      webSecurity: !is.dev
+      webSecurity: !is.dev,
+      nodeIntegration: true
     }
   })
 
@@ -120,7 +123,7 @@ app.whenReady().then(async () => {
   app.on("browser-window-created", (_, window) => {
     optimizer.watchWindowShortcuts(window)
   })
-
+  await initI18n()
   if (!is.dev) {
     const apiInfo = await runApi()
     apiProcess = apiInfo.apiProcess
@@ -135,6 +138,16 @@ app.whenReady().then(async () => {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 
+  // Create system tray
+  systemTray = new SystemTray()
+
+  // Register IPC handlers
+  // This is where we can register IPC handlers for communication between main and renderer processes
+  await import("./core/index")
+  await import("./modules/organization/index")
+  await import("./modules/capture/index")
+  await import("./modules/visualization/index")
+
   if (!is.dev && apiPort) {
     try {
       await waitForApiReady(`http://localhost:${apiPort}/health`)
@@ -144,9 +157,6 @@ app.whenReady().then(async () => {
       mainWindow.loadFile(join(__dirname, "../renderer/index.html"), { hash: "#/error" })
     }
   }
-
-  // Create system tray
-  systemTray = new SystemTray()
 })
 
 // Quit when all windows are closed, except on macOS. There, it's common
@@ -182,11 +192,3 @@ export function getSystemTray(): SystemTray | null {
 export function setForceQuit(value: boolean): void {
   forceQuit = value
 }
-
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and require them here.
-import "./core/index"
-import "./modules/organization/index"
-import "./modules/capture/index"
-import "./modules/visualization/index"
-import { runApi, waitForApiReady } from "./core/runApi"
