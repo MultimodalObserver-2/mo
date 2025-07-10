@@ -1,7 +1,10 @@
-import { MenuItemConstructorOptions } from "electron"
+import { app, MenuItemConstructorOptions } from "electron"
 import { apiClient } from "../../core/apiClient"
 import { broadcast, getSystemTray } from "../.."
 import hotkeysManager from "../../core/hotkeys/HotkeysManager"
+
+type CaptureEvent = "startCapture" | "stopCapture"
+type CaptureCallback = (projectName?: string | null, participantCode?: string | null) => void
 
 export class CaptureSystemTray {
   private isBusy = false
@@ -10,7 +13,22 @@ export class CaptureSystemTray {
   private projectName: string | null = null
   private participantCode: string | null = null
 
+  private listeners: { [K in CaptureEvent]: Set<CaptureCallback> } = {
+    startCapture: new Set(),
+    stopCapture: new Set()
+  }
+
   constructor() {
+    if (app.isReady()) {
+      this.initialize()
+    } else {
+      app.on("ready", () => {
+        this.initialize()
+      })
+    }
+  }
+
+  private initialize() {
     this.updateMenu()
     hotkeysManager.registerAction({
       type: "complementary",
@@ -70,9 +88,36 @@ export class CaptureSystemTray {
   }
 
   public updateStatusFromRenderer(isCapturing: boolean, isPaused: boolean) {
+    const wasCapturing = this.isCapturing
     this.isCapturing = isCapturing
     this.isPaused = isPaused
     this.updateMenu()
+
+    if (!wasCapturing && isCapturing) {
+      this.emit("startCapture")
+    } else if (wasCapturing && !isCapturing) {
+      this.emit("stopCapture")
+    }
+  }
+
+  public onStartCapture(callback: CaptureCallback): () => void {
+    this.listeners.startCapture.add(callback)
+    return () => this.listeners.startCapture.delete(callback)
+  }
+
+  public onStopCapture(callback: CaptureCallback): () => void {
+    this.listeners.stopCapture.add(callback)
+    return () => this.listeners.stopCapture.delete(callback)
+  }
+
+  private emit(event: CaptureEvent) {
+    for (const cb of this.listeners[event]) {
+      try {
+        cb(this.projectName, this.participantCode)
+      } catch (e) {
+        console.error(`CaptureSystemTray event error (${event}):`, e)
+      }
+    }
   }
 
   private async startCapture() {
@@ -87,6 +132,7 @@ export class CaptureSystemTray {
       this.isCapturing = true
       this.isPaused = false
       this.notifyRenderer()
+      this.emit("startCapture")
     } catch (e) {
       console.error("Failed to start capture:", e)
     } finally {
@@ -104,6 +150,7 @@ export class CaptureSystemTray {
       this.isCapturing = false
       this.isPaused = false
       this.notifyRenderer()
+      this.emit("stopCapture")
     } catch (e) {
       console.error("Failed to stop capture:", e)
     } finally {
@@ -165,3 +212,5 @@ export class CaptureSystemTray {
     getSystemTray()?.extendContextMenu(items)
   }
 }
+
+export const captureTray = new CaptureSystemTray()
