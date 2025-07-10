@@ -341,4 +341,36 @@ export default interface CoreAPI {
      */
     enable: () => void
   }
+
+  /**
+   * Options management API for boolean options that can be toggled on/off.
+   */
+  options: {
+    /**
+     * Gets the value of a specific option by key.
+     * @param key - The option key.
+     * @returns Promise resolving to the option value (boolean).
+     */
+    get: (key: string) => Promise<boolean>
+
+    /**
+     * Sets the value of a specific option by key.
+     * @param key - The option key.
+     * @param value - The new value (true/false).
+     */
+    set: (key: string, value: boolean) => Promise<void>
+
+    /**
+     * Gets all registered options with their current values.
+     * @returns Promise resolving to an array of option definitions with values.
+     */
+    getAll: () => Promise<
+      Array<{
+        id: string
+        label: string
+        type: string
+        value: boolean
+      }>
+    >
+  }
 }

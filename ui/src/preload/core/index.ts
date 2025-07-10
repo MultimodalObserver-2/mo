@@ -154,6 +154,17 @@ const core = {
     enable: () => {
       return ipcRenderer.invoke("core:hotkeys:enable")
     }
+  },
+  options: {
+    get: (key: string) => {
+      return ipcRenderer.invoke("core:options:get", key)
+    },
+    set: (key: string, value: boolean) => {
+      return ipcRenderer.invoke("core:options:set", key, value)
+    },
+    getAll: () => {
+      return ipcRenderer.invoke("core:options:getAll")
+    }
   }
 }
 

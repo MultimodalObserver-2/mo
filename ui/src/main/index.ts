@@ -6,6 +6,10 @@ import { ChildProcess } from "child_process"
 import treeKill from "tree-kill"
 import { loadWindowState, saveWindowState } from "./core/preferences/windowState"
 import { SystemTray } from "./core/SystemTray"
+import optionsManager from "./core/preferences/OptionsManager"
+import preferencesManager from "./core/preferences/PreferencesManager"
+
+let forceQuit = false
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
@@ -47,15 +51,21 @@ function createWindow(): BrowserWindow {
     return { action: "deny" }
   })
 
-  mainWindow.on("close", () => {
+  mainWindow.on("close", (event) => {
+    const minimizeToTray = optionsManager.get("minimizeToTrayOnClose")
+    preferencesManager.save()
+    saveWindowState(mainWindow)
+    if (minimizeToTray && !forceQuit) {
+      event.preventDefault()
+      mainWindow.hide()
+      return
+    }
+
     BrowserWindow.getAllWindows().forEach((window) => {
       if (window !== mainWindow) {
         window.close()
       }
     })
-
-    // Save the window state before closing
-    saveWindowState(mainWindow)
   })
 
   // Loading api process
@@ -167,6 +177,10 @@ export function broadcast(channel: string, ...args: unknown[]): void {
 
 export function getSystemTray(): SystemTray | null {
   return systemTray
+}
+
+export function setForceQuit(value: boolean): void {
+  forceQuit = value
 }
 
 // In this file you can include the rest of your app's specific main process

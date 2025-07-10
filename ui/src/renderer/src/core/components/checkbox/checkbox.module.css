@@ -17,9 +17,9 @@
   appearance: none;
   width: 1.5rem;
   height: 1.5rem;
-  background-color: var(--color-primary-800);
-  border: 2px solid var(--color-primary-400);
-  border-radius: 8px;
+  border-width: 2px;
+  border-style: solid;
+  outline: none;
   cursor: pointer;
 
   display: grid;
@@ -39,16 +39,50 @@
   opacity: 0;
   width: 1.3rem;
   height: 1.3rem;
-  fill: var(--color-primary-800);
   scale: 0;
   transition: all 150ms ease-in-out;
 }
 
-.checkbox:checked {
+/** Styles for the checkbox */
+/** Primary Style */
+.primary .checkbox {
+  background-color: var(--color-primary-800);
+  border-color: var(--color-primary-400);
+}
+
+.primary .icon {
+  fill: var(--color-primary-800);
+}
+
+.primary .checkbox:checked {
   background-color: var(--color-primary-100);
 }
 
-.checkbox:focus {
-  outline: none;
+.primary .checkbox:focus {
   border-color: var(--color-primary-200);
+}
+
+/** Secondary Style */
+.secondary .checkbox {
+  background-color: var(--color-primary-100);
+  border-color: var(--color-primary-700);
+}
+
+.secondary .icon {
+  fill: var(--color-primary-50);
+}
+
+.secondary .checkbox:checked {
+  background-color: var(--color-primary-700);
+}
+
+/** Border Radius */
+/** Medium Border Radius */
+.checkbox.md {
+  border-radius: 8px;
+}
+
+/** Small Border Radius */
+.checkbox.sm {
+  border-radius: 6px;
 }

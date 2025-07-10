@@ -50,7 +50,7 @@ export default function Input({
       </h4>
       <input
         ref={ref}
-        className={`${className} ${styles.input}`}
+        className={`${className} ${styles.input} ${styles[styleType]}`}
         required={required}
         disabled={disabled}
         {...rest}

@@ -43,7 +43,6 @@
   right: 5px;
 }
 
-
 .hotkey .label:focus {
   font-weight: 600;
   color: var(--color-primary-500);

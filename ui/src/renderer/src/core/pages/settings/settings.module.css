@@ -17,12 +17,12 @@
 .settings-group {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 14px;
   background-color: var(--color-primary-50);
   color: var(--color-text-dark);
   padding: 16px 24px;
   border-radius: 6px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 2px 2px rgba(0, 0, 0, 0.15);
 }
 
 .settings-group .group-title {

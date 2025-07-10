@@ -1,5 +1,5 @@
-import { BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, Tray } from "electron"
-import { getMainWindow } from ".."
+import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, Tray } from "electron"
+import { getMainWindow, setForceQuit } from ".."
 
 type MenuItemArray = Array<MenuItemConstructorOptions | MenuItem>
 
@@ -18,7 +18,14 @@ export class SystemTray {
     this.tray = new Tray("resources/icon.png")
     this.contextMenu = Menu.buildFromTemplate([
       { id: "hide", label: "Hide", click: () => this.toggleVisibility() },
-      { id: "quit", label: "Quit", role: "quit" }
+      {
+        id: "quit",
+        label: "Quit",
+        click: () => {
+          setForceQuit(true)
+          app.quit()
+        }
+      }
     ])
     this.tray.setToolTip("Multimodal Observer")
     this.tray.setContextMenu(this.contextMenu)
