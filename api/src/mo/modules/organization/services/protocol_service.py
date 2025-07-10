@@ -50,7 +50,8 @@ class ProtocolService:
 
         relative_projects_path = f"{self._data_path}/{self._projects_dir_name}"
         self.project_service = ProjectService()
-        self.file_management = FileManagement(rel_path=relative_projects_path, make_dirs=False)
+        self.file_management = FileManagement(
+            rel_path=relative_projects_path, make_dirs=False)
 
     def _get_protocols_storage(self, project_name: str):
         """Get the storage for protocols of a specific project.
@@ -80,7 +81,8 @@ class ProtocolService:
                 )
             )
 
-        activities_data = self._validate_and_format_activities(protocol.activities, protocol.name)
+        activities_data = self._validate_and_format_activities(
+            protocol.activities, protocol.name)
 
         protocol_data = ProtocolData(
             name=protocol.name,
@@ -104,7 +106,8 @@ class ProtocolService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocols = protocols_storage.find_all()
         return [ProtocolRes.from_data(ProtocolData(**protocol)) for protocol in protocols]
@@ -120,7 +123,8 @@ class ProtocolService:
             NotFoundException: If the project or protocol does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocol = protocols_storage.find_one({"name": protocol_name})
         if not protocol:
@@ -149,14 +153,16 @@ class ProtocolService:
         existing_protocol = self.get_protocol(project_name, protocol_name)
         if self.is_protocol_locked(project_name, protocol_name):
             raise BadRequestException(
-                PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name, project_name=project_name)
+                PROTOCOL_IS_LOCKED.format(
+                    protocol_name=protocol_name, project_name=project_name)
             )
 
         new_name = protocol.name.strip() if protocol.name else existing_protocol.name
 
         if new_name != protocol_name and self.exists(project_name, new_name):
             raise AlreadyExistsException(
-                PROTOCOL_ALREADY_EXISTS.format(protocol_name=new_name, project_name=project_name)
+                PROTOCOL_ALREADY_EXISTS.format(
+                    protocol_name=new_name, project_name=project_name)
             )
 
         updated_activities = (
@@ -192,7 +198,8 @@ class ProtocolService:
 
         if self.is_protocol_locked(project_name, protocol_name):
             raise BadRequestException(
-                PROTOCOL_IS_LOCKED.format(protocol_name=protocol_name, project_name=project_name)
+                PROTOCOL_IS_LOCKED.format(
+                    protocol_name=protocol_name, project_name=project_name)
             )
 
         protocols_storage = self._get_protocols_storage(project_name)
@@ -272,10 +279,11 @@ class ProtocolService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         return protocols_storage.exists({"name": protocol_name})
-    
+
     def get_protocol_by_uuid(
         self, project_name: str, protocol_uuid: str
     ) -> ProtocolRes:
@@ -289,7 +297,8 @@ class ProtocolService:
             NotFoundException: If the project or protocol does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(
+                PROJECT_DOES_NOT_EXIST.format(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocol = protocols_storage.find_one({"uuid": protocol_uuid})
         if not protocol:
@@ -337,7 +346,7 @@ class ProtocolService:
                 )
 
             formatted.append(
-                {
+                Activity(**{
                     "order": idx + 1,
                     "name": activity.name,
                     "path": activity.path,
@@ -348,6 +357,6 @@ class ProtocolService:
                     "close_activity": activity.close_activity,
                     "process_name": activity.process_name,
                     "show_timer": activity.show_timer,
-                }
+                })
             )
         return formatted
