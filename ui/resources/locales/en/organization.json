@@ -1,0 +1,6 @@
+{
+  "options": {
+    "startProtocolOnStartCapture": "Start protocol execution when capture starts",
+    "stopProtocolOnStopCapture": "Stop protocol execution when capture stops"
+  }
+}

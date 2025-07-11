@@ -3,6 +3,8 @@ import protocolExecution from "./ProtocolExecution"
 import "./preferences"
 import { captureTray } from "../capture/CaptureSystemTray"
 import optionsManager from "../../core/preferences/OptionsManager"
+import i18n from "../../core/i18n/i18n"
+import languageObserver from "../../core/i18n/LanguageObserver"
 
 app.whenReady().then(() => {
   ipcMain.on("organization:reload-projects", async () => {
@@ -70,11 +72,19 @@ app.whenReady().then(() => {
     protocolNameExec = protocolName
   })
 
+  const tOrgOptions = i18n.getFixedT(null, "organization", "options")
+
   optionsManager.registerOption({
     id: "organization:startProtocolOnCapture",
     defaultValue: false,
-    label: "Start protocol execution when capture starts",
+    label: tOrgOptions("startProtocolOnStartCapture"),
     type: "boolean"
+  })
+
+  languageObserver.subscribe(() => {
+    optionsManager.updateOption("organization:startProtocolOnCapture", {
+      label: tOrgOptions("startProtocolOnStartCapture")
+    })
   })
 
   captureTray.onStartCapture((projectName) => {
@@ -92,8 +102,14 @@ app.whenReady().then(() => {
   optionsManager.registerOption({
     id: "organization:stopProtocolOnStopCapture",
     defaultValue: false,
-    label: "Stop protocol execution when capture stops",
+    label: tOrgOptions("stopProtocolOnStopCapture"),
     type: "boolean"
+  })
+
+  languageObserver.subscribe(() => {
+    optionsManager.updateOption("organization:stopProtocolOnStopCapture", {
+      label: tOrgOptions("stopProtocolOnStopCapture")
+    })
   })
 
   captureTray.onStopCapture(() => {

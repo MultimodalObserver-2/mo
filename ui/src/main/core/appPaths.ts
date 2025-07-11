@@ -7,6 +7,7 @@ import { is } from "@electron-toolkit/utils"
 import { app, ipcMain } from "electron"
 import path from "path"
 import os from "os"
+import { resourcesPath } from "process"
 
 function getLocalAppDataFolder() {
   const platform = process.platform
@@ -40,8 +41,20 @@ export function getPluginBasePath(): string {
     : path.resolve(getLocalAppDataFolder(), "multimodal-observer", "plugins", "ui")
 }
 
+export function getResourcesPath(): string {
+  return is.dev ? path.resolve(process.cwd(), "resources") : path.resolve(resourcesPath)
+}
+
+export function getLocalesPath(): string {
+  return path.resolve(getResourcesPath(), "locales")
+}
+
 app.whenReady().then(() => {
   ipcMain.handle("core:app:paths:plugins", () => {
     return getPluginBasePath()
+  })
+
+  ipcMain.handle("core:app:paths:locales", () => {
+    return getLocalesPath()
   })
 })

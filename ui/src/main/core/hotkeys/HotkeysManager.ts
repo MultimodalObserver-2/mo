@@ -61,6 +61,18 @@ export class HotkeysManager {
     }
   }
 
+  public updateLabel(actionId: string, label: string): void {
+    if (this.simpleActions.has(actionId)) {
+      const action = this.simpleActions.get(actionId)!
+      action.label = label
+    } else if (this.complementaryActions.has(actionId)) {
+      const comp = this.getComplementaryPart(actionId)
+      if (comp) {
+        comp.group.actions[comp.index].label = label
+      }
+    }
+  }
+
   public getHotkey(actionId: string): string {
     const userKey = this.hotkeys[actionId]
     const action =

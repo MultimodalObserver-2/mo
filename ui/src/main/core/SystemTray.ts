@@ -1,5 +1,9 @@
 import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, Tray } from "electron"
 import { getMainWindow, setForceQuit } from ".."
+import i18n from "./i18n/i18n"
+import languageObserver from "./i18n/LanguageObserver"
+
+const tCoreTray = i18n.getFixedT(null, "core", "tray")
 
 type MenuItemArray = Array<MenuItemConstructorOptions | MenuItem>
 
@@ -17,10 +21,10 @@ export class SystemTray {
   private createTray(): void {
     this.tray = new Tray("resources/icon.png")
     this.contextMenu = Menu.buildFromTemplate([
-      { id: "hide", label: "Hide", click: () => this.toggleVisibility() },
+      { id: "hide", label: tCoreTray("hide"), click: () => this.toggleVisibility() },
       {
         id: "quit",
-        label: "Quit",
+        label: tCoreTray("quit"),
         click: () => {
           setForceQuit(true)
           app.quit()
@@ -30,6 +34,25 @@ export class SystemTray {
     this.tray.setToolTip("Multimodal Observer")
     this.tray.setContextMenu(this.contextMenu)
     this.tray.on("click", () => this.showApp())
+    languageObserver.subscribe(() => {
+      this.updateBaseMenu()
+    })
+  }
+
+  private updateBaseMenu(): void {
+    const baseMenu: MenuItemConstructorOptions[] = [
+      { id: "hide", label: tCoreTray("hide"), click: () => this.toggleVisibility() },
+      {
+        id: "quit",
+        label: tCoreTray("quit"),
+        click: () => {
+          setForceQuit(true)
+          app.quit()
+        }
+      }
+    ]
+
+    this.extendContextMenu(baseMenu)
   }
 
   private registerWindowEvents(): void {
@@ -155,12 +178,12 @@ export class SystemTray {
 
     if (isVisible) {
       this.mainWindow.hide()
-      this.setMenuItemLabel("hide", "Show")
+      this.setMenuItemLabel("hide", tCoreTray("show"))
     } else {
       this.mainWindow.show()
       if (this.mainWindow.isMinimized()) this.mainWindow.restore()
       this.mainWindow.focus()
-      this.setMenuItemLabel("hide", "Hide")
+      this.setMenuItemLabel("hide", tCoreTray("hide"))
     }
   }
 }

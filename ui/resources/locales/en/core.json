@@ -16,5 +16,13 @@
         "title": "Options"
       }
     }
+  },
+  "tray": {
+    "hide": "Hide",
+    "show": "Show",
+    "quit": "Quit"
+  },
+  "options": {
+    "minimizeToTrayOnClose": "Minimize to tray when closing the application"
   }
 }

@@ -1,0 +1,18 @@
+{
+  "tray": {
+    "Start Capture": "Start Capture",
+    "Stop Capture": "Stop Capture",
+    "Pause Capture": "Pause Capture",
+    "Resume Capture": "Resume Capture"
+  },
+  "hotkeys": {
+    "Start Capture": "Start Capture",
+    "Stop Capture": "Stop Capture",
+    "Pause Capture": "Pause Capture",
+    "Resume Capture": "Resume Capture"
+  },
+  "options": {
+    "MinimizeOnStart": "Minimize the application on start capture",
+    "ShowOnStop": "Show the application window when capture stops"
+  }
+}

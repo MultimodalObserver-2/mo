@@ -2,6 +2,10 @@ import { app, BrowserWindow, ipcMain } from "electron"
 import { captureTray } from "./CaptureSystemTray"
 import optionsManager from "../../core/preferences/OptionsManager"
 import { getMainWindow } from "../.."
+import i18n from "../../core/i18n/i18n"
+import languageObserver from "../../core/i18n/LanguageObserver"
+
+const tCaptureOptions = i18n.getFixedT(null, "capture", "options")
 
 app.whenReady().then(() => {
   ipcMain.on("capture:reload-configs", async () => {
@@ -34,9 +38,15 @@ app.whenReady().then(() => {
 
   optionsManager.registerOption({
     id: "capture:minimizeOnStartCapture",
-    label: "Minimize the application on start capture",
+    label: tCaptureOptions("MinimizeOnStart"),
     type: "boolean",
     defaultValue: false
+  })
+
+  languageObserver.subscribe(() => {
+    optionsManager.updateOption("capture:minimizeOnStartCapture", {
+      label: tCaptureOptions("MinimizeOnStart")
+    })
   })
 
   captureTray.onStartCapture(() => {
@@ -51,9 +61,15 @@ app.whenReady().then(() => {
 
   optionsManager.registerOption({
     id: "capture:showOnCaptureStop",
-    label: "Show the application window when capture stops",
+    label: tCaptureOptions("ShowOnStop"),
     type: "boolean",
     defaultValue: true
+  })
+
+  languageObserver.subscribe(() => {
+    optionsManager.updateOption("capture:showOnCaptureStop", {
+      label: tCaptureOptions("ShowOnStop")
+    })
   })
 
   captureTray.onStopCapture(() => {

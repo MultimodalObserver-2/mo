@@ -2,6 +2,10 @@ import { app, MenuItemConstructorOptions } from "electron"
 import { apiClient } from "../../core/apiClient"
 import { broadcast, getSystemTray } from "../.."
 import hotkeysManager from "../../core/hotkeys/HotkeysManager"
+import i18n from "i18next"
+import languageObserver from "../../core/i18n/LanguageObserver"
+const tCaptureTray = i18n.getFixedT(null, "capture", "tray")
+const tCaptureHotkeys = i18n.getFixedT(null, "capture", "hotkeys")
 
 type CaptureEvent = "startCapture" | "stopCapture"
 type CaptureCallback = (projectName?: string | null, participantCode?: string | null) => void
@@ -26,10 +30,29 @@ export class CaptureSystemTray {
         this.initialize()
       })
     }
+
+    languageObserver.subscribe(() => {
+      this.updateMenu()
+      this.updateHotkeys()
+    })
   }
 
   private initialize() {
     this.updateMenu()
+    this.registerHotkeys()
+  }
+
+  private updateHotkeys() {
+    hotkeysManager.updateLabel("capture.start", tCaptureHotkeys("Start Capture", { ns: "capture" }))
+    hotkeysManager.updateLabel("capture.stop", tCaptureHotkeys("Stop Capture", { ns: "capture" }))
+    hotkeysManager.updateLabel("capture.pause", tCaptureHotkeys("Pause Capture", { ns: "capture" }))
+    hotkeysManager.updateLabel(
+      "capture.resume",
+      tCaptureHotkeys("Resume Capture", { ns: "capture" })
+    )
+  }
+
+  private registerHotkeys() {
     hotkeysManager.registerAction({
       type: "complementary",
       action: {
@@ -37,12 +60,12 @@ export class CaptureSystemTray {
         actions: [
           {
             id: "capture.start",
-            label: "Start Capture",
+            label: tCaptureHotkeys("Start Capture", { ns: "capture" }),
             callback: () => this.startCapture()
           },
           {
             id: "capture.stop",
-            label: "Stop Capture",
+            label: tCaptureHotkeys("Stop Capture", { ns: "capture" }),
             callback: () => this.stopCapture()
           }
         ],
@@ -56,12 +79,12 @@ export class CaptureSystemTray {
         actions: [
           {
             id: "capture.pause",
-            label: "Pause Capture",
+            label: tCaptureHotkeys("Pause Capture", { ns: "capture" }),
             callback: () => this.pauseCapture()
           },
           {
             id: "capture.resume",
-            label: "Resume Capture",
+            label: tCaptureHotkeys("Resume Capture", { ns: "capture" }),
             callback: () => this.resumeCapture()
           }
         ],
@@ -195,13 +218,13 @@ export class CaptureSystemTray {
     const items: MenuItemConstructorOptions[] = [
       {
         id: "startStop",
-        label: this.isCapturing ? "Stop Capture" : "Start Capture",
+        label: this.isCapturing ? tCaptureTray("Stop Capture") : tCaptureTray("Start Capture"),
         click: this.isCapturing ? () => this.stopCapture() : () => this.startCapture(),
         enabled: this.isCapturing || (!!this.projectName && !!this.participantCode && !this.isBusy)
       },
       {
         id: "pauseResume",
-        label: this.isPaused ? "Resume Capture" : "Pause Capture",
+        label: this.isPaused ? tCaptureTray("Resume Capture") : tCaptureTray("Pause Capture"),
         click: this.isPaused ? () => this.resumeCapture() : () => this.pauseCapture(),
         enabled: this.isCapturing && !this.isBusy,
         visible: this.isCapturing

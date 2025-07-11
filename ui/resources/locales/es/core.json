@@ -16,5 +16,13 @@
 				"title": "Opciones"
 			}
 		}
+	},
+	"tray": {
+		"hide": "Ocultar",
+		"show": "Mostrar",
+		"quit": "Salir"
+	},
+	"options": {
+		"minimizeToTrayOnClose": "Minimizar a la bandeja al cerrar la aplicación"
 	}
 }
