@@ -15,6 +15,38 @@
       "options": {
         "title": "Options"
       }
+    },
+    "plugins": {
+      "installed": "Installed",
+      "register": "Register",
+      "available": "Available"
+    },
+    "loading": {
+      "message": "Loading the app, please wait..."
+    },
+    "error": {
+      "title": "Something went wrong",
+      "description": "We&apos;re having trouble starting the application services. Please restart the app and try again."
+    },
+    "pluginDetails": {
+      "title": "Plugin details",
+      "fields": {
+        "name": "Name",
+        "version": "Version",
+        "publisher": "Publisher",
+        "description": "Description",
+        "author_name": "Author Name",
+        "author_email": "Author Email",
+        "repository": "Repository",
+        "location": "Location",
+        "module": "Module",
+        "linux": "Linux",
+        "windows": "Windows",
+        "macos": "MacOS",
+        "unknown": "Unknown",
+        "yes": "Yes",
+        "no": "No"
+      }
     }
   },
   "tray": {
@@ -24,5 +56,30 @@
   },
   "options": {
     "minimizeToTrayOnClose": "Minimize to tray when closing the application"
+  },
+  "dialogs": {
+    "errors": {
+      "unexpected": {
+        "title": "Unexpected Error",
+        "description": "An unexpected error occurred. Please try again later."
+      },
+      "locked": {
+        "title": "Locked",
+        "description": "You cannot {{action}} a locked {{item}}, please unlock it first."
+      }
+    },
+    "delete": {
+      "plugin": {
+        "title": "Delete Plugin",
+        "message": "Are you sure you want to delete the plugin {{pluginName}} (v{{pluginVersion}} \nfrom the publisher {{pluginPublisher}})? This action cannot be undone."
+      }
+    },
+    "buttons": {
+      "accept": "Accept",
+      "cancel": "Cancel"
+    }
+  },
+  "modals": {
+    "plugin_details": "Plugin Details"
   }
 }

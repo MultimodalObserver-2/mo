@@ -4,19 +4,22 @@ import Tabs from "@renderer/core/components/tabs/Tabs"
 import Tab from "@renderer/core/components/tabs/Tab"
 import Register from "./Register"
 import Installed from "./Installed"
+import { useTranslation } from "react-i18next"
 
 export default function PluginsPage() {
+  const { t } = useTranslation("core", { keyPrefix: "pages.plugins" })
+
   return (
     <main className={styles.main}>
       <Tabs>
-        <Tab title="Installed" key="installed">
+        <Tab title={t("installed")} key="installed">
           <Installed />
         </Tab>
-        <Tab title="Register" key="register">
+        <Tab title={t("register")} key="register">
           <Register />
         </Tab>
-        <Tab title="Available" key="available">
-          <p style={{ color: "black" }}>Available</p>
+        <Tab title={t("available")} key="available">
+          <p style={{ color: "black" }}>{t("available", "Available")}</p>
         </Tab>
       </Tabs>
     </main>

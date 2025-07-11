@@ -1,5 +1,5 @@
 import { app, ipcMain } from "electron"
-import { i18nConfig } from "./config"
+import { getI18nConfig } from "./config"
 import i18n from "./i18n"
 import preferencesManager from "../preferences/PreferencesManager"
 import languageObserver from "./LanguageObserver"
@@ -7,6 +7,7 @@ import languageObserver from "./LanguageObserver"
 app.whenReady().then(() => {
   ipcMain.handle("core:i18n:getInitialData", async () => {
     const resources = i18n.services.resourceStore.data
+    const i18nConfig = getI18nConfig()
     return {
       ...i18nConfig,
       resources: resources
@@ -23,6 +24,7 @@ app.whenReady().then(() => {
           preferencesManager.set("language", language)
           languageObserver.notify(language)
           const resources = {}
+          const i18nConfig = getI18nConfig()
           for (const ns of i18nConfig.ns) {
             resources[ns] = i18n.getResourceBundle(language, ns)
           }

@@ -3,17 +3,49 @@
 		"settings": {
 			"title": "Ajustes",
 			"languages": {
-				"title": "Lenguajes",
+				"title": "Idiomas",
 				"options": {
 					"en": "Inglés",
 					"es": "Español"
 				}
 			},
 			"hotkeys": {
-				"title": "Atajos de Teclado"
+				"title": "Atajos de teclado"
 			},
 			"options": {
 				"title": "Opciones"
+			}
+		},
+		"plugins": {
+			"installed": "Instalados",
+			"register": "Registrar",
+			"available": "Disponibles"
+		},
+		"loading": {
+			"message": "Cargando la aplicación, por favor espera..."
+		},
+		"error": {
+			"title": "Algo salió mal",
+			"description": "Estamos teniendo problemas para iniciar los servicios de la aplicación. Por favor, reinicia la aplicación e inténtalo de nuevo."
+		},
+		"pluginDetails": {
+			"title": "Detalles del plugin",
+			"fields": {
+				"name": "Nombre",
+				"version": "Versión",
+				"publisher": "Autor",
+				"description": "Descripción",
+				"author_name": "Nombre del autor",
+				"author_email": "Correo del autor",
+				"repository": "Repositorio",
+				"location": "Ubicación",
+				"module": "Módulo",
+				"linux": "Linux",
+				"windows": "Windows",
+				"macos": "MacOS",
+				"unknown": "Desconocido",
+				"yes": "Sí",
+				"no": "No"
 			}
 		}
 	},
@@ -24,5 +56,30 @@
 	},
 	"options": {
 		"minimizeToTrayOnClose": "Minimizar a la bandeja al cerrar la aplicación"
+	},
+	"dialogs": {
+		"errors": {
+			"unexpected": {
+				"title": "Error inesperado",
+				"description": "Ocurrió un error inesperado. Por favor, inténtalo de nuevo más tarde."
+			},
+			"locked": {
+				"title": "Bloqueado",
+				"description": "No puedes {{action}} un(a) {{item}} bloqueado(a), por favor desbloquéalo primero."
+			}
+		},
+		"delete": {
+			"plugin": {
+				"title": "Eliminar plugin",
+				"message": "¿Estás seguro de que deseas eliminar el plugin {{pluginName}} (v{{pluginVersion}} \ndel autor {{pluginPublisher}})? Esta acción no se puede deshacer."
+			}
+		},
+		"buttons": {
+			"accept": "Aceptar",
+			"cancel": "Cancelar"
+		}
+	},
+	"modals": {
+		"plugin_details": "Detalles del plugin"
 	}
 }

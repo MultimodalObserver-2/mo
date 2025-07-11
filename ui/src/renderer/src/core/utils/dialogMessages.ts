@@ -4,11 +4,13 @@
  * Includes generic errors, API error parsing, and locked item warnings.
  */
 import { AxiosError } from "axios"
+import i18n from "i18next"
+const t = i18n.getFixedT(null, "core", "dialogs")
 
 export function showUnexpectedErrorMessage() {
   window.core.dialog.showErrorBox(
-    "Unexpected error",
-    "An unexpected error occurred, please restart the app"
+    t("errors.unexpected.title", "Unexpected Error"),
+    t("errors.unexpected.message", "An unexpected error occurred, please restart the app")
   )
 }
 
@@ -28,8 +30,8 @@ export function showApiErrorMessage(error: unknown) {
 
 export function showLockedErrorMessage(action: string, item: string) {
   window.core.dialog.showErrorBox(
-    "Locked",
-    `You cannot ${action} a locked ${item}, please unlock it first`
+    t("errors.locked.title", "Locked"),
+    t("errors.locked.description", { action, item })
   )
 }
 
@@ -39,12 +41,14 @@ export async function showDeletePluginMessage(
   pluginVersion: string,
   acceptId: number
 ) {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Participant",
-    message:
-      `Are you sure you want to delete the plugin ${pluginName} (v${pluginVersion})` +
-      ` \nfrom the publisher ${pluginPublisher} ?`,
+    title: t("delete.plugin.title", "Delete Plugin"),
+    message: t("delete.plugin.message", {
+      pluginName: pluginName,
+      pluginVersion: pluginVersion,
+      pluginPublisher: pluginPublisher
+    }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,

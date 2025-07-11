@@ -9,6 +9,7 @@
  */
 
 import { MessageBoxOptions, MessageBoxReturnValue, OpenDialogReturnValue } from "electron"
+import { Resource } from "i18next"
 import { NavigateOptions } from "react-router"
 
 /**
@@ -393,7 +394,7 @@ export default interface CoreAPI {
       fallbackLng: string
       ns: string[]
       fallbackNS: string
-      resources: Record<string, Record<string, unknown>>
+      resources: Resource
     }>
 
     /**
@@ -403,7 +404,7 @@ export default interface CoreAPI {
      */
     changeLanguage: (language: string) => Promise<{
       language: string
-      resources: Record<string, Record<string, string>>
+      resources: Resource
     }>
   }
 }

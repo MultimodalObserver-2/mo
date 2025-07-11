@@ -4,6 +4,10 @@
  * throughout the application by abstracting the `window.core.openModalWindow` API.
  */
 
+import i18n from "i18next"
+
+const t = i18n.getFixedT(null, "core", "modals")
+
 export function openPluginDetailsModal(
   pluginId: string,
   pluginTarget: "api" | "ui",
@@ -15,7 +19,7 @@ export function openPluginDetailsModal(
       height: 650,
       minWidth: 800,
       minHeight: 650,
-      title: "Plugin Details",
+      title: t("plugin_details"),
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true

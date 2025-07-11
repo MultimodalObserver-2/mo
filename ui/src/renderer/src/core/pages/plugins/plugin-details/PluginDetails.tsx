@@ -18,6 +18,7 @@ import { useParams, useSearchParams } from "react-router"
 import DeleteIcon from "@renderer/core/components/icons/DeleteIcon"
 import Button from "@renderer/core/components/button/Button"
 import pluginService from "@renderer/core/services/PluginService"
+import { useTranslation } from "react-i18next"
 
 export default function PluginDetails() {
   const { pluginId, pluginTarget } = useParams<{
@@ -26,6 +27,8 @@ export default function PluginDetails() {
   }>()
   const [searchParams] = useSearchParams()
   const [plugin, setPlugin] = useState<Plugin | null>(null)
+  const { t } = useTranslation("core", { keyPrefix: "pages.pluginDetails.fields" })
+  const tPage = useTranslation("core", { keyPrefix: "pages.pluginDetails" }).t
 
   useEffect(() => {
     async function fetchPlugin() {
@@ -84,7 +87,7 @@ export default function PluginDetails() {
     <PageModal>
       <ModalHeader className={styles.header}>
         <div className={styles["title-box"]}>
-          <ModalTitle title="Plugin details" Icon={InfoIcon} />
+          <ModalTitle title={tPage("title")} Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
           <Button
@@ -99,26 +102,26 @@ export default function PluginDetails() {
       </ModalHeader>
       <ModalBody>
         <section className={styles.group}>
-          <DisplayData name="Name" value={plugin.name} />
-          <DisplayData name="Version" value={plugin.version} />
-          <DisplayData name="Publisher" value={plugin.publisher.name} />
+          <DisplayData name={t("name")} value={plugin.name} />
+          <DisplayData name={t("version")} value={plugin.version} />
+          <DisplayData name={t("publisher")} value={plugin.publisher.name} />
         </section>
-        <DisplayData name="Description" value={plugin.description} />
+        <DisplayData name={t("description")} value={plugin.description} />
         <section className={styles.group}>
-          <DisplayData name="Author Name" value={plugin.author?.name ?? "Unknown"} />
-          <DisplayData name="Author Email" value={plugin.author?.email ?? "Unknown"} />
+          <DisplayData name={t("author_name")} value={plugin.author?.name ?? t("unknown")} />
+          <DisplayData name={t("author_email")} value={plugin.author?.email ?? t("unknown")} />
         </section>
         <DisplayPath
-          name="Repository"
+          name={t("repository")}
           path_type="url"
-          value={plugin.repository == "" ? "Unknown" : plugin.repository}
+          value={plugin.repository === "" ? t("unknown") : plugin.repository}
         />
-        <DisplayPath name="Location" value={plugin.location} />
-        <DisplayData name="Module" value={plugin.module ?? "Unknown"} />
+        <DisplayPath name={t("location")} value={plugin.location} />
+        <DisplayData name={t("module")} value={plugin.module ?? t("unknown")} />
         <section className={styles.group}>
-          <DisplayData name="Linux" value={plugin.platforms.linux ? "Yes" : "No"} />
-          <DisplayData name="Windows" value={plugin.platforms.windows ? "Yes" : "No"} />
-          <DisplayData name="MacOS" value={plugin.platforms.macos ? "Yes" : "No"} />
+          <DisplayData name={t("linux")} value={plugin.platforms.linux ? t("yes") : t("no")} />
+          <DisplayData name={t("windows")} value={plugin.platforms.windows ? t("yes") : t("no")} />
+          <DisplayData name={t("macos")} value={plugin.platforms.macos ? t("yes") : t("no")} />
         </section>
       </ModalBody>
     </PageModal>
