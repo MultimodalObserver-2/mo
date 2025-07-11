@@ -1,3 +1,4 @@
+import { Trans } from "react-i18next"
 import styles from "./capture-header.module.css"
 import { useEffect, useState } from "react"
 import { CaptureStatus } from "../../types/Capture"
@@ -5,6 +6,7 @@ import captureService from "../../services/CaptureService"
 import CameraIcon from "@renderer/core/components/icons/CameraIcon"
 
 export default function CaptureHeader() {
+  // const { t } = useTranslation("capture", { keyPrefix: "components.captureHeader" })
   const [status, setStatus] = useState<CaptureStatus>({
     started: false,
     paused: false
@@ -46,8 +48,17 @@ export default function CaptureHeader() {
     <div className={styles.header}>
       <CameraIcon className={styles.icon} />
       <h4 className={styles.text}>
-        Participant <strong>{status.participant_code}</strong> for{" "}
-        <strong>{status.project_name}</strong>
+        <Trans
+          i18nKey="components.captureHeader.participantForProject"
+          ns="capture"
+          values={{
+            participant: status.participant_code,
+            project: status.project_name
+          }}
+          components={{
+            strong: <strong />
+          }}
+        />
       </h4>
     </div>
   )

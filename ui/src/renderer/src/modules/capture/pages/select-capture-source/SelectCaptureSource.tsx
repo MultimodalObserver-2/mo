@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
@@ -18,6 +19,7 @@ import {
 import CameraIcon from "@renderer/core/components/icons/CameraIcon"
 
 export default function SelectCaptureSource() {
+  const { t } = useTranslation("capture", { keyPrefix: "pages.selectCaptureSource" })
   const { projectName } = useParams<{ projectName: string }>()
   const [selectedSource, setSelectedSource] = useState<Plugin | null>(null)
   const [plugins, setPlugins] = useState<Plugin[]>([])
@@ -56,7 +58,7 @@ export default function SelectCaptureSource() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Capture sources" Icon={CameraIcon} />
+        <ModalTitle title={t("title")} Icon={CameraIcon} />
       </ModalHeader>
       <ModalBody id="modal-body">
         <PluginDisplay style="dark" textSize="sm">
@@ -80,10 +82,10 @@ export default function SelectCaptureSource() {
       </ModalBody>
       <ModalFooter>
         <Button form="create" onClick={showSourceProperties}>
-          ADD SOURCE
+          {t("addSource").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

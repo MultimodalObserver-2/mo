@@ -2,6 +2,9 @@
  * @module helpers
  * This file contains utility functions for formatting dates, times, and durations.
  */
+import i18n from "i18next"
+
+const t = i18n.getFixedT(null, "capture", "utils")
 
 /**
  * Formats a datetime string into a locale-specific date and a fixed HH:MM:SS time.
@@ -14,7 +17,7 @@ export function formatDatetime(datetime: string) {
   const minutes = String(date.getMinutes()).padStart(2, "0")
   const seconds = String(date.getSeconds()).padStart(2, "0")
 
-  return `${date.toLocaleDateString()} at ${hours}:${minutes}:${seconds}`
+  return `${date.toLocaleDateString()} ${t("at")} ${hours}:${minutes}:${seconds}`
 }
 
 /**

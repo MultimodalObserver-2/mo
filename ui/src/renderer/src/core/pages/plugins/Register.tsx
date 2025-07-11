@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./plugins.module.css"
 import { useState } from "react"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
@@ -7,6 +8,7 @@ import Button from "@renderer/core/components/button/Button"
 import pluginService from "@renderer/core/services/PluginService"
 
 export default function Register() {
+  const { t } = useTranslation("core", { keyPrefix: "components.registerPlugin" })
   const [files, setFiles] = useState<File[]>([])
   const [isRegistering, setIsRegistering] = useState(false)
 
@@ -20,14 +22,14 @@ export default function Register() {
       if (plugin.is_loaded) {
         window.core.dialog.showMessageBox({
           type: "info",
-          title: "Plugin Registration",
-          message: "Plugin registered successfully"
+          title: t("pluginRegistration"),
+          message: t("registeredSuccessfully")
         })
       } else {
         window.core.dialog.showMessageBox({
           type: "warning",
-          title: "Plugin Registration",
-          message: `The plugin was registered but failed to load correctly: \n${plugin.error}`
+          title: t("pluginRegistration"),
+          message: t("registeredButFailed", { error: plugin.error })
         })
       }
     } catch (error) {
@@ -43,7 +45,7 @@ export default function Register() {
       <FileUpload id="plugins" name="plugins" accept={[".zip"]} files={files} required />
       <Button className={styles.button} borderRadius="md" type="submit" isLoading={isRegistering}>
         <NoteStackAddIcon className={styles.icon} />
-        Register plugin
+        {t("registerPlugin")}
       </Button>
     </form>
   )

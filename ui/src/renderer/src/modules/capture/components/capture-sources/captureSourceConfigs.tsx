@@ -10,9 +10,10 @@ import {
 } from "@renderer/core/utils/dialogMessages"
 import { openCaptureSourceModal, openUpdateCaptureSourceModal } from "../../utils/modalWindows"
 import { showDeleteCaptureConfigMessage } from "../../utils/dialogMessages"
+import Title from "./title"
 
 const captureConfigProvider: ConfigProvider = {
-  title: "Capture Sources",
+  title: Title,
   fetchConfigs: async (project: Project) => {
     try {
       const response = await captureConfigService.getAll(project.name)

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ModalBody from "../page-modal/modal-body/ModalBody"
 import ModalHeader from "../page-modal/modal-header/ModalHeader"
 import ModalTitle from "../page-modal/modal-header/ModalTitle"
@@ -18,50 +19,22 @@ import pluginService from "@renderer/core/services/PluginService"
 type SettingType = string | number | boolean
 
 interface ConfigurePluginProps {
-  /** The unique identifier for the plugin to be configured. */
   pluginId: string
-  /** The target where the plugin properties is registered, e.g., "api" or "ui". */
   target: string
-  /** The display name of the plugin, used in the modal title. */
   pluginName?: string
-  /** The text label for the primary submission button. */
   submitLabel?: string
-  /** An initial name for the configuration being created or edited. */
   initialConfigName?: string
-  /** An initial set of settings to pre-fill the form and send to the API on load. */
   initialSettings?: Record<string, SettingType>
-  /** Optional children to render inside the modal, typically for additional instructions or inputs */
   children?: React.ReactNode
-  /** Position of the children in the modal, can be "top", "middle", or "bottom". */
   childrenPosition?: "top" | "middle" | "bottom"
-  /** Callback function executed with the config name and final settings and extra inputs when the form is submitted */
   onSubmit: (
     name: string,
     settings: Record<string, SettingType>,
     extra?: Record<string, SettingType>
   ) => void
-  /** Callback function executed when the modal is requested to be closed. */
   onClose: () => void
 }
 
-/**
- * A modal component for configuring a plugin. It dynamically generates a form
- * based on properties fetched from an API. Some properties can be "reactive",
- * meaning a change in their value will trigger a refetch of the entire form to
- * update dependent settings.
- *
- * @param {string} props.pluginId - The unique ID for the plugin.
- * @param {string} props.target - The target where the plugin properties is registered (e.g., "api" or "ui").
- * @param {string} [props.pluginName="Plugin"] - The name of the plugin for the modal title.
- * @param {string} [props.submitLabel="CONFIGURE"] - The label for the submit button.
- * @param {string} [props.initialConfigName=""] - The initial value for the configuration's name input.
- * @param {Record<string, SettingType>} [props.initialSettings={}] - Initial settings to populate the form.
- * @param {React.ReactNode} [props.children] - Optional children to render inside the modal.
- * @param {"top" | "middle" | "bottom"} [props.childrenPosition="middle"] - Position of the children in the modal.
- * @param {(name: string, settings: Record<string, any>, extra?: Record<string, any>) => void} props.onSubmit - Callback for form submission.
- * @param {() => void} props.onClose - Callback to close the modal.
- * @returns {React.ReactElement} The rendered modal component for plugin configuration.
- */
 export default function ConfigurePlugin({
   pluginId,
   target,
@@ -74,6 +47,7 @@ export default function ConfigurePlugin({
   onSubmit,
   onClose
 }: Readonly<ConfigurePluginProps>) {
+  const { t } = useTranslation("core", { keyPrefix: "pages.configurePlugin" })
   const [settings, setSettings] = useState<Record<string, SettingType>>({})
   const [configName, setConfigName] = useState<string>(initialConfigName)
   const [properties, setProperties] = useState<PluginProperty[]>([])
@@ -199,15 +173,15 @@ export default function ConfigurePlugin({
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title={`${pluginName} configuration`} />
+        <ModalTitle title={t("configurationTitle", { pluginName })} />
       </ModalHeader>
       <ModalBody type="form" id="submit-config" onSubmit={handleSubmit}>
         {children && childrenPosition === "top" && <>{children}</>}
         <Input
           id="name"
-          label="Name"
+          label={t("name")}
           type="text"
-          placeholder="Enter the configuration name"
+          placeholder={t("enterConfigName")}
           required
           value={configName}
           onChange={(e) => setConfigName(e.target.value)}
@@ -228,7 +202,7 @@ export default function ConfigurePlugin({
           {submitLabel}
         </Button>
         <Button styleType="danger" onClick={onClose}>
-          CLOSE
+          {t("close").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

@@ -5,13 +5,17 @@
  * `window.core.openModalWindow` API call for common capture-related UI flows.
  */
 
+import i18n from "i18next"
+
+const t = i18n.getFixedT(null, "capture", "modals")
+
 export function openCaptureSourceModal(projectName: string) {
   window.core.openModalWindow({
     options: {
       width: 550,
       minWidth: 550,
       minHeight: 235,
-      title: "Capture sources",
+      title: t("selectSource"),
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true
@@ -29,7 +33,12 @@ export function openCaptureSourceModal(projectName: string) {
 
 export function openConfigureCaptureSourceModal(projectName: string, pluginId: string) {
   window.core.openModalWindow({
-    options: { width: 550, minWidth: 550, minHeight: 250, title: "Configure plugin" },
+    options: {
+      width: 550,
+      minWidth: 550,
+      minHeight: 250,
+      title: t("configurePlugin")
+    },
     endpoint: `capture/${projectName}/sources/${pluginId}`,
     autoAdjustHeight: {
       elementId: "submit-config",
@@ -42,7 +51,12 @@ export function openConfigureCaptureSourceModal(projectName: string, pluginId: s
 
 export function openUpdateCaptureSourceModal(projectName: string, configName: string) {
   window.core.openModalWindow({
-    options: { width: 550, minWidth: 550, minHeight: 250, title: "Configure plugin" },
+    options: {
+      width: 550,
+      minWidth: 550,
+      minHeight: 250,
+      title: t("configurePlugin")
+    },
     endpoint: `capture/${projectName}/configs/${configName}`,
     autoAdjustHeight: {
       elementId: "submit-config",
@@ -59,7 +73,12 @@ export function openSessionDetailsModal(
   sessionId: string
 ) {
   window.core.openModalWindow({
-    options: { width: 800, minWidth: 750, minHeight: 400, title: "Session Information" },
+    options: {
+      width: 800,
+      minWidth: 750,
+      minHeight: 400,
+      title: t("sessionInfo")
+    },
     endpoint: `capture/${projectName}/participants/${participantCode}/sessions/${sessionId}`,
     autoAdjustHeight: {
       elementId: "modal-body",

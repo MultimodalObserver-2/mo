@@ -5,18 +5,19 @@
  * configurations or sessions. It uses the Electron dialog API exposed
  * at `window.core.dialog`.
  */
+import i18n from "i18next"
+
+const t = i18n.getFixedT(null, "capture", "dialogs")
 
 export async function showDeleteCaptureConfigMessage(
   configName: string,
   projectName: string,
   acceptId: number
 ) {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Capture Source Configuration",
-    message:
-      `Are you sure you want to delete the capture source` +
-      ` configuration ${configName} from the project ${projectName}?`,
+    title: t("delete.captureConfig.title"),
+    message: t("delete.captureConfig.message", { configName, projectName }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,
@@ -32,13 +33,10 @@ export async function showDeleteSessionMessage(
   participantCode: string,
   acceptId: number
 ) {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Session",
-    message:
-      `Are you sure you want to delete the session with ID ${sessionId}\n` +
-      `from the project ${projectName} and participant ${participantCode}?\n` +
-      `This action will remove all associated data.`,
+    title: t("delete.session.title"),
+    message: t("delete.session.message", { sessionId, projectName, participantCode }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,

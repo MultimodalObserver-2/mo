@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./sessions.module.css"
 import {
   ElementHeader,
@@ -22,6 +23,7 @@ import ShowDuration from "../show-duration/ShowDuration"
 import sessionRegistry, { SessionAction } from "../../store/SessionRegistry"
 
 export default function Sessions() {
+  const { t } = useTranslation("capture", { keyPrefix: "components.sessions" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const [sessions, setSessions] = useState<CaptureSession[]>([])
@@ -94,7 +96,7 @@ export default function Sessions() {
   return (
     <PanelElement className={styles["sessions-panel"]}>
       <ElementHeader>
-        <ElementTitle>Sessions</ElementTitle>
+        <ElementTitle>{t("title")}</ElementTitle>
       </ElementHeader>
       <ElementList>
         {sessions.map((session) => (

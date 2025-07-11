@@ -31,7 +31,7 @@ export interface Config {
 }
 
 export interface ConfigProvider {
-  title: string
+  title: string | (() => string)
   fetchConfigs: (project: Project) => Promise<Config[]>
   onReloadConfigs: (callback: () => void) => () => void
   onAddConfig: (project: Project) => void
@@ -138,7 +138,7 @@ export default function ConfigurationsPanel({
           >
             {configProviders.map((config: ConfigProvider, idx) => (
               <option key={`${config.title}-${idx}`} value={idx}>
-                {config.title}
+                {typeof config.title === "function" ? config.title() : config.title}
               </option>
             ))}
           </Select>

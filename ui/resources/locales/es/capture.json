@@ -1,18 +1,98 @@
 {
   "tray": {
-    "Start Capture": "Comenzar Captura",
-    "Stop Capture": "Detener Captura",
-    "Pause Capture": "Pausar Captura",
-    "Resume Capture": "Reanudar Captura"
+    "Start Capture": "Iniciar captura",
+    "Stop Capture": "Detener captura",
+    "Pause Capture": "Pausar captura",
+    "Resume Capture": "Reanudar captura"
   },
   "hotkeys": {
-    "Start Capture": "Comenzar Captura",
-    "Stop Capture": "Detener Captura",
-    "Pause Capture": "Pausar Captura",
-    "Resume Capture": "Reanudar Captura"
+    "Start Capture": "Iniciar captura",
+    "Stop Capture": "Detener captura",
+    "Pause Capture": "Pausar captura",
+    "Resume Capture": "Reanudar captura"
   },
   "options": {
     "MinimizeOnStart": "Minimizar la aplicación al iniciar la captura",
-    "ShowOnStop": "Mostrar la aplicación al detener la captura"
+    "ShowOnStop": "Mostrar la ventana de la aplicación al detener la captura"
+  },
+  "components": {
+    "captureActions": {
+      "start": "Iniciar captura",
+      "stop": "Detener captura",
+      "pause": "Pausar captura",
+      "resume": "Reanudar captura",
+      "ready": "Listo para capturar para el proyecto: {{project}}, participante: {{participant}}",
+      "selectProjectParticipant": "Selecciona un proyecto y un participante para comenzar a capturar",
+      "selectProject": "Selecciona un proyecto para comenzar a capturar",
+      "selectParticipant": "Selecciona un participante para comenzar a capturar"
+    },
+    "captureHeader": {
+      "participantForProject": "Participante <strong>{{participant}}</strong> para <strong>{{project}}</strong>"
+    },
+    "sessions": {
+      "title": "Sesiones"
+    },
+    "captureConfigProvider": {
+      "title": "Fuentes de captura"
+    }
+  },
+  "pages": {
+    "addCaptureConfig": {
+      "addSource": "Agregar fuente"
+    },
+    "selectCaptureSource": {
+      "title": "Fuentes de captura",
+      "addSource": "Agregar fuente",
+      "close": "Cerrar"
+    },
+    "session": {
+      "session": "Sesión",
+      "sessionInformation": "Información de la sesión",
+      "sessionId": "ID de sesión",
+      "path": "Ruta",
+      "startedAt": "Comenzó en",
+      "endedAt": "Terminó en",
+      "noEndTimeSet": "Hora de finalización no establecida",
+      "duration": "Duración",
+      "noDurationSet": "Duración no establecida",
+      "pausedTime": "Tiempo en pausa",
+      "captureConfigurationsUsed": "Configuraciones de captura usadas",
+      "noCaptureConfigurationsFound": "No se encontraron configuraciones de captura",
+      "pluginId": "ID del plugin",
+      "pluginName": "Nombre del plugin",
+      "pluginVersion": "Versión del plugin",
+      "fileLocation": "Ubicación del archivo",
+      "noFileLocationFound": "No se encontró la ubicación del archivo",
+      "settings": "Configuración",
+      "name": "Nombre"
+    },
+    "updateCaptureConfig": {
+      "updateSource": "ACTUALIZAR FUENTE",
+      "captureConfig": "Configuración de captura"
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "captureConfig": {
+        "title": "Eliminar configuración de fuente de captura",
+        "message": "¿Estás seguro de que deseas eliminar la configuración de fuente de captura {{configName}} del proyecto {{projectName}}?"
+      },
+      "session": {
+        "title": "Eliminar sesión",
+        "message": "¿Estás seguro de que deseas eliminar la sesión con ID {{sessionId}} del proyecto {{projectName}} y participante {{participantCode}}?\nEsta acción eliminará todos los datos asociados."
+      }
+    },
+    "buttons": {
+      "accept": "Aceptar",
+      "cancel": "Cancelar"
+    }
+  },
+  "modals": {
+    "selectSource": "Fuentes de captura",
+    "configurePlugin": "Configurar plugin",
+    "sessionInfo": "Información de la sesión"
+  },
+  "utils": {
+    "at": "a las"
   }
 }

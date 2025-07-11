@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./session.module.css"
 import DisplayData from "@renderer/core/components/display-data/DisplayData"
 import InfoIcon from "@renderer/core/components/icons/InfoIcon"
@@ -16,6 +17,7 @@ import { formatDatetime, formatDuration } from "../../utils/helpers"
 import { ElementList, ElementListItem, PanelElement } from "@renderer/core/components/panel"
 
 export default function SessionPage() {
+  const { t } = useTranslation("capture", { keyPrefix: "pages.session" })
   const { projectName, participantCode, sessionId } = useParams<{
     projectName: string
     participantCode: string
@@ -50,40 +52,40 @@ export default function SessionPage() {
   }, [projectName, participantCode, sessionId])
 
   if (!session) {
-    return <ErrorElement name="Session" />
+    return <ErrorElement name={t("session")} />
   }
 
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Session Information" Icon={InfoIcon} />
+        <ModalTitle title={t("sessionInformation")} Icon={InfoIcon} />
       </ModalHeader>
       <ModalBody id="modal-body">
-        <DisplayData name="Session ID" value={session.session_id} />
-        <DisplayPath name="Path" value={session.location} path_type="path" />
+        <DisplayData name={t("sessionId")} value={session.session_id} />
+        <DisplayPath name={t("path")} value={session.location} path_type="path" />
         <section className={styles["session-section"]}>
-          <DisplayData name="Started at" value={formatDatetime(session.started_at)} />
+          <DisplayData name={t("startedAt")} value={formatDatetime(session.started_at)} />
           <DisplayData
-            name="Ended at"
-            value={session.ended_at ? formatDatetime(session.ended_at) : "No end time set"}
+            name={t("endedAt")}
+            value={session.ended_at ? formatDatetime(session.ended_at) : t("noEndTimeSet")}
           />
         </section>
         <section className={styles["session-section"]}>
           <DisplayData
-            name="Duration"
+            name={t("duration")}
             value={
-              session.duration ? formatDuration(session.duration, true, true) : "No duration set"
+              session.duration ? formatDuration(session.duration, true, true) : t("noDurationSet")
             }
           />
           <DisplayData
-            name="Paused time"
+            name={t("pausedTime")}
             value={session.paused_time ? formatDuration(session.paused_time) : 0}
           />
         </section>
         <section className={styles["settings-section"]}>
           <div className={styles["settings-label"]}>
             <span className={styles.bullet}></span>
-            <h4 className={styles.name}>Capture configurations used</h4>
+            <h4 className={styles.name}>{t("captureConfigurationsUsed")}</h4>
           </div>
           <div className={styles["settings-container"]}>
             <PanelElement
@@ -101,7 +103,7 @@ export default function SessionPage() {
                     />
                   ))
                 ) : (
-                  <ElementListItem label="No capture configurations found" showActions={false} />
+                  <ElementListItem label={t("noCaptureConfigurationsFound")} showActions={false} />
                 )}
               </ElementList>
             </PanelElement>
@@ -109,35 +111,35 @@ export default function SessionPage() {
               {session.capture_sources.length > 0 && (
                 <>
                   <DisplayData
-                    name="Plugin ID"
+                    name={t("pluginId")}
                     value={session.capture_sources[selectedCaptureConfig].plugin_id}
                   />
                   <section className={styles["plugin-section"]}>
                     <DisplayData
-                      name="Plugin name"
+                      name={t("pluginName")}
                       value={session.capture_sources[selectedCaptureConfig].plugin_name}
                     />
                     <DisplayData
-                      name="Plugin Version"
+                      name={t("pluginVersion")}
                       value={session.capture_sources[selectedCaptureConfig].plugin_version}
                     />
                   </section>
                   <DisplayPath
-                    name="File location"
+                    name={t("fileLocation")}
                     value={
                       session.capture_sources[selectedCaptureConfig].location ??
-                      "No file location found"
+                      t("noFileLocationFound")
                     }
                     disabled={!session.capture_sources[selectedCaptureConfig].location}
                   />
                   <section className={styles["settings-details"]}>
                     <div className={styles["settings-details-label"]}>
                       <span className={styles.bullet}></span>
-                      <h4 className={styles.name}>Settings</h4>
+                      <h4 className={styles.name}>{t("settings")}</h4>
                     </div>
                     <div className={styles["settings-details-container"]}>
                       <DisplayData
-                        name="Name:"
+                        name={t("name") + ":"}
                         boxStyle="horizontal"
                         value={session.capture_sources[selectedCaptureConfig].config_name}
                       />

@@ -10,14 +10,17 @@ import { useSelector } from "react-redux"
 import { selectSelectedParticipant } from "@renderer/modules/organization/store/participantsSlice"
 import ResumeCircleIcon from "@renderer/core/components/icons/ResumeCircleIcon"
 import PauseCircleIcon from "@renderer/core/components/icons/PauseCircleIcon"
+import { useTranslation } from "react-i18next"
 
 export default function CaptureActions() {
+  const { t } = useTranslation("capture", { keyPrefix: "components.captureActions" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const [isCapturing, setIsCapturing] = useState(false)
   const [isPaused, setIsPaused] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [isLoadingPause, setIsLoadingPause] = useState(false)
+
   const checkCaptureStatus = async () => {
     try {
       const response = await captureService.getStatus()
@@ -104,15 +107,18 @@ export default function CaptureActions() {
 
   const getAbbrText = () => {
     if (isCapturing) {
-      return `Stop capture`
+      return t("stop")
     } else if (!selectedProject && !selectedParticipant) {
-      return "Select a project and participant to start capturing"
+      return t("selectProjectParticipant")
     } else if (!selectedParticipant) {
-      return "Select a participant to start capturing"
+      return t("selectParticipant")
     } else if (!selectedProject) {
-      return "Select a project to start capturing"
+      return t("selectProject")
     }
-    return `Ready to capture for project: ${selectedProject.name}, participant: ${selectedParticipant.code}`
+    return t("ready", {
+      project: selectedProject.name,
+      participant: selectedParticipant.code
+    })
   }
 
   return (
@@ -129,18 +135,18 @@ export default function CaptureActions() {
           {isCapturing ? (
             <>
               <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
-              STOP CAPTURE
+              {t("stop").toUpperCase()}
             </>
           ) : (
             <>
               <PlayCircleIcon className={styles.icon} />
-              START CAPTURE
+              {t("start").toUpperCase()}
             </>
           )}
         </Button>
       </abbr>
       {isCapturing && (
-        <abbr title={isPaused ? "Resume capture" : "Pause capture"}>
+        <abbr title={isPaused ? t("resume") : t("pause")}>
           <Button
             className={`${styles["secondary-button"]}`}
             borderRadius="sm"

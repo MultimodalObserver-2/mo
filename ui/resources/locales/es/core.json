@@ -47,6 +47,12 @@
 				"yes": "Sí",
 				"no": "No"
 			}
+		},
+		"configurePlugin": {
+			"configurationTitle": "Configuración de {{pluginName}}",
+			"name": "Nombre",
+			"enterConfigName": "Ingresa el nombre de la configuración",
+			"close": "Cerrar"
 		}
 	},
 	"tray": {
@@ -81,5 +87,20 @@
 	},
 	"modals": {
 		"plugin_details": "Detalles del plugin"
+	},
+	"components": {
+		"registerPlugin": {
+			"pluginRegistration": "Registro de plugin",
+			"registeredSuccessfully": "El plugin se registró correctamente",
+			"registeredButFailed": "El plugin se registró pero no se pudo cargar correctamente:\n{{error}}",
+			"registerPlugin": "Registrar plugin"
+		},
+		"fileUpload": {
+			"allFilesAccepted": "Se aceptan todos los tipos de archivo",
+			"acceptedFileTypes": "Se aceptan los siguientes tipos de archivo",
+			"dropOr": "Suelta el archivo aquí o ",
+			"browse": "Examina",
+			"ariaLabel": "Área de carga de archivos. Suelta archivos aquí o haz clic para buscar."
+		}
 	}
 }

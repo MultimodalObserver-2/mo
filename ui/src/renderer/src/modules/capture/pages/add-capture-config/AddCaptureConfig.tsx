@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ConfigurePlugin from "@renderer/core/components/configure-plugin/ConfigurePlugin"
 import { useParams } from "react-router"
 import captureConfigService from "../../services/CaptureConfigService"
@@ -5,6 +6,7 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { CaptureConfigCreate } from "../../types/CaptureConfig"
 
 export default function AddCaptureConfig() {
+  const { t } = useTranslation("capture", { keyPrefix: "pages.addCaptureConfig" })
   const { projectName, pluginId } = useParams<{ projectName: string; pluginId: string }>()
 
   if (!projectName || !pluginId) {
@@ -35,7 +37,7 @@ export default function AddCaptureConfig() {
     <ConfigurePlugin
       pluginId={pluginId}
       target="api"
-      submitLabel="ADD SOURCE"
+      submitLabel={t("addSource").toUpperCase()}
       onSubmit={addSource}
       onClose={closeModalWindow}
     />

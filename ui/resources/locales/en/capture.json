@@ -14,5 +14,85 @@
   "options": {
     "MinimizeOnStart": "Minimize the application on start capture",
     "ShowOnStop": "Show the application window when capture stops"
+  },
+  "components": {
+    "captureActions": {
+      "start": "Start capture",
+      "stop": "Stop capture",
+      "pause": "Pause capture",
+      "resume": "Resume capture",
+      "ready": "Ready to capture for project: {{project}}, participant: {{participant}}",
+      "selectProjectParticipant": "Select a project and participant to start capturing",
+      "selectProject": "Select a project to start capturing",
+      "selectParticipant": "Select a participant to start capturing"
+    },
+    "captureHeader": {
+      "participantForProject": "Participant <strong>{{participant}}</strong> for <strong>{{project}}</strong>"
+    },
+    "sessions": {
+      "title": "Sessions"
+    },
+    "captureConfigProvider": {
+      "title": "Capture Sources"
+    }
+  },
+  "pages": {
+    "addCaptureConfig": {
+      "addSource": "Add source"
+    },
+    "selectCaptureSource": {
+      "title": "Capture sources",
+      "addSource": "Add source",
+      "close": "Close"
+    },
+    "session": {
+      "session": "Session",
+      "sessionInformation": "Session Information",
+      "sessionId": "Session ID",
+      "path": "Path",
+      "startedAt": "Started at",
+      "endedAt": "Ended at",
+      "noEndTimeSet": "No end time set",
+      "duration": "Duration",
+      "noDurationSet": "No duration set",
+      "pausedTime": "Paused time",
+      "captureConfigurationsUsed": "Capture configurations used",
+      "noCaptureConfigurationsFound": "No capture configurations found",
+      "pluginId": "Plugin ID",
+      "pluginName": "Plugin name",
+      "pluginVersion": "Plugin Version",
+      "fileLocation": "File location",
+      "noFileLocationFound": "No file location found",
+      "settings": "Settings",
+      "name": "Name"
+    },
+    "updateCaptureConfig": {
+      "updateSource": "UPDATE SOURCE",
+      "captureConfig": "Capture Config"
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "captureConfig": {
+        "title": "Delete Capture Source Configuration",
+        "message": "Are you sure you want to delete the capture source configuration {{configName}} from the project {{projectName}}?"
+      },
+      "session": {
+        "title": "Delete Session",
+        "message": "Are you sure you want to delete the session with ID {{sessionId}} from the project {{projectName}} and participant {{participantCode}}?\nThis action will remove all associated data."
+      }
+    },
+    "buttons": {
+      "accept": "Accept",
+      "cancel": "Cancel"
+    }
+  },
+  "modals": {
+    "selectSource": "Capture sources",
+    "configurePlugin": "Configure plugin",
+    "sessionInfo": "Session Information"
+  },
+  "utils": {
+    "at": "at"
   }
 }

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ConfigurePlugin from "@renderer/core/components/configure-plugin/ConfigurePlugin"
 import { Await, useParams } from "react-router"
 import captureConfigService from "../../services/CaptureConfigService"
@@ -7,6 +8,7 @@ import { Suspense } from "react"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 
 export default function UpdateCaptureConfig() {
+  const { t } = useTranslation("capture", { keyPrefix: "pages.updateCaptureConfig" })
   const { projectName, configName } = useParams<{ projectName: string; configName: string }>()
 
   if (!projectName || !configName) {
@@ -41,13 +43,16 @@ export default function UpdateCaptureConfig() {
 
   return (
     <Suspense>
-      <Await resolve={captureConfigPromise} errorElement={<ErrorElement name="Capture Config" />}>
+      <Await
+        resolve={captureConfigPromise}
+        errorElement={<ErrorElement name={t("captureConfig")} />}
+      >
         {(captureConfig) => {
           return (
             <ConfigurePlugin
               pluginId={captureConfig.plugin_id}
               target="api"
-              submitLabel="UPDATE SOURCE"
+              submitLabel={t("updateSource")}
               onSubmit={addSource}
               onClose={closeModalWindow}
               initialConfigName={captureConfig.name}
