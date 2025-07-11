@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import {
   Workspace,
   WorkspaceBody,
@@ -30,7 +31,12 @@ import RightHeaderActions from "./RightHeaderActions"
 import PlaybackCapturedFiles from "../../components/playback-captured-files/PlaybackCapturedFiles"
 import SettingsAlertIcon from "@renderer/core/components/icons/SettingsAlertIcon"
 
+/**
+ * Visualization Playback page.
+ * Provides the main playback controls, session navigation, and config.
+ */
 export default function Playback() {
+  const { t } = useTranslation("visualization", { keyPrefix: "pages.playback" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const [session, setSession] = useState<CaptureSession | null>(null)
@@ -42,6 +48,7 @@ export default function Playback() {
   const loopRef = useRef<NodeJS.Timeout | null>(null)
   const loopInterval = 10 // ms
   const syncInterval = 1000 // ms
+
   const fetchSession = async (unsubReloadSessions?) => {
     if (!selectedProject || !selectedParticipant) {
       return
@@ -163,18 +170,18 @@ export default function Playback() {
 
   const getPlaybackTitle = () => {
     if (!session) {
-      return "No session available"
+      return t("noSessionAvailable")
     }
 
     if (isPlaying) {
-      return "Pause playback"
+      return t("pausePlayback")
     }
 
     if (session.duration && time >= session.duration * 1000) {
-      return "Replay session"
+      return t("replaySession")
     }
 
-    return "Play session"
+    return t("playSession")
   }
 
   const openSessionInfo = (project: Project, participant: Participant, session: CaptureSession) => {
@@ -183,21 +190,17 @@ export default function Playback() {
 
   const getOpenSessionsTitle = () => {
     if (!selectedProject || !selectedParticipant || !session) {
-      return "No sessions available"
+      return t("noSessionsAvailable")
     }
 
-    return showSessionsList ? "Hide sessions list" : "Show sessions list"
+    return showSessionsList ? t("hideSessionsList") : t("showSessionsList")
   }
 
   if (!selectedProject || !selectedParticipant) {
     return (
       <Workspace>
         <WorkspaceBody>
-          <h4>
-            {!selectedProject
-              ? "No project selected, please select to play a session"
-              : "No participant selected, please select to play a session"}
-          </h4>
+          <h4>{!selectedProject ? t("noProjectSelected") : t("noParticipantSelected")}</h4>
         </WorkspaceBody>
       </Workspace>
     )
@@ -213,16 +216,16 @@ export default function Playback() {
                 className={styles.icon}
                 onClick={() => openSessionInfo(selectedProject, selectedParticipant, session)}
               >
-                <title>Session details</title>
+                <title>{t("sessionDetails")}</title>
               </InfoIcon>
               <h4 className={styles.title}>
-                Playing session from{" "}
+                {t("playingSessionFrom") + " "}
                 <b className={styles.bold}>{formatDatetime(session.started_at)}</b>
               </h4>
             </section>
             <section className={styles.right}>
               <button
-                title="Change playback captured files"
+                title={t("changePlaybackCapturedFiles")}
                 className={styles["settings-button"]}
                 onClick={() => {
                   setShowSessionsList(false)
@@ -238,7 +241,7 @@ export default function Playback() {
             </section>
           </div>
         ) : (
-          <h4 className={styles.header}>Session not found</h4>
+          <h4 className={styles.header}>{t("sessionNotFound")}</h4>
         )}
       </WorkspaceHeader>
       <WorkspaceBody className={styles.body}>
@@ -249,7 +252,7 @@ export default function Playback() {
             rightHeaderActions={RightHeaderActions}
           />
         ) : (
-          <h4 className={styles["no-session"]}>No sessions available</h4>
+          <h4 className={styles["no-session"]}>{t("noSessionsAvailable")}</h4>
         )}
         {session && (
           <SessionsList

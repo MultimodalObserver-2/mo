@@ -13,6 +13,7 @@ import { showDeletePlaybackConfigMessage } from "../../utils/dialogMessages"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
 import VisibilityIcon from "@renderer/core/components/icons/VisibilityIcon"
 import VisibilityOffIcon from "@renderer/core/components/icons/VisibilityOffIcon"
+import Title from "./Title"
 
 const handleVisibilityToggle = async (project: Project, config: Config) => {
   const playbackConfig = config as PlaybackConfig
@@ -24,8 +25,10 @@ const handleVisibilityToggle = async (project: Project, config: Config) => {
   }
 }
 
+
+
 const playbackConfigProvider: ConfigProvider = {
-  title: "Playback Views",
+  title: Title,
   fetchConfigs: async (project: Project) => {
     try {
       const response = await playbackConfigService.getAll(project.name)

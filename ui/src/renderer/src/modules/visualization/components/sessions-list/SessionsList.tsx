@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./sessions-list.module.css"
 import { useEffect, useState } from "react"
 import {
@@ -34,6 +35,7 @@ export default function SessionsList({
   onClose = () => {},
   visible = true
 }: SessionsListProps) {
+  const { t } = useTranslation("visualization", { keyPrefix: "components.sessionsList" })
   const [sessions, setSessions] = useState<CaptureSession[]>([])
 
   const fetchSessions = async (prName: string, parCode: string) => {
@@ -92,8 +94,8 @@ export default function SessionsList({
     <PanelElement className={`${styles.container} ${visible ? styles.visible : ""}`}>
       <ElementHeader className={styles.header}>
         <ElementTitle className={styles.title}>
-          <span>Available Sessions</span>
-          <p className={styles["help-text"]}>Select a session for playback</p>
+          <span>{t("availableSessions")}</span>
+          <p className={styles["help-text"]}>{t("selectSessionForPlayback")}</p>
         </ElementTitle>
         <ElementActions>
           <CloseIcon className={styles.close} onClick={onClose} />

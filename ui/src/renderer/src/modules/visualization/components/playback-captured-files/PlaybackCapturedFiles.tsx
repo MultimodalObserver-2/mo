@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./playback-captured-files.module.css"
 import Select from "@renderer/core/components/select/Select"
 import { CaptureConfigDetails, CaptureSession } from "@renderer/modules/capture/types/Session"
@@ -31,6 +32,8 @@ export default function PlaybackCapturedFiles({
   onWarning = () => {},
   visible = true
 }: PlaybackCapturedFilesProps) {
+  const { t } = useTranslation("visualization", { keyPrefix: "components.playbackCapturedFiles" })
+
   const getValidCaptures = (config, session, playbackService) => {
     const validExts = playbackService.getPluginValidExtensions(config.plugin_id)
     return session.capture_sources.filter((source) => {
@@ -61,14 +64,14 @@ export default function PlaybackCapturedFiles({
   return (
     <section className={`${styles.container} ${visible ? styles.visible : ""}`}>
       <div className={styles.header}>
-        <h4 className={styles.title}>Select captured files for playback</h4>
+        <h4 className={styles.title}>{t("selectFilesForPlayback")}</h4>
         <CloseIcon className={styles.close} onClick={onClose} />
       </div>
       <div className={styles.selects}>
         <Suspense>
           <Await
             resolve={playbackDataPromise}
-            errorElement={<ErrorElement name="Playback captured data config" />}
+            errorElement={<ErrorElement name={t("playbackCapturedDataConfig")} />}
           >
             {(playbackData: PlaybackData[]) =>
               playbackData.map((data) => (
@@ -76,7 +79,7 @@ export default function PlaybackCapturedFiles({
                   key={data.id}
                   name={data.id}
                   label={data.hasDefault ? data.name : `${data.name} ⚠️`}
-                  placeholder={`Select a capture`}
+                  placeholder={t("selectCapture")}
                   onChange={(e) => {
                     const newPlaybackConfig: PlaybackConfig = {
                       id: data.id,

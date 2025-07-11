@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
 import { CaptureSession } from "@renderer/modules/capture/types/Session"
 import playbackService from "../../services/PlaybackService"
@@ -17,6 +18,8 @@ export function getPlaybackPanel(session: CaptureSession) {
   }
 
   const PlaybackPanel = ({ params }: Readonly<PlaybackPanelProps>) => {
+    const { t } = useTranslation("visualization", { keyPrefix: "pages.playback.playbackPanel" })
+
     if (!params.plugin_is_loaded) {
       return <PanelError pluginId={params.plugin_id} />
     }
@@ -37,7 +40,7 @@ export function getPlaybackPanel(session: CaptureSession) {
 
       return (
         plugin.getView({ controls, context, settings: params.settings }) ?? (
-          <div>No view available</div>
+          <div>{t("noViewAvailable")}</div>
         )
       )
     } catch {

@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody"
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
@@ -19,6 +20,7 @@ import { openConfigurePlaybackViewModal } from "../../utils/modalWindows"
 import DashboardIcon from "@renderer/core/components/icons/DashboardIcon"
 
 export default function SelectPlaybackView() {
+  const { t } = useTranslation("visualization", { keyPrefix: "pages.selectPlaybackView" })
   const { projectName } = useParams<{ projectName: string }>()
   const [selectedView, setSelectedView] = useState<Plugin | null>(null)
   const [plugins, setPlugins] = useState<Plugin[]>([])
@@ -58,7 +60,7 @@ export default function SelectPlaybackView() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Playback Views" Icon={DashboardIcon} />
+        <ModalTitle title={t("title")} Icon={DashboardIcon} />
       </ModalHeader>
       <ModalBody id="modal-body">
         <PluginDisplay style="dark" textSize="sm">
@@ -82,10 +84,10 @@ export default function SelectPlaybackView() {
       </ModalBody>
       <ModalFooter>
         <Button form="create" onClick={showSourceProperties}>
-          ADD VIEW
+          {t("addView").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

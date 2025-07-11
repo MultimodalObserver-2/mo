@@ -1,3 +1,85 @@
 {
-    
+  "components": {
+    "openSessionsPlayback": {
+      "playSessions": "Reproducir sesiones",
+      "backToHome": "Volver al inicio",
+      "returnToMainScreen": "Volver a la pantalla principal",
+      "selectProjectParticipant": "Selecciona un proyecto y un participante para reproducir sesiones",
+      "selectProject": "Selecciona un proyecto para reproducir sesiones",
+      "selectParticipant": "Selecciona un participante para reproducir sesiones",
+      "playSessionsFor": "Reproducir sesiones capturadas previamente para {{participant}} en {{project}}"
+    },
+    "panelError": {
+      "pluginNotLoaded": "El plugin con id <strong>{{pluginId}}</strong> no está cargado o no existe. Por favor asegúrate de que el plugin esté instalado y cargado correctamente."
+    },
+    "playbackCapturedFiles": {
+      "selectFilesForPlayback": "Selecciona archivos a reproducir",
+      "playbackCapturedDataConfig": "Configuración de datos capturados para reproducción",
+      "selectCapture": "Selecciona una captura"
+    },
+    "playbackViewsConfigs": {
+      "title": "Vistas de reproducción"
+    },
+    "sessionsList": {
+      "availableSessions": "Sesiones disponibles",
+      "selectSessionForPlayback": "Selecciona una sesión para reproducir"
+    }
+  },
+  "pages": {
+    "addPlaybackConfig": {
+      "addView": "Agregar vista",
+      "playback": "Reproducción",
+      "captureConfig": "Configuración de captura",
+      "selectCaptureConfig": "Selecciona una configuración de captura"
+    },
+    "playback": {
+      "noSessionAvailable": "No hay sesión disponible",
+      "pausePlayback": "Pausar reproducción",
+      "replaySession": "Repetir sesión",
+      "playSession": "Reproducir sesión",
+      "noSessionsAvailable": "No hay sesiones disponibles",
+      "hideSessionsList": "Ocultar lista de sesiones",
+      "showSessionsList": "Mostrar lista de sesiones",
+      "noProjectSelected": "No hay proyecto seleccionado, por favor selecciona uno para reproducir una sesión",
+      "noParticipantSelected": "No hay participante seleccionado, por favor selecciona uno para reproducir una sesión",
+      "sessionDetails": "Detalles de la sesión",
+      "playingSessionFrom": "Reproduciendo sesión del",
+      "changePlaybackCapturedFiles": "Cambiar archivos capturados para reproducción",
+      "sessionNotFound": "Sesión no encontrada",
+      "rightHeaderActions": {
+        "openInNewWindow": "Abrir en una nueva ventana"
+      },
+      "playbackPanel": {
+        "noViewAvailable": "No hay vista disponible"
+      }
+    },
+    "selectPlaybackView": {
+      "title": "Vistas de reproducción",
+      "addView": "Agregar vista",
+      "close": "Cerrar"
+    },
+    "updatePlaybackConfig": {
+      "updateView": "Actualizar vista",
+      "playbackConfig": "Configuración de reproducción",
+      "captureConfig": "Configuración de captura",
+      "selectCaptureConfig": "Selecciona una configuración de captura"
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "playbackConfig": {
+        "title": "Eliminar configuración de vista de reproducción",
+        "message": "¿Estás seguro de que deseas eliminar la configuración de vista de reproducción {{configName}} del proyecto {{projectName}}?"
+      }
+    },
+    "buttons": {
+      "accept": "Aceptar",
+      "cancel": "Cancelar"
+    }
+  },
+  "modals": {
+    "playbackViews": "Vistas de reproducción",
+    "configurePlaybackView": "Configurar vista de reproducción",
+    "updatePlaybackView": "Actualizar vista de reproducción"
+  }
 }

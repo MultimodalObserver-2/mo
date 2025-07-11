@@ -1,8 +1,14 @@
+import { Trans } from "react-i18next"
+
 export default function PanelError({ pluginId }: { readonly pluginId: string }) {
   return (
     <p>
-      The plugin with id <strong>{pluginId}</strong> is not loaded or does not exist. Please ensure
-      the plugin is installed and loaded correctly.
+      <Trans
+        i18nKey="components.panelError.pluginNotLoaded"
+        ns="visualization"
+        values={{ pluginId }}
+        components={{ strong: <strong /> }}
+      />
     </p>
   )
 }

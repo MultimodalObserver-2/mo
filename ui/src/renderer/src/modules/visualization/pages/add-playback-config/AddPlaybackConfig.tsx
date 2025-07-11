@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import ConfigurePlugin from "@renderer/core/components/configure-plugin/ConfigurePlugin"
 import { Await, useParams } from "react-router"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
@@ -10,6 +11,7 @@ import Select from "@renderer/core/components/select/Select"
 import playbackService from "../../services/PlaybackService"
 
 export default function AddPlaybackConfig() {
+  const { t } = useTranslation("visualization", { keyPrefix: "pages.addPlaybackConfig" })
   const { projectName, pluginId } = useParams<{ projectName: string; pluginId: string }>()
 
   if (!projectName || !pluginId) {
@@ -50,18 +52,21 @@ export default function AddPlaybackConfig() {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      <Await resolve={loadCaptureConfigsPromise} errorElement={<ErrorElement name="Playback" />}>
+      <Await
+        resolve={loadCaptureConfigsPromise}
+        errorElement={<ErrorElement name={t("playback")} />}
+      >
         {(captureConfigs) => (
           <ConfigurePlugin
             pluginId={pluginId}
             target="ui"
-            submitLabel="ADD VIEW"
+            submitLabel={t("addView").toUpperCase()}
             onSubmit={addPlaybackView}
             onClose={closeModalWindow}
           >
             <Select
-              label="Capture Config"
-              placeholder="Select a capture config"
+              label={t("captureConfig")}
+              placeholder={t("selectCaptureConfig")}
               name="capture_config_id"
             >
               {captureConfigs.map((config) => (

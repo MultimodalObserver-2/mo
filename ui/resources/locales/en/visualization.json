@@ -1,3 +1,85 @@
 {
-    
+  "components": {
+    "openSessionsPlayback": {
+      "playSessions": "Play sessions",
+      "backToHome": "Back to home",
+      "returnToMainScreen": "Return to main screen",
+      "selectProjectParticipant": "Select a project and participant to play sessions",
+      "selectProject": "Select a project to play sessions",
+      "selectParticipant": "Select a participant to play sessions",
+      "playSessionsFor": "Play previously captured sessions for {{participant}} in {{project}}"
+    },
+    "panelError": {
+      "pluginNotLoaded": "The plugin with id <strong>{{pluginId}}</strong> is not loaded or does not exist. Please ensure the plugin is installed and loaded correctly."
+    },
+    "playbackCapturedFiles": {
+      "selectFilesForPlayback": "Select captured files for playback",
+      "playbackCapturedDataConfig": "Playback captured data config",
+      "selectCapture": "Select a capture"
+    },
+    "playbackViewsConfigs": {
+      "title": "Playback Views"
+    },
+    "sessionsList": {
+      "availableSessions": "Available sessions",
+      "selectSessionForPlayback": "Select a session for playback"
+    }
+  },
+  "pages": {
+    "addPlaybackConfig": {
+      "addView": "Add view",
+      "playback": "Playback",
+      "captureConfig": "Capture Config",
+      "selectCaptureConfig": "Select a capture config"
+    },
+    "playback": {
+      "noSessionAvailable": "No session available",
+      "pausePlayback": "Pause playback",
+      "replaySession": "Replay session",
+      "playSession": "Play session",
+      "noSessionsAvailable": "No sessions available",
+      "hideSessionsList": "Hide sessions list",
+      "showSessionsList": "Show sessions list",
+      "noProjectSelected": "No project selected, please select to play a session",
+      "noParticipantSelected": "No participant selected, please select to play a session",
+      "sessionDetails": "Session details",
+      "playingSessionFrom": "Playing session from",
+      "changePlaybackCapturedFiles": "Change playback captured files",
+      "sessionNotFound": "Session not found",
+      "rightHeaderActions": {
+        "openInNewWindow": "Open in new window"
+      },
+      "playbackPanel": {
+        "noViewAvailable": "No view available"
+      }
+    },
+    "selectPlaybackView": {
+      "title": "Playback views",
+      "addView": "Add view",
+      "close": "Close"
+    },
+    "updatePlaybackConfig": {
+      "updateView": "Update view",
+      "playbackConfig": "Playback Config",
+      "captureConfig": "Capture Config",
+      "selectCaptureConfig": "Select a capture config"
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "playbackConfig": {
+        "title": "Delete Playback View Configuration",
+        "message": "Are you sure you want to delete the playback view configuration {{configName}} from the project {{projectName}}?"
+      }
+    },
+    "buttons": {
+      "accept": "Accept",
+      "cancel": "Cancel"
+    }
+  },
+  "modals": {
+    "playbackViews": "Playback views",
+    "configurePlaybackView": "Configure playback view",
+    "updatePlaybackView": "Update playback view"
+  }
 }

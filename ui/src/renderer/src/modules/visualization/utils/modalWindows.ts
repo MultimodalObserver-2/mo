@@ -1,10 +1,14 @@
+import i18n from "i18next"
+
+const t = i18n.getFixedT(null, "visualization", "modals")
+
 export function openPlaybackViewsModal(projectName: string): void {
   window.core.openModalWindow({
     options: {
       width: 550,
       minWidth: 550,
       minHeight: 250,
-      title: "Playback views",
+      title: t("playbackViews"),
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true
@@ -26,7 +30,7 @@ export function openConfigurePlaybackViewModal(projectName: string, pluginId: st
       width: 550,
       minWidth: 550,
       minHeight: 250,
-      title: "Configure playback view",
+      title: t("configurePlaybackView"),
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true
@@ -48,7 +52,7 @@ export function openUpdatePlaybackViewModal(projectName: string, configName: str
       width: 550,
       minWidth: 550,
       minHeight: 250,
-      title: "Update playback view",
+      title: t("updatePlaybackView"),
       webPreferences: {
         webSecurity: false,
         allowRunningInsecureContent: true

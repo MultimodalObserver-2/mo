@@ -1,8 +1,10 @@
+import { useTranslation } from "react-i18next"
 import OpenInNewIcon from "@renderer/core/components/icons/OpenInNewIcon"
 import { IDockviewHeaderActionsProps } from "dockview"
 import { useEffect, useState } from "react"
 
 export default function RightHeaderActions(props: IDockviewHeaderActionsProps) {
+  const { t } = useTranslation("visualization", { keyPrefix: "pages.playback.rightHeaderActions" })
   const [isPopout, setIsPopout] = useState(props.api.location.type === "popout")
 
   useEffect(() => {
@@ -36,6 +38,7 @@ export default function RightHeaderActions(props: IDockviewHeaderActionsProps) {
         }}
       >
         <button
+          title={t("openInNewWindow")}
           onClick={handleOpenWindow}
           style={{
             background: "none",

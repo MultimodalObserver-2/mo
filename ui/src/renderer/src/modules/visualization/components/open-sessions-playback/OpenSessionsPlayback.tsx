@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import Button from "@renderer/core/components/button/Button"
 import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
 import { useSelector } from "react-redux"
@@ -8,6 +9,7 @@ import PlayStackIcon from "@renderer/core/components/icons/PlayStackIcon"
 import HomeIcon from "@renderer/core/components/icons/HomeIcon"
 
 export default function OpenSessionsPlayback() {
+  const { t } = useTranslation("visualization", { keyPrefix: "components.openSessionsPlayback" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const navigate = useNavigate()
@@ -16,16 +18,18 @@ export default function OpenSessionsPlayback() {
 
   const getAbbrText = () => {
     if (isPlaybackPage) {
-      return "Return to main screen"
+      return t("returnToMainScreen")
     } else if (!selectedProject && !selectedParticipant) {
-      return "Select a project and participant to play sessions"
+      return t("selectProjectParticipant")
     } else if (!selectedProject) {
-      return "Select a project to play sessions"
+      return t("selectProject")
     } else if (!selectedParticipant) {
-      return "Select a participant to play sessions"
+      return t("selectParticipant")
     }
-
-    return `Play previously captured sessions for ${selectedParticipant.name} in ${selectedProject.name}`
+    return t("playSessionsFor", {
+      participant: selectedParticipant.name,
+      project: selectedProject.name
+    })
   }
 
   const handleClick = () => {
@@ -49,12 +53,12 @@ export default function OpenSessionsPlayback() {
           {isPlaybackPage ? (
             <>
               <HomeIcon className={styles.icon} />
-              BACK TO HOME
+              {t("backToHome").toUpperCase()}
             </>
           ) : (
             <>
               <PlayStackIcon className={styles.icon} />
-              PLAY SESSIONS
+              {t("playSessions").toUpperCase()}
             </>
           )}
         </Button>
