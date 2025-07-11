@@ -11,8 +11,10 @@ import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import projectService from "@renderer/modules/organization/services/ProjectService"
+import { useTranslation } from "react-i18next"
 
 export default function UpdateProjectPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.updateProject" })
   const { projectName } = useParams<{ projectName: string }>()
 
   const handleSubmit = async (e) => {
@@ -54,7 +56,7 @@ export default function UpdateProjectPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Update project" Icon={EditIcon} />
+        <ModalTitle title={t("title")} Icon={EditIcon} />
       </ModalHeader>
       <ModalBody type="form" id="update" onSubmit={handleSubmit}>
         <Suspense>
@@ -62,17 +64,17 @@ export default function UpdateProjectPage() {
             {(project) => (
               <>
                 <Input
-                  label="Name"
+                  label={t("name_label")}
                   id="name"
                   required
-                  placeholder="Enter the project name"
+                  placeholder={t("name_placeholder")}
                   defaultValue={project.name}
                   type="text"
                 />
                 <Input
-                  label="Description"
+                  label={t("description_label")}
                   id="description"
-                  placeholder="Enter the project description"
+                  placeholder={t("description_placeholder")}
                   defaultValue={project.description}
                   type="text"
                 />
@@ -87,10 +89,10 @@ export default function UpdateProjectPage() {
             {() => (
               <>
                 <Button type="submit" form="update">
-                  UPDATE
+                  {t("update_button").toUpperCase()}
                 </Button>
                 <Button styleType="danger" onClick={closeModalWindow}>
-                  CLOSE
+                  {t("close_button").toUpperCase()}
                 </Button>
               </>
             )}

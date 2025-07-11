@@ -7,8 +7,10 @@ import { selectSelectedProject } from "@renderer/modules/organization/store/proj
 import { useSelector } from "react-redux"
 import { selectSelectedProtocol } from "../../store/protocolsSlice"
 import FlowsheetIcon from "@renderer/core/components/icons/FlowsheetIcon"
+import { useTranslation } from "react-i18next"
 
 export default function ProtocolActions() {
+  const { t } = useTranslation("organization", { keyPrefix: "components.protocolActions" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedProtocol = useSelector(selectSelectedProtocol)
   const [isExecuting, setIsExecuting] = useState(false)
@@ -53,15 +55,15 @@ export default function ProtocolActions() {
 
   const getAbbrText = () => {
     if (isExecuting) {
-      return "Stop protocol execution"
+      return t("abbr.stop")
     } else if (!selectedProject && !selectedProtocol) {
-      return "Select a project and the protocol to start the execution"
+      return t("abbr.selectProjectAndProtocol")
     } else if (!selectedProtocol) {
-      return "Select a protocol to start the execution"
+      return t("abbr.selectProtocol")
     } else if (!selectedProject) {
-      return "Select a project to start the protocol execution"
+      return t("abbr.selectProject")
     }
-    return `Ready to start the protocol execution of ${selectedProtocol?.name} for ${selectedProject?.name}`
+    return t("abbr.start")
   }
 
   return (
@@ -77,12 +79,12 @@ export default function ProtocolActions() {
           {isExecuting ? (
             <>
               <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
-              STOP PROTOCOL
+              {t("stop", "Stop Protocol").toUpperCase()}
             </>
           ) : (
             <>
               <FlowsheetIcon className={styles.icon} />
-              START PROTOCOL
+              {t("start", "Start Protocol").toUpperCase()}
             </>
           )}
         </Button>

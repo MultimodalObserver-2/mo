@@ -12,8 +12,10 @@ import PathInput from "@renderer/core/components/path-input/PathInput"
 import { ActivityCreate } from "@renderer/modules/organization/types/Protocol"
 import { useEffect, useState } from "react"
 import { useSearchParams } from "react-router"
+import { useTranslation } from "react-i18next"
 
 export default function EditActivity() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.editActivity" })
   const [searchParams] = useSearchParams()
   const [activity, setActivity] = useState<ActivityCreate | null>(null)
   const [hasTimeLimit, setHasTimeLimit] = useState(true)
@@ -65,54 +67,54 @@ export default function EditActivity() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Edit Activity" Icon={EditIcon} />
+        <ModalTitle title={t("title")} Icon={EditIcon} />
       </ModalHeader>
       <ModalBody type="form" id="update" onSubmit={handleSubmit}>
         <Input
-          label="Name"
+          label={t("name_label")}
           id="name"
           required
-          placeholder="Enter the activity name"
+          placeholder={t("name_placeholder")}
           type="text"
           defaultValue={activity?.name}
         />
         <PathInput
-          label="Path"
+          label={t("path_label")}
           id="path"
           required={closeActivity}
-          placeholder="Enter the path to the file to be opened or search for it"
+          placeholder={t("path_placeholder")}
           value={filePath}
           onChange={(e) => {
             setFilePath(e.target.value)
           }}
         />
         <Input
-          label="Start Message"
+          label={t("start_message_label")}
           id="startMessage"
-          placeholder="Enter the start message for the activity"
+          placeholder={t("start_message_placeholder")}
           type="text"
           defaultValue={activity?.start_message}
         />
         <Input
-          label="End Message"
+          label={t("end_message_label")}
           id="endMessage"
-          placeholder="Enter the end message for the activity"
+          placeholder={t("end_message_placeholder")}
           type="text"
           defaultValue={activity?.end_message}
         />
         <div className={styles["time-limit-box"]}>
-          <span>Time limit (seconds)</span>
+          <span>{t("time_limit_box_label")}</span>
           <div className={styles["time-limit-inputs"]}>
             <Checkbox
               id="hasTimeLimit"
               checked={hasTimeLimit}
               onChange={() => setHasTimeLimit(!hasTimeLimit)}
             >
-              Has time limit?
+              {t("has_time_limit")}
             </Checkbox>
             <Input
               id="timeLimit"
-              placeholder={`Enter the time limit for the activity in seconds ${hasTimeLimit ? "(*)" : ""}`}
+              placeholder={`${t("time_limit_placeholder")}${hasTimeLimit ? " (*)" : ""}`}
               type="number"
               required={hasTimeLimit}
               disabled={!hasTimeLimit}
@@ -123,7 +125,7 @@ export default function EditActivity() {
           </div>
         </div>
         <div className={styles["additional-options"]}>
-          <span>Additional options</span>
+          <span>{t("additional_options_label")}</span>
           <div className={styles["close-activity-box"]}>
             <span></span>
             <div className={styles["close-activity-inputs"]}>
@@ -132,11 +134,11 @@ export default function EditActivity() {
                 checked={closeActivity}
                 onChange={() => setCloseActivity(!closeActivity)}
               >
-                Close when activity has finished
+                {t("close_when_finished")}
               </Checkbox>
               <Input
                 id="processName"
-                placeholder={`Enter the process name to be closed ${closeActivity ? "(*)" : ""}`}
+                placeholder={`${t("process_name_placeholder")}${closeActivity ? " (*)" : ""}`}
                 type="text"
                 required={closeActivity}
                 disabled={!closeActivity}
@@ -145,16 +147,16 @@ export default function EditActivity() {
             </div>
           </div>
           <Checkbox id="showTimer" checked={showTimer} onChange={() => setShowTimer(!showTimer)}>
-            Display a timer during the activity
+            {t("display_timer")}
           </Checkbox>
         </div>
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="update">
-          UPDATE ACTIVITY
+          {t("update_button").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close_button").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

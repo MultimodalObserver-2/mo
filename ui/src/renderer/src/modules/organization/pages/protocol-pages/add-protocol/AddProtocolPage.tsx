@@ -25,8 +25,10 @@ import {
 import { useEffect, useState } from "react"
 import { useParams } from "react-router"
 import { addActivity, updateActivity } from "../protocolUtils"
+import { useTranslation } from "react-i18next"
 
 export default function AddProtocolPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.addProtocol" })
   const { projectName } = useParams<{ projectName: string }>()
   const [activities, setActivities] = useState<ActivityCreate[]>([])
 
@@ -61,7 +63,7 @@ export default function AddProtocolPage() {
     }
 
     if (activities.length === 0) {
-      showApiErrorMessage(Error("You must add at least one activity to the protocol."))
+      showApiErrorMessage(Error(t("must_add_activity_error")))
       return
     }
 
@@ -89,13 +91,21 @@ export default function AddProtocolPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="New Protocol" Icon={ListBulletedAddIcon} />
+        <ModalTitle title={t("title")} Icon={ListBulletedAddIcon} />
       </ModalHeader>
       <ModalBody type="form" id="create" onSubmit={addProtocol}>
-        <Input label="Name" id="name" required placeholder="Enter the protocol name" type="text" />
+        <Input
+          label={t("name_label")}
+          id="name"
+          required
+          placeholder={t("name_placeholder")}
+          type="text"
+        />
         <PanelElement className={styles["activities-panel"]}>
           <ElementHeader>
-            <ElementTitle className={styles["activities-title"]}>Activities</ElementTitle>
+            <ElementTitle className={styles["activities-title"]}>
+              {t("activities_panel_title")}
+            </ElementTitle>
             <ElementActions>
               <button type="button" className={styles["add-button"]} onClick={handleAddActivity}>
                 <AddCircleIcon className={styles.svg} />
@@ -129,7 +139,7 @@ export default function AddProtocolPage() {
               ))
             ) : (
               <ElementListItem
-                label="Add activities to the research protocol"
+                label={t("add_activities_info")}
                 showActions={false}
                 onClick={handleAddActivity}
               />
@@ -139,10 +149,10 @@ export default function AddProtocolPage() {
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="create">
-          CREATE
+          {t("create_button").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={() => window.close()}>
-          CLOSE
+          {t("close_button").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

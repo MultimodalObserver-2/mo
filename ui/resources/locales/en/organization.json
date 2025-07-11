@@ -2,5 +2,231 @@
   "options": {
     "startProtocolOnStartCapture": "Start protocol execution when capture starts",
     "stopProtocolOnStopCapture": "Stop protocol execution when capture stops"
+  },
+  "components": {
+    "projects": {
+      "title": "Projects",
+      "project": "project",
+      "edit": "edit",
+      "delete": "delete"
+    },
+    "participants": {
+      "title": "Participants",
+      "participant": "participant",
+      "edit": "edit",
+      "delete": "delete"
+    },
+    "protocols": {
+      "title": "Protocols",
+      "protocol": "protocol",
+      "edit": "edit",
+      "delete": "delete"
+    },
+    "protocolActions": {
+      "start": "Start Protocol",
+      "stop": "Stop Protocol",
+      "abbr": {
+        "stop": "Stop protocol execution",
+        "start": "Start protocol execution",
+        "selectProject": "Select a project to start the protocol execution",
+        "selectProtocol": "Select a protocol to start the execution",
+        "selectProjectAndProtocol": "Select a project and the protocol to start the execution"
+      }
+    }
+  },
+  "pages": {
+    "participant": {
+      "title": "Participant Details",
+      "participant": "participant",
+      "code_label": "Code",
+      "name_label": "Name",
+      "notes_label": "Notes",
+      "no_notes": "No notes registered",
+      "location_label": "Location",
+      "created_at_label": "Created At",
+      "updated_at_label": "Updated At",
+      "delete": "delete",
+      "edit": "edit"
+    },
+    "addParticipant": {
+      "title": "New Participant",
+      "code_label": "Code",
+      "code_placeholder": "Enter the participant's identification code",
+      "name_label": "Name",
+      "name_placeholder": "Enter the participant's name",
+      "notes_label": "Notes",
+      "notes_placeholder": "Enter any additional notes for the participant",
+      "create_button": "Create",
+      "close_button": "Close"
+    },
+    "updateParticipant": {
+      "title": "Edit Participant",
+      "code_label": "Code",
+      "code_placeholder": "Enter the participant's identification code",
+      "name_label": "Name",
+      "name_placeholder": "Enter the participant's name",
+      "notes_label": "Notes",
+      "notes_placeholder": "Enter any additional notes for the participant",
+      "update_button": "Update",
+      "close_button": "Close"
+    },
+    "createProject": {
+      "title": "New Project",
+      "name_label": "Name",
+      "name_placeholder": "Enter the project name",
+      "description_label": "Description",
+      "description_placeholder": "Enter the project description",
+      "create_button": "Create",
+      "close_button": "Close"
+    },
+    "project": {
+      "title": "Project Details",
+      "project": "project",
+      "name_label": "Name",
+      "location_label": "Location",
+      "description_label": "Description",
+      "created_at_label": "Created At",
+      "updated_at_label": "Updated At",
+      "delete": "delete",
+      "edit": "edit"
+    },
+    "updateProject": {
+      "title": "Edit Project",
+      "name_label": "Name",
+      "name_placeholder": "Enter the project name",
+      "description_label": "Description",
+      "description_placeholder": "Enter the project description",
+      "update_button": "Update",
+      "close_button": "Close"
+    },
+    "addActivity": {
+      "title": "Add Activity",
+      "name_label": "Name",
+      "name_placeholder": "Enter the activity name",
+      "path_label": "Path",
+      "path_placeholder": "Enter the path to the file to be opened or search for it",
+      "start_message_label": "Start Message",
+      "start_message_placeholder": "Enter the start message for the activity",
+      "end_message_label": "End Message",
+      "end_message_placeholder": "Enter the end message for the activity",
+      "time_limit_box_label": "Time limit (seconds)",
+      "has_time_limit": "Has time limit?",
+      "time_limit_placeholder": "Enter the time limit for the activity in seconds",
+      "additional_options_label": "Additional options",
+      "close_when_finished": "Close when activity has finished",
+      "process_name_placeholder": "Enter the process name to be closed",
+      "display_timer": "Display a timer during the activity",
+      "add_button": "Add Activity",
+      "close_button": "Close"
+    },
+    "addProtocol": {
+      "title": "New Protocol",
+      "name_label": "Name",
+      "name_placeholder": "Enter the protocol name",
+      "activities_panel_title": "Activities",
+      "add_activities_info": "Add activities to the research protocol",
+      "create_button": "Create",
+      "close_button": "Close",
+      "must_add_activity_error": "You must add at least one activity to the protocol."
+    },
+    "editActivity": {
+      "title": "Edit Activity",
+      "name_label": "Name",
+      "name_placeholder": "Enter the activity name",
+      "path_label": "Path",
+      "path_placeholder": "Enter the path to the file to be opened or search for it",
+      "start_message_label": "Start Message",
+      "start_message_placeholder": "Enter the start message for the activity",
+      "end_message_label": "End Message",
+      "end_message_placeholder": "Enter the end message for the activity",
+      "time_limit_box_label": "Time limit (seconds)",
+      "has_time_limit": "Has time limit?",
+      "time_limit_placeholder": "Enter the time limit for the activity in seconds",
+      "additional_options_label": "Additional options",
+      "close_when_finished": "Close when activity has finished",
+      "process_name_placeholder": "Enter the process name to be closed",
+      "display_timer": "Display a timer during the activity",
+      "update_button": "Update Activity",
+      "close_button": "Close"
+    },
+    "protocol": {
+      "title": "Protocol Information",
+      "name": "Name",
+      "created_at": "Created At",
+      "updated_at": "Updated At",
+      "activities_title": "Activities",
+      "no_activities": "No activities found in this protocol",
+      "activity_label": "Activity",
+      "path_label": "Path",
+      "no_path_defined": "No path defined",
+      "time_limit_label": "Time Limit",
+      "no_time_limit": "No time limit",
+      "time_limit_seconds": "{{count}} seconds",
+      "start_message_label": "Start Message",
+      "end_message_label": "End Message",
+      "no_message": "No message",
+      "close_activity_label": "Close Activity",
+      "close_activity_value": "{{processName}}",
+      "no_value": "No",
+      "show_timer_label": "Show Timer",
+      "yes": "Yes",
+      "no": "No",
+      "edit": "edit",
+      "delete": "delete",
+      "protocol": "protocol"
+    },
+    "updateProtocol": {
+      "title": "Update Protocol",
+      "name_label": "Name",
+      "name_placeholder": "Enter the protocol name",
+      "activities_panel_title": "Activities",
+      "add_activities_info": "Add activities to the research protocol",
+      "update_button": "Update",
+      "close_button": "Close",
+      "must_add_activity_error": "You must add at least one activity to the protocol."
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "project": {
+        "title": "Delete Project",
+        "message": "Are you sure you want to delete the project {{projectName}}? This will delete all the data related to this project."
+      },
+      "participant": {
+        "title": "Delete Participant",
+        "message": "Are you sure you want to delete the participant {{participantName}} (code: {{participantCode}}) from the project {{projectName}}?\nThis will delete all data related to this participant."
+      },
+      "protocol": {
+        "title": "Delete Protocol",
+        "message": "Are you sure you want to delete the protocol {{protocolName}} from the project {{projectName}}?\nThis will delete all data related to this protocol."
+      }
+    },
+    "errors": {
+      "selectProject": {
+        "title": "Select Project",
+        "description": "You need to select a project to perform this action."
+      },
+      "participantCode": {
+        "title": "Error",
+        "description": "Participant code error."
+      }
+    },
+    "buttons": {
+      "accept": "Accept",
+      "cancel": "Cancel"
+    }
+  },
+  "modals": {
+    "project_info": "Project Information",
+    "create_project": "Create Project",
+    "update_project": "Update Project",
+    "participant_info": "Participant Information",
+    "add_participant": "Add Participant",
+    "update_participant": "Update Participant",
+    "protocol_info": "Protocol Information",
+    "add_protocol": "Add Protocol",
+    "update_protocol": "Update Protocol",
+    "add_activity": "Protocol: Add Activity",
+    "edit_activity": "Protocol: Edit Activity"
   }
 }

@@ -8,8 +8,10 @@ import ModalBody from "@renderer/core/components/page-modal/modal-body/ModalBody
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import projectService from "@renderer/modules/organization/services/ProjectService"
+import { useTranslation } from "react-i18next"
 
 export default function CreateProjectPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.createProject" })
   const handleSubmit = async (e) => {
     e.preventDefault()
     const newProject = {
@@ -32,23 +34,29 @@ export default function CreateProjectPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="New Project" Icon={CreateFolderIcon} />
+        <ModalTitle title={t("title")} Icon={CreateFolderIcon} />
       </ModalHeader>
       <ModalBody type="form" id="create" onSubmit={handleSubmit}>
-        <Input label="Name" id="name" required placeholder="Enter the project name" type="text" />
         <Input
-          label="Description"
+          label={t("name_label")}
+          id="name"
+          required
+          placeholder={t("name_placeholder")}
+          type="text"
+        />
+        <Input
+          label={t("description_label")}
           id="description"
-          placeholder="Enter the project description"
+          placeholder={t("description_placeholder")}
           type="text"
         />
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="create">
-          CREATE
+          {t("create_button").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close_button").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

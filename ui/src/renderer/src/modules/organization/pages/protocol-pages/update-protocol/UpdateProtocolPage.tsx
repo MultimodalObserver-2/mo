@@ -25,8 +25,10 @@ import {
   openEditActivityModal
 } from "@renderer/modules/organization/utils/modalWindows"
 import { addActivity, updateActivity } from "../protocolUtils"
+import { useTranslation } from "react-i18next"
 
 export default function UpdateProtocolPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.updateProtocol" })
   const { projectName, protocolName } = useParams<{ projectName: string; protocolName: string }>()
   const [activities, setActivities] = useState<ActivityCreate[]>([])
   const [protocol, setProtocol] = useState<Protocol | null>(null)
@@ -83,7 +85,7 @@ export default function UpdateProtocolPage() {
     }
 
     if (activities.length === 0) {
-      showApiErrorMessage(Error("You must add at least one activity to the protocol."))
+      showApiErrorMessage(Error(t("must_add_activity_error")))
       return
     }
 
@@ -114,22 +116,24 @@ export default function UpdateProtocolPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Update Protocol" Icon={EditIcon} />
+        <ModalTitle title={t("title")} Icon={EditIcon} />
       </ModalHeader>
       {protocol && (
         <>
           <ModalBody type="form" id="create" onSubmit={updateProtocol}>
             <Input
-              label="Name"
+              label={t("name_label")}
               id="name"
               required
-              placeholder="Enter the protocol name"
+              placeholder={t("name_placeholder")}
               type="text"
               defaultValue={protocol?.name}
             />
             <PanelElement className={styles["activities-panel"]}>
               <ElementHeader>
-                <ElementTitle className={styles["activities-title"]}>Activities</ElementTitle>
+                <ElementTitle className={styles["activities-title"]}>
+                  {t("activities_panel_title")}
+                </ElementTitle>
                 <ElementActions>
                   <button
                     type="button"
@@ -167,7 +171,7 @@ export default function UpdateProtocolPage() {
                   ))
                 ) : (
                   <ElementListItem
-                    label="Add activities to the research protocol"
+                    label={t("add_activities_info")}
                     showActions={false}
                     onClick={handleAddActivity}
                   />
@@ -177,10 +181,10 @@ export default function UpdateProtocolPage() {
           </ModalBody>
           <ModalFooter>
             <Button type="submit" form="create">
-              UPDATE
+              {t("update_button").toUpperCase()}
             </Button>
             <Button styleType="danger" onClick={() => window.close()}>
-              CLOSE
+              {t("close_button").toUpperCase()}
             </Button>
           </ModalFooter>
         </>

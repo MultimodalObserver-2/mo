@@ -4,7 +4,10 @@
  * in the Electron desktop application. These use the core window API exposed
  * on the global `window.core` object.
  */
+import i18n from "i18next"
 import { ActivityCreate } from "../types/Protocol"
+
+const t = i18n.getFixedT(null, "organization", "modals")
 
 // Projects Modal Windows
 export function openProjectInfoModal(projectName: string) {
@@ -14,7 +17,7 @@ export function openProjectInfoModal(projectName: string) {
       height: 430,
       minWidth: 650,
       minHeight: 430,
-      title: "Project Information"
+      title: t("project_info")
     },
     endpoint: `organization/projects/${projectName}`,
     parent: "main",
@@ -24,7 +27,7 @@ export function openProjectInfoModal(projectName: string) {
 
 export function openCreateProjectModal() {
   window.core.openModalWindow({
-    options: { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Create Project" },
+    options: { width: 550, height: 310, minWidth: 550, minHeight: 310, title: t("create_project") },
     endpoint: "organization/create-project",
     parent: "main",
     name: "create-project"
@@ -33,7 +36,7 @@ export function openCreateProjectModal() {
 
 export function openUpdateProjectModal(projectName: string) {
   window.core.openModalWindow({
-    options: { width: 550, height: 310, minWidth: 550, minHeight: 310, title: "Update Project" },
+    options: { width: 550, height: 310, minWidth: 550, minHeight: 310, title: t("update_project") },
     endpoint: `organization/update-project/${projectName}`,
     parent: "main",
     name: "update-project"
@@ -48,7 +51,7 @@ export function openParticipantInfoModal(projectName: string, participantCode: s
       height: 510,
       minWidth: 650,
       minHeight: 500,
-      title: "Participant Information"
+      title: t("participant_info")
     },
     endpoint: `organization/${projectName}/participants/${participantCode}`,
     parent: "main",
@@ -64,7 +67,13 @@ export function openParticipantInfoModal(projectName: string, participantCode: s
 
 export function openAddParticipantModal(projectName: string) {
   window.core.openModalWindow({
-    options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Add Participant" },
+    options: {
+      width: 550,
+      height: 380,
+      minWidth: 550,
+      minHeight: 380,
+      title: t("add_participant")
+    },
     endpoint: `organization/${projectName}/add-participant`,
     parent: "main",
     name: "add-participant",
@@ -84,7 +93,7 @@ export function openUpdateParticipantModal(projectName: string, participantCode:
       height: 380,
       minWidth: 550,
       minHeight: 380,
-      title: "Update Participant"
+      title: t("update_participant")
     },
     endpoint: `organization/${projectName}/update-participant/${participantCode}`,
     parent: "main",
@@ -106,7 +115,7 @@ export function openProtocolInfoModal(projectName: string, protocolName: string)
       height: 750,
       minWidth: 800,
       minHeight: 730,
-      title: "Protocol Information"
+      title: t("protocol_info")
     },
     endpoint: `organization/${projectName}/protocols/${protocolName}`,
     parent: "main",
@@ -116,7 +125,7 @@ export function openProtocolInfoModal(projectName: string, protocolName: string)
 
 export function openAddProtocolModal(projectName: string) {
   window.core.openModalWindow({
-    options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Add Protocol" },
+    options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: t("add_protocol") },
     endpoint: `organization/${projectName}/add-protocol`,
     parent: "main",
     name: "protocol"
@@ -125,7 +134,13 @@ export function openAddProtocolModal(projectName: string) {
 
 export function openUpdateProtocolModal(projectName: string, protocolName: string) {
   window.core.openModalWindow({
-    options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: "Update Protocol" },
+    options: {
+      width: 550,
+      height: 380,
+      minWidth: 550,
+      minHeight: 380,
+      title: t("update_protocol")
+    },
     endpoint: `organization/${projectName}/update-protocol/${protocolName}`,
     parent: "main",
     name: "protocol"
@@ -140,7 +155,7 @@ export function openAddActivityModal() {
       height: 648,
       minWidth: 620,
       minHeight: 648,
-      title: "Protocol: Add Activity"
+      title: t("add_activity")
     },
     endpoint: `organization/add-activity`,
     parent: "protocol",
@@ -167,7 +182,7 @@ export function openEditActivityModal(activity: ActivityCreate) {
       height: 648,
       minWidth: 620,
       minHeight: 648,
-      title: "Protocol: Edit Activity"
+      title: t("edit_activity")
     },
     endpoint: `organization/edit-activity?${params}`,
     parent: "protocol",

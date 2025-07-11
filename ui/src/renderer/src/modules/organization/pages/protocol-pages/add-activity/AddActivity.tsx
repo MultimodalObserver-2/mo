@@ -9,9 +9,11 @@ import ModalHeader from "@renderer/core/components/page-modal/modal-header/Modal
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
 import PathInput from "@renderer/core/components/path-input/PathInput"
+import { useTranslation } from "react-i18next"
 import { useState } from "react"
 
 export default function AddActivity() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.addActivity" })
   const [hasTimeLimit, setHasTimeLimit] = useState(true)
   const [closeActivity, setCloseActivity] = useState(false)
   const [filePath, setFilePath] = useState("")
@@ -43,45 +45,51 @@ export default function AddActivity() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Add Activity" Icon={AddTaskIcon} />
+        <ModalTitle title={t("title")} Icon={AddTaskIcon} />
       </ModalHeader>
       <ModalBody type="form" id="create" onSubmit={handleSubmit}>
-        <Input label="Name" id="name" required placeholder="Enter the activity name" type="text" />
+        <Input
+          label={t("name_label")}
+          id="name"
+          required
+          placeholder={t("name_placeholder")}
+          type="text"
+        />
         <PathInput
-          label="Path"
+          label={t("path_label")}
           id="path"
           required={closeActivity}
-          placeholder="Enter the path to the file to be opened or search for it"
+          placeholder={t("path_placeholder")}
           value={filePath}
           onChange={(e) => {
             setFilePath(e.target.value)
           }}
         />
         <Input
-          label="Start Message"
+          label={t("start_message_label")}
           id="startMessage"
-          placeholder="Enter the start message for the activity"
+          placeholder={t("start_message_placeholder")}
           type="text"
         />
         <Input
-          label="End Message"
+          label={t("end_message_label")}
           id="endMessage"
-          placeholder="Enter the end message for the activity"
+          placeholder={t("end_message_placeholder")}
           type="text"
         />
         <div className={styles["time-limit-box"]}>
-          <span>Time limit (seconds)</span>
+          <span>{t("time_limit_box_label")}</span>
           <div className={styles["time-limit-inputs"]}>
             <Checkbox
               id="hasTimeLimit"
               checked={hasTimeLimit}
               onChange={() => setHasTimeLimit(!hasTimeLimit)}
             >
-              Has time limit?
+              {t("has_time_limit")}
             </Checkbox>
             <Input
               id="timeLimit"
-              placeholder={`Enter the time limit for the activity in seconds ${hasTimeLimit ? "(*)" : ""}`}
+              placeholder={`${t("time_limit_placeholder")}${hasTimeLimit ? " (*)" : ""}`}
               type="number"
               required={hasTimeLimit}
               disabled={!hasTimeLimit}
@@ -91,7 +99,7 @@ export default function AddActivity() {
           </div>
         </div>
         <div className={styles["additional-options"]}>
-          <span>Additional options</span>
+          <span>{t("additional_options_label")}</span>
           <div className={styles["close-activity-box"]}>
             <span></span>
             <div className={styles["close-activity-inputs"]}>
@@ -100,26 +108,26 @@ export default function AddActivity() {
                 checked={closeActivity}
                 onChange={() => setCloseActivity((prev) => !prev)}
               >
-                Close when activity has finished
+                {t("close_when_finished")}
               </Checkbox>
               <Input
                 id="processName"
-                placeholder={`Enter the process name to be closed ${closeActivity ? "(*)" : ""}`}
+                placeholder={`${t("process_name_placeholder")}${closeActivity ? " (*)" : ""}`}
                 type="text"
                 required={closeActivity}
                 disabled={!closeActivity}
               />
             </div>
           </div>
-          <Checkbox id="showTimer">Display a timer during the activity</Checkbox>
+          <Checkbox id="showTimer">{t("display_timer")}</Checkbox>
         </div>
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="create">
-          ADD ACTIVITY
+          {t("add_button").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close_button").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

@@ -11,8 +11,10 @@ import ListInput from "@renderer/core/components/list-input/ListInput"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { showSelectProjectErrorMessage } from "@renderer/modules/organization/utils/dialogMessages"
 import participantService from "@renderer/modules/organization/services/ParticipantService"
+import { useTranslation } from "react-i18next"
 
 export default function AddParticipantPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.addParticipant" })
   const { projectName } = useParams<{ projectName: string }>()
   if (!projectName) {
     showSelectProjectErrorMessage()
@@ -45,31 +47,31 @@ export default function AddParticipantPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="New Participant" Icon={PersonAddIcon} />
+        <ModalTitle title={t("title")} Icon={PersonAddIcon} />
       </ModalHeader>
       <ModalBody type="form" id="create" onSubmit={addParticipant}>
         <Input
-          label="Code"
+          label={t("code_label")}
           id="code"
           required
-          placeholder="Enter the participant's identification code"
+          placeholder={t("code_placeholder")}
           type="text"
         />
         <Input
-          label="Name"
+          label={t("name_label")}
           id="name"
           required
-          placeholder="Enter the participant's name"
+          placeholder={t("name_placeholder")}
           type="text"
         />
-        <ListInput label="Notes" name="notes" placeholder="Enter notes about the participant" />
+        <ListInput label={t("notes_label")} name="notes" placeholder={t("notes_placeholder")} />
       </ModalBody>
       <ModalFooter>
         <Button type="submit" form="create">
-          CREATE
+          {t("create_button").toUpperCase()}
         </Button>
         <Button styleType="danger" onClick={closeModalWindow}>
-          CLOSE
+          {t("close_button").toUpperCase()}
         </Button>
       </ModalFooter>
     </PageModal>

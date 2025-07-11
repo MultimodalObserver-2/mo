@@ -33,8 +33,10 @@ import {
   selectSelectedProtocol,
   setSelectedProtocol
 } from "../../store/protocolsSlice"
+import { useTranslation } from "react-i18next"
 
 export default function Protocols() {
+  const { t } = useTranslation("organization", { keyPrefix: "components.protocols" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedProtocol = useSelector(selectSelectedProtocol)
   const dispatch = useDispatch()
@@ -76,7 +78,7 @@ export default function Protocols() {
     }
 
     if (protocol.locked) {
-      showLockedErrorMessage("edit", "protocol")
+      showLockedErrorMessage(t("edit"), t("protocol"))
       return
     }
 
@@ -90,7 +92,7 @@ export default function Protocols() {
     }
 
     if (protocol.locked) {
-      showLockedErrorMessage("delete", "protocol")
+      showLockedErrorMessage(t("delete"), t("protocol"))
       return
     }
 
@@ -167,7 +169,7 @@ export default function Protocols() {
   return (
     <PanelElement>
       <ElementHeader>
-        <ElementTitle>Protocols</ElementTitle>
+        <ElementTitle>{t("title", "Protocols")}</ElementTitle>
         <ElementActions>
           {selectedProject && (
             <button className={styles["add-button"]} onClick={handleAdd}>

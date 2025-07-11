@@ -26,8 +26,10 @@ import ElementList from "@renderer/core/components/panel/panel-element/element-l
 import PanelElement from "@renderer/core/components/panel/panel-element/PanelElement"
 import ElementListItem from "@renderer/core/components/panel/panel-element/element-list/ElementListItem"
 import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
+import { useTranslation } from "react-i18next"
 
 export default function ProtocolPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.protocol" })
   const { projectName, protocolName } = useParams<{
     projectName: string
     protocolName: string
@@ -36,22 +38,17 @@ export default function ProtocolPage() {
   const [selectedActivityIdx, setSelectedActivityIdx] = useState<number>(0)
 
   const handleEdit = (protocol: Protocol) => {
-    if (!projectName || !protocolName) {
-      return
-    }
+    if (!projectName || !protocolName) return
 
     if (protocol.locked) {
-      showLockedErrorMessage("edit", "protocol")
+      showLockedErrorMessage(t("edit"), t("protocol"))
       return
     }
     openUpdateProtocolModal(projectName, protocolName)
   }
 
   const handleLock = async (protocol: Protocol) => {
-    if (!projectName || !protocolName) {
-      return
-    }
-
+    if (!projectName || !protocolName) return
     try {
       if (protocol.locked) {
         await protocolService.unlock(projectName, protocolName)
@@ -60,7 +57,6 @@ export default function ProtocolPage() {
         await protocolService.lock(projectName, protocolName)
         setProtocol({ ...protocol, locked: true })
       }
-
       window.organization.reloadProtocols()
     } catch {
       showUnexpectedErrorMessage()
@@ -68,12 +64,10 @@ export default function ProtocolPage() {
   }
 
   const handleDelete = async (protocol: Protocol) => {
-    if (!projectName || !protocolName) {
-      return
-    }
+    if (!projectName || !protocolName) return
 
     if (protocol.locked) {
-      showLockedErrorMessage("delete", "protocol")
+      showLockedErrorMessage(t("delete"), t("protocol"))
       return
     }
 
@@ -112,14 +106,14 @@ export default function ProtocolPage() {
   }, [projectName, protocolName])
 
   if (!protocol) {
-    return <ErrorElement name="Protocol" />
+    return <ErrorElement name={t("title")} />
   }
 
   return (
     <PageModal>
       <ModalHeader className={styles.header}>
         <div className={styles["title-box"]}>
-          <ModalTitle title="Protocol Information" Icon={InfoIcon} />
+          <ModalTitle title={t("title")} Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
           <Button
@@ -153,21 +147,21 @@ export default function ProtocolPage() {
         </div>
       </ModalHeader>
       <ModalBody>
-        <DisplayData name="Name" value={protocol.name} />
+        <DisplayData name={t("name")} value={protocol.name} />
         <section className={styles.dates}>
           <DisplayData
-            name="Created At"
+            name={t("created_at")}
             value={new Date(protocol.created_at).toLocaleDateString()}
           />
           <DisplayData
-            name="Updated At"
+            name={t("updated_at")}
             value={new Date(protocol.updated_at).toLocaleDateString()}
           />
         </section>
         <section className={styles["activities-section"]}>
           <div className={styles["activities-label"]}>
             <span className={styles.bullet}></span>
-            <h4 className={styles.name}>Activities</h4>
+            <h4 className={styles.name}>{t("activities_title")}</h4>
           </div>
           <div className={styles["activities-container"]}>
             <PanelElement
@@ -186,10 +180,7 @@ export default function ProtocolPage() {
                     />
                   ))
                 ) : (
-                  <ElementListItem
-                    label="No activities found in this protocol"
-                    showActions={false}
-                  />
+                  <ElementListItem label={t("no_activities")} showActions={false} />
                 )}
               </ElementList>
             </PanelElement>
@@ -197,46 +188,54 @@ export default function ProtocolPage() {
               {protocol.activities.length > 0 && (
                 <>
                   <DisplayData
-                    name="Activity"
+                    name={t("activity_label")}
                     value={protocol.activities[selectedActivityIdx].name}
                   />
                   <DisplayPath
-                    name="Path"
+                    name={t("path_label")}
                     value={
                       protocol.activities[selectedActivityIdx].path
                         ? protocol.activities[selectedActivityIdx].path
-                        : "No path defined"
+                        : t("no_path_defined")
                     }
                     disabled={!protocol.activities[selectedActivityIdx].path}
                   />
                   <DisplayData
-                    name="Time Limit"
+                    name={t("time_limit_label")}
                     value={
                       protocol.activities[selectedActivityIdx].has_time_limit
-                        ? `${protocol.activities[selectedActivityIdx].time_limit} seconds`
-                        : "No time limit"
+                        ? t("time_limit_seconds", {
+                            count: protocol.activities[selectedActivityIdx].time_limit
+                          })
+                        : t("no_time_limit")
                     }
                   />
                   <DisplayData
-                    name="Start Message"
-                    value={protocol.activities[selectedActivityIdx].start_message || "No message"}
+                    name={t("start_message_label")}
+                    value={
+                      protocol.activities[selectedActivityIdx].start_message || t("no_message")
+                    }
                   />
                   <DisplayData
-                    name="End Message"
-                    value={protocol.activities[selectedActivityIdx].end_message || "No message"}
+                    name={t("end_message_label")}
+                    value={protocol.activities[selectedActivityIdx].end_message || t("no_message")}
                   />
                   <div className={styles["activity-info-boolean"]}>
                     <DisplayData
-                      name="Close Activity"
+                      name={t("close_activity_label")}
                       value={
                         protocol.activities[selectedActivityIdx].close_activity
-                          ? protocol.activities[selectedActivityIdx].process_name
-                          : "No"
+                          ? t("close_activity_value", {
+                              processName: protocol.activities[selectedActivityIdx].process_name
+                            })
+                          : t("no_value")
                       }
                     />
                     <DisplayData
-                      name="Show Timer"
-                      value={protocol.activities[selectedActivityIdx].show_timer ? "Yes" : "No"}
+                      name={t("show_timer_label")}
+                      value={
+                        protocol.activities[selectedActivityIdx].show_timer ? t("yes") : t("no")
+                      }
                     />
                   </div>
                 </>

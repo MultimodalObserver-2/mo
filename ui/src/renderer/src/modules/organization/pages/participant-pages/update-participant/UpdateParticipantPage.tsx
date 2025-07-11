@@ -17,8 +17,10 @@ import {
   showSelectProjectErrorMessage
 } from "@renderer/modules/organization/utils/dialogMessages"
 import participantService from "@renderer/modules/organization/services/ParticipantService"
+import { useTranslation } from "react-i18next"
 
 export default function UpdateParticipantPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.updateParticipant" })
   const { projectName, participantCode } = useParams<{
     projectName: string
     participantCode: string
@@ -72,7 +74,7 @@ export default function UpdateParticipantPage() {
   return (
     <PageModal>
       <ModalHeader>
-        <ModalTitle title="Update Participant" Icon={EditIcon} />
+        <ModalTitle title={t("title")} Icon={EditIcon} />
       </ModalHeader>
       <ModalBody type="form" id="update" onSubmit={updateParticipant}>
         <Suspense>
@@ -80,25 +82,25 @@ export default function UpdateParticipantPage() {
             {(participant) => (
               <>
                 <Input
-                  label="Code"
+                  label={t("code_label")}
                   id="code"
                   required
-                  placeholder="Enter the participant's identification code"
+                  placeholder={t("code_placeholder")}
                   defaultValue={participant.code}
                   type="text"
                 />
                 <Input
-                  label="Name"
+                  label={t("name_label")}
                   id="name"
                   required
-                  placeholder="Enter the participant's name"
+                  placeholder={t("name_placeholder")}
                   defaultValue={participant.name}
                   type="text"
                 />
                 <ListInput
-                  label="Notes"
+                  label={t("notes_label")}
                   name="notes"
-                  placeholder="Enter notes about the participant"
+                  placeholder={t("notes_placeholder")}
                   defaultValue={participant.notes}
                 />
               </>
@@ -112,10 +114,10 @@ export default function UpdateParticipantPage() {
             {() => (
               <>
                 <Button type="submit" form="update">
-                  UPDATE
+                  {t("update_button").toUpperCase()}
                 </Button>
                 <Button styleType="danger" onClick={closeModalWindow}>
-                  CLOSE
+                  {t("close_button").toUpperCase()}
                 </Button>
               </>
             )}

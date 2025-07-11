@@ -6,17 +6,18 @@
  * Electron dialog API exposed at `window.core.dialog`.
  */
 
+import i18n from "i18next"
+const t = i18n.getFixedT(null, "organization", "dialogs")
+
 export async function showDeleteProjectMessage(
   projectName: string,
   acceptId: number,
   cancelId: number
 ): Promise<Electron.MessageBoxReturnValue> {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Project",
-    message:
-      `Are you sure you want to delete the project ${projectName}?,` +
-      " this will delete all the data related to this project",
+    title: t("delete.project.title"),
+    message: t("delete.project.message", { projectName }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,
@@ -34,13 +35,14 @@ export async function showDeleteParticipantMessage(
   acceptId: number,
   cancelId: number
 ): Promise<Electron.MessageBoxReturnValue> {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Participant",
-    message:
-      `Are you sure you want to delete the participant ${participantName}` +
-      ` (code: ${participantCode}) from the project ${projectName}?` +
-      `\nThis will delete all data related to this participant`,
+    title: t("delete.participant.title"),
+    message: t("delete.participant.message", {
+      participantName,
+      participantCode,
+      projectName
+    }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,
@@ -57,13 +59,10 @@ export async function showDeleteProtocolMessage(
   acceptId: number,
   cancelId: number
 ): Promise<Electron.MessageBoxReturnValue> {
-  const buttons = ["Accept", "Cancel"]
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
   const options: Electron.MessageBoxOptions = {
-    title: "Delete Protocol",
-    message:
-      `Are you sure you want to delete the protocol ${protocolName}` +
-      ` from the project ${projectName}?` +
-      `\nThis will delete all data related to this protocol`,
+    title: t("delete.protocol.title"),
+    message: t("delete.protocol.message", { protocolName, projectName }),
     type: "warning",
     buttons: buttons,
     defaultId: acceptId,
@@ -76,11 +75,14 @@ export async function showDeleteProtocolMessage(
 
 export function showSelectProjectErrorMessage(): void {
   window.core.dialog.showErrorBox(
-    "Select Project",
-    "You need to select a project to perform this action"
+    t("errors.selectProject.title"),
+    t("errors.selectProject.description")
   )
 }
 
 export function showParticipantCodeErrorMessage(): void {
-  window.core.dialog.showErrorBox("Error", "Participant code error")
+  window.core.dialog.showErrorBox(
+    t("errors.participantCode.title"),
+    t("errors.participantCode.description")
+  )
 }

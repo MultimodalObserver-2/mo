@@ -23,14 +23,16 @@ import { showDeleteProjectMessage } from "@renderer/modules/organization/utils/d
 import projectService from "@renderer/modules/organization/services/ProjectService"
 import { openUpdateProjectModal } from "@renderer/modules/organization/utils/modalWindows"
 import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
+import { useTranslation } from "react-i18next"
 
 export default function ProjectPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.project" })
   const { projectName } = useParams<{ projectName: string }>()
   const [project, setProject] = useState<Project | null>(null)
 
   const handleDelete = async (project: Project) => {
     if (project.locked) {
-      showLockedErrorMessage("delete", "project")
+      showLockedErrorMessage(t("delete"), t("project"))
       return
     }
 
@@ -52,7 +54,7 @@ export default function ProjectPage() {
 
   const handleUpdate = (project: Project) => {
     if (project.locked) {
-      showLockedErrorMessage("edit", "project")
+      showLockedErrorMessage(t("edit"), t("project"))
       return
     }
 
@@ -95,14 +97,14 @@ export default function ProjectPage() {
   }, [projectName])
 
   if (!project) {
-    return <ErrorElement name="Project" />
+    return <ErrorElement name={t("project")} />
   }
 
   return (
     <PageModal>
       <ModalHeader className={styles.header}>
         <div className={styles["title-box"]}>
-          <ModalTitle title="Project Information" Icon={InfoIcon} />
+          <ModalTitle title={t("title")} Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
           <Button
@@ -136,19 +138,19 @@ export default function ProjectPage() {
         </div>
       </ModalHeader>
       <ModalBody>
-        <DisplayData name="Name" value={project.name} />
+        <DisplayData name={t("name_label")} value={project.name} />
         <DisplayData
-          name="Description"
+          name={t("description_label")}
           value={project.description ? project.description : "No description"}
         />
-        <DisplayPath name="Location" value={project.location} />
+        <DisplayPath name={t("location_label")} value={project.location} />
         <div className={styles.dates}>
           <DisplayData
-            name="Created At"
+            name={t("created_at_label")}
             value={new Date(project.created_at).toLocaleDateString()}
           />
           <DisplayData
-            name="Updated At"
+            name={t("updated_at_label")}
             value={new Date(project.updated_at).toLocaleDateString()}
           />
         </div>

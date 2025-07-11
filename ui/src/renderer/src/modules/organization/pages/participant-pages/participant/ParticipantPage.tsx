@@ -23,8 +23,10 @@ import { showDeleteParticipantMessage } from "@renderer/modules/organization/uti
 import participantService from "@renderer/modules/organization/services/ParticipantService"
 import { openUpdateParticipantModal } from "@renderer/modules/organization/utils/modalWindows"
 import DisplayPath from "@renderer/core/components/display-path/DisplayPath"
+import { useTranslation } from "react-i18next"
 
 export default function ParticipantPage() {
+  const { t } = useTranslation("organization", { keyPrefix: "pages.participant" })
   const { projectName, participantCode } = useParams<{
     projectName: string
     participantCode: string
@@ -37,7 +39,7 @@ export default function ParticipantPage() {
     }
 
     if (participant.locked) {
-      showLockedErrorMessage("delete", "participant")
+      showLockedErrorMessage(t("delete"), t("participant"))
       return
     }
 
@@ -64,7 +66,7 @@ export default function ParticipantPage() {
 
   const handleEdit = (participant: Participant) => {
     if (participant.locked) {
-      showLockedErrorMessage("edit", "participant")
+      showLockedErrorMessage(t("edit"), t("participant"))
       return
     }
 
@@ -119,14 +121,14 @@ export default function ParticipantPage() {
   }, [projectName, participantCode])
 
   if (!participant) {
-    return <ErrorElement name="Participant" />
+    return <ErrorElement name={t("participant")} />
   }
 
   return (
     <PageModal>
       <ModalHeader className={styles.header}>
         <div className={styles["title-box"]}>
-          <ModalTitle title="Participant Information" Icon={InfoIcon} />
+          <ModalTitle title={t("title")} Icon={InfoIcon} />
         </div>
         <div className={styles.actions}>
           <Button
@@ -160,20 +162,20 @@ export default function ParticipantPage() {
         </div>
       </ModalHeader>
       <ModalBody id="participant-info">
-        <DisplayData name="Code" value={participant.code} />
-        <DisplayData name="Name" value={participant.name} />
+        <DisplayData name={t("code_label")} value={participant.code} />
+        <DisplayData name={t("name_label")} value={participant.name} />
         <DisplayData
-          name="Notes"
-          value={participant.notes.length != 0 ? participant.notes : "No notes registered"}
+          name={t("notes_label")}
+          value={participant.notes.length != 0 ? participant.notes : t("no_notes")}
         />
-        <DisplayPath name="Location" value={participant.location} />
+        <DisplayPath name={t("location_label")} value={participant.location} />
         <div className={styles.dates}>
           <DisplayData
-            name="Created At"
+            name={t("created_at_label")}
             value={new Date(participant.created_at).toLocaleDateString()}
           />
           <DisplayData
-            name="Updated At"
+            name={t("updated_at_label")}
             value={new Date(participant.updated_at).toLocaleDateString()}
           />
         </div>

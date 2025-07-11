@@ -31,8 +31,10 @@ import {
 import { clearSelectedProtocol } from "../../store/protocolsSlice"
 import { selectProjectThunk } from "../../store/organizationThunk"
 import { AppDispatch } from "@renderer/utils/store"
+import { useTranslation } from "react-i18next"
 
 export default function Projects() {
+  const { t } = useTranslation("organization", { keyPrefix: "components.projects" })
   const selectedProject = useSelector(selectSelectedProject)
   const dispatch = useDispatch<AppDispatch>()
   const [projects, setProjects] = useState<Project[]>([])
@@ -49,7 +51,7 @@ export default function Projects() {
 
   const handleEdit = (project: Project) => {
     if (project.locked) {
-      showLockedErrorMessage("edit", "project")
+      showLockedErrorMessage(t("edit"), t("project"))
       return
     }
 
@@ -58,7 +60,7 @@ export default function Projects() {
 
   const handleDelete = async (project: Project) => {
     if (project.locked) {
-      showLockedErrorMessage("delete", "project")
+      showLockedErrorMessage(t("delete"), t("project"))
       return
     }
 
@@ -131,7 +133,7 @@ export default function Projects() {
   return (
     <PanelElement>
       <ElementHeader>
-        <ElementTitle>Projects</ElementTitle>
+        <ElementTitle>{t("title", "Projects")}</ElementTitle>
         <ElementActions>
           <button className={styles["add-button"]} onClick={() => openCreateProjectModal()}>
             <AddCircleIcon className={styles.svg} />

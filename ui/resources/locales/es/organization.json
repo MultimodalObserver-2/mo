@@ -1,6 +1,232 @@
 {
   "options": {
-    "startProtocolOnStartCapture": "Iniciar la ejecución del protocolo al iniciar la captura",
+    "startProtocolOnStartCapture": "Iniciar la ejecución del protocolo al comenzar la captura",
     "stopProtocolOnStopCapture": "Detener la ejecución del protocolo al detener la captura"
+  },
+  "components": {
+    "projects": {
+      "title": "Proyectos",
+      "project": "proyecto",
+      "edit": "editar",
+      "delete": "eliminar"
+    },
+    "participants": {
+      "title": "Participantes",
+      "participant": "participante",
+      "edit": "editar",
+      "delete": "eliminar"
+    },
+    "protocols": {
+      "title": "Protocolos",
+      "protocol": "protocolo",
+      "edit": "editar",
+      "delete": "eliminar"
+    },
+    "protocolActions": {
+      "start": "Iniciar protocolo",
+      "stop": "Detener protocolo",
+      "abbr": {
+        "stop": "Detener la ejecución del protocolo",
+        "start": "Iniciar la ejecución del protocolo",
+        "selectProject": "Selecciona un proyecto para iniciar la ejecución del protocolo",
+        "selectProtocol": "Selecciona un protocolo para iniciar la ejecución",
+        "selectProjectAndProtocol": "Selecciona un proyecto y el protocolo para iniciar la ejecución"
+      }
+    }
+  },
+  "pages": {
+    "participant": {
+      "title": "Detalles del participante",
+      "participant": "participante",
+      "code_label": "Código",
+      "name_label": "Nombre",
+      "notes_label": "Notas",
+      "no_notes": "No hay notas registradas",
+      "location_label": "Ubicación",
+      "created_at_label": "Creado el",
+      "updated_at_label": "Actualizado el",
+      "delete": "eliminar",
+      "edit": "editar"
+    },
+    "addParticipant": {
+      "title": "Nuevo participante",
+      "code_label": "Código",
+      "code_placeholder": "Ingresa el código de identificación del participante",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del participante",
+      "notes_label": "Notas",
+      "notes_placeholder": "Ingresa notas adicionales para el participante",
+      "create_button": "Crear",
+      "close_button": "Cerrar"
+    },
+    "updateParticipant": {
+      "title": "Editar participante",
+      "code_label": "Código",
+      "code_placeholder": "Ingresa el código de identificación del participante",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del participante",
+      "notes_label": "Notas",
+      "notes_placeholder": "Ingresa notas adicionales para el participante",
+      "update_button": "Actualizar",
+      "close_button": "Cerrar"
+    },
+    "createProject": {
+      "title": "Nuevo proyecto",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del proyecto",
+      "description_label": "Descripción",
+      "description_placeholder": "Ingresa la descripción del proyecto",
+      "create_button": "Crear",
+      "close_button": "Cerrar"
+    },
+    "project": {
+      "title": "Detalles del proyecto",
+      "project": "proyecto",
+      "name_label": "Nombre",
+      "location_label": "Ubicación",
+      "description_label": "Descripción",
+      "created_at_label": "Creado el",
+      "updated_at_label": "Actualizado el",
+      "delete": "eliminar",
+      "edit": "editar"
+    },
+    "updateProject": {
+      "title": "Editar proyecto",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del proyecto",
+      "description_label": "Descripción",
+      "description_placeholder": "Ingresa la descripción del proyecto",
+      "update_button": "Actualizar",
+      "close_button": "Cerrar"
+    },
+    "addActivity": {
+      "title": "Agregar actividad",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre de la actividad",
+      "path_label": "Ruta",
+      "path_placeholder": "Ingresa la ruta al archivo que se abrirá o búscalo",
+      "start_message_label": "Mensaje de inicio",
+      "start_message_placeholder": "Ingresa el mensaje de inicio para la actividad",
+      "end_message_label": "Mensaje de finalización",
+      "end_message_placeholder": "Ingresa el mensaje de finalización para la actividad",
+      "time_limit_box_label": "Límite de tiempo (segundos)",
+      "has_time_limit": "¿Tiene límite de tiempo?",
+      "time_limit_placeholder": "Ingresa el límite de tiempo para la actividad en segundos",
+      "additional_options_label": "Opciones adicionales",
+      "close_when_finished": "Cerrar cuando la actividad finalice",
+      "process_name_placeholder": "Ingresa el nombre del proceso a cerrar",
+      "display_timer": "Mostrar un temporizador durante la actividad",
+      "add_button": "Agregar actividad",
+      "close_button": "Cerrar"
+    },
+    "addProtocol": {
+      "title": "Nuevo protocolo",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del protocolo",
+      "activities_panel_title": "Actividades",
+      "add_activities_info": "Agrega actividades al protocolo de investigación",
+      "create_button": "Crear",
+      "close_button": "Cerrar",
+      "must_add_activity_error": "Debes agregar al menos una actividad al protocolo."
+    },
+    "editActivity": {
+      "title": "Editar actividad",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre de la actividad",
+      "path_label": "Ruta",
+      "path_placeholder": "Ingresa la ruta al archivo que se abrirá o búscalo",
+      "start_message_label": "Mensaje de inicio",
+      "start_message_placeholder": "Ingresa el mensaje de inicio para la actividad",
+      "end_message_label": "Mensaje de finalización",
+      "end_message_placeholder": "Ingresa el mensaje de finalización para la actividad",
+      "time_limit_box_label": "Límite de tiempo (segundos)",
+      "has_time_limit": "¿Tiene límite de tiempo?",
+      "time_limit_placeholder": "Ingresa el límite de tiempo para la actividad en segundos",
+      "additional_options_label": "Opciones adicionales",
+      "close_when_finished": "Cerrar cuando la actividad finalice",
+      "process_name_placeholder": "Ingresa el nombre del proceso a cerrar",
+      "display_timer": "Mostrar un temporizador durante la actividad",
+      "update_button": "Actualizar actividad",
+      "close_button": "Cerrar"
+    },
+    "protocol": {
+      "title": "Información del protocolo",
+      "name": "Nombre",
+      "created_at": "Creado el",
+      "updated_at": "Actualizado el",
+      "activities_title": "Actividades",
+      "no_activities": "No se encontraron actividades en este protocolo",
+      "activity_label": "Actividad",
+      "path_label": "Ruta",
+      "no_path_defined": "No se definió una ruta",
+      "time_limit_label": "Límite de tiempo",
+      "no_time_limit": "Sin límite de tiempo",
+      "time_limit_seconds": "{{count}} segundos",
+      "start_message_label": "Mensaje de inicio",
+      "end_message_label": "Mensaje de finalización",
+      "no_message": "Sin mensaje",
+      "close_activity_label": "Cerrar actividad",
+      "close_activity_value": "{{processName}}",
+      "no_value": "No",
+      "show_timer_label": "Mostrar temporizador",
+      "yes": "Sí",
+      "no": "No",
+      "edit": "editar",
+      "delete": "eliminar",
+      "protocol": "protocolo"
+    },
+    "updateProtocol": {
+      "title": "Actualizar protocolo",
+      "name_label": "Nombre",
+      "name_placeholder": "Ingresa el nombre del protocolo",
+      "activities_panel_title": "Actividades",
+      "add_activities_info": "Agrega actividades al protocolo de investigación",
+      "update_button": "Actualizar",
+      "close_button": "Cerrar",
+      "must_add_activity_error": "Debes agregar al menos una actividad al protocolo."
+    }
+  },
+  "dialogs": {
+    "delete": {
+      "project": {
+        "title": "Eliminar proyecto",
+        "message": "¿Estás seguro de que deseas eliminar el proyecto {{projectName}}? Esto eliminará todos los datos relacionados con este proyecto."
+      },
+      "participant": {
+        "title": "Eliminar participante",
+        "message": "¿Estás seguro de que deseas eliminar al participante {{participantName}} (código: {{participantCode}}) del proyecto {{projectName}}?\nEsto eliminará todos los datos relacionados con este participante."
+      },
+      "protocol": {
+        "title": "Eliminar protocolo",
+        "message": "¿Estás seguro de que deseas eliminar el protocolo {{protocolName}} del proyecto {{projectName}}?\nEsto eliminará todos los datos relacionados con este protocolo."
+      }
+    },
+    "errors": {
+      "selectProject": {
+        "title": "Selecciona un proyecto",
+        "description": "Necesitas seleccionar un proyecto para realizar esta acción."
+      },
+      "participantCode": {
+        "title": "Error",
+        "description": "Error en el código del participante."
+      }
+    },
+    "buttons": {
+      "accept": "Aceptar",
+      "cancel": "Cancelar"
+    }
+  },
+  "modals": {
+    "project_info": "Información del proyecto",
+    "create_project": "Crear proyecto",
+    "update_project": "Actualizar proyecto",
+    "participant_info": "Información del participante",
+    "add_participant": "Agregar participante",
+    "update_participant": "Actualizar participante",
+    "protocol_info": "Información del protocolo",
+    "add_protocol": "Agregar protocolo",
+    "update_protocol": "Actualizar protocolo",
+    "add_activity": "Protocolo: agregar actividad",
+    "edit_activity": "Protocolo: editar actividad"
   }
 }

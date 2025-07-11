@@ -33,8 +33,10 @@ import {
   showDeleteParticipantMessage,
   showSelectProjectErrorMessage
 } from "../../utils/dialogMessages"
+import { useTranslation } from "react-i18next"
 
 export default function Participants() {
+  const { t } = useTranslation("organization", { keyPrefix: "components.participants" })
   const selectedProject = useSelector(selectSelectedProject)
   const selectedParticipant = useSelector(selectSelectedParticipant)
   const dispatch = useDispatch()
@@ -95,7 +97,7 @@ export default function Participants() {
 
   const handleEdit = (participant: Participant) => {
     if (participant.locked) {
-      showLockedErrorMessage("edit", "participant")
+      showLockedErrorMessage(t("edit"), t("participant"))
       return
     }
 
@@ -111,7 +113,7 @@ export default function Participants() {
     if (!selectedProject) return
 
     if (participant.locked) {
-      showLockedErrorMessage("delete", "participant")
+      showLockedErrorMessage(t("delete"), t("participant"))
       return
     }
 
@@ -163,7 +165,7 @@ export default function Participants() {
   return (
     <PanelElement>
       <ElementHeader>
-        <ElementTitle>Participants</ElementTitle>
+        <ElementTitle>{t("title", "Participants")}</ElementTitle>
         <ElementActions>
           {selectedProject && (
             <button className={styles["add-button"]} onClick={handleAdd}>
