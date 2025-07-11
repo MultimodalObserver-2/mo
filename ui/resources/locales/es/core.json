@@ -101,6 +101,23 @@
 			"dropOr": "Suelta el archivo aquí o ",
 			"browse": "Examina",
 			"ariaLabel": "Área de carga de archivos. Suelta archivos aquí o haz clic para buscar."
+		},
+		"controlsPanelElement": {
+			"controls": "Controles"
+		},
+		"displayPath": {
+			"copyToClipboard": "Copiar al portapapeles",
+			"copied": "¡Copiado!",
+			"openInFileExplorer": "Abrir en el explorador de archivos",
+			"openInBrowser": "Abrir en el navegador"
+		},
+		"errorElement": {
+			"componentError": "Error en {{name}}",
+			"unknownError": "Ocurrió un error desconocido"
+		},
+		"pluginDisplayList": {
+			"loadingPlugins": "Cargando plugins...",
+			"noPluginsFound": "No se encontraron plugins"
 		}
 	}
 }

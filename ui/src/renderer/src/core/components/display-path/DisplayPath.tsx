@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import styles from "./display-path.module.css"
 import Button from "../button/Button"
 import DisplayData from "../display-data/DisplayData"
@@ -37,6 +38,7 @@ export default function DisplayPath({
   path_type = "path",
   className
 }: Readonly<DisplayPathProps>) {
+  const { t } = useTranslation("core", { keyPrefix: "components.displayPath" })
   const copyMessage = useRef<HTMLSpanElement>(null)
 
   const handleCopy = (text: string) => {
@@ -59,6 +61,7 @@ export default function DisplayPath({
     <DisplayData name={name} value={value} childrenClass={`${styles["location-box"]} ${className}`}>
       <span className={styles["copy-container"]}>
         <Button
+          title={t("copyToClipboard")}
           disabled={disabled}
           className={styles["location-button"]}
           styleType="soft"
@@ -67,10 +70,11 @@ export default function DisplayPath({
           <ContentCopyIcon className={styles["button-icon"]} />
         </Button>
         <span ref={copyMessage} className={styles["copy-message"]}>
-          Copied!
+          {t("copied")}
         </span>
       </span>
       <Button
+        title={path_type === "path" ? t("openInFileExplorer") : t("openInBrowser")}
         disabled={disabled}
         className={styles["location-button"]}
         styleType="soft"

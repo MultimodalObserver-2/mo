@@ -101,6 +101,23 @@
       "dropOr": "Drop the file here or ",
       "browse": "Browse",
       "ariaLabel": "File upload area. Drop files here or click to browse."
+    },
+    "controlsPanelElement": {
+      "controls": "Controls"
+    },
+    "displayPath": {
+      "copyToClipboard": "Copy to clipboard",
+      "copied": "Copied!",
+      "openInFileExplorer": "Open in file explorer",
+      "openInBrowser": "Open in browser"
+    },
+    "errorElement": {
+      "componentError": "{{name}} error",
+      "unknownError": "Unknown error occurred"
+    },
+    "pluginDisplayList": {
+      "loadingPlugins": "Loading plugins...",
+      "noPluginsFound": "No plugins found"
     }
   }
 }

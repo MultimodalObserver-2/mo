@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { useAsyncError } from "react-router"
 
 interface ErrorElementProps {
@@ -13,15 +14,16 @@ interface ErrorElementProps {
  * @returns {React.ReactElement} The rendered error message component.
  */
 export default function ErrorElement({ name }: Readonly<ErrorElementProps>) {
+  const { t } = useTranslation("core", { keyPrefix: "components.errorElement" })
   const error = useAsyncError()
 
   if (error instanceof Error) {
     return (
       <div>
-        {name} error: {error.message}
+        {t("componentError", { name })}: {error.message}
       </div>
     )
   }
 
-  return <div>Unknown error occurred</div>
+  return <div>{t("unknownError")}</div>
 }

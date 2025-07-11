@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next"
 import { Children } from "react"
 import styles from "./plugin-display.module.css"
 
@@ -32,10 +33,12 @@ function PluginDisplayList({
   selectable = false,
   isLoading = false
 }: Readonly<PluginDisplayListProps>) {
+  const { t } = useTranslation("core", { keyPrefix: "components.pluginDisplayList" })
+
   if (isLoading) {
     return (
       <article id={id} className={`${styles.plugins} ${className}`}>
-        <h3 className={styles["list-loading"]}>Loading plugins...</h3>
+        <h3 className={styles["list-loading"]}>{t("loadingPlugins")}</h3>
       </article>
     )
   }
@@ -43,7 +46,7 @@ function PluginDisplayList({
   if (Children.count(children) === 0) {
     return (
       <article id={id} className={`${styles.plugins} ${className}`}>
-        <h3 className={styles.empty}>No plugins found</h3>
+        <h3 className={styles.empty}>{t("noPluginsFound")}</h3>
       </article>
     )
   }
