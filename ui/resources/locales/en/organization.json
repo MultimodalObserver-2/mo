@@ -209,11 +209,20 @@
       "participantCode": {
         "title": "Error",
         "description": "Participant code error."
+      },
+      "protocolExecution": {
+        "title": "Protocol Execution Error",
+        "description": "A protocol is already running. Please finish the current protocol before starting a new one.",
+        "onError": "An error occurred while executing the protocol."
       }
     },
     "buttons": {
       "accept": "Accept",
-      "cancel": "Cancel"
+      "cancel": "Cancel",
+      "completed": "Completed",
+      "start": "Start",
+      "finish": "Finish",
+      "next": "Next"
     }
   },
   "modals": {
@@ -227,6 +236,8 @@
     "add_protocol": "Add Protocol",
     "update_protocol": "Update Protocol",
     "add_activity": "Protocol: Add Activity",
-    "edit_activity": "Protocol: Edit Activity"
+    "edit_activity": "Protocol: Edit Activity",
+    "timerTitle": "Timer",
+    "activityTitle": "Activity: {{name}}"
   }
 }

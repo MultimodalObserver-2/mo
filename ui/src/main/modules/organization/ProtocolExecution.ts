@@ -3,6 +3,7 @@ import { BrowserWindow, dialog, ipcMain, IpcMainEvent, screen } from "electron"
 import { join } from "path"
 import { broadcast, getApiPort } from "../.."
 import EventEmitter from "events"
+import i18n from "../../core/i18n/i18n"
 
 type ProtocolExecMsg = {
   activity_name: string
@@ -14,6 +15,8 @@ type ProtocolExecMsg = {
   show_timer: boolean
 }
 
+const t = i18n.getFixedT(null, "organization")
+
 export class ProtocolExecution extends EventEmitter {
   private isProtocolRunning = false
   private protocolProjectName: string | null = null
@@ -24,8 +27,8 @@ export class ProtocolExecution extends EventEmitter {
   public async start(projectName: string, protocolName: string): Promise<boolean> {
     if (this.isProtocolRunning) {
       dialog.showErrorBox(
-        "Protocol Execution Error",
-        "A protocol is already running. Please finish the current protocol before starting a new one."
+        t("dialogs.errors.protocolExecution.title"),
+        t("dialogs.errors.protocolExecution.description")
       )
       return false
     }
@@ -68,8 +71,8 @@ export class ProtocolExecution extends EventEmitter {
       this.protocolNameStatus = null
       this.timerWindow?.destroy()
       dialog.showErrorBox(
-        "Protocol Execution Error",
-        "An error occurred while executing the protocol."
+        t("dialogs.errors.protocolExecution.title"),
+        t("dialogs.errors.protocolExecution.onError")
       )
       this.emit("error")
     }
@@ -99,7 +102,7 @@ export class ProtocolExecution extends EventEmitter {
       const handleCompleteActivity = async () => {
         startTimer()
         const completeResponse = await this.showMessageWindow(data.activity_name, data.message, [
-          "Completed"
+          t("dialogs.buttons.completed")
         ])
         if (completeResponse === 0) {
           stopTimer()
@@ -109,7 +112,7 @@ export class ProtocolExecution extends EventEmitter {
 
       if (data.message_type === "start") {
         const startResponse = await this.showMessageWindow(data.activity_name, data.message, [
-          "Start"
+          t("dialogs.buttons.start")
         ])
         if (startResponse === 0) {
           this.socket?.send("start")
@@ -121,7 +124,10 @@ export class ProtocolExecution extends EventEmitter {
       }
 
       if (data.message_type === "end") {
-        const button = data.total_activities === data.activity_num ? "Finish" : "Next"
+        const button =
+          data.total_activities === data.activity_num
+            ? t("dialogs.buttons.finish")
+            : t("dialogs.buttons.next")
         const endResponse = await this.showMessageWindow(data.activity_name, data.message, [button])
         if (endResponse === 0) {
           stopTimer()
@@ -178,7 +184,7 @@ export class ProtocolExecution extends EventEmitter {
       autoHideMenuBar: true,
       resizable: false,
       show: false,
-      title: "Timer",
+      title: t("modals.timerTitle"),
       webPreferences: {
         preload: join(__dirname, "../preload/index.js"),
         sandbox: false
@@ -210,7 +216,7 @@ export class ProtocolExecution extends EventEmitter {
         alwaysOnTop: true,
         autoHideMenuBar: true,
         show: false,
-        title: `Activity: ${name}`,
+        title: t("modals.activityTitle", { name }),
         webPreferences: {
           preload: join(__dirname, "../preload/index.js"),
           sandbox: false

@@ -209,11 +209,20 @@
       "participantCode": {
         "title": "Error",
         "description": "Error en el código del participante."
+      },
+      "protocolExecution": {
+        "title": "Error al ejecutar el protocolo",
+        "description": "Ya hay un protocolo en ejecución. Por favor, termina el protocolo actual antes de iniciar uno nuevo.",
+        "onError": "Ocurrió un error al ejecutar el protocolo."
       }
     },
     "buttons": {
       "accept": "Aceptar",
-      "cancel": "Cancelar"
+      "cancel": "Cancelar",
+      "completed": "Completado",
+      "start": "Iniciar",
+      "finish": "Finalizar",
+      "next": "Siguiente"
     }
   },
   "modals": {
