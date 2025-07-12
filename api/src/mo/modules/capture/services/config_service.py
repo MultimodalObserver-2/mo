@@ -20,7 +20,7 @@ from mo.modules.capture.schemas.capture_config import (
 )
 from mo.modules.capture.services.capture_plugin_callbacks import get_file_extension_callback
 from mo.modules.capture.services.paths import CAPTURE_CONFIGS_DIR, CAPTURE_CONFIGS_FILE
-from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
+from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.services.project_service import ProjectService
 from mo.core.utils.i18n import translate
 
@@ -86,7 +86,7 @@ class CaptureConfigService:
             BadRequestException: If the provided settings for the plugin are invalid.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         if not self.plugin_management.plugin_from_type_exists(config.plugin_id, CapturePlugin):
             raise NotFoundException(
@@ -166,7 +166,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         configurations_storage = self._get_configurations_storage(project_name)
         configs_dict = configurations_storage.find_all()
@@ -202,7 +202,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist or if the configuration does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         settings = configs_storage.find_one({"name": config_name})
@@ -322,7 +322,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
         configs_storage = self._get_configurations_storage(project_name)
         return configs_storage.exists({"name": config_name})
 
@@ -336,7 +336,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         config_dicts = configs_storage.find_all()

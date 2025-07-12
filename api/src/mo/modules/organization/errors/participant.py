@@ -1,17 +1,17 @@
 from mo.core.utils.i18n import translate
 
 
-def PARTICIPANT_ALREADY_EXISTS(code: str, project_name: str):
+def participant_already_exists(code: str, project_name: str):
     return translate("organization.participant.alreadyExists", code=code, project_name=project_name)
 
 
-def PARTICIPANT_DOES_NOT_EXIST(code: str, project_name: str):
+def participant_does_not_exist(code: str, project_name: str):
     return translate("organization.participant.doesNotExist", code=code, project_name=project_name)
 
 
-def PARTICIPANT_CODE_NOT_ALLOWED(code: str):
+def participant_code_not_allowed(code: str):
     return translate("organization.participant.codeNotAllowed", code=code)
 
 
-def PARTICIPANT_IS_LOCKED(code: str, project_name: str):
+def participant_is_locked(code: str, project_name: str):
     return translate("organization.participant.isLocked", code=code, project_name=project_name)

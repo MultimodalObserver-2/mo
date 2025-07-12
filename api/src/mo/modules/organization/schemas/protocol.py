@@ -18,6 +18,20 @@ class Activity(BaseModel):
     process_name: str
     show_timer: bool
 
+    @staticmethod
+    def from_activity_req(data: "ActivityPostReq | ActivityPutReq", order: int) -> "Activity":
+        return Activity(
+            order=order,  
+            name=data.name,
+            path=data.path or "",
+            has_time_limit=data.has_time_limit,
+            time_limit=data.time_limit if data.has_time_limit else 0,
+            start_message=data.start_message or "",
+            end_message=data.end_message or "",
+            close_activity=data.close_activity,
+            process_name=data.process_name or "",
+            show_timer=data.show_timer,
+        )
 
 class ProtocolData(BaseModel):
     uuid: str = Field(default_factory=lambda: str(uuid.uuid4()))

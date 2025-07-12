@@ -19,6 +19,7 @@ class PluginService:
     This service interacts with the PluginManager and handles file operations
     related to plugins, such as uploading and extracting zip files.
     """
+    PLUGIN_NOT_FOUND = "core.pluginNotFound"
 
     def __init__(self):
         """Initializes the PluginService, setting up the plugin manager,
@@ -83,7 +84,7 @@ class PluginService:
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(
-                translate("core.pluginNotFound", final_id=final_id)
+                translate(self.PLUGIN_NOT_FOUND, final_id=final_id)
             )
         return PluginRes.from_plugin_metadata(plugin_metadata)
 
@@ -98,7 +99,7 @@ class PluginService:
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(
-                translate("core.pluginNotFound", final_id=final_id)
+                translate(self.PLUGIN_NOT_FOUND, final_id=final_id)
             )
         self.plugins_dir_handler.suspend()
         dir_name = self.plugin_manager.get_plugin_dir_name(final_id)
@@ -133,7 +134,7 @@ class PluginService:
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
             raise BadRequestException(
-                translate("core.pluginNotFound", final_id=final_id)
+                translate(self.PLUGIN_NOT_FOUND, final_id=final_id)
             )
 
         plugin_properties = self.plugin_manager.get_plugin_properties(

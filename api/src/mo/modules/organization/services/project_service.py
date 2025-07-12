@@ -10,10 +10,10 @@ from mo.core.utils.http_exceptions import (
     NotFoundException,
 )
 from mo.modules.organization.errors.project import (
-    PROJECT_ALREADY_EXISTS,
-    PROJECT_DOES_NOT_EXIST,
-    PROJECT_IS_LOCKED,
-    PROJECT_NAME_NOT_ALLOWED,
+    project_already_exists,
+    project_does_not_exist,
+    project_is_locked,
+    project_name_not_allowed,
 )
 from mo.modules.organization.schemas.project import (
     ProjectData,
@@ -66,10 +66,10 @@ class ProjectService:
         """
         project.name = project.name.strip()
         if self.exists(project.name):
-            raise AlreadyExistsException(PROJECT_ALREADY_EXISTS(project.name))
+            raise AlreadyExistsException(project_already_exists(project.name))
 
         if not FileValidators.is_valid_directory_name(project.name):
-            raise BadRequestException(PROJECT_NAME_NOT_ALLOWED(project.name))
+            raise BadRequestException(project_name_not_allowed(project.name))
 
         dir_path = self.file_management.create_directory(project.name)
 
@@ -113,10 +113,10 @@ class ProjectService:
         """
         existing_project_dict = self.projects_storage.find_one({"name": project_name})
         if existing_project_dict is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         if self.is_project_locked(project_name):
-            raise BadRequestException(PROJECT_IS_LOCKED(name=project_name))
+            raise BadRequestException(project_is_locked(name=project_name))
 
         project.name = project.name.strip() if project.name else project_name
         existing_project = ProjectData(**existing_project_dict)
@@ -128,10 +128,10 @@ class ProjectService:
 
         if project.name != None and existing_project.name != project_name:
             if not FileValidators.is_valid_directory_name(project.name):
-                raise BadRequestException(PROJECT_NAME_NOT_ALLOWED(name=project.name))
+                raise BadRequestException(project_name_not_allowed(name=project.name))
 
             if self.exists(project.name):
-                raise AlreadyExistsException(PROJECT_ALREADY_EXISTS(name=project.name))
+                raise AlreadyExistsException(project_already_exists(name=project.name))
 
             self.file_management.rename_directory(old_name=project_name, new_name=project.name)
             existing_project.rel_location = project.name
@@ -153,7 +153,7 @@ class ProjectService:
         """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
         return ProjectRes.from_data(ProjectData(**project))
 
     async def delete_project(self, project_name: str) -> None:
@@ -167,10 +167,10 @@ class ProjectService:
             BadRequestException: If the project is locked.
         """
         if not self.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
 
         if self.is_project_locked(project_name):
-            raise BadRequestException(PROJECT_IS_LOCKED(name=project_name))
+            raise BadRequestException(project_is_locked(name=project_name))
 
         await self.file_management.send_to_trash_async(project_name)
         self.projects_storage.delete_one({"name": project_name})
@@ -218,7 +218,7 @@ class ProjectService:
         """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
+            raise NotFoundException(project_does_not_exist(name=project_name))
         project_data = ProjectData(**project)
         project_data.locked = locked
         self.projects_storage.update({"name": project_name}, project_data.model_dump())
@@ -238,7 +238,7 @@ class ProjectService:
         """
         project = self.projects_storage.find_one({"name": project_name})
         if project is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(project_name))
+            raise NotFoundException(project_does_not_exist(project_name))
         return project["locked"]
 
     def exists(self, project_name: str) -> bool:
@@ -266,7 +266,7 @@ class ProjectService:
         """
         project = self.projects_storage.find_one({"uuid": project_uuid})
         if project is None:
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_uuid))
+            raise NotFoundException(project_does_not_exist(name=project_uuid))
         return ProjectRes.from_data(ProjectData(**project))
 
     def get_project_dir_path(self, project_name: str) -> str:

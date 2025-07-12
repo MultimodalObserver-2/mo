@@ -8,10 +8,10 @@ from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.main import app
 from mo.modules.organization.errors.project import (
-    PROJECT_ALREADY_EXISTS,
-    PROJECT_DOES_NOT_EXIST,
-    PROJECT_IS_LOCKED,
-    PROJECT_NAME_NOT_ALLOWED,
+    project_already_exists,
+    project_does_not_exist,
+    project_is_locked,
+    project_name_not_allowed,
 )
 from mo.modules.organization.services.project_service import ProjectService
 
@@ -82,7 +82,7 @@ async def test_create_project_already_exists(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS(name=data["name"])
+    assert response.json()["detail"] == project_already_exists(name=data["name"])
 
 
 @pytest.mark.asyncio
@@ -99,7 +99,7 @@ async def test_create_project_invalid_data(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED(name=data["name"])
+    assert response.json()["detail"] == project_name_not_allowed(name=data["name"])
 
 
 @pytest.mark.asyncio
@@ -140,7 +140,7 @@ async def test_get_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=project_name)
 
 
 @pytest.mark.asyncio
@@ -238,7 +238,7 @@ async def test_update_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=project_name)
 
 
 @pytest.mark.asyncio
@@ -266,7 +266,7 @@ async def test_update_project_invalid_data(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_NAME_NOT_ALLOWED(name=update_data["name"])
+    assert response.json()["detail"] == project_name_not_allowed(name=update_data["name"])
 
 
 @pytest.mark.asyncio
@@ -299,7 +299,7 @@ async def test_update_project_already_exists(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PROJECT_ALREADY_EXISTS(name=update_data["name"])
+    assert response.json()["detail"] == project_already_exists(name=update_data["name"])
 
 
 @pytest.mark.asyncio
@@ -331,7 +331,7 @@ async def test_update_project_locked(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_IS_LOCKED(name=data["name"])
+    assert response.json()["detail"] == project_is_locked(name=data["name"])
 
 
 @pytest.mark.asyncio
@@ -380,7 +380,7 @@ async def test_delete_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=project_name)
 
 
 @pytest.mark.asyncio
@@ -408,7 +408,7 @@ async def test_delete_project_locked(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PROJECT_IS_LOCKED(name=data["name"])
+    assert response.json()["detail"] == project_is_locked(name=data["name"])
 
 
 @pytest.mark.asyncio
@@ -460,7 +460,7 @@ async def test_lock_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=project_name)
 
 
 @pytest.mark.asyncio
@@ -517,4 +517,4 @@ async def test_unlock_project_not_found(temp_service):
 
     # Check api response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=project_name)

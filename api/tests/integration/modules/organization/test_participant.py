@@ -8,12 +8,12 @@ from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.main import app
 from mo.modules.organization.errors.participant import (
-    PARTICIPANT_ALREADY_EXISTS,
-    PARTICIPANT_CODE_NOT_ALLOWED,
-    PARTICIPANT_DOES_NOT_EXIST,
-    PARTICIPANT_IS_LOCKED,
+    participant_already_exists,
+    participant_code_not_allowed,
+    participant_does_not_exist,
+    participant_is_locked,
 )
-from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
+from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.services.participant_service import ParticipantService
 from mo.modules.organization.services.project_service import ProjectService
 
@@ -105,7 +105,7 @@ async def test_create_participant_already_exists(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PARTICIPANT_ALREADY_EXISTS(
+    assert response.json()["detail"] == participant_already_exists(
         code=participant["code"], project_name=project_name
     )
 
@@ -134,7 +134,7 @@ async def test_create_participant_invalid_code(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PARTICIPANT_CODE_NOT_ALLOWED(
+    assert response.json()["detail"] == participant_code_not_allowed(
         code=invalid_participant["code"]
     )
 
@@ -190,7 +190,7 @@ async def test_get_all_participants_project_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=invalid_project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=invalid_project_name)
 
 
 @pytest.mark.asyncio
@@ -241,7 +241,7 @@ async def test_get_participant_project_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=invalid_project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=invalid_project_name)
 
 
 @pytest.mark.asyncio
@@ -264,7 +264,7 @@ async def test_get_participant_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PARTICIPANT_DOES_NOT_EXIST(
+    assert response.json()["detail"] == participant_does_not_exist(
         code=invalid_participant_code, project_name=project_name
     )
 
@@ -346,7 +346,7 @@ async def test_update_participant_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PARTICIPANT_DOES_NOT_EXIST(
+    assert response.json()["detail"] == participant_does_not_exist(
         code=invalid_participant_code, project_name=project_name
     )
 
@@ -384,7 +384,7 @@ async def test_update_participant_invalid_code(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PARTICIPANT_CODE_NOT_ALLOWED(
+    assert response.json()["detail"] == participant_code_not_allowed(
         code=invalid_updated_participant["code"]
     )
 
@@ -427,7 +427,7 @@ async def test_update_participant_already_exists(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_409_CONFLICT
-    assert response.json()["detail"] == PARTICIPANT_ALREADY_EXISTS(
+    assert response.json()["detail"] == participant_already_exists(
         code=participant2["code"], project_name=project_name
     )
 
@@ -463,7 +463,7 @@ async def test_update_participant_is_locked(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PARTICIPANT_IS_LOCKED(
+    assert response.json()["detail"] == participant_is_locked(
         code=participant["code"], project_name=project_name
     )
 
@@ -529,7 +529,7 @@ async def test_delete_participant_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PARTICIPANT_DOES_NOT_EXIST(
+    assert response.json()["detail"] == participant_does_not_exist(
         code=invalid_participant_code, project_name=project_name
     )
 
@@ -551,7 +551,7 @@ async def test_delete_participant_project_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=invalid_project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=invalid_project_name)
 
 
 @pytest.mark.asyncio
@@ -584,7 +584,7 @@ async def test_delete_participant_is_locked(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_400_BAD_REQUEST
-    assert response.json()["detail"] == PARTICIPANT_IS_LOCKED(
+    assert response.json()["detail"] == participant_is_locked(
         code=participant["code"], project_name=project_name
     )
 
@@ -651,7 +651,7 @@ async def test_lock_participant_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PARTICIPANT_DOES_NOT_EXIST(
+    assert response.json()["detail"] == participant_does_not_exist(
         code=invalid_participant_code, project_name=project_name
     )
 
@@ -673,7 +673,7 @@ async def test_lock_participant_project_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=invalid_project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=invalid_project_name)
 
 
 @pytest.mark.asyncio
@@ -741,7 +741,7 @@ async def test_unlock_participant_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PARTICIPANT_DOES_NOT_EXIST(
+    assert response.json()["detail"] == participant_does_not_exist(
         code=invalid_participant_code, project_name=project_name
     )
 
@@ -763,4 +763,4 @@ async def test_unlock_participant_project_not_found(temp_service):
 
     # Check the response
     assert response.status_code == status.HTTP_404_NOT_FOUND
-    assert response.json()["detail"] == PROJECT_DOES_NOT_EXIST(name=invalid_project_name)
+    assert response.json()["detail"] == project_does_not_exist(name=invalid_project_name)

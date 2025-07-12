@@ -8,14 +8,14 @@ from mo.core.utils.http_exceptions import (
     BadRequestException,
     NotFoundException,
 )
-from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
+from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.errors.protocols import (
-    ACTIVITY_INVALID_FILE_PATH,
-    ACTIVITY_INVALID_TIME_LIMIT,
-    ACTIVITY_PROCESS_NAME_REQUIRED,
-    PROTOCOL_ALREADY_EXISTS,
-    PROTOCOL_DOES_NOT_EXIST,
-    PROTOCOL_IS_LOCKED,
+    activity_invalid_file_path,
+    activity_invalid_time_limit,
+    activity_process_name_required,
+    protocol_already_exists,
+    protocol_does_not_exist,
+    protocol_is_locked,
 )
 from mo.modules.organization.schemas.protocol import (
     Activity,
@@ -76,7 +76,7 @@ class ProtocolService:
         protocol.name = protocol.name.strip()
         if self.exists(project_name, protocol.name):
             raise AlreadyExistsException(
-                PROTOCOL_ALREADY_EXISTS(
+                protocol_already_exists(
                     protocol_name=protocol.name, project_name=project_name
                 )
             )
@@ -107,7 +107,7 @@ class ProtocolService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocols = protocols_storage.find_all()
         return [ProtocolRes.from_data(ProtocolData(**protocol)) for protocol in protocols]
@@ -124,12 +124,12 @@ class ProtocolService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocol = protocols_storage.find_one({"name": protocol_name})
         if not protocol:
             raise NotFoundException(
-                PROTOCOL_DOES_NOT_EXIST(
+                protocol_does_not_exist(
                     protocol_name=protocol_name, project_name=project_name
                 )
             )
@@ -153,7 +153,7 @@ class ProtocolService:
         existing_protocol = self.get_protocol(project_name, protocol_name)
         if self.is_protocol_locked(project_name, protocol_name):
             raise BadRequestException(
-                PROTOCOL_IS_LOCKED(
+                protocol_is_locked(
                     protocol_name=protocol_name, project_name=project_name)
             )
 
@@ -161,7 +161,7 @@ class ProtocolService:
 
         if new_name != protocol_name and self.exists(project_name, new_name):
             raise AlreadyExistsException(
-                PROTOCOL_ALREADY_EXISTS(
+                protocol_already_exists(
                     protocol_name=new_name, project_name=project_name)
             )
 
@@ -191,14 +191,14 @@ class ProtocolService:
         """
         if not self.exists(project_name, protocol_name):
             raise NotFoundException(
-                PROTOCOL_DOES_NOT_EXIST(
+                protocol_does_not_exist(
                     protocol_name=protocol_name, project_name=project_name
                 )
             )
 
         if self.is_protocol_locked(project_name, protocol_name):
             raise BadRequestException(
-                PROTOCOL_IS_LOCKED(
+                protocol_is_locked(
                     protocol_name=protocol_name, project_name=project_name)
             )
 
@@ -262,7 +262,7 @@ class ProtocolService:
         protocol = self.get_protocol(project_name, protocol_name)
         if protocol is None:
             raise NotFoundException(
-                PROTOCOL_DOES_NOT_EXIST(
+                protocol_does_not_exist(
                     protocol_name=protocol_name, project_name=project_name
                 )
             )
@@ -280,7 +280,7 @@ class ProtocolService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         return protocols_storage.exists({"name": protocol_name})
 
@@ -298,12 +298,12 @@ class ProtocolService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
         protocols_storage = self._get_protocols_storage(project_name)
         protocol = protocols_storage.find_one({"uuid": protocol_uuid})
         if not protocol:
             raise NotFoundException(
-                PROTOCOL_DOES_NOT_EXIST(
+                protocol_does_not_exist(
                     protocol_name=protocol_uuid, project_name=project_name
                 )
             )
@@ -326,37 +326,26 @@ class ProtocolService:
             activity.name = activity.name.strip()
             if activity.path and not FileManagement.is_file(activity.path):
                 raise BadRequestException(
-                    ACTIVITY_INVALID_FILE_PATH(
+                    activity_invalid_file_path(
                         activity_name=activity.name, protocol_name=protocol_name
                     )
                 )
 
             if activity.has_time_limit and activity.time_limit <= 0:
                 raise BadRequestException(
-                    ACTIVITY_INVALID_TIME_LIMIT(
+                    activity_invalid_time_limit(
                         activity_name=activity.name, protocol_name=protocol_name
                     )
                 )
 
             if activity.close_activity and not activity.process_name:
                 raise BadRequestException(
-                    ACTIVITY_PROCESS_NAME_REQUIRED(
+                    activity_process_name_required(
                         activity_name=activity.name, protocol_name=protocol_name
                     )
                 )
 
             formatted.append(
-                Activity(**{
-                    "order": idx + 1,
-                    "name": activity.name,
-                    "path": activity.path or "",
-                    "has_time_limit": activity.has_time_limit,
-                    "time_limit": activity.time_limit if activity.has_time_limit else 0,
-                    "start_message": activity.start_message or "",
-                    "end_message": activity.end_message or "",
-                    "close_activity": activity.close_activity,
-                    "process_name": activity.process_name or "",
-                    "show_timer": activity.show_timer,
-                })
+                Activity.from_activity_req(activity, order=idx + 1)
             )
         return formatted

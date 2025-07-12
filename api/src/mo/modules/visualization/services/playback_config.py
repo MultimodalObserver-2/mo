@@ -9,7 +9,7 @@ from mo.core.utils.http_exceptions import (
     NotFoundException,
 )
 
-from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
+from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.services.project_service import ProjectService
 from mo.modules.visualization.schemas.playback_config import PlaybackConfigData, PlaybackConfigPostReq, PlaybackConfigPutReq, PlaybackConfigRes
 from mo.modules.visualization.services.paths import PLAYBACK_CONFIGS_FILE, PLAYBACK_LAYOUT_FILE, VISUALIZATION_CONFIGS_DIR
@@ -77,7 +77,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
 
         if self.exists(project_name, config.name):
             raise AlreadyExistsException(
@@ -115,7 +115,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
 
         configurations_storage = self._get_configurations_storage(project_name)
         configs_dict = configurations_storage.find_all()
@@ -143,7 +143,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         settings = configs_storage.find_one({"name": config_name})
@@ -255,7 +255,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
         configs_storage = self._get_configurations_storage(project_name)
         return configs_storage.exists({"name": config_name})
     
@@ -271,7 +271,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
 
         dir_path = self._get_configurations_dir_path(project_name)
         self.file_management.create_json_file(self._layout_file_name, layout, dir_path)
@@ -287,7 +287,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST(name=project_name))
+                project_does_not_exist(name=project_name))
 
         dir_path = self._get_configurations_dir_path(project_name)
         file_path = os.path.join(dir_path, self._layout_file_name)
