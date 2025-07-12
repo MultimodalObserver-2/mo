@@ -77,6 +77,10 @@ Main React app source directory.
   - Each file registers components or providers (e.g., panel items, config providers) into global or module-level registries.
   - the `index.ts` runs all registrations at app startup.
 
+- **`utils/`**: Utility files for the renderer.
+  - **`store.ts`**: Central Redux store entry point
+  - **`i18n.ts`**: i18n initialization and configuration.
+
 - **`main.tsx`**: App entry point. Performs all startup registrations, plugin loading, and renders the root app.
 - **`app.tsx`**: Central router. Composes all module routes and shared layouts.
 - **`store.ts`**: Central Redux store entry point
@@ -147,6 +151,35 @@ All visual documentation and interaction/unit tests for UI components are mainta
 - **Public Plugin API (`shared/`)**:  
   Only APIs, classes, and types exported from the `shared/` directory are made available to external plugin developers (via the `"mo"` import map).  
   **If you want a new extension point or base class to be available for plugins, it must be exported from `shared/index.ts`.**
+
+---
+
+## 🌐 Internationalization (i18n)
+
+The UI supports full internationalization using [i18next](https://www.i18next.com/) and [react-i18next](https://react.i18next.com/):
+
+- **Translation Files Location:**  
+  All translation files are stored under `resources/locales/{lng}/{ns}.json`, where:
+  - `{lng}` is the language code (e.g., `en`, `es`)
+  - `{ns}` is the namespace (e.g., `core`, `organization`, `capture`, `visualization`)
+
+- **Namespaces and Structure:**  
+  Each namespace (`core`, `capture`, `visualization`, etc.) contains its own structured JSON file.  
+  **While it's not required, it is recommended to organize translation keys by UI domain** (such as `"components"`, `"pages"`, `"dialogs"`, `"modals"`, etc.) for better maintainability and scalability.
+
+- **Usage in Code:**  
+  - For React components:  
+    Use `useTranslation('<namespace>', { keyPrefix: '<scope>' })` to access scoped translations.
+  - For TypeScript/Node modules:  
+    Use `i18n.getFixedT(null, '<namespace>', '<scope>')` to access translations outside of React.
+
+- **Adding or Updating Translations:**  
+  - To add a new translation key, update the appropriate JSON file under `resources/locales/{lng}/`.
+  - To support a new language, create the folder (e.g., `es`) and add the corresponding namespace files.
+
+- **Central i18n Config:**  
+  The i18n instance is initialized in `src/renderer/src/utils/i18n.ts` and is configured in `main.tsx`.  
+  Translation resources are loaded from the file system, enabling modular, scalable, and runtime language switching.
 
 ---
 
