@@ -17,7 +17,7 @@ export class CaptureSystemTray {
   private projectName: string | null = null
   private participantCode: string | null = null
 
-  private listeners: { [K in CaptureEvent]: Set<CaptureCallback> } = {
+  private readonly listeners: { [K in CaptureEvent]: Set<CaptureCallback> } = {
     startCapture: new Set(),
     stopCapture: new Set()
   }
@@ -219,13 +219,25 @@ export class CaptureSystemTray {
       {
         id: "startStop",
         label: this.isCapturing ? tCaptureTray("Stop Capture") : tCaptureTray("Start Capture"),
-        click: this.isCapturing ? () => this.stopCapture() : () => this.startCapture(),
+        click: () => {
+          if (this.isCapturing) {
+            void this.stopCapture()
+          } else {
+            void this.startCapture()
+          }
+        },
         enabled: this.isCapturing || (!!this.projectName && !!this.participantCode && !this.isBusy)
       },
       {
         id: "pauseResume",
         label: this.isPaused ? tCaptureTray("Resume Capture") : tCaptureTray("Pause Capture"),
-        click: this.isPaused ? () => this.resumeCapture() : () => this.pauseCapture(),
+        click: () => {
+          if (this.isPaused) {
+            void this.resumeCapture()
+          } else {
+            void this.pauseCapture()
+          }
+        },
         enabled: this.isCapturing && !this.isBusy,
         visible: this.isCapturing
       },

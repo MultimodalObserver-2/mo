@@ -2,9 +2,9 @@ import preferencesManager from "./PreferencesManager"
 
 export type OptionType = "boolean"
 
-type OptionValue = boolean
+// type OptionValue = boolean
 
-export interface OptionDefinition<T = OptionValue> {
+export interface OptionDefinition<T = boolean> {
   id: string
   label: string
   type: OptionType
@@ -15,16 +15,16 @@ export interface Option {
   id: string
   label: string
   type: OptionType
-  value: OptionValue
+  value: boolean
 }
 
 export class OptionsManager {
-  private definitions = new Map<string, OptionDefinition>()
+  private readonly definitions = new Map<string, OptionDefinition>()
   private readonly storageKey = "options"
-  private values: Record<string, OptionValue> = {}
+  private values: Record<string, boolean> = {}
 
   constructor() {
-    this.values = preferencesManager.get<Record<string, OptionValue>>(this.storageKey) || {}
+    this.values = preferencesManager.get<Record<string, boolean>>(this.storageKey) || {}
   }
 
   registerOption(option: OptionDefinition): void {
@@ -50,13 +50,13 @@ export class OptionsManager {
     }
   }
 
-  get(id: string): OptionValue | undefined {
+  get(id: string): boolean | undefined {
     if (id in this.values) return this.values[id]
     const def = this.definitions.get(id)
     return def ? def.defaultValue : undefined
   }
 
-  set(id: string, value: OptionValue): void {
+  set(id: string, value: boolean): void {
     this.values[id] = value
     preferencesManager.set(this.storageKey, this.values)
   }

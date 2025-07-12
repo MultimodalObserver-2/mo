@@ -24,8 +24,8 @@ function createWindow(): BrowserWindow {
   // Create the browser window.
   const windowState = loadWindowState()
   const mainWindow = new BrowserWindow({
-    width: windowState?.width || adjustedWidth,
-    height: windowState?.height || adjustedHeight,
+    width: windowState?.width ?? adjustedWidth,
+    height: windowState?.height ?? adjustedHeight,
     minWidth: minWidth,
     minHeight: minHeight,
     x: windowState?.x,

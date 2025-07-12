@@ -19,22 +19,27 @@ export default function HotkeysSettings() {
     return () => window.core.hotkeys.enable()
   }, [])
 
+  function handleHotkeysLoaded(data) {
+    setHotkeys((data as HotkeyProps[]).map(augmentHotkey))
+  }
+
+  function augmentHotkey(h: HotkeyProps): HotkeyProps {
+    return {
+      ...h,
+      currentCombo: currentCombos[h.id] ?? h.actualKey,
+      onComboChange: handleComboChange,
+      onSaved: () => {}
+    } as HotkeyProps
+  }
+
   useEffect(() => {
-    const listener = () => {
-      window.core.hotkeys.getAll().then((data) => {
-        setHotkeys(
-          (data as HotkeyProps[]).map((h) => ({
-            ...h,
-            currentCombo: currentCombos[h.id] ?? h.actualKey,
-            onComboChange: handleComboChange,
-            onSaved: () => {}
-          }))
-        )
-      })
+    const handleLanguageChanged = () => {
+      window.core.hotkeys.getAll().then(handleHotkeysLoaded)
     }
-    i18n.on("languageChanged", listener)
+
+    i18n.on("languageChanged", handleLanguageChanged)
     return () => {
-      i18n.off("languageChanged", listener)
+      i18n.off("languageChanged", handleLanguageChanged)
     }
   }, [currentCombos, i18n])
 
@@ -70,16 +75,7 @@ export default function HotkeysSettings() {
   }
 
   const handleOnSaved = () => {
-    window.core.hotkeys.getAll().then((data) =>
-      setHotkeys(
-        (data as HotkeyProps[]).map((h) => ({
-          ...h,
-          currentCombo: currentCombos[h.id] ?? h.actualKey,
-          onComboChange: handleComboChange,
-          onSaved: () => {}
-        }))
-      )
-    )
+    window.core.hotkeys.getAll().then(handleHotkeysLoaded)
   }
 
   return (

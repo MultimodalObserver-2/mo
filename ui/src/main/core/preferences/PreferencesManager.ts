@@ -6,7 +6,7 @@ type Preferences = Record<string, unknown>
 
 export class PreferencesManager {
   private preferences: Preferences = {}
-  private preferencesPath: string
+  private readonly preferencesPath: string
 
   constructor(filename = "preferences.json") {
     this.preferencesPath = path.join(getMainAppPath(), filename)
@@ -56,7 +56,7 @@ export class PreferencesManager {
   }
 
   public has(key: string): boolean {
-    return Object.prototype.hasOwnProperty.call(this.preferences, key)
+    return Object.hasOwn(this.preferences, key)
   }
 
   public extend(key: string, partialValue: Record<string, unknown>): void {

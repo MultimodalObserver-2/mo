@@ -13,7 +13,7 @@ function getLocalAppDataFolder() {
   const platform = process.platform
   if (platform === "win32") {
     // Windows: AppData\Local
-    return process.env.LOCALAPPDATA || path.join(os.homedir(), "AppData", "Local")
+    return process.env.LOCALAPPDATA ?? path.join(os.homedir(), "AppData", "Local")
   } else if (platform === "darwin") {
     // macOS: ~/Library/Application Support
     return path.join(os.homedir(), "Library", "Application Support")
@@ -30,9 +30,7 @@ export function getMainAppPath(): string {
 }
 
 export function getPreferencesPath(): string {
-  return is.dev
-    ? path.resolve(getMainAppPath(), "preferences.json")
-    : path.resolve(getMainAppPath(), "preferences.json")
+  return path.resolve(getMainAppPath(), "preferences.json")
 }
 
 export function getPluginBasePath(): string {
@@ -46,7 +44,9 @@ export function getResourcesPath(): string {
 }
 
 export function getLocalesPath(): string {
-  return path.resolve(getResourcesPath(), "locales")
+  return is.dev
+    ? path.resolve(getResourcesPath(), "locales")
+    : path.resolve(getResourcesPath(), "locales", "ui")
 }
 
 app.whenReady().then(() => {

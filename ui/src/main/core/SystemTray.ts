@@ -11,7 +11,7 @@ type MenuItemArray = Array<MenuItemConstructorOptions | MenuItem>
 export class SystemTray {
   private tray: Tray | null = null
   private contextMenu: Menu | null = null
-  private mainWindow: BrowserWindow | null = null
+  private readonly mainWindow: BrowserWindow | null = null
 
   constructor() {
     this.mainWindow = getMainWindow()

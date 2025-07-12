@@ -19,7 +19,7 @@ export function useKeyCapture({ defaultKey = "" }: { readonly defaultKey?: strin
   const [currentModifiers, setCurrentModifiers] = useState<Set<string>>(new Set())
 
   const buildCombo = (modifiers: Set<string>, mainKey?: string) => {
-    const sortedMods = Array.from(modifiers).sort()
+    const sortedMods = Array.from(modifiers).sort((a, b) => a.localeCompare(b))
     return mainKey ? [...sortedMods, mainKey].join("+") : [...sortedMods].join("+")
   }
 

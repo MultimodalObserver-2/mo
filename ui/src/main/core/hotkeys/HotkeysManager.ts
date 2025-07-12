@@ -31,11 +31,13 @@ interface HotkeyStatus {
 
 export class HotkeysManager {
   private readonly storageKey = "hotkeys"
-  private simpleActions: Map<string, SimpleHotkeyAction> = new Map()
-  private complementaryActions: Map<string, { group: ComplementaryHotkeyAction; index: number }> =
-    new Map()
+  private readonly simpleActions: Map<string, SimpleHotkeyAction> = new Map()
+  private readonly complementaryActions: Map<
+    string,
+    { group: ComplementaryHotkeyAction; index: number }
+  > = new Map()
   private hotkeys: HotkeysPreferences = {}
-  private registeredKeys: Map<string, string> = new Map()
+  private readonly registeredKeys: Map<string, string> = new Map()
   private enabled = true
 
   constructor() {
@@ -117,8 +119,8 @@ export class HotkeysManager {
     for (const { group } of this.complementaryActions.values()) {
       if (seenGroups.has(group.id)) continue
       seenGroups.add(group.id)
-      for (let i = 0; i < group.actions.length; i++) {
-        const action = group.actions[i]
+
+      group.actions.forEach((action) => {
         const key = this.getHotkey(action.id)
         result.push({
           id: action.id,
@@ -128,7 +130,7 @@ export class HotkeysManager {
           type: "complementary",
           groupId: group.id
         })
-      }
+      })
     }
 
     return result

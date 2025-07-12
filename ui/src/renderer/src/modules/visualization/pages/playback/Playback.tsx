@@ -126,15 +126,13 @@ export default function Playback() {
         clearInterval(loopRef.current)
         loopRef.current = null
       }
+    } else if (time >= session.duration * 1000) {
+      setTime(0)
+      window.visualization.playback.play(0)
+      setLoopRefInterval(0)
     } else {
-      if (time >= session.duration * 1000) {
-        setTime(0)
-        window.visualization.playback.play(0)
-        setLoopRefInterval(0)
-      } else {
-        window.visualization.playback.play(time)
-        setLoopRefInterval()
-      }
+      window.visualization.playback.play(time)
+      setLoopRefInterval()
     }
     setIsPlaying((prev) => !prev)
   }

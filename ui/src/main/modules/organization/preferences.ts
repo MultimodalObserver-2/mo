@@ -21,21 +21,21 @@ function getOrganizationPreferences(): OrganizationPreferences | undefined {
 app.whenReady().then(() => {
   ipcMain.handle("organization:preferences:get:state:project", async () => {
     const preferences = getOrganizationPreferences()
-    return preferences?.states?.selectedProject || null
+    return preferences?.states?.selectedProject ?? null
   })
 
   ipcMain.handle("organization:preferences:get:state:participant", async () => {
     const preferences = getOrganizationPreferences()
     const project = preferences?.states?.selectedProject
-    const participant = preferences?.states?.selectedParticipants[project || ""]
-    return participant || null
+    const participant = preferences?.states?.selectedParticipants[project ?? ""]
+    return participant ?? null
   })
 
   ipcMain.handle("organization:preferences:get:state:protocol", async () => {
     const preferences = getOrganizationPreferences()
     const project = preferences?.states?.selectedProject
-    const protocol = preferences?.states?.selectedProtocols[project || ""]
-    return protocol || null
+    const protocol = preferences?.states?.selectedProtocols[project ?? ""]
+    return protocol ?? null
   })
 
   ipcMain.handle(
@@ -57,7 +57,7 @@ app.whenReady().then(() => {
   ipcMain.handle(
     "organization:preferences:set:state:participant",
     async (_event, participantUuid: string | null) => {
-      const preferences = getOrganizationPreferences() || {}
+      const preferences = getOrganizationPreferences() ?? {}
       if (!preferences.states) {
         preferences.states = {
           selectedProject: null,
@@ -77,7 +77,7 @@ app.whenReady().then(() => {
   ipcMain.handle(
     "organization:preferences:set:state:protocol",
     async (_event, protocolUuid: string | null) => {
-      const preferences = getOrganizationPreferences() || {}
+      const preferences = getOrganizationPreferences() ?? {}
       if (!preferences.states) {
         preferences.states = {
           selectedProject: null,

@@ -21,7 +21,7 @@ app.whenReady().then(() => {
       i18n.changeLanguage(language, (err) => {
         if (err) {
           console.error("Error changing language:", err)
-          reject(err)
+          reject(new Error(`Failed to change language to ${language}`))
         } else {
           preferencesManager.set("language", language)
           languageObserver.notify(language)

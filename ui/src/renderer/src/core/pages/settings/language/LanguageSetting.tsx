@@ -30,7 +30,7 @@ export default function LanguageSetting() {
     }
 
     try {
-      pluginManager.loadAllPluginLanguageLocales(selectedLanguage)
+      await pluginManager.loadAllPluginLanguageLocales(selectedLanguage)
     } catch (error) {
       console.error("Error loading plugin language locales:", error)
     }

@@ -12,7 +12,6 @@ import {
 import playbackConfigService from "../../services/PlaybackConfigService"
 import { selectSelectedProject } from "@renderer/modules/organization/store/projectsSlice"
 import { PlaybackConfig } from "../../types/PlaybackConfig"
-import { PluginIcons } from "@renderer/core/types/Plugin"
 import fallbackimgDark from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./playback-dock.module.css"
 import "dockview/dist/styles/dockview.css"
@@ -137,7 +136,7 @@ const PlaybackTab = memo(function PlaybackTab({ params }: { params: PlaybackConf
   if (params.plugin_icon === "string") {
     src = params.plugin_icon
   } else if (typeof params.plugin_icon === "object") {
-    src = (params.plugin_icon as PluginIcons)?.dark
+    src = params.plugin_icon?.dark
   }
 
   return (
