@@ -22,6 +22,7 @@ from mo.modules.capture.services.capture_plugin_callbacks import get_file_extens
 from mo.modules.capture.services.paths import CAPTURE_CONFIGS_DIR, CAPTURE_CONFIGS_FILE
 from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.services.project_service import ProjectService
+from mo.core.plugin.loading import plugin_ready_event
 from mo.core.utils.i18n import translate
 
 
@@ -156,7 +157,7 @@ class CaptureConfigService:
             file_extension=plugin_file_extension,
         )
 
-    def get_all_capture_configs(self, project_name: str) -> list[CaptureConfigRes]:
+    async def get_all_capture_configs(self, project_name: str) -> list[CaptureConfigRes]:
         """Retrieves all capture configurations for a given project.
         Args:
             project_name (str): The name of the project for which to retrieve configurations.
@@ -171,6 +172,7 @@ class CaptureConfigService:
         configurations_storage = self._get_configurations_storage(project_name)
         configs_dict = configurations_storage.find_all()
         configs = []
+        await plugin_ready_event.wait()  # Ensure plugins are ready before processing
         for config_dict in configs_dict:
             config_data = CaptureConfigData(**config_dict)
             plugin_metadata = self.plugin_management.get_plugin_metadata(config_data.plugin_id)

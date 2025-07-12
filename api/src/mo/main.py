@@ -71,6 +71,13 @@ def change_language(data: dict = {"lang": "en"}):
     set_language(lang)
     return {"success": True, "language": lang}
 
+
+plugin_management = PluginManager()
+# Register here the types to check for plugins
+plugin_management.register_type_to_check(CapturePlugin)
+
+observer = start_plugins_dir_observer_async()
+
 # Core routers
 app.include_router(plugin_router)
 
@@ -87,12 +94,6 @@ app.include_router(session_router)
 # Visualization routers
 app.include_router(playback_config_router)
 
-
-plugin_management = PluginManager()
-# Register here the types to check for plugins
-plugin_management.register_type_to_check(CapturePlugin)
-
-observer = start_plugins_dir_observer_async()
 
 if __name__ == "__main__":
 

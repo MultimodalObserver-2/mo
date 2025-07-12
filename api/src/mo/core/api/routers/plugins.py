@@ -33,7 +33,7 @@ async def add_plugin(file: UploadFile, service: PluginService = Depends()):
     response_model_exclude_none=True,
 )
 async def get_all_plugins(service: PluginService = Depends()):
-    return service.get_all_plugins()
+    return await service.get_all_plugins()
 
 
 @plugin_router.get(

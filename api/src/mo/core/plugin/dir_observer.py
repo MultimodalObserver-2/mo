@@ -16,7 +16,7 @@ from watchdog.events import (
 from mo.core.config import constants
 from mo.core.plugin.manager import PluginManager
 from mo.core.utils.singleton import singleton
-
+from mo.core.plugin.loading import plugin_ready_event
 
 @singleton
 class PluginsDirHandler(FileSystemEventHandler):
@@ -27,6 +27,7 @@ class PluginsDirHandler(FileSystemEventHandler):
         super().__init__()
         self.plugin_manager = PluginManager()
         self.known_dirs = self.plugin_manager.load_all_plugins()
+        plugin_ready_event.set()
         self.plugins_path = self.plugin_manager.plugins_path
         self.suspended = False
         self.logger = logging.getLogger(constants.LOGGER_NAME)

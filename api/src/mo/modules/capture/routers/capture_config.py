@@ -40,7 +40,7 @@ async def add_capture_config(
 async def get_all_capture_configs(
     project_name: str, service: CaptureConfigService = Depends()
 ) -> list[CaptureConfigRes]:
-    return service.get_all_capture_configs(project_name)
+    return await service.get_all_capture_configs(project_name)
 
 
 @capture_config_router.get(

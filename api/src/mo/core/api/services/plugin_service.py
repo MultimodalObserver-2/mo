@@ -10,6 +10,7 @@ from mo.core.plugin.dir_observer import PluginsDirHandler
 from mo.core.plugin.manager import PluginManager
 from mo.core.plugin.models.settings import Settings
 from mo.core.utils.http_exceptions import BadRequestException
+from mo.core.plugin.loading import plugin_ready_event
 
 
 class PluginService:
@@ -64,11 +65,12 @@ class PluginService:
         self.plugins_dir_handler.resume()
         return PluginRes.from_plugin_metadata(plugin_metadata)
 
-    def get_all_plugins(self) -> list[PluginRes]:
+    async def get_all_plugins(self) -> list[PluginRes]:
         """Retrieves metadata for all registered plugins.
         Returns:
             list[PluginRes]: A list of PluginRes objects containing metadata for each plugin.
         """
+        await plugin_ready_event.wait()  # Ensure plugins are ready before processing
         plugins = self.plugin_manager.get_all_plugins_metadata()
         return [PluginRes.from_plugin_metadata(plugin) for plugin in plugins]
 
