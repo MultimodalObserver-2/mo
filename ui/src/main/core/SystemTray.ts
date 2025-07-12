@@ -1,6 +1,7 @@
 import { app, BrowserWindow, Menu, MenuItem, MenuItemConstructorOptions, Tray } from "electron"
 import { getMainWindow, setForceQuit } from ".."
 import i18n from "./i18n/i18n"
+import icon from "../../../resources/icon.png?asset"
 import languageObserver from "./i18n/LanguageObserver"
 
 const tCoreTray = i18n.getFixedT(null, "core", "tray")
@@ -19,7 +20,7 @@ export class SystemTray {
   }
 
   private createTray(): void {
-    this.tray = new Tray("resources/icon.png")
+    this.tray = new Tray(icon)
     this.contextMenu = Menu.buildFromTemplate([
       { id: "hide", label: tCoreTray("hide"), click: () => this.toggleVisibility() },
       {

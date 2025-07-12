@@ -10,7 +10,7 @@ import {
 } from "@renderer/core/utils/dialogMessages"
 import { openCaptureSourceModal, openUpdateCaptureSourceModal } from "../../utils/modalWindows"
 import { showDeleteCaptureConfigMessage } from "../../utils/dialogMessages"
-import Title from "./title"
+import Title from "./Title"
 
 const captureConfigProvider: ConfigProvider = {
   title: Title,
