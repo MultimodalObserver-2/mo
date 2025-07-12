@@ -1,7 +1,7 @@
 import logging
 import logging.handlers
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import MagicMock, patch, AsyncMock
 
 import pytest
 
@@ -23,6 +23,8 @@ def capture_service():
         service.config_service = MagicMock()
         service.capture_buffer_manager = MagicMock()
         service.execute_lock = MagicMock()
+        service.execute_lock.__enter__ = MagicMock(return_value=None)
+        service.execute_lock.__exit__ = MagicMock(return_value=None)
         service._initialize()
     return service
 
@@ -30,25 +32,21 @@ def capture_service():
 @pytest.fixture(autouse=True)
 def clean_capture_service():
     CaptureService.clear_instance()  # type: ignore
-    yield capture_service
+    yield
     CaptureService.clear_instance()  # type: ignore
 
 
 @pytest.fixture(autouse=True)
 def disable_file_logging():
     logger = logging.getLogger(constants.LOGGER_NAME)
-
     file_handlers = [
-        h
-        for h in logger.handlers
+        h for h in logger.handlers
         if isinstance(h, logging.handlers.TimedRotatingFileHandler)
         or isinstance(h, logging.StreamHandler)
     ]
     for handler in file_handlers:
         logger.removeHandler(handler)
-
     yield
-
     for handler in file_handlers:
         logger.addHandler(handler)
 
@@ -65,96 +63,129 @@ def test_get_capture_plugins_success(capture_service):
         capture_service.plugin_management.get_plugins_metadata_from_type.assert_called_once()
 
 
-@patch("time.monotonic", return_value=1000.0)
-@patch("mo.modules.capture.services.capture_service.datetime")
-def test_start_capture_success(mock_dt, mock_monotonic, capture_service):
+@pytest.mark.asyncio
+async def test_start_capture_success(capture_service):
     project_name = "TestProject"
     participant_code = "P01"
     mock_session = MagicMock(spec=SessionRes)
     mock_session.location = "/path/to/session"
 
-    capture_service.load_processes = MagicMock(return_value=MagicMock())
+    capture_service.load_processes = AsyncMock(return_value=MagicMock())
     capture_service.running_processes = {"plugin1": MagicMock()}
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service._get_capture_configs = MagicMock(return_value=[])
     capture_service.session_service.create_session.return_value = mock_session
-    capture_service.exec_prepare_callback = MagicMock()
-    capture_service.exec_start_callback = MagicMock()
+    capture_service.exec_prepare_callback = AsyncMock()
+    capture_service.exec_start_callback = AsyncMock()
+    capture_service.capture_buffer_manager.clear_paused_intervals = MagicMock()
+    capture_service.capture_buffer_manager.start = MagicMock()
+    capture_service.started = False
 
-    capture_service.start_capture(project_name, participant_code)
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", return_value=1000.0), \
+            patch("mo.modules.capture.services.capture_service.datetime"), \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="already started"):
+        await capture_service.start_capture(project_name, participant_code)
 
     assert capture_service.started is True
     assert capture_service.paused is False
     assert capture_service.project_name == project_name
     assert capture_service.participant_code == participant_code
     capture_service.session_service.create_session.assert_called_once()
-    capture_service.exec_prepare_callback.assert_called_with(mock_session.location)
-    capture_service.exec_start_callback.assert_called_once()
+    capture_service.exec_prepare_callback.assert_awaited_with(
+        mock_session.location)
+    capture_service.exec_start_callback.assert_awaited()
     capture_service.capture_buffer_manager.start.assert_called_once()
 
 
-def test_start_capture_already_started_raises_exception(capture_service):
+@pytest.mark.asyncio
+async def test_start_capture_already_started_raises_exception(capture_service):
     capture_service.started = True
-    with pytest.raises(BadRequestException, match="Capture is already started."):
-        capture_service.start_capture("proj", "p1")
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="already started"):
+        with pytest.raises(BadRequestException, match="already started"):
+            await capture_service.start_capture("proj", "p1")
 
 
-def test_start_capture_no_processes_loaded_raises_exception(capture_service):
-    capture_service.load_processes = MagicMock()
+@pytest.mark.asyncio
+async def test_start_capture_no_processes_loaded_raises_exception(capture_service):
+    capture_service.load_processes = AsyncMock()
     capture_service.running_processes = {}
+    capture_service.started = False
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="no loaded"):
+        with pytest.raises(BadRequestException, match="no loaded"):
+            await capture_service.start_capture("proj", "p1")
 
-    with pytest.raises(BadRequestException, match="No capture configurations loaded"):
-        capture_service.start_capture("proj", "p1")
 
-
-@patch("time.monotonic", side_effect=[1000.0, 1100.0])  # start_ts, stop_ts
-@patch("mo.modules.capture.services.capture_service.datetime")
-def test_stop_capture_success(mock_dt, mock_monotonic, capture_service):
+@pytest.mark.asyncio
+async def test_stop_capture_success(capture_service):
     capture_service.started = True
     capture_service.project_name = "TestProject"
     capture_service.participant_code = "P01"
     capture_service.session = MagicMock(spec=SessionRes)
     capture_service.session.session_id = "s1"
-    capture_service.running_processes = {"p1": MagicMock()}
-    capture_service.unload_running_processes = MagicMock()
+    capture_service.capture_buffer_manager.add_paused_interval = MagicMock()
+    capture_service.capture_buffer_manager.get_paused_intervals = MagicMock(
+        return_value=[(1, 2), (3, 4)])
+    capture_service.capture_buffer_manager.stop = MagicMock()
+    capture_service.exec_stop_callback = AsyncMock(return_value={})
+    capture_service.unload_running_processes = AsyncMock()
     capture_service._initialize = MagicMock()
+    capture_service.paused_time = 0.0
+    capture_service.start_ts = 1000.0
 
-    with patch("mo.modules.capture.services.capture_service.SessionPut") as mock_session_put:
-        mock_session_put.from_session_res.return_value = MagicMock(spec=SessionPut)
-        capture_service.stop_capture()
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", return_value=1100.0), \
+            patch("mo.modules.capture.services.capture_service.datetime"), \
+            patch("mo.modules.capture.services.capture_service.SessionPut") as mock_session_put, \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="not started"):
+        mock_session_put.from_session_res.return_value = MagicMock(
+            spec=SessionPut)
+        await capture_service.stop_capture()
 
     assert capture_service.session_service.update_session.called
     capture_service.capture_buffer_manager.stop.assert_called_with(timeout=2)
-    capture_service.unload_running_processes.assert_called_once()
+    capture_service.unload_running_processes.assert_awaited()
     capture_service._initialize.assert_called_once()
 
 
-def test_stop_capture_not_started_raises_exception(capture_service):
+@pytest.mark.asyncio
+async def test_stop_capture_not_started_raises_exception(capture_service):
     capture_service.started = False
-    with pytest.raises(BadRequestException, match="Capture is not started."):
-        capture_service.stop_capture()
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="not started"):
+        with pytest.raises(BadRequestException, match="not started"):
+            await capture_service.stop_capture()
 
 
-@patch("time.monotonic", side_effect=[100.0, 110.0])  # pause_ts, resume_ts
-def test_pause_and_resume_capture_success(mock_monotonic, capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_pause_and_resume_capture_success(asyncio_mock, capture_service):
     capture_service.started = True
     capture_service.paused = False
     mock_process = MagicMock()
+    mock_process.execute_callback_on_all_instances = MagicMock()
     capture_service.running_processes = {"p1": mock_process}
+    capture_service.capture_buffer_manager.pause = MagicMock()
+    capture_service.capture_buffer_manager.resume = MagicMock()
+    capture_service.paused_time = 0.0
 
-    capture_service.pause_capture()
+    mock_lock = MagicMock()
+    mock_lock.__enter__.return_value = None
+    mock_lock.__exit__.return_value = None
+    capture_service.execute_lock = mock_lock
 
-    assert capture_service.paused is True
-    assert capture_service.paused_ts == 100.0
-    capture_service.capture_buffer_manager.pause.assert_called_with(100.0)
-    mock_process.execute_callback_on_all_instances.assert_called_once()
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", side_effect=[100.0, 110.0]), \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="not started or already paused"):
+        await capture_service.pause_capture()
+        assert capture_service.paused is True
+        assert capture_service.paused_ts == 100.0
+        capture_service.capture_buffer_manager.pause.assert_called_with(100.0)
+        mock_process.execute_callback_on_all_instances.assert_called_once()
 
-    capture_service.resume_capture()
-
-    assert capture_service.paused is False
-    assert capture_service.paused_time == 10.0
-    capture_service.capture_buffer_manager.resume.assert_called_with(110.0)
-    assert mock_process.execute_callback_on_all_instances.call_count == 2
+        capture_service.paused = True
+        capture_service.paused_ts = 100.0
+        await capture_service.resume_capture()
+        assert capture_service.paused is False
+        assert capture_service.paused_time == 10.0
+        capture_service.capture_buffer_manager.resume.assert_called_with(110.0)
+        assert mock_process.execute_callback_on_all_instances.call_count == 2
 
 
 @patch("threading.Thread")
@@ -163,7 +194,8 @@ def test_on_capture_data_callback_first_time(mock_thread, capture_service):
     capture_service.participant_code = "p1"
     capture_service.session = MagicMock(spec=SessionRes, session_id="s1")
     capture_service.first_timestamp = {}
-    mock_data = MagicMock(spec=PluginData, config_id="config1", timestamp=1234.5)
+    mock_data = MagicMock(
+        spec=PluginData, config_id="config1", timestamp=1234.5)
 
     capture_service.on_capture_data_callback(mock_data)
 
@@ -179,19 +211,24 @@ def test_get_capture_plugin_file_name_success(capture_service):
 
     with patch("mo.modules.capture.services.capture_service.FileManagement") as mock_fm:
         mock_fm.normalize_file_name.return_value = "my_config"
-        file_name = capture_service.get_capture_plugin_file_name("plugin1", "My Config")
+        file_name = capture_service.get_capture_plugin_file_name(
+            "plugin1", "My Config")
 
     assert file_name == "my_config.csv"
     mock_process.execute_callback_on_instance.assert_called_once()
 
 
-def test_exec_prepare_callback_success(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_exec_prepare_callback_success(asyncio_mock, capture_service):
     mock_process = MagicMock()
+    mock_process.execute_callback_on_instance = MagicMock()
     capture_service.running_processes = {"plugin1": mock_process}
     capture_service.processes_instances = {"plugin1": ["config1"]}
-    capture_service._format_data_file_name = MagicMock(return_value="config1_formatted")
+    capture_service._format_data_file_name = MagicMock(
+        return_value="config1_formatted")
 
-    capture_service.exec_prepare_callback("/path/to/session")
+    await capture_service.exec_prepare_callback("/path/to/session")
 
     mock_process.execute_callback_on_instance.assert_called_with(
         "config1",
@@ -200,20 +237,26 @@ def test_exec_prepare_callback_success(capture_service):
     )
 
 
-def test_exec_start_callback_success(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_exec_start_callback_success(asyncio_mock, capture_service):
     mock_process = MagicMock()
+    mock_process.execute_callback_on_instance = MagicMock()
     capture_service.running_processes = {"plugin1": mock_process}
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service.start_ts = 12345.0
 
-    capture_service.exec_start_callback()
+    await capture_service.exec_start_callback()
 
     mock_process.execute_callback_on_instance.assert_called_with(
-        "config1", start_callback, {"config_id": "config1", "start_ts": 12345.0}
+        "config1", start_callback, {
+            "config_id": "config1", "start_ts": 12345.0}
     )
 
 
-def test_stop_capture_raises_on_process_stop_failure(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_stop_capture_raises_on_process_stop_failure(asyncio_mock, capture_service):
     capture_service.started = True
     mock_session = MagicMock(spec=SessionRes)
     mock_session.session_id = "s1"
@@ -227,35 +270,62 @@ def test_stop_capture_raises_on_process_stop_failure(capture_service):
     mock_session.capture_sources = []
     capture_service.session = mock_session
 
-    mock_process = MagicMock()
-    mock_process.execute_callback_on_all_instances.side_effect = RuntimeError("Stop Failed")
-    capture_service.running_processes = {"p1": mock_process}
+    capture_service.capture_buffer_manager.add_paused_interval = MagicMock()
+    capture_service.capture_buffer_manager.get_paused_intervals = MagicMock(
+        return_value=[])
+    capture_service.capture_buffer_manager.stop = MagicMock()
+    capture_service.exec_stop_callback = AsyncMock(
+        return_value={"p1": Exception("fail")})
+    capture_service.unload_running_processes = AsyncMock()
+    capture_service._initialize = MagicMock()
+    capture_service.paused_time = 0.0
+    capture_service.start_ts = 1000.0
 
-    with pytest.raises(BadRequestException, match="Failed to stop safely"):
-        capture_service.stop_capture()
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", return_value=1100.0), \
+            patch("mo.modules.capture.services.capture_service.datetime"), \
+            patch("mo.modules.capture.services.capture_service.SessionPut") as mock_session_put, \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="Failed to stop"):
+        mock_session_put.from_session_res.return_value = MagicMock(
+            spec=SessionPut)
+        with pytest.raises(BadRequestException, match="Failed to stop"):
+            await capture_service.stop_capture()
 
 
-def test_pause_capture_invalid_state(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_pause_capture_invalid_state(asyncio_mock, capture_service):
     capture_service.started = False
-    with pytest.raises(BadRequestException, match="Capture is not started or already paused."):
-        capture_service.pause_capture()
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="not started or already paused"):
+        with pytest.raises(BadRequestException, match="not started or already paused"):
+            await capture_service.pause_capture()
 
     capture_service.started = True
     capture_service.paused = True
-    with pytest.raises(BadRequestException, match="Capture is not started or already paused."):
-        capture_service.pause_capture()
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="not started or already paused"):
+        with pytest.raises(BadRequestException, match="not started or already paused"):
+            await capture_service.pause_capture()
 
 
-def test_pause_capture_handles_process_exception(capture_service, caplog):
+@pytest.mark.asyncio
+async def test_pause_capture_handles_process_exception(capture_service, caplog):
     capture_service.started = True
     capture_service.paused = False
 
     mock_process = MagicMock()
-    mock_process.execute_callback_on_all_instances.side_effect = RuntimeError("Pause Failed")
+    mock_process.execute_callback_on_all_instances = MagicMock(
+        side_effect=RuntimeError("Pause Failed"))
     capture_service.running_processes = {"p1": mock_process}
+    capture_service.capture_buffer_manager.pause = MagicMock()
 
-    with caplog.at_level(logging.ERROR):
-        capture_service.pause_capture()
+    mock_lock = MagicMock()
+    mock_lock.__enter__.return_value = None
+    mock_lock.__exit__.return_value = None
+    capture_service.execute_lock = mock_lock
+
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", return_value=100.0), \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="not started or already paused"):
+        with caplog.at_level(logging.ERROR):
+            await capture_service.pause_capture()
 
     assert capture_service.paused is True
     assert any(
@@ -263,26 +333,43 @@ def test_pause_capture_handles_process_exception(capture_service, caplog):
     )
 
 
-def test_resume_capture_invalid_state(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_resume_capture_invalid_state(asyncio_mock, capture_service):
     capture_service.started = False
-    with pytest.raises(BadRequestException, match="Capture is not started or not paused."):
-        capture_service.resume_capture()
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="not started or not paused"):
+        with pytest.raises(BadRequestException, match="not started or not paused"):
+            await capture_service.resume_capture()
 
     capture_service.started = True
     capture_service.paused = False
-    with pytest.raises(BadRequestException, match="Capture is not started or not paused."):
-        capture_service.resume_capture()
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="not started or not paused"):
+        with pytest.raises(BadRequestException, match="not started or not paused"):
+            await capture_service.resume_capture()
 
 
-def test_resume_capture_handles_process_exception(capture_service, caplog):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_resume_capture_handles_process_exception(asyncio_mock, capture_service, caplog):
     capture_service.started = True
     capture_service.paused = True
     mock_process = MagicMock()
-    mock_process.execute_callback_on_all_instances.side_effect = RuntimeError("Resume Failed")
+    mock_process.execute_callback_on_all_instances = MagicMock(
+        side_effect=RuntimeError("Resume Failed"))
     capture_service.running_processes = {"p1": mock_process}
+    capture_service.capture_buffer_manager.resume = MagicMock()
+    capture_service.paused_ts = 100.0
+    capture_service.paused_time = 0.0
 
-    with caplog.at_level(logging.ERROR):
-        capture_service.resume_capture()
+    mock_lock = MagicMock()
+    mock_lock.__enter__.return_value = None
+    mock_lock.__exit__.return_value = None
+    capture_service.execute_lock = mock_lock
+
+    with patch("mo.modules.capture.services.capture_service.time.monotonic", return_value=110.0), \
+            patch("mo.modules.capture.services.capture_service.translate", return_value="not started or not paused"):
+        with caplog.at_level(logging.ERROR):
+            await capture_service.resume_capture()
 
     assert capture_service.paused is False
     assert any(
@@ -292,8 +379,9 @@ def test_resume_capture_handles_process_exception(capture_service, caplog):
 
 def test_get_capture_plugin_file_name_process_none(capture_service):
     capture_service.running_processes = {}
-    with pytest.raises(BadRequestException):
-        capture_service.get_capture_plugin_file_name("p1", "c1")
+    with patch("mo.modules.capture.services.capture_service.translate", return_value="no running process"):
+        with pytest.raises(BadRequestException, match="no running process"):
+            capture_service.get_capture_plugin_file_name("p1", "c1")
 
 
 def test_get_capture_plugin_file_name_no_extension(capture_service):
@@ -302,7 +390,8 @@ def test_get_capture_plugin_file_name_no_extension(capture_service):
     capture_service.running_processes["plugin1"] = mock_process
 
     with patch.object(capture_service, "_format_data_file_name", return_value="my_config"):
-        file_name = capture_service.get_capture_plugin_file_name("plugin1", "My Config")
+        file_name = capture_service.get_capture_plugin_file_name(
+            "plugin1", "My Config")
 
     assert file_name == "my_config"
 
@@ -316,8 +405,10 @@ def test_get_capture_configs_success(capture_service):
     mock_config.plugin_metadata.name = "Plugin Name"
     mock_config.plugin_metadata.version = MagicMock(__str__=lambda self: "1.0")
 
-    capture_service.config_service.get_all_configs_loaded.return_value = [mock_config]
-    capture_service.get_capture_plugin_file_name = MagicMock(return_value="file_name.ext")
+    capture_service.config_service.get_all_configs_loaded.return_value = [
+        mock_config]
+    capture_service.get_capture_plugin_file_name = MagicMock(
+        return_value="file_name.ext")
 
     result = capture_service._get_capture_configs("proj")
 
@@ -326,33 +417,41 @@ def test_get_capture_configs_success(capture_service):
     assert result[0].config_name == "c1"
 
 
-def test_load_processes_success(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_load_processes_success(asyncio_mock, capture_service):
     mock_config = MagicMock()
     mock_config.plugin_id = "plugin1"
     mock_config.name = "config1"
     mock_config.id = "config1"
     mock_config.settings = {}
     mock_process = MagicMock(spec=PluginWorkerProcess)
+    mock_process.add_plugin_instance = MagicMock(return_value=None)
 
-    capture_service.config_service.get_all_configs_loaded.return_value = [mock_config]
-    capture_service.plugin_management.get_active_plugin_process.return_value = mock_process
+    capture_service.config_service.get_all_configs_loaded.return_value = [
+        mock_config]
+    capture_service.plugin_management.get_active_plugin_process = MagicMock(
+        return_value=mock_process)
 
-    with patch("multiprocessing.Queue"):
-        capture_service.load_processes("proj")
+    with patch("multiprocessing.Queue", return_value=MagicMock()):
+        await capture_service.load_processes("proj")
 
     assert "plugin1" in capture_service.running_processes
     assert "config1" in capture_service.processes_instances["plugin1"]
     mock_process.add_plugin_instance.assert_called_once()
 
 
-def test_unload_running_processes_success(capture_service):
+@pytest.mark.asyncio
+@patch("mo.modules.capture.services.capture_service.asyncio.to_thread", side_effect=lambda func, *args, **kwargs: func(*args, **kwargs))
+async def test_unload_running_processes_success(asyncio_mock, capture_service):
     mock_process1 = MagicMock(spec=PluginWorkerProcess)
     mock_process2 = MagicMock(spec=PluginWorkerProcess)
     mock_process1.stop = MagicMock()
     mock_process2.stop = MagicMock()
-    capture_service.running_processes = {"p1": mock_process1, "p2": mock_process2}
+    capture_service.running_processes = {
+        "p1": mock_process1, "p2": mock_process2}
 
-    capture_service.unload_running_processes()
+    await capture_service.unload_running_processes()
 
     mock_process1.stop.assert_called_with(timeout=10, force=True)
     mock_process2.stop.assert_called_with(timeout=10, force=True)
@@ -389,16 +488,17 @@ def test_get_status_returns_correct_state(capture_service):
         )
 
 
-def test_exec_prepare_callback_handles_exception(capture_service, caplog):
+@pytest.mark.asyncio
+async def test_exec_prepare_callback_handles_exception(capture_service, caplog):
     mock_process = MagicMock()
-    mock_process.execute_callback_on_instance.side_effect = RuntimeError("Prepare Failed")
-
+    mock_process.execute_callback_on_instance = MagicMock(
+        side_effect=RuntimeError("Prepare Failed"))
+    mock_process.remove_plugin_instance = MagicMock()
     capture_service.running_processes = {"plugin1": mock_process}
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service._format_data_file_name = MagicMock(return_value="any_file")
 
-    with caplog.at_level(logging.ERROR):
-        capture_service.exec_prepare_callback("/path/to/session")
+    await capture_service.exec_prepare_callback("/path/to/session")
 
     assert not capture_service.processes_instances["plugin1"]
     mock_process.remove_plugin_instance.assert_called_with("config1")
@@ -408,16 +508,16 @@ def test_exec_prepare_callback_handles_exception(capture_service, caplog):
     )
 
 
-def test_exec_start_callback_handles_exception(capture_service, caplog):
+@pytest.mark.asyncio
+async def test_exec_start_callback_handles_exception(capture_service, caplog):
     mock_process = MagicMock()
-    mock_process.execute_callback_on_instance.side_effect = RuntimeError("Start Failed")
-
+    mock_process.execute_callback_on_instance = MagicMock(
+        side_effect=RuntimeError("Start Failed"))
     capture_service.running_processes = {"plugin1": mock_process}
     capture_service.processes_instances = {"plugin1": ["config1"]}
     capture_service.start_ts = 12345.0
 
-    with caplog.at_level(logging.ERROR):
-        capture_service.exec_start_callback()
+    await capture_service.exec_start_callback()
 
     mock_process.execute_callback_on_instance.assert_called_once()
     assert any(
@@ -426,15 +526,21 @@ def test_exec_start_callback_handles_exception(capture_service, caplog):
     )
 
 
-def test_load_processes_skips_none_plugin_process(capture_service):
+@pytest.mark.asyncio
+async def test_load_processes_skips_none_plugin_process(capture_service):
     mock_config = MagicMock()
     mock_config.plugin_id = "p1"
+    mock_config.id = "c1"
+    mock_config.name = "n"
+    mock_config.settings = {}
 
-    capture_service.config_service.get_all_configs_loaded.return_value = [mock_config]
-    capture_service.plugin_management.get_active_plugin_process.return_value = None
+    capture_service.config_service.get_all_configs_loaded.return_value = [
+        mock_config]
+    capture_service.plugin_management.get_active_plugin_process = MagicMock(
+        return_value=None)
 
-    with patch("multiprocessing.Queue"):
-        capture_service.load_processes("proj")
+    with patch("multiprocessing.Queue", return_value=MagicMock()):
+        await capture_service.load_processes("proj")
 
     assert not capture_service.running_processes
     assert not capture_service.processes_instances

@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -12,7 +12,6 @@ from mo.modules.organization.schemas.participant import (
     ParticipantData,
     ParticipantPostReq,
     ParticipantPutReq,
-    ParticipantRes,
 )
 from mo.modules.organization.services.participant_service import ParticipantService
 
@@ -22,6 +21,7 @@ def participant_service():
     service = ParticipantService()
 
     service.file_management = MagicMock()
+    service.file_management.send_to_trash_async = AsyncMock()
     service.project_service = MagicMock()
     return service
 
@@ -245,7 +245,8 @@ def test_update_participant_already_exists(participant_service):
         )
 
 
-def test_delete_participant_success(participant_service):
+@pytest.mark.asyncio
+async def test_delete_participant_success(participant_service):
     participant_service.exists = MagicMock(return_value=True)
     participant_service.is_participant_locked = MagicMock(return_value=False)
 
@@ -254,24 +255,29 @@ def test_delete_participant_success(participant_service):
         mock_storage.delete_one = MagicMock()
         MockStorage.return_value = mock_storage
 
-        participant_service.delete_participant("TestProject", "P001")
+        await participant_service.delete_participant("TestProject", "P001")
 
         mock_storage.delete_one.assert_called()
 
 
-def test_delete_participant_not_found(participant_service):
+@pytest.mark.asyncio
+async def test_delete_participant_not_found(participant_service):
     participant_service.exists = MagicMock(return_value=False)
 
     with pytest.raises(NotFoundException):
-        participant_service.delete_participant("TestProject", "UnknownParticipant")
+        await participant_service.delete_participant("TestProject", "UnknownParticipant")
 
 
-def test_delete_participant_locked(participant_service):
+
+import pytest
+
+@pytest.mark.asyncio
+async def test_delete_participant_locked(participant_service):
     participant_service.exists = MagicMock(return_value=True)
     participant_service.is_participant_locked = MagicMock(return_value=True)
 
     with pytest.raises(BadRequestException):
-        participant_service.delete_participant("TestProject", "P001")
+        await participant_service.delete_participant("TestProject", "P001")
 
 
 def test_lock_participant(participant_service):

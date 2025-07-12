@@ -349,13 +349,13 @@ class ProtocolService:
                 Activity(**{
                     "order": idx + 1,
                     "name": activity.name,
-                    "path": activity.path,
+                    "path": activity.path or "",
                     "has_time_limit": activity.has_time_limit,
                     "time_limit": activity.time_limit if activity.has_time_limit else 0,
-                    "start_message": activity.start_message,
-                    "end_message": activity.end_message,
+                    "start_message": activity.start_message or "",
+                    "end_message": activity.end_message or "",
                     "close_activity": activity.close_activity,
-                    "process_name": activity.process_name,
+                    "process_name": activity.process_name or "",
                     "show_timer": activity.show_timer,
                 })
             )

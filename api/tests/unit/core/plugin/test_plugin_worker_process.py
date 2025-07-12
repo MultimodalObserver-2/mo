@@ -52,6 +52,8 @@ def test_run_success_path(worker_process):
     mock_plugin_class._module_name = "test.module"
     worker_process.process_metadata.check_types = []
 
+    worker_process._PluginWorkerProcess__init_i18n = MagicMock(
+        return_value=MagicMock())
     worker_process._PluginWorkerProcess__load_plugin = MagicMock(return_value=mock_plugin_class)
     worker_process._PluginWorkerProcess__load_properties = MagicMock(return_value=MagicMock())
     worker_process._event_loop = MagicMock()
@@ -68,6 +70,8 @@ def test_run_success_path(worker_process):
 
 
 def test_run_handles_load_exception(worker_process):
+    worker_process._PluginWorkerProcess__init_i18n = MagicMock(
+        return_value=MagicMock())
     with patch.object(
         worker_process,
         "_PluginWorkerProcess__load_plugin",

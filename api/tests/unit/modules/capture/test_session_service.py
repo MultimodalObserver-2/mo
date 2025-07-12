@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import ANY, MagicMock, patch
+from unittest.mock import ANY, AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -23,6 +23,7 @@ def session_service():
     service.participant_service = MagicMock()
     service.plugin_service = MagicMock()
     service.file_management = MagicMock()
+    service.file_management.send_to_trash_async = AsyncMock()
     return service
 
 
@@ -257,7 +258,8 @@ def test_get_session_not_found(session_service):
         session_service.get_session(project_name, participant_code, session_id)
 
 
-def test_delete_session_success(session_service):
+@pytest.mark.asyncio
+async def test_delete_session_success(session_service):
     project_name = "TestProject"
     participant_code = "P01"
     session_id = "session_to_delete"
@@ -271,14 +273,15 @@ def test_delete_session_success(session_service):
         mock_storage_instance = MagicMock()
         mock_json_storage.return_value = mock_storage_instance
 
-        session_service.delete_session(project_name, participant_code, session_id)
+        await session_service.delete_session(project_name, participant_code, session_id)
 
         session_service.get_session.assert_called_with(project_name, participant_code, session_id)
-        session_service.file_management.send_to_trash.assert_called_with(mock_session_res.location)
+        session_service.file_management.send_to_trash_async.assert_called_with(mock_session_res.location)
         mock_storage_instance.delete_one.assert_called_with({"session_id": session_id})
 
 
-def test_delete_session_participant_locked(session_service):
+@pytest.mark.asyncio
+async def test_delete_session_participant_locked(session_service):
     project_name = "TestProject"
     participant_code = "P01"
     session_id = "session_to_delete"
@@ -288,7 +291,7 @@ def test_delete_session_participant_locked(session_service):
     session_service.participant_service.is_participant_locked.return_value = True
 
     with pytest.raises(BadRequestException):
-        session_service.delete_session(project_name, participant_code, session_id)
+        await session_service.delete_session(project_name, participant_code, session_id)
 
 
 def test_exists_true(session_service, mock_participant):

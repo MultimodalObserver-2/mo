@@ -1,4 +1,4 @@
-from unittest.mock import MagicMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -16,6 +16,7 @@ def project_service():
     service = ProjectService()
 
     service.file_management = MagicMock()
+    service.file_management.send_to_trash_async = AsyncMock()
     service.projects_storage = MagicMock()
     return service
 
@@ -204,7 +205,8 @@ def test_get_project_not_found(project_service):
         project_service.get_project(project_name)
 
 
-def test_delete_project_success(project_service):
+@pytest.mark.asyncio
+async def test_delete_project_success(project_service):
     project_name = "Test Project"
     existing_project = {
         "name": project_name,
@@ -218,22 +220,24 @@ def test_delete_project_success(project_service):
     project_service.file_management.send_to_trash.return_value = None
     project_service.projects_storage.delete_one.return_value = None
 
-    result = project_service.delete_project(project_name)
+    result = await project_service.delete_project(project_name)
 
     assert result is None
-    project_service.file_management.send_to_trash.assert_called()
+    project_service.file_management.send_to_trash_async.assert_called()
     project_service.projects_storage.delete_one.assert_called()
 
 
-def test_delete_project_not_found(project_service):
+@pytest.mark.asyncio
+async def test_delete_project_not_found(project_service):
     project_name = "Nonexistent Project"
     project_service.projects_storage.exists.return_value = False
 
     with pytest.raises(NotFoundException):
-        project_service.delete_project(project_name)
+        await project_service.delete_project(project_name)
 
 
-def test_delete_project_locked(project_service):
+@pytest.mark.asyncio
+async def test_delete_project_locked(project_service):
     project_name = "Locked Project"
     existing_project = {
         "name": project_name,
@@ -246,7 +250,7 @@ def test_delete_project_locked(project_service):
     project_service.projects_storage.find_one.return_value = existing_project
 
     with pytest.raises(BadRequestException):
-        project_service.delete_project(project_name)
+        await project_service.delete_project(project_name)
 
 
 def test_lock_project_success(project_service):

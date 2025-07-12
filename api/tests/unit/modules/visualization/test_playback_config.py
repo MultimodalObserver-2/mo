@@ -215,14 +215,16 @@ def test_exists_project_not_found(playback_service):
 
 def test_save_playback_layout_success(playback_service):
     playback_service.project_service.exists.return_value = True
-    with patch("builtins.open", create=True) as mock_open:
-        mock_file = MagicMock()
-        mock_open.return_value.__enter__.return_value = mock_file
-        playback_service._get_configurations_dir_path = MagicMock(
-            return_value="/some/path")
-        playback_service.save_playback_layout(
-            "TestProject", {"layout": [1, 2, 3]})
-        mock_open.assert_called()
+    playback_service._get_configurations_dir_path = MagicMock(
+        return_value="/some/path")
+
+    playback_service.file_management.create_json_file = MagicMock()
+
+    playback_service.save_playback_layout("TestProject", {"layout": [1, 2, 3]})
+
+    playback_service.file_management.create_json_file.assert_called_once_with(
+        playback_service._layout_file_name, {"layout": [1, 2, 3]}, "/some/path"
+    )
 
 
 def test_save_playback_layout_project_not_found(playback_service):
@@ -236,13 +238,11 @@ def test_get_playback_layout_success(playback_service):
     playback_service._get_configurations_dir_path = MagicMock(
         return_value="/some/path")
     playback_service.file_management.exists.return_value = True
-    with patch("builtins.open", create=True) as mock_open:
-        mock_file = MagicMock()
-        mock_open.return_value.__enter__.return_value = mock_file
-        mock_file.read.return_value = '{"layout": [1,2,3]}'
-        with patch("json.load", return_value={"layout": [1, 2, 3]}):
-            result = playback_service.get_playback_layout("TestProject")
-            assert result == {"layout": [1, 2, 3]}
+    playback_service.file_management.read_json_file = MagicMock(
+        return_value={"layout": [1, 2, 3]})
+
+    result = playback_service.get_playback_layout("TestProject")
+    assert result == {"layout": [1, 2, 3]}
 
 
 def test_get_playback_layout_project_not_found(playback_service):
@@ -256,5 +256,12 @@ def test_get_playback_layout_file_not_found(playback_service):
     playback_service._get_configurations_dir_path = MagicMock(
         return_value="/some/path")
     playback_service.file_management.exists.return_value = False
-    with pytest.raises(NotFoundException):
-        playback_service.get_playback_layout("TestProject")
+
+    playback_service.file_management.create_json_file = MagicMock()
+    playback_service.file_management.read_json_file = MagicMock(
+        return_value={})
+
+    result = playback_service.get_playback_layout("TestProject")
+    assert result == {}
+    playback_service.file_management.create_json_file.assert_called_once()
+    playback_service.file_management.read_json_file.assert_called_once()
