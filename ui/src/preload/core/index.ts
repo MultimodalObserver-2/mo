@@ -175,6 +175,22 @@ const core = {
     },
     changeLanguage: (language: string) => {
       return ipcRenderer.invoke("core:i18n:changeLanguage", language)
+    },
+    loadResource: (
+      basePath: string,
+      localesPath: string,
+      language: string,
+      namespace: string,
+      name: string = "translation.json"
+    ) => {
+      return ipcRenderer.invoke(
+        "core:i18n:loadResource",
+        basePath,
+        localesPath,
+        language,
+        namespace,
+        name
+      )
     }
   }
 }

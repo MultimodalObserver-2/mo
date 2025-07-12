@@ -22,3 +22,7 @@ export type {
 
 // Visualization/Playback plugin extensions
 export { PlaybackPlugin } from "@renderer/modules/visualization/plugin/PlaybackPlugin"
+
+// i18n for internationalization
+export { i18n } from "@renderer/utils/i18n"
+export { useTranslation, Trans } from "react-i18next"

@@ -2,6 +2,7 @@ import styles from "./language-setting.module.css"
 import Select from "@renderer/core/components/select/Select"
 import SettingsGroup from "../SettingsGroup"
 import { useTranslation } from "react-i18next"
+import pluginManager from "@renderer/core/plugin/PluginManager"
 
 export default function LanguageSetting() {
   const { t, i18n } = useTranslation("core", { keyPrefix: "pages.settings.languages" })
@@ -25,6 +26,12 @@ export default function LanguageSetting() {
       })
     } catch (error) {
       console.error("Error changing language:", error)
+    }
+
+    try {
+      pluginManager.loadAllPluginLanguageLocales(selectedLanguage)
+    } catch (error) {
+      console.error("Error loading plugin language locales:", error)
     }
   }
 

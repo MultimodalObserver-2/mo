@@ -10,6 +10,7 @@
  * @property repository - (Optional) Repository URL for the plugin source code.
  * @property author - (Optional) Author information, with `name` and `email`.
  * @property icon - Path(s) to plugin icons. May be a string (single icon) or an object with `light`/`dark` variants.
+ * @property locales - (Optional) Path to a directory containing localization files for the plugin.
  * @property platform - (Optional) Supported platforms for the plugin. Values indicate compatibility (`true` for supported).
  * @property entryPoints - Entry points for loading the plugin in different contexts.
  *                        Keys correspond to application integration points (e.g. "mo.ui.renderer.plugin"),
@@ -30,6 +31,7 @@ export interface PluginMetadata {
         dark?: string
       }
     | string
+  locales?: string
   platform?: { linux?: boolean; windows?: boolean; macos?: boolean }
   entryPoints: {
     "mo.ui.renderer.plugin"?: string

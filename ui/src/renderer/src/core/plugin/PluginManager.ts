@@ -16,6 +16,7 @@ import { PluginMetadata } from "./types/PluginMetadata"
 import { validateId } from "./utils/validateId"
 import { PluginDTO, PluginIcons } from "./types/PluginDTO"
 import { PLUGIN_BASE_PATH } from "./constants"
+import i18n from "i18next"
 
 export interface PluginConstructor {
   new (): PluginBase
@@ -42,6 +43,7 @@ class PluginManager {
     rendPlugin: "mo.ui.renderer.plugin",
     rendPluginProperties: "mo.ui.renderer.plugin.properties"
   }
+  private readonly translationFileName = "translations.json"
 
   /**
    * Loads and registers all plugins found in the plugins directory.
@@ -188,6 +190,86 @@ class PluginManager {
   }
 
   /**
+   * Loads the plugin's localization files if defined in metadata.
+   * Adds the loaded resources to i18next under the plugin's namespace.
+   * @param pluginPath - Path to the plugin directory.
+   * @param metadata - The plugin's metadata.
+   * @returns A promise that resolves when the locales are loaded.
+   * @throws Error if the locales path is invalid or loading fails.
+   */
+  private async loadPluginLocales(pluginPath: string, metadata: PluginMetadata): Promise<void> {
+    if (!metadata.locales) return
+
+    const resource = await window.core.i18n.loadResource(
+      pluginPath,
+      metadata.locales,
+      i18n.language,
+      this.getPluginNamespace(metadata),
+      this.translationFileName
+    )
+
+    if (resource) {
+      i18n.addResourceBundle(i18n.language, this.getPluginNamespace(metadata), resource, true, true)
+    }
+  }
+
+  /**
+   * Loads the plugin's language locale for a specific language.
+   * Adds the loaded resources to i18next under the plugin's namespace.
+   * @param pluginId - The plugin's unique identifier.
+   * @param language - The language code to load the locale for.
+   * @param reload - Whether to reload the locale even if it already exists.
+   * @returns A promise that resolves when the locale is loaded.
+   * @throws Error if the plugin does not exist or does not define locales.
+   */
+  async loadPluginLanguageLocale(
+    pluginId: string,
+    language: string,
+    reload: boolean = false
+  ): Promise<void> {
+    const plugin = this.plugins.get(pluginId)
+    if (!plugin) {
+      throw new Error(`Plugin with ID ${pluginId} not found`)
+    }
+
+    if (!plugin.metadata.locales) {
+      throw new Error(`Plugin ${pluginId} does not define locales`)
+    }
+
+    const pluginPath = plugin.location
+    const namespace = this.getPluginNamespace(plugin.metadata)
+    if (!reload && i18n.hasResourceBundle(language, namespace)) {
+      return
+    }
+
+    const resource = await window.core.i18n.loadResource(
+      pluginPath,
+      plugin.metadata.locales,
+      language,
+      namespace,
+      this.translationFileName
+    )
+
+    if (resource) {
+      i18n.addResourceBundle(language, namespace, resource, true, true)
+    }
+  }
+
+  async loadAllPluginLanguageLocales(language: string, reload: boolean = false): Promise<void> {
+    const pluginPromises = Array.from(this.plugins.values()).map(async (plugin) => {
+      if (plugin.metadata.locales && plugin.is_loaded) {
+        try {
+          await this.loadPluginLanguageLocale(plugin.id, language, reload)
+        } catch (error) {
+          console.error(`Failed to load locale for plugin ${plugin.id}:`, error)
+        }
+      }
+    })
+
+    await Promise.all(pluginPromises)
+  }
+
+  /**
    * Registers a single plugin found at the given path.
    * Loads metadata, main class, properties (if present), and handles errors.
    * @param pluginPath - Absolute path to the plugin directory.
@@ -238,6 +320,14 @@ class PluginManager {
       if (this.entryPointExists(rawMetadata, this.entryPoints.rendPluginProperties)) {
         const propertiesInstance = await this.loadPropertiesInstance(loadPath, rawMetadata)
         internalPlugin.properties = propertiesInstance
+      }
+
+      if (rawMetadata.locales) {
+        try {
+          await this.loadPluginLocales(pluginPath, rawMetadata)
+        } catch (error) {
+          console.error(`Failed to load locales for plugin ${fullId}:`, error)
+        }
       }
 
       this.plugins.set(fullId, internalPlugin)
@@ -457,6 +547,14 @@ class PluginManager {
     }
 
     return plugin.properties
+  }
+
+  /**
+   * Gets the namespace for a plugin based on its metadata.
+   * @param metadata - The plugin's metadata.
+   */
+  getPluginNamespace(metadata: PluginMetadata): string {
+    return `${metadata.publisher.id}-${metadata.id}`
   }
 }
 

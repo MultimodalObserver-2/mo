@@ -1,8 +1,10 @@
 import { app, ipcMain } from "electron"
 import { getI18nConfig } from "./config"
+import fs from "fs"
 import i18n from "./i18n"
 import preferencesManager from "../preferences/PreferencesManager"
 import languageObserver from "./LanguageObserver"
+import path from "path"
 
 app.whenReady().then(() => {
   ipcMain.handle("core:i18n:getInitialData", async () => {
@@ -33,4 +35,20 @@ app.whenReady().then(() => {
       })
     })
   })
+
+  ipcMain.handle(
+    "core:i18n:loadResource",
+    async (_event, basePath, localesPath, language, namespace, name = "translation.json") => {
+      const resourcePath = path.join(basePath, localesPath, language, name)
+      try {
+        const rawResource = fs.readFileSync(resourcePath, "utf-8")
+        const resource = JSON.parse(rawResource)
+        i18n.addResourceBundle(language, namespace, resource, true, true)
+        return resource
+      } catch (error) {
+        console.error("Error loading resource:", error)
+        throw new Error(`Failed to load resource from ${resourcePath}`)
+      }
+    }
+  )
 })
