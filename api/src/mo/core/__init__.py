@@ -4,6 +4,7 @@ from mo.core.plugin.models.properties import Properties, Property, PropertySelec
 from mo.core.plugin.models.semantic_version import SemanticVersion
 from mo.core.plugin.models.settings import Settings
 from mo.core.plugin.models.sys_platform import SysPlatform
+from mo.core.utils.i18n import translate
 
 __all__ = [
     "Plugin",
@@ -14,4 +15,5 @@ __all__ = [
     "load_metadata_json",
     "SysPlatform",
     "SemanticVersion",
+    "translate"
 ]

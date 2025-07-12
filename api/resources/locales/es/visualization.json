@@ -1,0 +1,4 @@
+{
+  "configAlreadyExists": "Ya existe una configuración con el nombre '%{config_name}'.",
+  "configDoesNotExist": "No existe una configuración con el nombre '%{config_name}'."
+}

@@ -91,11 +91,11 @@ class ParticipantService:
         participant.code = participant.code.strip()
         if self.exists(project_name, participant.code):
             raise AlreadyExistsException(
-                PARTICIPANT_ALREADY_EXISTS.format(code=participant.code, project_name=project_name)
+                PARTICIPANT_ALREADY_EXISTS(code=participant.code, project_name=project_name)
             )
 
         if not FileValidators.is_valid_directory_name(participant.code):
-            raise BadRequestException(PARTICIPANT_CODE_NOT_ALLOWED.format(code=participant.code))
+            raise BadRequestException(PARTICIPANT_CODE_NOT_ALLOWED(code=participant.code))
 
         dir_name = self._get_participant_dir_name(participant.code)
         self.file_management.create_directory(dir_name, rel_path=project_name)
@@ -128,7 +128,7 @@ class ParticipantService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participants = participants_storage.find_all()
@@ -152,13 +152,13 @@ class ParticipantService:
             NotFoundException: If the project or participant does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participant = participants_storage.find_one({"code": participant_code})
         if not participant:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_code, project_name=project_name)
             )
         project_rel_location = self.project_service.get_rel_project_location(project_name)
         return ParticipantRes.from_data(ParticipantData(**participant), project_rel_location)
@@ -177,12 +177,12 @@ class ParticipantService:
             NotFoundException: If the participant does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
         participants_storage = self._get_participants_storage(project_name)
         participant_data = participants_storage.find_one({"code": participant_code})
         if not participant_data:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_code, project_name=project_name)
             )
         return ParticipantData(**participant_data)
 
@@ -206,7 +206,7 @@ class ParticipantService:
         existing_participant = self.get_participant_data(project_name, participant_code)
         if self.is_participant_locked(project_name, participant_code):
             raise BadRequestException(
-                PARTICIPANT_IS_LOCKED.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_IS_LOCKED(code=participant_code, project_name=project_name)
             )
 
         participant.code = participant.code.strip() if participant.code else participant_code
@@ -223,12 +223,12 @@ class ParticipantService:
         if participant.code != None and existing_participant.code != participant_code:
             if not FileValidators.is_valid_directory_name(participant.code):
                 raise BadRequestException(
-                    PARTICIPANT_CODE_NOT_ALLOWED.format(code=participant.code)
+                    PARTICIPANT_CODE_NOT_ALLOWED(code=participant.code)
                 )
 
             if self.exists(project_name, participant.code):
                 raise AlreadyExistsException(
-                    PARTICIPANT_ALREADY_EXISTS.format(
+                    PARTICIPANT_ALREADY_EXISTS(
                         code=participant.code, project_name=project_name
                     )
                 )
@@ -258,12 +258,12 @@ class ParticipantService:
         """
         if not self.exists(project_name, participant_code):
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_code, project_name=project_name)
             )
 
         if self.is_participant_locked(project_name, participant_code):
             raise BadRequestException(
-                PARTICIPANT_IS_LOCKED.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_IS_LOCKED(code=participant_code, project_name=project_name)
             )
 
         dir_name = self._get_participant_dir_name(participant_code)
@@ -322,7 +322,7 @@ class ParticipantService:
         participant = self.get_participant_data(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_code, project_name=project_name)
             )
 
         participant.locked = locked
@@ -349,7 +349,7 @@ class ParticipantService:
         participant = self.get_participant_data(project_name, participant_code)
         if participant is None:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(code=participant_code, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_code, project_name=project_name)
             )
 
         return participant.locked
@@ -368,7 +368,7 @@ class ParticipantService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         return participants_storage.exists({"code": participant_code})
@@ -387,13 +387,13 @@ class ParticipantService:
             NotFoundException: If the project or participant does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         participants_storage = self._get_participants_storage(project_name)
         participant = participants_storage.find_one({"uuid": participant_uuid})
         if not participant:
             raise NotFoundException(
-                PARTICIPANT_DOES_NOT_EXIST.format(uuid=participant_uuid, project_name=project_name)
+                PARTICIPANT_DOES_NOT_EXIST(code=participant_uuid, project_name=project_name)
             )
         project_rel_location = self.project_service.get_rel_project_location(project_name)
         return ParticipantRes.from_data(ParticipantData(**participant), project_rel_location)

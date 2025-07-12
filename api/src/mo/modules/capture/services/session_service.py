@@ -1,6 +1,7 @@
 import os
 from datetime import datetime
 
+from mo.core.utils.i18n import translate
 from mo.core.api.services.plugin_service import PluginService
 from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
@@ -210,7 +211,9 @@ class SessionService:
         session_storage = self._get_session_storage(project_name, participant_code)
         session_data_dict = session_storage.find_one({"session_id": session_id})
         if not session_data_dict:
-            raise NotFoundException(f"Session with ID {session_id} not found.")
+            raise NotFoundException(
+                translate("capture.sessionNotFound", session_id=session_id)
+            )
         return SessionData(**session_data_dict)
 
     def get_all_sessions(self, project_name: str, participant_code: str) -> list[SessionRes]:
@@ -224,11 +227,17 @@ class SessionService:
             NotFoundException: If the project or participant does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(f"Project {project_name} does not exist.")
+            raise NotFoundException(
+                translate("capture.projectNotFound", project_name=project_name)
+            )
 
         if not self.participant_service.exists(project_name, participant_code):
             raise NotFoundException(
-                f"Participant {participant_code} does not exist in project {project_name}."
+                translate(
+                    "capture.participantNotFound",
+                    participant_code=participant_code,
+                    project_name=project_name,
+                )
             )
 
         session_storage = self._get_session_storage(project_name, participant_code)
@@ -275,7 +284,9 @@ class SessionService:
         """
         session = self.get_session(project_name, participant_code, session_id)
         if self.participant_service.is_participant_locked(project_name, participant_code):
-            raise BadRequestException("Cannot delete session, participant is locked.")
+            raise BadRequestException(
+                translate("capture.participantLocked", participant_code=participant_code)
+            )
         await self.file_management.send_to_trash_async(session.location)
         session_storage = self._get_session_storage(project_name, participant_code)
         session_storage.delete_one({"session_id": session_id})

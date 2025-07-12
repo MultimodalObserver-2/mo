@@ -18,6 +18,7 @@ dependencies = [
     "python-multipart (>=0.0.20,<0.0.21)",
     "send2trash (>=1.8.3,<2.0.0)",
     "aiofiles (>=24.1.0,<25.0.0)",
+    "i18nice (>=0.16.0,<0.17.0)",
 ]
 
 [tool.poetry]

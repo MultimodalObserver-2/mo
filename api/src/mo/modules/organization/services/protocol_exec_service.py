@@ -66,7 +66,7 @@ class ProtocolExecService:
         await websocket.send_json(msg.model_dump())
         start_res = await websocket.receive_text()
         if start_res != "start":
-            raise BadRequestException(INVALID_EXECUTION_REQUEST.format(activity_name=activity.name))
+            raise BadRequestException(INVALID_EXECUTION_REQUEST(activity_name=activity.name))
 
     async def handle_activity_execution(self, websocket: WebSocket, activity: Activity):
         """Handle the execution of an activity.
@@ -87,7 +87,7 @@ class ProtocolExecService:
             completed_res = await websocket.receive_text()
             if completed_res != "completed":
                 raise BadRequestException(
-                    INVALID_EXECUTION_REQUEST.format(activity_name=activity.name)
+                    INVALID_EXECUTION_REQUEST(activity_name=activity.name)
                 )
 
     async def send_timer(self, websocket: WebSocket, activity: Activity):
@@ -131,7 +131,7 @@ class ProtocolExecService:
         await websocket.send_json(msg.model_dump())
         next_res = await websocket.receive_text()
         if next_res != "next":
-            raise BadRequestException(INVALID_EXECUTION_REQUEST.format(activity_name=activity.name))
+            raise BadRequestException(INVALID_EXECUTION_REQUEST(activity_name=activity.name))
 
         if activity.close_activity:
             FileManagement().close_process(activity.process_name)

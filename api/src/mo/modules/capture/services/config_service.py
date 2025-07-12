@@ -22,6 +22,7 @@ from mo.modules.capture.services.capture_plugin_callbacks import get_file_extens
 from mo.modules.capture.services.paths import CAPTURE_CONFIGS_DIR, CAPTURE_CONFIGS_FILE
 from mo.modules.organization.errors.project import PROJECT_DOES_NOT_EXIST
 from mo.modules.organization.services.project_service import ProjectService
+from mo.core.utils.i18n import translate
 
 
 class CaptureConfigService:
@@ -85,25 +86,38 @@ class CaptureConfigService:
             BadRequestException: If the provided settings for the plugin are invalid.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         if not self.plugin_management.plugin_from_type_exists(config.plugin_id, CapturePlugin):
-            raise NotFoundException(f"Capture plugin {config.plugin_id} does not exist.")
+            raise NotFoundException(
+                translate("capture.pluginDoesNotExist",
+                          plugin_id=config.plugin_id)
+            )
 
         try:
             self.plugin_management.validate_plugin_settings(
                 config.plugin_id, Settings(config.settings)
             )
         except Exception as e:
-            raise BadRequestException(f"Invalid settings for plugin {config.plugin_id}: {str(e)}")
+            raise BadRequestException(
+                translate("capture.invalidPluginSettings",
+                          plugin_id=config.plugin_id, error=str(e))
+            )
 
         configurations_storage = self._get_configurations_storage(project_name)
         if self.exists(project_name, config.name):
-            raise AlreadyExistsException(f"Configuration with name {config.name} already exists.")
+            raise AlreadyExistsException(
+                translate("capture.configAlreadyExists",
+                          config_name=config.name)
+            )
 
-        plugin_metadata = self.plugin_management.get_plugin_metadata(config.plugin_id)
+        plugin_metadata = self.plugin_management.get_plugin_metadata(
+            config.plugin_id)
         if not plugin_metadata:
-            raise NotFoundException(f"Plugin metadata for {config.plugin_id} does not exist.")
+            raise NotFoundException(
+                translate("capture.pluginMetadataNotFound",
+                          plugin_id=config.plugin_id)
+            )
 
         plugin_icon = PluginRes.get_icon_path(
             plugin_metadata._location or "", plugin_metadata.icon_path or ""
@@ -111,7 +125,8 @@ class CaptureConfigService:
 
         plugin_file_extension = None
         try:
-            plugin_process = self.plugin_management.get_plugin_process(config.plugin_id)
+            plugin_process = self.plugin_management.get_plugin_process(
+                config.plugin_id)
             if plugin_process:
                 plugin_process.add_plugin_instance(
                     config.name, Settings(config.settings), overwrite=True)
@@ -119,7 +134,8 @@ class CaptureConfigService:
                     config.name, get_file_extension_callback)
         except Exception as e:
             raise BadRequestException(
-                f"Error while getting file extension for plugin {config.plugin_id}: {str(e)}"
+                translate("capture.fileExtensionError",
+                          plugin_id=config.plugin_id, error=str(e))
             )
 
         final_config = CaptureConfigData(
@@ -150,7 +166,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         configurations_storage = self._get_configurations_storage(project_name)
         configs_dict = configurations_storage.find_all()
@@ -186,12 +202,15 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist or if the configuration does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         settings = configs_storage.find_one({"name": config_name})
         if not settings:
-            raise NotFoundException(f"Configuration with name {config_name} do not exist.")
+            raise NotFoundException(
+                translate("capture.configDoesNotExist",
+                          config_name=config_name)
+            )
 
         settings_data = CaptureConfigData(**settings)
         plugin_metadata = self.plugin_management.get_plugin_metadata(settings_data.plugin_id)
@@ -236,13 +255,15 @@ class CaptureConfigService:
             )
         except Exception as e:
             raise BadRequestException(
-                f"Invalid settings for plugin {existing_config.plugin_id}: {str(e)}"
+                translate("capture.invalidPluginSettings",
+                          plugin_id=existing_config.plugin_id, error=str(e))
             )
 
-        if config.name != None and config.name != config_name:
+        if config.name is not None and config.name != config_name:
             if self.exists(project_name, config.name):
                 raise AlreadyExistsException(
-                    f"Configuration with name {config.name} already exists."
+                    translate("capture.configAlreadyExists",
+                              config_name=config.name)
                 )
             existing_config.name = config.name
 
@@ -257,7 +278,8 @@ class CaptureConfigService:
                     existing_config.id, get_file_extension_callback)
         except Exception as e:
             raise BadRequestException(
-                f"Error while getting file extension for plugin {existing_config.plugin_id}: {str(e)}"
+                translate("capture.fileExtensionError",
+                          plugin_id=existing_config.plugin_id, error=str(e))
             )
         config_data = CaptureConfigData(
             id=existing_config.id,
@@ -281,7 +303,10 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist or if the configuration does not exist.
         """
         if not self.exists(project_name, config_name):
-            raise NotFoundException("Configuration with name {setting_name} do not exist.")
+            raise NotFoundException(
+                translate("capture.configDoesNotExist",
+                          config_name=config_name)
+            )
 
         configs_storage = self._get_configurations_storage(project_name)
         configs_storage.delete_one({"name": config_name})
@@ -297,7 +322,7 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
         configs_storage = self._get_configurations_storage(project_name)
         return configs_storage.exists({"name": config_name})
 
@@ -311,14 +336,15 @@ class CaptureConfigService:
             NotFoundException: If the project does not exist.
         """
         if not self.project_service.exists(project_name):
-            raise NotFoundException(PROJECT_DOES_NOT_EXIST.format(name=project_name))
+            raise NotFoundException(PROJECT_DOES_NOT_EXIST(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         config_dicts = configs_storage.find_all()
         configs = []
         for config_dict in config_dicts:
             config_data = CaptureConfigData(**config_dict)
-            plugin_metadata = self.plugin_management.get_plugin_metadata(config_data.plugin_id)
+            plugin_metadata = self.plugin_management.get_plugin_metadata(
+                config_data.plugin_id)
             if plugin_metadata and plugin_metadata._is_loaded:
                 config = CaptureConfigLoaded(
                     id=config_data.id,

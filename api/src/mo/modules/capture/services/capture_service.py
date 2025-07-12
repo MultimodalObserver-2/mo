@@ -33,6 +33,7 @@ from mo.modules.capture.services.capture_plugin_callbacks import (
 )
 from mo.modules.capture.services.config_service import CaptureConfigService
 from mo.modules.capture.services.session_service import SessionService
+from mo.core.utils.i18n import translate
 
 
 @singleton
@@ -168,11 +169,11 @@ class CaptureService:
             BadRequestException: If the capture is already started or if no capture configurations are loaded.
         """
         if self.started:
-            raise BadRequestException("Capture is already started.")
+            raise BadRequestException(translate("capture.alreadyStarted"))
         processes_queue = await self.load_processes(project_name)
         if len(self.running_processes) == 0:
             raise BadRequestException(
-                "No capture configurations loaded for the project")
+                translate("capture.noConfigurationsLoaded"))
         self.start_ts = time.monotonic()
         self.project_name = project_name
         self.participant_code = participant_code
@@ -248,7 +249,7 @@ class CaptureService:
             BadRequestException: If the capture is not started, or if there are errors during the stop process.
         """
         if not self.started:
-            raise BadRequestException("Capture is not started.")
+            raise BadRequestException(translate("capture.notStarted"))
         self.started = False
         self.paused = False
         stop_ts = time.monotonic()
@@ -274,9 +275,7 @@ class CaptureService:
         await self.unload_running_processes()
         self._initialize()
         if len(exceptions) > 0:
-            raise BadRequestException(
-                "Failed to stop safely some processes, some data may be lost."
-            )
+            raise BadRequestException(translate("capture.failedToStop"))
 
     async def pause_capture(self):
         """Pause the capture session.
@@ -287,7 +286,7 @@ class CaptureService:
         """
         if not self.started or self.paused:
             raise BadRequestException(
-                "Capture is not started or already paused.")
+                translate("capture.notStartedOrAlreadyPaused"))
         self.paused_ts = time.monotonic()
         self.capture_buffer_manager.pause(self.paused_ts)
         with self.execute_lock:
@@ -312,7 +311,7 @@ class CaptureService:
             BadRequestException: If the capture is not started or not paused.
         """
         if not self.started or not self.paused:
-            raise BadRequestException("Capture is not started or not paused.")
+            raise BadRequestException(translate("capture.notStartedOrNotPaused"))
         resume_ts = time.monotonic()
         self.capture_buffer_manager.resume(resume_ts)
         with self.execute_lock:
@@ -349,7 +348,7 @@ class CaptureService:
         process = self.running_processes.get(plugin_id)
         if process is None:
             raise BadRequestException(
-                f"No running process found for plugin {plugin_id}.")
+                translate("capture.noRunningProcess", plugin_id=plugin_id))
         file_extension = process.execute_callback_on_instance(
             config_id, get_file_extension_callback
         )

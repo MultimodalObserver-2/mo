@@ -1,0 +1,19 @@
+{
+  "alreadyStarted": "Capture is already started.",
+  "notStarted": "Capture is not started.",
+  "notStartedOrAlreadyPaused": "Capture is not started or already paused.",
+  "notStartedOrNotPaused": "Capture is not started or not paused.",
+  "noConfigurationsLoaded": "No capture configurations loaded for the project.",
+  "failedToStop": "Failed to stop safely some processes, some data may be lost.",
+  "noRunningProcess": "No running process found for plugin '%{plugin_id}'.",
+  "pluginDoesNotExist": "Capture plugin '%{plugin_id}' does not exist.",
+  "invalidPluginSettings": "Invalid settings for plugin '%{plugin_id}': %{error}",
+  "configAlreadyExists": "Configuration with name '%{config_name}' already exists.",
+  "pluginMetadataNotFound": "Plugin metadata for '%{plugin_id}' does not exist.",
+  "fileExtensionError": "Error while getting file extension for plugin '%{plugin_id}': %{error}",
+  "configDoesNotExist": "Configuration with name '%{config_name}' does not exist.",
+  "sessionNotFound": "Session with ID '%{session_id}' not found.",
+  "projectNotFound": "Project '%{project_name}' does not exist.",
+  "participantNotFound": "Participant '%{participant_code}' does not exist in project '%{project_name}'.",
+  "participantLocked": "Cannot delete session, participant '%{participant_code}' is locked."
+}

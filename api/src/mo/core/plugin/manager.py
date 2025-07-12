@@ -10,6 +10,7 @@ from mo.core.plugin.metadata_loader import load_plugin_metadata
 from mo.core.plugin.models.plugin import Plugin, PluginMetadata
 from mo.core.plugin.models.settings import Settings
 from mo.core.plugin.worker_process import PluginProcessMetadata, PluginWorkerProcess
+from mo.core.utils.i18n import get_current_language
 from mo.core.utils.singleton import singleton
 
 
@@ -174,7 +175,7 @@ class PluginManager:
                 self.plugin_types_to_check,
             )
             plugin_process = PluginWorkerProcess(
-                plugin_process_metadata, load_main_instance=True, plugins_path=self.plugins_path
+                plugin_process_metadata, load_main_instance=True, plugins_path=self.plugins_path, i18n_lang=get_current_language()
             )
             plugin_process.start()
             status = status_queue.get()
@@ -336,7 +337,7 @@ class PluginManager:
         if process_metadata is None:
             return None
         plugin_process = PluginWorkerProcess(
-            process_metadata, keep_running=True, processes_queue=processes_queue
+            process_metadata, keep_running=True, processes_queue=processes_queue, i18n_lang=get_current_language()
         )
         self.plugin_processes[key] = plugin_process
         plugin_process.start()
@@ -386,8 +387,10 @@ class PluginManager:
 
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
+            # Timeout for terminating the process if no additional requests are received.
+            timeout = 60
             plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120, plugins_path=self.plugins_path
+                process_metadata, keep_running=True, timeout=timeout, plugins_path=self.plugins_path, i18n_lang=get_current_language()
             )
             self.plugin_processes[key] = plugin_process
             plugin_process.start()
@@ -415,7 +418,7 @@ class PluginManager:
         plugin_process = self.plugin_processes.get(key)
         if plugin_process is None or not plugin_process.is_alive():
             plugin_process = PluginWorkerProcess(
-                process_metadata, keep_running=True, timeout=120, plugins_path=self.plugins_path
+                process_metadata, keep_running=True, timeout=120, plugins_path=self.plugins_path, i18n_lang=get_current_language()
             )
             self.plugin_processes[key] = plugin_process
             plugin_process.start()

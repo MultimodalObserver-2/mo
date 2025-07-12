@@ -1,0 +1,25 @@
+{
+  "project": {
+    "alreadyExists": "Project with name '%{name}' already exists.",
+    "doesNotExist": "Project with name '%{name}' does not exist.",
+    "nameNotAllowed": "Project name '%{name}' is not allowed.",
+    "isLocked": "Project '%{name}' is locked."
+  },
+  "participant":{
+    "alreadyExists": "Participant with code '%{code}' already exists in project '%{project_name}'.",
+    "doesNotExist": "Participant with code '%{code}' does not exist in project '%{project_name}'.",
+    "codeNotAllowed": "Participant code '%{code}' isn't allowed.",
+    "isLocked": "Participant with '%{code}' in project '%{project_name}' is locked."
+  },
+  "protocol": {
+    "alreadyExists": "Protocol '%{protocol_name}' already exists in project '%{project_name}'.",
+    "doesNotExist": "Protocol '%{protocol_name}' doesn't exist in project '%{project_name}'.",
+    "isLocked": "Protocol '%{protocol_name}' in project '%{project_name}' is locked."
+  },
+  "activity": {
+    "invalidFilePath": "Invalid file path for activity '%{activity_name}' in protocol '%{protocol_name}'.",
+    "invalidTimeLimit": "Invalid time limit for activity '%{activity_name}' in protocol '%{protocol_name}'.",
+    "processNameRequired": "Process name is required for activity '%{activity_name}' in protocol '%{protocol_name}'.",
+    "invalidExecutionRequest": "Invalid execution request for activity '%{activity_name}'."
+  }
+}

@@ -1,6 +1,6 @@
-import json
 import os
 
+from mo.core.utils.i18n import translate
 from mo.core.file_management.file_management import FileManagement
 from mo.core.file_management.json_storage import JsonStorage
 from mo.core.plugin.manager import PluginManager
@@ -77,11 +77,12 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
 
         if self.exists(project_name, config.name):
             raise AlreadyExistsException(
-                f"Configuration with name {config.name} already exists.")
+                translate("visualization.configAlreadyExists", config_name=config.name)
+            )
 
         
         final_config = PlaybackConfigData(
@@ -114,7 +115,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
 
         configurations_storage = self._get_configurations_storage(project_name)
         configs_dict = configurations_storage.find_all()
@@ -142,13 +143,14 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
 
         configs_storage = self._get_configurations_storage(project_name)
         settings = configs_storage.find_one({"name": config_name})
         if not settings:
             raise NotFoundException(
-                f"Configuration with name {config_name} do not exist.")
+                translate("visualization.configDoesNotExist", config_name=config_name)
+            )
 
         settings_data = PlaybackConfigData(**settings)
         settings = PlaybackConfigRes(
@@ -183,10 +185,10 @@ class PlaybackConfigService:
             config.capture_config_id if config.capture_config_id else existing_config.capture_config_id
         )
 
-        if config.name != None and config.name != config_name:
+        if config.name is not None and config.name != config_name:
             if self.exists(project_name, config.name):
                 raise AlreadyExistsException(
-                    f"Configuration with name {config.name} already exists."
+                    translate("visualization.configAlreadyExists", config_name=config.name)
                 )
             existing_config.name = config.name
 
@@ -235,7 +237,8 @@ class PlaybackConfigService:
         """
         if not self.exists(project_name, config_name):
             raise NotFoundException(
-                "Configuration with name {setting_name} do not exist.")
+                translate("visualization.configDoesNotExist", config_name=config_name)
+            )
 
         configs_storage = self._get_configurations_storage(project_name)
         configs_storage.delete_one({"name": config_name})
@@ -252,7 +255,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
         configs_storage = self._get_configurations_storage(project_name)
         return configs_storage.exists({"name": config_name})
     
@@ -268,7 +271,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
 
         dir_path = self._get_configurations_dir_path(project_name)
         self.file_management.create_json_file(self._layout_file_name, layout, dir_path)
@@ -284,7 +287,7 @@ class PlaybackConfigService:
         """
         if not self.project_service.exists(project_name):
             raise NotFoundException(
-                PROJECT_DOES_NOT_EXIST.format(name=project_name))
+                PROJECT_DOES_NOT_EXIST(name=project_name))
 
         dir_path = self._get_configurations_dir_path(project_name)
         file_path = os.path.join(dir_path, self._layout_file_name)

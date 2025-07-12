@@ -2,6 +2,7 @@ from typing import Any, Optional
 
 from fastapi import UploadFile
 
+from mo.core.utils.i18n import translate
 from mo.core.api.schemas.plugin import PluginRes, PropertyRes
 from mo.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
 from mo.core.file_management.file_management import FileManagement
@@ -41,7 +42,7 @@ class PluginService:
         self.plugins_dir_handler.suspend()
         file_name = file.filename
         if file_name is None or not file_name.endswith(".zip"):
-            raise BadRequestException("File must be a zip archive.")
+            raise BadRequestException(translate("core.fileMustBeZip"))
         dir_name = self.file_management.get_unique_name(file_name.replace(".zip", ""))
 
         dir_path = self.file_management.create_directory(dir_name)
@@ -55,7 +56,9 @@ class PluginService:
             # If registration fails, we need to clean up the directory
             await self.file_management.delete_directory_async(dir_name)
             self.plugins_dir_handler.resume()
-            raise BadRequestException(f"Failed to add plugin '{file_name}'. \nError: {e}")
+            raise BadRequestException(
+                translate("core.failedToAddPlugin", file_name=file_name, error=str(e))
+            )
         self.plugins_dir_handler.add_known_dir(dir_name)
         self.plugins_dir_handler.resume()
         return PluginRes.from_plugin_metadata(plugin_metadata)
@@ -79,7 +82,9 @@ class PluginService:
         """
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{final_id}' not found.")
+            raise BadRequestException(
+                translate("core.pluginNotFound", final_id=final_id)
+            )
         return PluginRes.from_plugin_metadata(plugin_metadata)
 
     async def remove_plugin(self, final_id: str) -> None:
@@ -92,7 +97,9 @@ class PluginService:
         """
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{final_id}' not found.")
+            raise BadRequestException(
+                translate("core.pluginNotFound", final_id=final_id)
+            )
         self.plugins_dir_handler.suspend()
         dir_name = self.plugin_manager.get_plugin_dir_name(final_id)
         try:
@@ -105,7 +112,9 @@ class PluginService:
             self.plugin_manager.register_plugin(dir_name)
             self.plugins_dir_handler.add_known_dir(dir_name)
             self.plugins_dir_handler.resume()
-            raise BadRequestException(f"Failed to remove plugin '{final_id}'. \nError: {e}")
+            raise BadRequestException(
+                translate("core.failedToRemovePlugin", final_id=final_id, error=str(e))
+            )
         finally:
             self.plugins_dir_handler.resume()
 
@@ -123,7 +132,9 @@ class PluginService:
         """
         plugin_metadata = self.plugin_manager.get_plugin_metadata(final_id)
         if not plugin_metadata:
-            raise BadRequestException(f"Plugin '{final_id}' not found.")
+            raise BadRequestException(
+                translate("core.pluginNotFound", final_id=final_id)
+            )
 
         plugin_properties = self.plugin_manager.get_plugin_properties(
             final_id, Settings(settings) if settings else None

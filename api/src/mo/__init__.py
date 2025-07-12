@@ -7,6 +7,7 @@ from mo.core import (
     Settings,
     SysPlatform,
     load_metadata_json,
+    translate
 )
 from mo.modules.capture import CaptureData, CapturePlugin, PicklableScalar, PicklableType
 
@@ -23,4 +24,5 @@ __all__ = [
     "CaptureData",
     "PicklableType",
     "PicklableScalar",
+    "translate"
 ]

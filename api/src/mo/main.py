@@ -1,6 +1,7 @@
 import multiprocessing
 import os
 
+from mo.core.utils.i18n import set_language
 import uvicorn
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
@@ -62,6 +63,13 @@ app.add_middleware(
 @app.get("/health")
 def health_check():
     return {"status": "ok"}
+
+
+@app.post("/set-language")
+def change_language(data: dict = {"lang": "en"}):
+    lang = data.get("lang", "en")
+    set_language(lang)
+    return {"success": True, "language": lang}
 
 # Core routers
 app.include_router(plugin_router)

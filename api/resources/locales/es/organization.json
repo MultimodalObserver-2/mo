@@ -1,0 +1,25 @@
+{
+  "project": {
+    "alreadyExists": "Ya existe un proyecto con el nombre '%{name}'.",
+    "doesNotExist": "No existe un proyecto con el nombre '%{name}'.",
+    "nameNotAllowed": "El nombre de proyecto '%{name}' no está permitido.",
+    "isLocked": "El proyecto '%{name}' está bloqueado."
+  },
+  "participant": {
+    "alreadyExists": "Ya existe un participante con el código '%{code}' en el proyecto '%{project_name}'.",
+    "doesNotExist": "No existe un participante con el código '%{code}' en el proyecto '%{project_name}'.",
+    "codeNotAllowed": "El código de participante '%{code}' no está permitido.",
+    "isLocked": "El participante con el código '%{code}' en el proyecto '%{project_name}' está bloqueado."
+  },
+  "protocol": {
+    "alreadyExists": "El protocolo '%{protocol_name}' ya existe en el proyecto '%{project_name}'.",
+    "doesNotExist": "El protocolo '%{protocol_name}' no existe en el proyecto '%{project_name}'.",
+    "isLocked": "El protocolo '%{protocol_name}' en el proyecto '%{project_name}' está bloqueado."
+  },
+  "activity": {
+    "invalidFilePath": "Ruta de archivo no válida para la actividad '%{activity_name}' en el protocolo '%{protocol_name}'.",
+    "invalidTimeLimit": "Límite de tiempo no válido para la actividad '%{activity_name}' en el protocolo '%{protocol_name}'.",
+    "processNameRequired": "Se requiere el nombre del proceso para la actividad '%{activity_name}' en el protocolo '%{protocol_name}'.",
+    "invalidExecutionRequest": "Solicitud de ejecución no válida para la actividad '%{activity_name}'."
+  }
+}

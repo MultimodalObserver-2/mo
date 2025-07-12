@@ -1,0 +1,6 @@
+{
+  "fileMustBeZip": "El archivo debe ser un archivo zip.",
+  "failedToAddPlugin": "No se pudo agregar el plugin '%{file_name}'.\nError: %{error}",
+  "pluginNotFound": "El plugin '%{final_id}' no fue encontrado.",
+  "failedToRemovePlugin": "No se pudo eliminar el plugin '%{final_id}'.\nError: %{error}"
+}

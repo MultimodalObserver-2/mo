@@ -6,6 +6,7 @@ import time
 from dataclasses import dataclass
 from multiprocessing import Pipe, Process, Queue
 from typing import Any, Callable, Optional
+import i18n
 
 from mo.core.config.constants import APP_DATA_DIR, RELATIVE_PLUGINS_DIR_PATH
 from mo.core.plugin.models.plugin import Plugin, PluginMetadata
@@ -47,6 +48,7 @@ class PluginWorkerProcess(Process):
     keep_running: bool
     timeout: Optional[float | int]
     processes_queue: Optional[Queue] = None
+    lang: str = "en"
     METADATA_ENTRY_POINTS = {
         "plugin": "mo.plugin",  # Entry point for the plugin class
         "properties": "mo.plugin.properties",  # Entry point for the properties class
@@ -60,6 +62,7 @@ class PluginWorkerProcess(Process):
         timeout: Optional[float | int] = None,
         processes_queue: Optional[Queue] = None,
         plugins_path: Optional[str] = None,
+        i18n_lang: str = "en"
     ):
         """Initializes the PluginWorkerProcess.
         Args:
@@ -69,6 +72,7 @@ class PluginWorkerProcess(Process):
             timeout (Optional[float | int]): Timeout for the process, in seconds, or None for no timeout.
             processes_queue (Optional[Queue]): Queue for inter-process communication.
             plugins_path (Optional[str]): Optional path to the plugins directory.
+            i18n_lang (str): Language for i18n initialization.
         """
         super().__init__()
         dependencies_name = "dependencies"
@@ -88,6 +92,7 @@ class PluginWorkerProcess(Process):
         self.plugins_instances = {}
         self.plugins_instances_ids = []
         self.processes_queue = processes_queue
+        self.lang = i18n_lang
         self.command_handlers = {
             "get_properties": self._handle_get_properties,
             "validate_settings": self._handle_validate_settings,
@@ -102,6 +107,7 @@ class PluginWorkerProcess(Process):
         """Runs the plugin worker process, loading the plugin and handling commands."""
         try:
             self.__load_dependencies()
+            self.__init_i18n()
             self.plugin_class = self.__load_plugin()
             instance = self.plugin_class()
             properties = self.__load_properties()
@@ -134,6 +140,22 @@ class PluginWorkerProcess(Process):
         if self.load_main_instance:
             instance.unload()
         self._child_conn.close()
+
+    def __init_i18n(self) -> None:
+        """Initializes the i18n module with the locales path and language."""
+        if not self.process_metadata.metadata.locales:
+            return
+        i18n.set('file_format', 'json')
+        i18n.set('locale', self.lang)
+        i18n.set('fallback', 'en')
+        i18n.set("encoding", "utf-8")
+        i18n.set('skip_locale_root_data', True)
+        i18n.set("filename_format", "{namespace}.{format}")
+        i18n.set("use_locale_dirs", True)
+        locales_path = os.path.join(self.plugin_dir_path, self.process_metadata.metadata.locales)
+        print(f"Loading locales from: {locales_path}")
+        print(f"Current language: {self.lang}")
+        i18n.load_path.append(locales_path)
 
     def _event_loop(self) -> None:
         """Main event loop for the plugin worker process, handling commands and managing plugin instances."""

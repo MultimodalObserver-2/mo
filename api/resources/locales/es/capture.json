@@ -1,0 +1,19 @@
+{
+  "alreadyStarted": "La captura ya está iniciada.",
+  "notStarted": "La captura no está iniciada.",
+  "notStartedOrAlreadyPaused": "La captura no está iniciada o ya está en pausa.",
+  "notStartedOrNotPaused": "La captura no está iniciada o no está en pausa.",
+  "noConfigurationsLoaded": "No hay configuraciones de captura cargadas para el proyecto.",
+  "failedToStop": "No se pudo detener correctamente algunos procesos; se pueden haber perdido datos.",
+  "noRunningProcess": "No se encontró un proceso en ejecución para el plugin '%{plugin_id}'.",
+  "pluginDoesNotExist": "El plugin de captura '%{plugin_id}' no existe.",
+  "invalidPluginSettings": "Configuración inválida para el plugin '%{plugin_id}': %{error}",
+  "configAlreadyExists": "Ya existe una configuración con el nombre '%{config_name}'.",
+  "pluginMetadataNotFound": "No se encontró metadata para el plugin '%{plugin_id}'.",
+  "fileExtensionError": "Error al obtener la extensión de archivo para el plugin '%{plugin_id}': %{error}",
+  "configDoesNotExist": "No existe una configuración con el nombre '%{config_name}'.",
+  "sessionNotFound": "Sesión con ID '%{session_id}' no encontrada.",
+  "projectNotFound": "El proyecto '%{project_name}' no existe.",
+  "participantNotFound": "El participante '%{participant_code}' no existe en el proyecto '%{project_name}'.",
+  "participantLocked": "No se puede eliminar la sesión, el participante '%{participant_code}' está bloqueado."
+}

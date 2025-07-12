@@ -45,6 +45,7 @@ class PluginMetadata(BaseModel):
         publisher (PluginPublisher): Publisher of the plugin.
         repository (str): URL to the plugin's repository.
         icon_path (Optional[str] | Optional[PluginIcons]): Path to the plugin's icon or icons.
+        locales (Optional[str]): Path to the plugin's locales directory.
         author (Optional[PluginAuthor]): Author of the plugin.
         platform (SysPlatform): Supported platform for the plugin.
         target (str): Target environment for the plugin, must be "api".
@@ -57,6 +58,7 @@ class PluginMetadata(BaseModel):
     publisher: PluginPublisher
     repository: str
     icon_path: Optional[str] | Optional[PluginIcons] = None
+    locales: Optional[str] = None
     author: Optional[PluginAuthor] = None
     platform: SysPlatform
     target: Annotated[str, AfterValidator(validate_target)]
