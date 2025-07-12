@@ -180,17 +180,9 @@ const core = {
       basePath: string,
       localesPath: string,
       language: string,
-      namespace: string,
       name: string = "translation.json"
     ) => {
-      return ipcRenderer.invoke(
-        "core:i18n:loadResource",
-        basePath,
-        localesPath,
-        language,
-        namespace,
-        name
-      )
+      return ipcRenderer.invoke("core:i18n:loadResource", basePath, localesPath, language, name)
     }
   }
 }

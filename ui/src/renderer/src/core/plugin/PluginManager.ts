@@ -204,7 +204,6 @@ class PluginManager {
       pluginPath,
       metadata.locales,
       i18n.language,
-      this.getPluginNamespace(metadata),
       this.translationFileName
     )
 
@@ -232,27 +231,13 @@ class PluginManager {
       throw new Error(`Plugin with ID ${pluginId} not found`)
     }
 
-    if (!plugin.metadata.locales) {
-      throw new Error(`Plugin ${pluginId} does not define locales`)
-    }
-
-    const pluginPath = plugin.location
     const namespace = this.getPluginNamespace(plugin.metadata)
-    if (!reload && i18n.hasResourceBundle(language, namespace)) {
+    if (!plugin.is_loaded || (!reload && i18n.hasResourceBundle(language, namespace))) {
       return
     }
 
-    const resource = await window.core.i18n.loadResource(
-      pluginPath,
-      plugin.metadata.locales,
-      language,
-      namespace,
-      this.translationFileName
-    )
-
-    if (resource) {
-      i18n.addResourceBundle(language, namespace, resource, true, true)
-    }
+    const pluginPath = plugin.location
+    await this.loadPluginLocales(pluginPath, plugin.metadata)
   }
 
   async loadAllPluginLanguageLocales(language: string, reload: boolean = false): Promise<void> {

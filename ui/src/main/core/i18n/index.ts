@@ -38,12 +38,11 @@ app.whenReady().then(() => {
 
   ipcMain.handle(
     "core:i18n:loadResource",
-    async (_event, basePath, localesPath, language, namespace, name = "translation.json") => {
+    async (_event, basePath, localesPath, language, name = "translation.json") => {
       const resourcePath = path.join(basePath, localesPath, language, name)
       try {
         const rawResource = fs.readFileSync(resourcePath, "utf-8")
         const resource = JSON.parse(rawResource)
-        i18n.addResourceBundle(language, namespace, resource, true, true)
         return resource
       } catch (error) {
         console.error("Error loading resource:", error)

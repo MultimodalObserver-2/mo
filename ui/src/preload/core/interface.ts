@@ -412,7 +412,6 @@ export default interface CoreAPI {
      * @param basePath - Base path to the plugin or application.
      * @param localesPath - Path to the locales directory relative to the base path.
      * @param language - The language code (e.g., "en", "es").
-     * @param namespace - The namespace for the resource.
      * @param name - Optional resource file name (default: "translation.json").
      * @returns Promise resolving to the loaded resource object.
      */
@@ -420,7 +419,6 @@ export default interface CoreAPI {
       basePath: string,
       localesPath: string,
       language: string,
-      namespace: string,
       name?: string
     ) => Promise<Resource>
   }
