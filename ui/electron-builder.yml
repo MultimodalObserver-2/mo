@@ -14,8 +14,12 @@ extraFiles:
     to: resources/
     filter:
       - mo_api*
+  - from: ../api/resources/locales
+    to: resources/locales/api
+  - from: ./resources/locales
+    to: resources/locales/ui
 asarUnpack:
-  - resources/**
+  - resources/icon.png
 win:
   executableName: multimodal-observer
 nsis:
