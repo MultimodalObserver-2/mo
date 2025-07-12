@@ -26,7 +26,7 @@ import pluginManager from "./core/plugin/PluginManager"
 import "./utils/i18n"
 
 registerAll()
-pluginManager.loadAllPlugins()
+await pluginManager.loadAllPlugins()
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>

@@ -3,6 +3,8 @@ import SidebarItem from "./sidebar-item/SidebarItem"
 import StacksIcon from "../icons/StacksIcon"
 import ExtensionIcon from "../icons/ExtensionIcon"
 import SettingsIcon from "../icons/SettingsIcon"
+import { useSelector } from "react-redux"
+import { selectMainUrl } from "@renderer/core/store/mainUrlSlice"
 
 /**
  * A static layout component that renders the main application sidebar.
@@ -11,10 +13,12 @@ import SettingsIcon from "../icons/SettingsIcon"
  * @returns {React.ReactElement} The rendered sidebar component.
  */
 export default function Sidebar() {
+  const mainUrl = useSelector(selectMainUrl)
+
   return (
     <aside className={styles.sidebar}>
       <section className={styles.features}>
-        <SidebarItem path="/" Icon={StacksIcon} />
+        <SidebarItem path={mainUrl} Icon={StacksIcon} />
         <SidebarItem path="/plugins" Icon={ExtensionIcon} />
       </section>
       <section className={styles.utils}>

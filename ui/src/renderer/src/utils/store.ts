@@ -4,10 +4,12 @@
  * exports types for RootState and AppDispatch.
  */
 import { combineReducers, configureStore } from "@reduxjs/toolkit"
+import coreReducers from "@renderer/core/store/reducers"
 import organizationReducers from "@renderer/modules/organization/store/reducers"
 
 const store = configureStore({
   reducer: {
+    core: combineReducers(coreReducers),
     organization: combineReducers(organizationReducers)
   }
 })
