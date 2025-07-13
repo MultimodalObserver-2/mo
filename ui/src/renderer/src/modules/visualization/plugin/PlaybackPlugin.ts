@@ -72,7 +72,7 @@ export interface PlaybackControls {
 /**
  * Props passed to a playback plugin's view, including playback controls, context, and plugin settings.
  */
-export interface PluginViewProps {
+export interface PlaybackViewProps {
   controls: PlaybackControls
   context: PlaybackContext
   settings: Record<string, unknown>
@@ -113,7 +113,7 @@ export abstract class PlaybackPlugin extends PluginBase {
    * @param props - Contains playback controls, context (file/timestamps), and plugin settings.
    * @returns The plugin's visualization React element.
    */
-  abstract getView(props: PluginViewProps): JSX.Element | ReactElement
+  abstract getView(props: PlaybackViewProps): JSX.Element | ReactElement
 
   /**
    * Returns a static or dynamic preview of the plugin.
