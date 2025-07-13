@@ -65,6 +65,28 @@ Top-level directory intended for CLI tools or automated tasks, such as:
 
 ---
 
+## 🌐 Internationalization (i18n)
+
+The API supports full internationalization using [i18nice](https://github.com/solaluset/i18nice).
+
+- **Translation Files Location:**  
+  All translation files are stored under `resources/locales/{lng}/{ns}.json`, where:
+  - `{lng}` is the language code (e.g., `en`, `es`)
+  - `{ns}` is the namespace (e.g., `core`, `organization`, `capture`, `visualization`)
+
+- **Namespaces and Structure:**  
+  Each namespace (such as `core`, `organization`, `capture`, etc.) contains its own JSON file for translations.
+
+- **Translation Usage:**  
+  Use the provided `translate(key, **kwargs)` function anywhere in the codebase to translate strings.  
+  This function acts as a wrapper around `i18n.t` and supports variable interpolation using keyword arguments.
+
+- **Adding or Updating Translations:**  
+  - To add a new translation key, update the appropriate `{ns}.json` file under `resources/locales/{lng}/`.
+  - To support a new language, add a folder for that language (e.g., `es`) and corresponding namespace files.
+
+---
+
 ## ⚙️ Configuration and other files
 
 | File                       | Purpose                                                                                          |
