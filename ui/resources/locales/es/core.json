@@ -10,7 +10,22 @@
 				}
 			},
 			"hotkeys": {
-				"title": "Atajos de teclado"
+				"title": "Atajos de teclado",
+				"warnings": {
+					"keyUsedBy": "Combinación usada por: {{labels}}"
+				},
+				"hotkey": {
+					"placeholder": "Haz clic para asignar",
+					"actions": {
+						"save": "Guardar cambios",
+						"reset": "Restablecer a la tecla guardada",
+						"clear": "Limpiar combinación"
+					},
+					"errors": {
+						"setFailed": "No se pudo asignar la tecla rápida para {{label}}.",
+						"invalidCombo": "Combinación de teclas no válida \"{{combo}}\" para {{label}}."
+					}
+				}
 			},
 			"options": {
 				"title": "Opciones"

@@ -7,6 +7,8 @@ import BackspaceIcon from "@renderer/core/components/icons/BackspaceIcon"
 import SaveIcon from "@renderer/core/components/icons/SaveIcon"
 import { useEffect } from "react"
 import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import WarningIcon from "@renderer/core/components/icons/WarningIcon"
+import { useTranslation } from "react-i18next"
 
 export interface HotkeyProps {
   id: string
@@ -27,6 +29,7 @@ export default function Hotkey({
   onComboChange,
   onSaved
 }: Readonly<HotkeyProps>) {
+  const { t } = useTranslation("core", { keyPrefix: "pages.settings.hotkeys.hotkey" })
   const { combo, startCapture, stopCapture, resetCombo, clearCombo } = useKeyCapture({
     defaultKey: actualKey
   })
@@ -39,11 +42,11 @@ export default function Hotkey({
     try {
       const success = await window.core.hotkeys.set(id, combo)
       if (!success) {
-        showApiErrorMessage(Error(`Failed to set hotkey for ${label}.`))
+        showApiErrorMessage(Error(t("errors.setFailed", { label })))
         return
       }
     } catch {
-      showApiErrorMessage(Error(`Invalid hotkey combination "${combo}" for ${label}.`))
+      showApiErrorMessage(Error(t("errors.invalidCombo", { combo, label })))
     }
     onSaved()
   }
@@ -63,21 +66,21 @@ export default function Hotkey({
             styleType="primary"
             className={styles.input}
             value={combo}
-            placeholder="Click to capture a key combination"
+            placeholder={t("placeholder")}
             readOnly
             onFocus={startCapture}
             onBlur={stopCapture}
           />
           {warning && (
             <abbr title={warning} className={styles.warn}>
-              ⚠️
+              <WarningIcon className={styles["warning-icon"]} />
             </abbr>
           )}
         </div>
       </label>
       <div className={styles.actions}>
         <Button
-          title="Save changes"
+          title={t("actions.save")}
           styleType="extra-soft"
           className={styles.action}
           onClick={handleSave}
@@ -86,7 +89,7 @@ export default function Hotkey({
           <SaveIcon className={styles.icon} />
         </Button>
         <Button
-          title="Reset to saved key"
+          title={t("actions.reset")}
           styleType="extra-soft"
           className={styles.action}
           onClick={resetCombo}
@@ -95,7 +98,7 @@ export default function Hotkey({
           <UndoIcon className={styles.icon} />
         </Button>
         <Button
-          title="Clear key combination"
+          title={t("actions.clear")}
           styleType="extra-soft"
           className={styles.action}
           onClick={clearCombo}

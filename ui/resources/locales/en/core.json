@@ -10,7 +10,22 @@
         }
       },
       "hotkeys": {
-        "title": "Hotkeys"
+        "title": "Hotkeys",
+        "warnings": {
+          "keyUsedBy": "Key used by: {{labels}}"
+        },
+        "hotkey": {
+          "placeholder": "Click to bind",
+          "actions": {
+            "save": "Save changes",
+            "reset": "Reset to saved key",
+            "clear": "Clear key combination"
+          },
+          "errors": {
+            "setFailed": "Failed to set hotkey for {{label}}.",
+            "invalidCombo": "Invalid hotkey combination \"{{combo}}\" for {{label}}."
+          }
+        }
       },
       "options": {
         "title": "Options"

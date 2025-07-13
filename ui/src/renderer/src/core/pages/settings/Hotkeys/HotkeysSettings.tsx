@@ -70,7 +70,7 @@ export default function HotkeysSettings() {
     })
 
     return conflicts.length > 0
-      ? `Key used by: ${conflicts.map((c) => c.label).join(", ")}`
+      ? t("warnings.keyUsedBy", { labels: conflicts.map((c) => c.label).join(", ") })
       : undefined
   }
 
