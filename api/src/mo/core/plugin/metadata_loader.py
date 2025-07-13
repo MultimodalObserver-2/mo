@@ -29,7 +29,7 @@ def load_plugin_metadata(path: str) -> PluginMetadata:
     if not os.path.exists(path):
         raise FileNotFoundError(f"Metadata file not found at {path}")
 
-    with open(path, "r") as f:
+    with open(path, "r", encoding="utf-8") as f:
         data = json.load(f)
         metadata_dict = {
             "plugin_id": data.get("id"),
