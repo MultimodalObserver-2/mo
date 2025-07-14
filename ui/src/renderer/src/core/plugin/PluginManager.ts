@@ -302,17 +302,17 @@ class PluginManager {
         is_loaded: true
       }
 
-      if (this.entryPointExists(rawMetadata, this.entryPoints.rendPluginProperties)) {
-        const propertiesInstance = await this.loadPropertiesInstance(loadPath, rawMetadata)
-        internalPlugin.properties = propertiesInstance
-      }
-
       if (rawMetadata.locales) {
         try {
           await this.loadPluginLocales(pluginPath, rawMetadata)
         } catch (error) {
           console.error(`Failed to load locales for plugin ${fullId}:`, error)
         }
+      }
+
+      if (this.entryPointExists(rawMetadata, this.entryPoints.rendPluginProperties)) {
+        const propertiesInstance = await this.loadPropertiesInstance(loadPath, rawMetadata)
+        internalPlugin.properties = propertiesInstance
       }
 
       this.plugins.set(fullId, internalPlugin)
