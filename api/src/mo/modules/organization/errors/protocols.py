@@ -2,15 +2,15 @@ from mo.core.utils.i18n import translate
 
 
 def protocol_already_exists(protocol_name: str, project_name: str):
-    return translate("protocol.alreadyExists", protocol_name=protocol_name, project_name=project_name)
+    return translate("organization.protocol.alreadyExists", protocol_name=protocol_name, project_name=project_name)
 
 
 def protocol_does_not_exist(protocol_name: str, project_name: str):
-    return translate("protocol.doesNotExist", protocol_name=protocol_name, project_name=project_name)
+    return translate("organization.protocol.doesNotExist", protocol_name=protocol_name, project_name=project_name)
 
 
 def protocol_is_locked(protocol_name: str, project_name: str):
-    return translate("protocol.isLocked", protocol_name=protocol_name, project_name=project_name)
+    return translate("organization.protocol.isLocked", protocol_name=protocol_name, project_name=project_name)
 
 
 def activity_invalid_file_path(activity_name: str, protocol_name: str):
