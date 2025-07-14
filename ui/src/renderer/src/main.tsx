@@ -24,6 +24,7 @@ import App from "./app"
 import { registerAll } from "./registrations"
 import pluginManager from "./core/plugin/PluginManager"
 import "./utils/i18n"
+import "./utils/dummy_keep_exports"
 
 registerAll()
 await pluginManager.loadAllPlugins()

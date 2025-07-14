@@ -24,5 +24,5 @@ export type {
 export { PlaybackPlugin } from "@renderer/modules/visualization/plugin/PlaybackPlugin"
 
 // i18n for internationalization
-export { i18n } from "@renderer/utils/i18n"
+export { translate, getFixedTranslation } from "@renderer/utils/i18n"
 export { useTranslation, Trans } from "react-i18next"
