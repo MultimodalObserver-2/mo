@@ -18,3 +18,5 @@ plugins-dev
 *storybook.log
 storybook-static
 /data/
+/resources/plugins/
+/build/plugins.nsh

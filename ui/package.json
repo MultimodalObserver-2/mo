@@ -1,6 +1,6 @@
 {
   "name": "multimodal-observer",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "Multimodal Observer",
   "main": "./out/main/index.js",
   "author": "InTeractiOn Lab",
@@ -17,9 +17,10 @@
     "build": "npm run typecheck && electron-vite build",
     "postinstall": "electron-builder install-app-deps",
     "build:unpack": "npm run build && electron-builder --dir",
-    "build:win": "npm run build && electron-builder --win",
+    "build:win": "npm run build && node ./build/prepare-nsis.js --skip-plugins && electron-builder --win",
     "build:mac": "electron-vite build && electron-builder --mac",
     "build:linux": "electron-vite build && electron-builder --linux",
+    "build:win-plugins": "npm run build && node ./build/prepare-nsis.js && electron-builder --win",
     "sonar": "dotenv -- sonar",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"

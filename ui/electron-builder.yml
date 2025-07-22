@@ -18,6 +18,8 @@ extraFiles:
     to: resources/locales/api
   - from: ./resources/locales
     to: resources/locales/ui
+  - from: ./resources/plugins
+    to: resources/plugins
 asarUnpack:
   - resources/icon.png
 win:
@@ -29,8 +31,9 @@ nsis:
   createDesktopShortcut: true
   allowToChangeInstallationDirectory: true
   oneClick: false
-  perMachine: false
+  perMachine: true
   multiLanguageInstaller: true
+  include: build/installer.nsh
 mac:
   entitlementsInherit: build/entitlements.mac.plist
   extendInfo:

@@ -9,7 +9,16 @@ import eslintPluginReactHooks from "eslint-plugin-react-hooks"
 import eslintPluginReactRefresh from "eslint-plugin-react-refresh"
 
 export default tseslint.config(
-  { ignores: ["**/node_modules", "**/dist", "**/out", "./plugins", "**/plugins-dev/**"] },
+  {
+    ignores: [
+      "**/node_modules",
+      "**/dist",
+      "**/out",
+      "./plugins",
+      "**/plugins-dev/**",
+      "**/build/**"
+    ]
+  },
   tseslint.configs.recommended,
   eslintPluginReact.configs.flat.recommended,
   eslintPluginReact.configs.flat["jsx-runtime"],
@@ -38,7 +47,7 @@ export default tseslint.config(
       storybook
     },
     rules: {
-      ...storybook.configs.recommended.rules,
+      ...storybook.configs.recommended.rules
     }
   },
   {
