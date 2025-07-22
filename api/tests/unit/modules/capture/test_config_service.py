@@ -160,7 +160,8 @@ def test_add_capture_config_plugin_metadata_not_found(config_service):
             config_service.add_capture_config(project_name, config_req)
 
 
-def test_get_all_capture_configs_success(config_service, mock_plugin_metadata):
+@pytest.mark.asyncio
+async def test_get_all_capture_configs_success(config_service, mock_plugin_metadata):
     project_name = "TestProject"
     configs = [
         {"name": "Setting1", "plugin_id": "pub.plugin1", "settings": {}},
@@ -175,7 +176,7 @@ def test_get_all_capture_configs_success(config_service, mock_plugin_metadata):
         mock_storage_instance.find_all.return_value = configs
         mock_json_storage_class.return_value = mock_storage_instance
 
-        result = config_service.get_all_capture_configs(project_name)
+        result = await config_service.get_all_capture_configs(project_name)
 
         assert len(result) == 2
         assert result[0].name == "Setting1"
@@ -183,12 +184,13 @@ def test_get_all_capture_configs_success(config_service, mock_plugin_metadata):
         mock_storage_instance.find_all.assert_called_once()
 
 
-def test_get_all_capture_configs_project_not_found(config_service):
+@pytest.mark.asyncio
+async def test_get_all_capture_configs_project_not_found(config_service):
     project_name = "NonExistentProject"
     config_service.project_service.exists.return_value = False
 
     with pytest.raises(NotFoundException):
-        config_service.get_all_capture_configs(project_name)
+        await config_service.get_all_capture_configs(project_name)
 
 
 def test_get_capture_config_success(config_service, mock_plugin_metadata):

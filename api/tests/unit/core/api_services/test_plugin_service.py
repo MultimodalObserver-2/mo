@@ -80,13 +80,14 @@ async def test_add_plugin_register_fails(plugin_service):
         "my_plugin_abc")
 
 
-def test_get_all_plugins(plugin_service):
+@pytest.mark.asyncio
+async def test_get_all_plugins(plugin_service):
     mock_plugins_list = [
         MagicMock(spec=PluginMetadata), MagicMock(spec=PluginMetadata)]
     plugin_service.plugin_manager.get_all_plugins_metadata.return_value = mock_plugins_list
 
     with patch("mo.core.api.services.plugin_service.PluginRes") as mock_plugin_res:
-        result = plugin_service.get_all_plugins()
+        result = await plugin_service.get_all_plugins()
 
     assert len(result) == 2
     assert mock_plugin_res.from_plugin_metadata.call_count == 2

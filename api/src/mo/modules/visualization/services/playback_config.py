@@ -28,7 +28,6 @@ class PlaybackConfigService:
         self._settings_file_name = PLAYBACK_CONFIGS_FILE
         self._layout_file_name = PLAYBACK_LAYOUT_FILE
         self.project_service = ProjectService()
-        self.plugin_management = PluginManager()
         self.file_management = FileManagement()
 
     def _get_configurations_dir_path(self, project_name: str):
