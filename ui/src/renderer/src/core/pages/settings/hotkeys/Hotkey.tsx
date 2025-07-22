@@ -39,6 +39,7 @@ export default function Hotkey({
   }, [combo])
 
   const handleSave = async () => {
+    window.core.hotkeys.disable()
     try {
       const success = await window.core.hotkeys.set(id, combo)
       if (!success) {
@@ -48,6 +49,7 @@ export default function Hotkey({
     } catch {
       showApiErrorMessage(Error(t("errors.invalidCombo", { combo, label })))
     }
+    window.core.hotkeys.enable()
     onSaved()
   }
 

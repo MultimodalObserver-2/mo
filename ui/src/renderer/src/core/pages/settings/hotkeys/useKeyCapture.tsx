@@ -54,8 +54,14 @@ export function useKeyCapture({ defaultKey = "" }: { readonly defaultKey?: strin
     [currentModifiers]
   )
 
-  const startCapture = () => setIsCapturing(true)
-  const stopCapture = () => setIsCapturing(false)
+  const startCapture = () => {
+    window.core.hotkeys.disable()
+    setIsCapturing(true)
+  }
+  const stopCapture = () => {
+    window.core.hotkeys.enable()
+    setIsCapturing(false)
+  }
   const resetCombo = () => {
     setCombo(defaultKey)
     setCurrentModifiers(new Set())

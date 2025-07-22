@@ -86,11 +86,13 @@ export class HotkeysManager {
 
   public setHotkey(actionId: string, keyCombination: string): boolean {
     if (!this.simpleActions.has(actionId) && !this.complementaryActions.has(actionId)) return false
-
     const success = this.registerShortcut(actionId, keyCombination)
     if (success) {
       this.hotkeys[actionId] = keyCombination
       this.save()
+    }
+    if (!this.enabled) {
+      this.unregisterAll()
     }
     return success
   }
@@ -172,9 +174,6 @@ export class HotkeysManager {
 
     if (!exists || this.registeredKeys.get(actionId) !== key) {
       const success = globalShortcut.register(key, () => this.triggerAction(actionId))
-      if (!this.enabled) {
-        globalShortcut.unregister(key)
-      }
       if (success) {
         this.registeredKeys.set(actionId, key)
         return true

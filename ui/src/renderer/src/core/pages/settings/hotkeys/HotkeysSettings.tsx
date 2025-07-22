@@ -9,14 +9,11 @@ export default function HotkeysSettings() {
   const [currentCombos, setCurrentCombos] = useState<Record<string, string>>({})
 
   useEffect(() => {
-    window.core.hotkeys.disable()
     window.core.hotkeys.getAll().then((data) => {
       setHotkeys(data as HotkeyProps[])
       const initialCombos = Object.fromEntries(data.map((h) => [h.id, h.actualKey]))
       setCurrentCombos(initialCombos)
     })
-
-    return () => window.core.hotkeys.enable()
   }, [])
 
   function handleHotkeysLoaded(data) {
