@@ -38,7 +38,7 @@ const capture = {
     }
   },
   onChangeCaptureStatusTray: (
-    callback: (status: { isCapturing: boolean; isPaused: boolean }) => void
+    callback: (status: { isCapturing: boolean; isPaused: boolean; isLoading: boolean }) => void
   ) => {
     const listener = (_, status) => {
       callback(status)

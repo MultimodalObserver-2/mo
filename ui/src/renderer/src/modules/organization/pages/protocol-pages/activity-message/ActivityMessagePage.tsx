@@ -21,7 +21,7 @@ export default function ActivityMessagePage() {
 
   useEffect(() => {
     if (!messageRef.current) return
-    const contentHeight = 125
+    const contentHeight = 135
     const messageScrollHeight = messageRef.current?.scrollHeight || 0
     window.organization.setActivityMessageHeight(messageScrollHeight + contentHeight)
   }, [])

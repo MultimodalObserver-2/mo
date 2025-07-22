@@ -41,9 +41,13 @@ export default function CaptureActions() {
   }
 
   useEffect(() => {
-    const removeListener = window.capture.onChangeCaptureStatusTray(() => {
-      checkCaptureStatus()
-    })
+    const removeListener = window.capture.onChangeCaptureStatusTray(
+      ({ isCapturing, isPaused, isLoading }) => {
+        setIsCapturing(isCapturing)
+        setIsPaused(isPaused)
+        setIsLoading(isLoading)
+      }
+    )
     checkCaptureStatus()
     return () => {
       removeListener()

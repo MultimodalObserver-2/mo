@@ -6,6 +6,6 @@ export default interface CaptureAPI {
   reloadCaptureStatus: (status: { isCapturing: boolean; isPaused: boolean }) => void
   onReloadCaptureStatus: (callback: () => void) => () => void
   onChangeCaptureStatusTray: (
-    callback: (status: { isCapturing: boolean; isPaused: boolean }) => void
+    callback: (status: { isCapturing: boolean; isPaused: boolean; isLoading: boolean }) => void
   ) => () => void
 }

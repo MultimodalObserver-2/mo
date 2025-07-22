@@ -6,8 +6,6 @@ import { PluginDTO } from "../plugin/types/PluginDTO"
 import { PluginProperty } from "../types/PluginProperty"
 
 export class UiPluginService {
-  readonly endpoint = "/plugins"
-
   async register(pluginFile: File): Promise<Plugin> {
     const fileName = pluginFile.name.replace(/\.[^/.]+$/, "")
     const folderName = await getFolderName(PLUGIN_BASE_PATH, fileName) // Remove file extension for folder name

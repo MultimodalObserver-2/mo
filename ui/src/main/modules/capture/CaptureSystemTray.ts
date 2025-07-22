@@ -96,7 +96,8 @@ export class CaptureSystemTray {
   private notifyRenderer() {
     broadcast("capture:on-change-status", {
       isCapturing: this.isCapturing,
-      isPaused: this.isPaused
+      isPaused: this.isPaused,
+      isLoading: this.isBusy
     })
   }
 
@@ -143,9 +144,21 @@ export class CaptureSystemTray {
     }
   }
 
+  private async getCaptureStatus() {
+    try {
+      const response = await apiClient.get("/capture/status")
+      this.isCapturing = response.data.started
+      this.isPaused = response.data.paused
+      this.updateMenu()
+    } catch (e) {
+      console.error("Failed to get capture status:", e)
+    }
+  }
+
   private async startCapture() {
     if (this.isBusy || !this.projectName || !this.participantCode) return
     this.isBusy = true
+    this.notifyRenderer()
     this.updateMenu()
     try {
       await apiClient.post("/capture/start", {
@@ -154,12 +167,13 @@ export class CaptureSystemTray {
       })
       this.isCapturing = true
       this.isPaused = false
-      this.notifyRenderer()
       this.emit("startCapture")
     } catch (e) {
       console.error("Failed to start capture:", e)
+      this.getCaptureStatus()
     } finally {
       this.isBusy = false
+      this.notifyRenderer()
       this.updateMenu()
     }
   }
@@ -167,17 +181,19 @@ export class CaptureSystemTray {
   private async stopCapture() {
     if (this.isBusy) return
     this.isBusy = true
+    this.emit("stopCapture")
+    this.notifyRenderer()
     this.updateMenu()
     try {
       await apiClient.post("/capture/stop")
       this.isCapturing = false
       this.isPaused = false
-      this.notifyRenderer()
-      this.emit("stopCapture")
     } catch (e) {
       console.error("Failed to stop capture:", e)
+      this.getCaptureStatus()
     } finally {
       this.isBusy = false
+      this.notifyRenderer()
       this.updateMenu()
     }
   }
@@ -185,15 +201,17 @@ export class CaptureSystemTray {
   private async pauseCapture() {
     if (this.isBusy) return
     this.isBusy = true
+    this.notifyRenderer()
     this.updateMenu()
     try {
       await apiClient.post("/capture/pause")
       this.isPaused = true
-      this.notifyRenderer()
     } catch (e) {
       console.error("Failed to pause capture:", e)
+      this.getCaptureStatus()
     } finally {
       this.isBusy = false
+      this.notifyRenderer()
       this.updateMenu()
     }
   }
@@ -201,15 +219,16 @@ export class CaptureSystemTray {
   private async resumeCapture() {
     if (this.isBusy) return
     this.isBusy = true
+    this.notifyRenderer()
     this.updateMenu()
     try {
       await apiClient.post("/capture/resume")
       this.isPaused = false
-      this.notifyRenderer()
     } catch (e) {
       console.error("Failed to resume capture:", e)
     } finally {
       this.isBusy = false
+      this.notifyRenderer()
       this.updateMenu()
     }
   }
