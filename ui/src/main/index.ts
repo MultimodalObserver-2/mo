@@ -12,6 +12,10 @@ import { initI18n } from "./core/i18n/i18n"
 import { runApi, waitForApiReady } from "./core/runApi"
 
 let forceQuit = false
+let apiProcess: ChildProcess | null = null
+let apiPort: number | null = null
+let mainWindow: BrowserWindow | null = null
+let systemTray: SystemTray | null = null
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
@@ -69,6 +73,11 @@ function createWindow(): BrowserWindow {
         window.close()
       }
     })
+
+    if (!is.dev && apiProcess?.pid) {
+      treeKill(apiProcess.pid)
+      apiProcess = null
+    }
   })
 
   // Loading api process
@@ -104,11 +113,6 @@ function createWindow(): BrowserWindow {
 
   return mainWindow
 }
-
-let apiProcess: ChildProcess | null = null
-let apiPort: number | null = null
-let mainWindow: BrowserWindow | null = null
-let systemTray: SystemTray | null = null
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -165,9 +169,17 @@ app.whenReady().then(async () => {
 app.on("window-all-closed", () => {
   if (process.platform !== "darwin") {
     if (!is.dev && apiProcess?.pid) {
-      treeKill(apiProcess.pid)
+      treeKill(apiProcess.pid, (err) => {
+        if (err) {
+          console.error("Failed to kill API process:", err)
+        } else {
+          console.log("API process killed successfully")
+        }
+        app.quit()
+      })
+    } else {
+      app.quit()
     }
-    app.quit()
   }
 })
 
