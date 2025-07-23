@@ -20,3 +20,12 @@ storybook-static
 /data/
 /resources/plugins/
 /build/plugins.nsh
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/
+
+# Performance reports
+/performance-report/
