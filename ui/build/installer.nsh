@@ -40,3 +40,8 @@ Var UserLocalAppData
 
   RMDir /r "$INSTDIR\resources\plugins"
 !macroend
+
+!macro customUnInstall
+  SetShellVarContext current
+  RMDir /r "$LOCALAPPDATA\multimodal-observer"
+!macroend
