@@ -108,6 +108,7 @@ export default function Installed() {
           <PluginDisplayHeader
             title={`${capitalize(moduleName)} plugins`}
             num={modulePlugins.length}
+            testid={`${moduleName}-plugins-number`}
           />
           <PluginDisplayList isLoading={isLoading}>
             {modulePlugins.map((plugin) => (

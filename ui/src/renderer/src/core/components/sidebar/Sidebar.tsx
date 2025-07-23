@@ -18,8 +18,8 @@ export default function Sidebar() {
   return (
     <aside className={styles.sidebar}>
       <section className={styles.features}>
-        <SidebarItem path={mainUrl} Icon={StacksIcon} />
-        <SidebarItem path="/plugins" Icon={ExtensionIcon} />
+        <SidebarItem testid="sidebar-main-link" path={mainUrl} Icon={StacksIcon} />
+        <SidebarItem testid="sidebar-plugins-link" path="/plugins" Icon={ExtensionIcon} />
       </section>
       <section className={styles.utils}>
         <SidebarItem path="/settings" Icon={SettingsIcon} />

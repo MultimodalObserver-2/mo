@@ -14,6 +14,8 @@ export interface PluginDisplayHeaderProps {
   isLoading?: boolean
   /** Callback function to handle toggling the expanded state. */
   onToggleExpand?: () => void
+  /** Optional data-testid for testing purposes. */
+  testid?: string
 }
 
 /**
@@ -34,7 +36,8 @@ function PluginDisplayHeader({
   isExpandable = false,
   isExpanded = true,
   isLoading = false,
-  onToggleExpand
+  onToggleExpand,
+  testid
 }: Readonly<PluginDisplayHeaderProps>) {
   return (
     <section className={`${styles.header} ${isLoading ? styles.loading : ""}`}>
@@ -51,7 +54,7 @@ function PluginDisplayHeader({
         )}
         <h3 className={styles.title}>{title}</h3>
       </div>
-      <div className={styles.num}>
+      <div className={styles.num} data-testid={testid}>
         {isLoading ? (
           <div className={styles.loader}>
             <div className={styles.circle}></div>

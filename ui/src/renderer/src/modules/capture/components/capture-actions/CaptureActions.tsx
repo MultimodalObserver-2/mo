@@ -135,15 +135,19 @@ export default function CaptureActions() {
           onClick={handleCaptureToggle}
           disabled={!isCapturing && (!selectedProject || !selectedParticipant)}
           isLoading={isLoading}
+          data-testid="capture-toggle-button"
         >
           {isCapturing ? (
             <>
-              <StopCircleIcon className={`${styles.icon} ${styles.danger}`} />
+              <StopCircleIcon
+                className={`${styles.icon} ${styles.danger}`}
+                data-testid="capture-stop-icon"
+              />
               {t("stop").toUpperCase()}
             </>
           ) : (
             <>
-              <PlayCircleIcon className={styles.icon} />
+              <PlayCircleIcon className={styles.icon} data-testid="capture-play-icon" />
               {t("start").toUpperCase()}
             </>
           )}
