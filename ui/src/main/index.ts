@@ -60,8 +60,8 @@ function createWindow(): BrowserWindow {
 
   mainWindow.on("close", (event) => {
     const minimizeToTray = optionsManager.get("minimizeToTrayOnClose")
-    preferencesManager.save()
     saveWindowState(mainWindow)
+    preferencesManager.save()
     if (minimizeToTray && !forceQuit) {
       event.preventDefault()
       mainWindow.hide()
