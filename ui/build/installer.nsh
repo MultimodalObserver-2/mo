@@ -42,6 +42,8 @@ Var UserLocalAppData
 !macroend
 
 !macro customUnInstall
-  SetShellVarContext current
-  RMDir /r "$LOCALAPPDATA\multimodal-observer"
+  ${ifNot} ${isUpdated}
+    SetShellVarContext current
+    RMDir /r "$LOCALAPPDATA\multimodal-observer"
+  ${endIf}
 !macroend
