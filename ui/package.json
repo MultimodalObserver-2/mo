@@ -24,7 +24,9 @@
     "sonar": "dotenv -- sonar",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
-    "test": "vitest run",
+    "test": "vitest",
+    "coverage": "vitest run --coverage",
+    "test:unit": "vitest run --project=unit --coverage",
     "test:performance": "playwright test --project=performance"
   },
   "dependencies": {

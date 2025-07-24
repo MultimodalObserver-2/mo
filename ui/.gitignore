@@ -29,3 +29,6 @@ storybook-static
 
 # Performance reports
 /performance-report/
+
+# Vitest coverage
+/coverage/

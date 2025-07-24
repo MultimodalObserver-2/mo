@@ -14,6 +14,31 @@ export default mergeConfig(
   electronViteConfig,
   defineConfig({
     test: {
+      coverage: {
+        provider: "v8",
+        include: ["src/renderer/src/**/*.ts", "src/renderer/src/**/*.tsx"],
+        exclude: [
+          "**/types/**",
+          "**/pages/**",
+          "**/layouts/**",
+          "**/store/**",
+          "**/plugins-dev/**",
+          "**/registrations/**",
+          "src/renderer/src/main.tsx",
+          "src/renderer/src/app.tsx",
+          "src/**/*.d.ts",
+          "**/icons/**",
+          "**/utils/**",
+          "**/lib/**",
+          "**/services/**",
+          "**/routes.tsx",
+          "**/routes.ts"
+        ],
+        reporter: ["text", "json", "html"],
+        enabled: true,
+        reportsDirectory: path.join(dirname, "coverage"),
+        reportOnFailure: true
+      },
       projects: [
         {
           extends: true,
@@ -31,6 +56,13 @@ export default mergeConfig(
               instances: [{ browser: "chromium" }]
             },
             setupFiles: [".storybook/vitest.setup.ts"]
+          }
+        },
+        {
+          test: {
+            name: "unit",
+            globals: true,
+            include: ["./tests/unit/**/*.test.ts", "./tests/unit/**/*.test.tsx"]
           }
         }
       ]

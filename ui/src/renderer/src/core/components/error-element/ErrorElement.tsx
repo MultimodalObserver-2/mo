@@ -19,11 +19,15 @@ export default function ErrorElement({ name }: Readonly<ErrorElementProps>) {
 
   if (error instanceof Error) {
     return (
-      <div>
+      <div data-testid="error-element" style={{ color: "var(--color-text-dark)" }}>
         {t("componentError", { name })}: {error.message}
       </div>
     )
   }
 
-  return <div>{t("unknownError")}</div>
+  return (
+    <div data-testid="error-element" style={{ color: "var(--color-text-dark)" }}>
+      {t("unknownError")}
+    </div>
+  )
 }

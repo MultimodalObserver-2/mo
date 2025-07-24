@@ -16,7 +16,8 @@ export default tseslint.config(
       "**/out",
       "./plugins",
       "**/plugins-dev/**",
-      "**/build/**"
+      "**/build/**",
+      "**/stories/**"
     ]
   },
   tseslint.configs.recommended,
