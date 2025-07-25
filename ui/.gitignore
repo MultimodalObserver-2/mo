@@ -32,3 +32,6 @@ storybook-static
 
 # Vitest coverage
 /coverage/
+
+# Test reports
+/test-reports/

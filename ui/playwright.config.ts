@@ -17,6 +17,10 @@ export default defineConfig({
     {
       name: "performance",
       testDir: "./tests/performance"
+    },
+    {
+      name: "validity-reliability",
+      testDir: "./tests/validity-reliability"
     }
   ]
 })

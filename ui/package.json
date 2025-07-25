@@ -27,7 +27,8 @@
     "test": "vitest",
     "coverage": "vitest run --coverage",
     "test:unit": "vitest run --project=unit --coverage",
-    "test:performance": "playwright test --project=performance"
+    "test:performance": "playwright test --project=performance",
+    "test:validity-reliability": "playwright test --project=validity-reliability"
   },
   "dependencies": {
     "@electron-toolkit/preload": "^3.0.1",

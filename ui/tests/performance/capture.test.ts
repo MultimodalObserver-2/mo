@@ -84,7 +84,7 @@ test("capture performance test with user activity simulation", async () => {
   await page.waitForTimeout(500)
 
   // Output directory for performance reports
-  const outdir = path.join("performance-report", "capture")
+  const outdir = path.join("test-reports", "performance", "capture")
   if (!fs.existsSync(outdir)) fs.mkdirSync(outdir, { recursive: true })
 
   // Prepare lists for samples and averages
