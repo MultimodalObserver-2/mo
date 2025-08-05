@@ -66,8 +66,10 @@ export default function Playback() {
           fetchSession(unsub)
         })
       }
+      setShowSessionsList(true)
     } catch (error) {
       showApiErrorMessage(error)
+      setShowSessionsList(false)
     }
     unsubReloadSessions?.()
   }
