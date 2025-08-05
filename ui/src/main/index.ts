@@ -167,8 +167,11 @@ app.whenReady().then(async () => {
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
 app.on("window-all-closed", () => {
-  if (process.platform !== "darwin") {
-    if (!is.dev && apiProcess?.pid) {
+  if (process.platform == "darwin") {
+    return
+  }
+  if (!is.dev && apiProcess?.pid) {
+    if (process.platform === "win32") {
       treeKill(apiProcess.pid, (err) => {
         if (err) {
           console.error("Failed to kill API process:", err)
@@ -178,8 +181,10 @@ app.on("window-all-closed", () => {
         app.quit()
       })
     } else {
-      app.quit()
+      process.kill(-apiProcess.pid)
     }
+  } else {
+    app.quit()
   }
 })
 

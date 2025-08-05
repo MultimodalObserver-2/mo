@@ -1,4 +1,10 @@
-import multiprocessing
+if __name__ == "__main__":
+    import multiprocessing
+    multiprocessing.set_start_method("spawn", force=True)
+    # Ensure multiprocessing support is initialized for Windows
+    # This is necessary to avoid issues with multiprocessing on Windows
+    multiprocessing.freeze_support()
+
 import os
 
 from mo.core.utils.i18n import set_language
@@ -21,11 +27,6 @@ from mo.modules.organization.routers.participants import participant_router
 from mo.modules.organization.routers.projects import project_router
 from mo.modules.organization.routers.protocols import protocols_router
 from mo.modules.visualization.routers.playback_config import playback_config_router
-
-if __name__ == "__main__":
-    # Ensure multiprocessing support is initialized for Windows
-    # This is necessary to avoid issues with multiprocessing on Windows
-    multiprocessing.freeze_support()
 
 # Initialize application setup
 app_setup()
