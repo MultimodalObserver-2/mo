@@ -114,7 +114,7 @@ export const Default: Story = {
   render: (args) => {
     // Patch Await.resolve to instantly resolve with mockPlaybackData
     const RealAwait = require("react-router").Await
-    const MockAwait = ({ resolve, children }) =>
+    const MockAwait = ({ children }) =>
       RealAwait({ resolve: resolvePromise(mockPlaybackData), children })
 
     const PlaybackCapturedFilesPatched = (props) => <PlaybackCapturedFiles {...props} />

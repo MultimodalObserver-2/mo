@@ -28,7 +28,6 @@ type Story = StoryObj<typeof AppShell>
 
 const ExampleHeader = () => <WorkspaceHeader><h1>Header</h1></WorkspaceHeader>
 const ExampleBody = () => <WorkspaceBody><p>Contenido principal</p></WorkspaceBody>
-const ExampleFooter = () => <WorkspaceFooter>Footer</WorkspaceFooter>
 
 export const Default: Story = {
   render: () => (

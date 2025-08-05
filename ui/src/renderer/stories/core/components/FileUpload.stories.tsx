@@ -1,6 +1,6 @@
 import FileUpload from "@renderer/core/components/file-upload/FileUpload"
 import type { Meta, StoryObj } from "@storybook/react"
-import { within, userEvent, expect } from "storybook/test"
+import { within } from "storybook/test"
 
 const meta = {
   title: "Core/Components/FileUpload",
@@ -50,7 +50,7 @@ export const Interaction: Story = {
   },
   play: async ({ canvasElement }) => {
     const canvas = within(canvasElement)
-    const input = canvas
+    canvas
       .getByLabelText(/browse/i)
       .querySelector("input[type='file']") as HTMLInputElement
 

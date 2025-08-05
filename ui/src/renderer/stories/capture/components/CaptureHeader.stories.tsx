@@ -3,22 +3,22 @@ import type { Meta, StoryObj } from "@storybook/react"
 import { expect, within } from "storybook/test"
 
 window.capture = {
-  onReloadCaptureStatus: (callback) => {
+  onReloadCaptureStatus: () => {
     return () => console.log("Capture status listener removed")
   },
-  onChangeCaptureStatusTray: (callback) => {
+  onChangeCaptureStatusTray: () => {
     return () => console.log("Capture tray status listener removed")
   },
   reloadConfigs: () => {
     console.log("Configs reloaded")
   },
-  onReloadConfigs: (callback) => {
+  onReloadConfigs: () => {
     return () => console.log("Reload configs listener removed")
   },
   reloadSessions: () => {
     console.log("Sessions reloaded")
   },
-  onReloadSessions: (callback) => {
+  onReloadSessions: () => {
     return () => console.log("Reload sessions listener removed")
   },
   reloadCaptureStatus: () => {

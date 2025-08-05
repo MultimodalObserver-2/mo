@@ -1,6 +1,5 @@
 import PanelError from "@renderer/modules/visualization/components/panel-error/PanelError"
 import type { Meta, StoryObj } from "@storybook/react"
-import { expect, within } from "storybook/test"
 
 const meta: Meta<typeof PanelError> = {
   title: "Visualization/Components/PanelError",

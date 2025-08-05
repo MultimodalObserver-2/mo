@@ -24,7 +24,7 @@ const mockConfigProviders: ConfigProvider[] = [
                     100
                 )
             ),
-        onReloadConfigs: (cb: () => void) => () => {},
+        onReloadConfigs: () => () => {},
         onAddConfig: () => {},
         onDeleteConfig: async () => {},
         onOpenConfig: () => {}
@@ -41,7 +41,7 @@ const mockConfigProviders: ConfigProvider[] = [
                     100
                 )
             ),
-        onReloadConfigs: (cb: () => void) => () => {},
+        onReloadConfigs: () => () => {},
         onAddConfig: () => {},
         onDeleteConfig: async () => {},
         onOpenConfig: () => {}
