@@ -45,7 +45,7 @@
       "sessionDetails": "Detalles de la sesión",
       "playingSessionFrom": "Reproduciendo sesión del",
       "changePlaybackCapturedFiles": "Cambiar archivos capturados para reproducción",
-      "sessionNotFound": "Sesión no encontrada",
+      "sessionNotFound": "No se encontraron sesiones para el proyecto y participante seleccionados",
       "rightHeaderActions": {
         "openInNewWindow": "Abrir en una nueva ventana"
       },
