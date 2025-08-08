@@ -36,7 +36,7 @@ function createWindow(): BrowserWindow {
     y: windowState?.y,
     show: false,
     autoHideMenuBar: true,
-    title: "Multimodal Observer",
+    title: `Multimodal Observer v${app.getVersion()}`,
     ...(process.platform === "linux" ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, "../preload/index.js"),
