@@ -64,6 +64,9 @@ const core = {
       locales: () => {
         return ipcRenderer.invoke("core:app:paths:locales")
       }
+    },
+    version: () => {
+      return ipcRenderer.invoke("core:app:version")
     }
   },
   zip: {

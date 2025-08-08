@@ -143,6 +143,7 @@ export default interface CoreAPI {
        */
       locales: () => Promise<string>
     }
+    version: () => Promise<string>
   }
 
   /**

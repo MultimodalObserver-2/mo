@@ -2,25 +2,66 @@
   text-align: center;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  gap: 50px;
+  padding: 30vh 0;
+  gap: 4vw;
   width: 100vw;
   height: 100vh;
   background-color: var(--color-primary-800);
 }
 
-.message {
-  font-size: 2em;
-  font-weight: 600;
-  margin-bottom: 20px;
+.header {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
 }
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.mo {
+  font-size: 2.5em;
+  font-weight: 700;
+  color: var(--color-text-light);
+}
+
+.version {
+  padding: 2px 8px;
+  border-radius: 4px;
+  background-color: var(--color-primary-700);
+  font-size: 1.3em;
+  font-weight: 600;
+  color: var(--color-primary-100);
+}
+
+.org {
+  font-size: 1.8em;
+  font-weight: 500;
+  color: var(--color-primary-50);
+}
+
+.loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 40px;
+}
+
+.message {
+  font-size: 1.4em;
+  font-weight: 400;
+  color: var(--color-primary-100);
+}
+
 
 .spinner {
   width: 120px;
   height: 120px;
   border-radius: 50%;
-  border-top: 20px solid var(--color-background);
+  border-top: 20px solid var(--color-primary-100);
   animation: spin 1.5s ease infinite;
 }
 
