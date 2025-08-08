@@ -10,13 +10,31 @@ import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalT
 import PageModal from "@renderer/core/components/page-modal/PageModal"
 import PathInput from "@renderer/core/components/path-input/PathInput"
 import { useTranslation } from "react-i18next"
-import { useState } from "react"
+import { useRef, useState } from "react"
+import LightbulbIcon from "@renderer/core/components/icons/LightbulbIcon"
+import HelpIcon from "@renderer/core/components/icons/HelpIcon"
 
 export default function AddActivity() {
   const { t } = useTranslation("organization", { keyPrefix: "pages.addActivity" })
   const [hasTimeLimit, setHasTimeLimit] = useState(true)
   const [closeActivity, setCloseActivity] = useState(false)
   const [filePath, setFilePath] = useState("")
+  const [suggesting, setSuggesting] = useState(false)
+  const processInputRef = useRef<HTMLInputElement | null>(null)
+
+  const handleSuggestProcess = async () => {
+    if (!filePath || !closeActivity) return
+    try {
+      setSuggesting(true)
+      const res = await window.core.fs.suggestProcessForFile(filePath)
+      const name = res.processName ?? ""
+      if (name && processInputRef.current) {
+        processInputRef.current.value = name
+      }
+    } finally {
+      setSuggesting(false)
+    }
+  }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
@@ -103,20 +121,42 @@ export default function AddActivity() {
           <div className={styles["close-activity-box"]}>
             <span></span>
             <div className={styles["close-activity-inputs"]}>
-              <Checkbox
-                id="closeActivity"
-                checked={closeActivity}
-                onChange={() => setCloseActivity((prev) => !prev)}
-              >
-                {t("close_when_finished")}
-              </Checkbox>
-              <Input
-                id="processName"
-                placeholder={`${t("process_name_placeholder")}${closeActivity ? " (*)" : ""}`}
-                type="text"
-                required={closeActivity}
-                disabled={!closeActivity}
-              />
+              <section className={styles["close-activity-checkbox"]}>
+                <Checkbox
+                  id="closeActivity"
+                  checked={closeActivity}
+                  onChange={() => setCloseActivity((prev) => !prev)}
+                >
+                  {t("close_when_finished")}
+                </Checkbox>
+                <abbr title={t("close_when_finished_help")} className={styles["help-abbr"]}>
+                  <HelpIcon
+                    className={styles["help-icon"]}
+                    aria-label={t("close_when_finished_help")}
+                  />
+                </abbr>
+              </section>
+              <section className={styles["process-name-input"]}>
+                <Input
+                  ref={processInputRef}
+                  id="processName"
+                  placeholder={`${t("process_name_placeholder")}${closeActivity ? " (*)" : ""}`}
+                  type="text"
+                  required={closeActivity}
+                  disabled={!closeActivity}
+                />
+                <button
+                  type="button"
+                  onClick={handleSuggestProcess}
+                  disabled={!closeActivity || !filePath || suggesting}
+                  className={styles["lightbulb-button"]}
+                  aria-label={suggesting ? t("suggesting") : t("suggest_process")}
+                >
+                  <abbr title={suggesting ? t("suggesting") : t("suggest_process")}>
+                    <LightbulbIcon className={styles["lightbulb-icon"]} />
+                  </abbr>
+                </button>
+              </section>
             </div>
           </div>
           <Checkbox id="showTimer">{t("display_timer")}</Checkbox>

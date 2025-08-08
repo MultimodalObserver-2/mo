@@ -117,7 +117,10 @@
       "process_name_placeholder": "Enter the process name to be closed",
       "display_timer": "Display a timer during the activity",
       "add_button": "Add Activity",
-      "close_button": "Close"
+      "close_button": "Close",
+      "close_when_finished_help": "If enabled, when the activity ends the associated process will be closed (the app that opened the file).",
+      "suggest_process": "Suggest process (opens the file and detects the app)",
+      "suggesting": "Detecting process…"
     },
     "addProtocol": {
       "title": "New Protocol",
@@ -147,7 +150,10 @@
       "process_name_placeholder": "Enter the process name to be closed",
       "display_timer": "Display a timer during the activity",
       "update_button": "Update Activity",
-      "close_button": "Close"
+      "close_button": "Close",
+      "close_when_finished_help": "If enabled, when the activity ends the associated process will be closed (the app that opened the file).",
+      "suggest_process": "Suggest process (opens the file and detects the app)",
+      "suggesting": "Detecting process…"
     },
     "protocol": {
       "title": "Protocol Information",

@@ -86,7 +86,14 @@ const core = {
     },
     isDirectory: (path: string) => {
       return ipcRenderer.invoke("core:fs:isDirectory", path)
-    }
+    },
+    suggestProcessForFile: (
+      filePath: string,
+      options?: { waitMs?: number; attempts?: number }
+    ): Promise<{
+      processName?: string
+      pid?: number
+    }> => ipcRenderer.invoke("core:fs:suggestProcessForFile", filePath, options)
   },
   path: {
     join: (...paths: string[]) => {

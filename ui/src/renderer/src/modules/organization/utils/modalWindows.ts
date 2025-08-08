@@ -125,10 +125,16 @@ export function openProtocolInfoModal(projectName: string, protocolName: string)
 
 export function openAddProtocolModal(projectName: string) {
   window.core.openModalWindow({
-    options: { width: 550, height: 380, minWidth: 550, minHeight: 380, title: t("add_protocol") },
+    options: { width: 550, height: 320, minWidth: 550, minHeight: 320, title: t("add_protocol") },
     endpoint: `organization/${projectName}/add-protocol`,
     parent: "main",
-    name: "protocol"
+    name: "protocol",
+    autoAdjustHeight: {
+      elementId: "create",
+      extraHeight: 165,
+      errorHeight: 320,
+      setMinimumSize: true
+    }
   })
 }
 
@@ -136,14 +142,20 @@ export function openUpdateProtocolModal(projectName: string, protocolName: strin
   window.core.openModalWindow({
     options: {
       width: 550,
-      height: 380,
+      height: 320,
       minWidth: 550,
-      minHeight: 380,
+      minHeight: 320,
       title: t("update_protocol")
     },
     endpoint: `organization/${projectName}/update-protocol/${protocolName}`,
     parent: "main",
-    name: "protocol"
+    name: "protocol",
+    autoAdjustHeight: {
+      elementId: "create",
+      extraHeight: 165,
+      errorHeight: 320,
+      setMinimumSize: true
+    }
   })
 }
 
@@ -151,9 +163,9 @@ export function openUpdateProtocolModal(projectName: string, protocolName: strin
 export function openAddActivityModal() {
   window.core.openModalWindow({
     options: {
-      width: 650,
+      width: 700,
       height: 648,
-      minWidth: 620,
+      minWidth: 680,
       minHeight: 648,
       title: t("add_activity")
     },
@@ -178,9 +190,9 @@ export function openEditActivityModal(activity: ActivityCreate) {
 
   window.core.openModalWindow({
     options: {
-      width: 650,
+      width: 700,
       height: 648,
-      minWidth: 620,
+      minWidth: 680,
       minHeight: 648,
       title: t("edit_activity")
     },

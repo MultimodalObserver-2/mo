@@ -210,6 +210,25 @@ export default interface CoreAPI {
      * @returns Promise resolving to true if the path is a directory.
      */
     isDirectory: (filePath: string) => Promise<boolean>
+
+    /**
+     * Suggests the process that likely launched when opening the given file.
+     * It opens the file with the OS default handler, snapshots running processes
+     * before and after, diffs them, and returns ranked candidates.
+     *
+     * @param filePath - Absolute path to the file to open.
+     * @param options - Tuning parameters.
+     * @param options.waitMs - Milliseconds to wait between snapshots (default 800).
+     * @param options.attempts - Poll count after opening (default 3).
+     * @returns The best candidate (if any) plus a list of candidates.
+     */
+    suggestProcessForFile: (
+      filePath: string,
+      options?: { waitMs?: number; attempts?: number }
+    ) => Promise<{
+      processName?: string
+      pid?: number
+    }>
   }
 
   /**

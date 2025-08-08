@@ -26,6 +26,50 @@
   gap: 6px;
 }
 
+.close-activity-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+}
+
+.help-abbr {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  cursor: pointer;
+}
+
+.help-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+}
+
+.process-name-input {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 6px;
+}
+
+.lightbulb-icon {
+  width: 20px;
+  height: 20px;
+  fill: var(--color-text-light);
+}
+
+.lightbulb-button {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.lightbulb-button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .location-label {
   display: flex;
   flex-direction: column;

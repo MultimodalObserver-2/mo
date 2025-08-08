@@ -117,7 +117,10 @@
       "process_name_placeholder": "Ingresa el nombre del proceso a cerrar",
       "display_timer": "Mostrar un temporizador durante la actividad",
       "add_button": "Agregar actividad",
-      "close_button": "Cerrar"
+      "close_button": "Cerrar",
+      "close_when_finished_help": "Si se activa, al terminar la actividad se intentará cerrar el proceso asociado (el de la aplicación que abrió el archivo).",
+      "suggest_process": "Sugerir proceso (abre el archivo y detecta la app)",
+      "suggesting": "Detectando proceso…"
     },
     "addProtocol": {
       "title": "Nuevo protocolo",
