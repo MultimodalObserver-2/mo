@@ -61,12 +61,14 @@ export class CaptureSystemTray {
           {
             id: "capture.start",
             label: tCaptureHotkeys("Start Capture", { ns: "capture" }),
-            callback: () => this.startCapture()
+            callback: () => this.startCapture(),
+            suggestedKey: "Ctrl+Shift+O"
           },
           {
             id: "capture.stop",
             label: tCaptureHotkeys("Stop Capture", { ns: "capture" }),
-            callback: () => this.stopCapture()
+            callback: () => this.stopCapture(),
+            suggestedKey: "Ctrl+Shift+O"
           }
         ],
         getState: () => (this.isCapturing ? 1 : 0)
@@ -80,12 +82,14 @@ export class CaptureSystemTray {
           {
             id: "capture.pause",
             label: tCaptureHotkeys("Pause Capture", { ns: "capture" }),
-            callback: () => this.pauseCapture()
+            callback: () => this.pauseCapture(),
+            suggestedKey: "Ctrl+Shift+P"
           },
           {
             id: "capture.resume",
             label: tCaptureHotkeys("Resume Capture", { ns: "capture" }),
-            callback: () => this.resumeCapture()
+            callback: () => this.resumeCapture(),
+            suggestedKey: "Ctrl+Shift+P"
           }
         ],
         getState: () => (this.isPaused ? 1 : 0)

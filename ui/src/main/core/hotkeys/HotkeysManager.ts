@@ -5,6 +5,7 @@ export type SimpleHotkeyAction = {
   id: string
   label: string
   defaultKey?: string
+  suggestedKey?: string
   callback: () => void | Promise<void>
 }
 
@@ -25,6 +26,7 @@ interface HotkeyStatus {
   label: string
   actualKey: string
   defaultKey?: string
+  suggestedKey?: string
   type: "simple" | "complementary"
   groupId?: string
 }
@@ -112,6 +114,7 @@ export class HotkeysManager {
         id: action.id,
         label: action.label,
         actualKey: key,
+        suggestedKey: action.suggestedKey,
         defaultKey: action.defaultKey ?? "",
         type: "simple"
       })
@@ -128,6 +131,7 @@ export class HotkeysManager {
           id: action.id,
           label: action.label,
           actualKey: key,
+          suggestedKey: action.suggestedKey,
           defaultKey: action.defaultKey ?? "",
           type: "complementary",
           groupId: group.id

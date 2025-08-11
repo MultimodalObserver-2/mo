@@ -12,10 +12,12 @@
       "hotkeys": {
         "title": "Hotkeys",
         "warnings": {
-          "keyUsedBy": "Key used by: {{labels}}"
+          "keyUsedBy": "Key used by: {{labels}}",
+          "shiftLetterOnly": "Avoid using only Shift+Letter; it is typically for typing uppercase.",
+          "reservedCombo": "Common hotkey: {{combo}} is reserved and may not work as expected."
         },
         "hotkey": {
-          "placeholder": "Click to bind",
+          "placeholder": "Click to bind (e.g. {{example}})",
           "actions": {
             "save": "Save changes",
             "reset": "Reset to saved key",

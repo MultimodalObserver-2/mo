@@ -44,6 +44,59 @@ export default function HotkeysSettings() {
     setCurrentCombos((prev) => ({ ...prev, [id]: newCombo }))
   }
 
+  const isShiftLetterOnly = (combo: string) => {
+    const parts = combo.split("+").map((x) => x.trim())
+    return (
+      parts.length === 2 &&
+      parts[0] === "Shift" &&
+      parts[1].length === 1 &&
+      /^[a-zA-Z]$/.test(parts[1])
+    )
+  }
+
+  const isReservedCombo = (combo: string) => {
+    const RESERVED_LIST = [
+      "Alt+Tab",
+      "Alt+Shift+Tab",
+      "Alt+F4",
+      "Alt+Escape",
+      "Control+Alt+Delete",
+      "Control+Shift+Escape",
+      "Control+Escape",
+      "Meta+D",
+      "Meta+Tab",
+      "Meta+Shift+Tab",
+      "Meta+E",
+      "Meta+I",
+      "Meta+L",
+      "Meta+P",
+      "Meta+R",
+      "Meta+Space",
+      "Meta+Tab",
+      "Meta+ArrowLeft",
+      "Meta+ArrowRight",
+      "Meta+ArrowUp",
+      "Meta+ArrowDown",
+      "Control+C",
+      "Control+V",
+      "Control+X",
+      "Control+Z",
+      "Control+Y",
+      "Control+A",
+      "Control+S",
+      "Control+P",
+      "Control+N",
+      "Control+F",
+      "Control+W",
+      "Control+T",
+      "Control+Tab",
+      "Control+Shift+Tab",
+      "Control+Space"
+    ]
+
+    return RESERVED_LIST.includes(combo)
+  }
+
   const getWarning = (id: string, combo: string) => {
     if (!combo) return undefined
 
@@ -66,9 +119,21 @@ export default function HotkeysSettings() {
       return false
     })
 
-    return conflicts.length > 0
-      ? t("warnings.keyUsedBy", { labels: conflicts.map((c) => c.label).join(", ") })
-      : undefined
+    const warnings: string[] = []
+
+    if (isShiftLetterOnly(combo)) {
+      warnings.push(t("warnings.shiftLetterOnly"))
+    }
+
+    if (isReservedCombo(combo)) {
+      warnings.push(t("warnings.reservedCombo", { combo }))
+    }
+
+    if (conflicts.length > 0) {
+      warnings.push(t("warnings.keyUsedBy", { labels: conflicts.map((c) => c.label).join(", ") }))
+    }
+
+    return warnings.length > 0 ? warnings.join(", ") : undefined
   }
 
   const handleOnSaved = () => {

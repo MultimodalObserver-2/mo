@@ -12,10 +12,12 @@
 			"hotkeys": {
 				"title": "Atajos de teclado",
 				"warnings": {
-					"keyUsedBy": "Combinación usada por: {{labels}}"
+					"keyUsedBy": "Combinación usada por: {{labels}}",
+					"shiftLetterOnly": "Evita usar solo Shift+Letra; normalmente se usa para escribir en mayúsculas.",
+					"reservedCombo": "El atajo común: {{combo}} está reservado y puede no funcionar como se espera."
 				},
 				"hotkey": {
-					"placeholder": "Haz clic para asignar",
+					"placeholder": "Haz clic para asignar (ej. {{example}})",
 					"actions": {
 						"save": "Guardar cambios",
 						"reset": "Restablecer a la tecla guardada",

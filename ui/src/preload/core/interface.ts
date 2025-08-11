@@ -22,6 +22,7 @@ export interface HotkeyStatus {
   label: string
   actualKey: string
   defaultKey?: string
+  suggestedKey?: string
   type: "simple" | "complementary"
   groupId?: string
 }

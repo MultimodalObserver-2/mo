@@ -14,6 +14,7 @@ export interface HotkeyProps {
   id: string
   label: string
   actualKey: string
+  suggestedKey?: string
   type: "simple" | "complementary"
   groupId?: string
   warning?: string
@@ -25,6 +26,7 @@ export default function Hotkey({
   id,
   label,
   actualKey,
+  suggestedKey,
   warning,
   onComboChange,
   onSaved
@@ -68,7 +70,7 @@ export default function Hotkey({
             styleType="primary"
             className={styles.input}
             value={combo}
-            placeholder={t("placeholder")}
+            placeholder={t("placeholder", { example: suggestedKey ?? "Ctrl+Shift+Key" })}
             readOnly
             onFocus={startCapture}
             onBlur={stopCapture}
