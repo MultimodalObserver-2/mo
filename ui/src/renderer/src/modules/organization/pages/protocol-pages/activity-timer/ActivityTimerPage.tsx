@@ -37,7 +37,7 @@ export default function ActivityTimerPage() {
   }, [isRunning])
 
   useEffect(() => {
-    window.organization.onActivityTimerChange((sec) => {
+    const removeTimerChange = window.organization.onActivityTimerChange((sec) => {
       const totalSeconds = sec
       const hours = Math.floor(totalSeconds / 3600)
       const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -46,7 +46,7 @@ export default function ActivityTimerPage() {
       setTime({ hours, minutes, seconds: finalSeconds })
     })
 
-    window.organization.onActivityTimerStart((initialSeconds) => {
+    const removeTimerStart = window.organization.onActivityTimerStart((initialSeconds) => {
       const totalSeconds = initialSeconds
       const hours = Math.floor(totalSeconds / 3600)
       const minutes = Math.floor((totalSeconds % 3600) / 60)
@@ -56,7 +56,7 @@ export default function ActivityTimerPage() {
       setIsRunning(true)
     })
 
-    window.organization.onActivityTimerStop(() => {
+    const removeTimerStop = window.organization.onActivityTimerStop(() => {
       if (intervalRef.current) {
         setTime({ hours: 0, minutes: 0, seconds: 0 })
         clearInterval(intervalRef.current)
@@ -65,6 +65,26 @@ export default function ActivityTimerPage() {
 
       setIsRunning(false)
     })
+
+    const removeTimerPause = window.organization.onActivityTimerPause(() => {
+      setIsRunning(false)
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current)
+        intervalRef.current = null
+      }
+    })
+
+    const removeTimerResume = window.organization.onActivityTimerResume(() => {
+      setIsRunning(true)
+    })
+
+    return () => {
+      removeTimerChange()
+      removeTimerStart()
+      removeTimerStop()
+      removeTimerPause()
+      removeTimerResume()
+    }
   }, [])
 
   return (

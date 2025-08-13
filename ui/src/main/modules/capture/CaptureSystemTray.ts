@@ -7,7 +7,7 @@ import languageObserver from "../../core/i18n/LanguageObserver"
 const tCaptureTray = i18n.getFixedT(null, "capture", "tray")
 const tCaptureHotkeys = i18n.getFixedT(null, "capture", "hotkeys")
 
-type CaptureEvent = "startCapture" | "stopCapture"
+type CaptureEvent = "startCapture" | "stopCapture" | "pauseCapture" | "resumeCapture"
 type CaptureCallback = (projectName?: string | null, participantCode?: string | null) => void
 
 export class CaptureSystemTray {
@@ -19,7 +19,9 @@ export class CaptureSystemTray {
 
   private readonly listeners: { [K in CaptureEvent]: Set<CaptureCallback> } = {
     startCapture: new Set(),
-    stopCapture: new Set()
+    stopCapture: new Set(),
+    pauseCapture: new Set(),
+    resumeCapture: new Set()
   }
 
   constructor() {
@@ -117,14 +119,18 @@ export class CaptureSystemTray {
 
   public updateStatusFromRenderer(isCapturing: boolean, isPaused: boolean) {
     const wasCapturing = this.isCapturing
+    const wasPaused = this.isPaused
     this.isCapturing = isCapturing
     this.isPaused = isPaused
     this.updateMenu()
-
-    if (!wasCapturing && isCapturing) {
-      this.emit("startCapture")
-    } else if (wasCapturing && !isCapturing) {
+    if (isCapturing && !wasPaused && isPaused) {
+      this.emit("pauseCapture")
+    } else if (isCapturing && wasPaused && !isPaused) {
+      this.emit("resumeCapture")
+    } else if (!isCapturing && wasCapturing) {
       this.emit("stopCapture")
+    } else if (!wasCapturing && isCapturing) {
+      this.emit("startCapture")
     }
   }
 
@@ -136,6 +142,16 @@ export class CaptureSystemTray {
   public onStopCapture(callback: CaptureCallback): () => void {
     this.listeners.stopCapture.add(callback)
     return () => this.listeners.stopCapture.delete(callback)
+  }
+
+  public onPauseCapture(callback: CaptureCallback): () => void {
+    this.listeners.pauseCapture.add(callback)
+    return () => this.listeners.pauseCapture.delete(callback)
+  }
+
+  public onResumeCapture(callback: CaptureCallback): () => void {
+    this.listeners.resumeCapture.add(callback)
+    return () => this.listeners.resumeCapture.delete(callback)
   }
 
   private emit(event: CaptureEvent) {
@@ -205,6 +221,7 @@ export class CaptureSystemTray {
   private async pauseCapture() {
     if (this.isBusy) return
     this.isBusy = true
+    this.emit("pauseCapture")
     this.notifyRenderer()
     this.updateMenu()
     try {
@@ -227,6 +244,7 @@ export class CaptureSystemTray {
     this.updateMenu()
     try {
       await apiClient.post("/capture/resume")
+      this.emit("resumeCapture")
       this.isPaused = false
     } catch (e) {
       console.error("Failed to resume capture:", e)

@@ -118,4 +118,12 @@ app.whenReady().then(() => {
     }
     protocolExecution.stop()
   })
+
+  captureTray.onPauseCapture(() => {
+    protocolExecution.pause()
+  })
+
+  captureTray.onResumeCapture(() => {
+    protocolExecution.resume()
+  })
 })

@@ -23,6 +23,7 @@ export class ProtocolExecution extends EventEmitter {
   private protocolNameStatus: string | null = null
   private socket: WebSocket | null = null
   private timerWindow: BrowserWindow | null = null
+  private isLocalTimer: boolean = false
 
   public async start(projectName: string, protocolName: string): Promise<boolean> {
     if (this.isProtocolRunning) {
@@ -117,6 +118,7 @@ export class ProtocolExecution extends EventEmitter {
         if (startResponse === 0) {
           this.socket?.send("start")
           showTimer()
+          this.isLocalTimer = !data.has_time_limit
           if (!data.has_time_limit) {
             await handleCompleteActivity()
           }
@@ -154,6 +156,26 @@ export class ProtocolExecution extends EventEmitter {
     if (this.socket) {
       this.socket.close()
       this.socket = null
+    }
+  }
+
+  public pause() {
+    if (this.socket) {
+      this.socket.send("pause")
+      this.emit("paused")
+      broadcast("organization:on-activity-actions-disable", true)
+      this.timerWindow?.webContents.send("organization:on-activity-timer-pause")
+    }
+  }
+
+  public resume() {
+    if (this.socket) {
+      this.socket.send("resume")
+      this.emit("resumed")
+      broadcast("organization:on-activity-actions-disable", false)
+      if (this.isLocalTimer) {
+        this.timerWindow?.webContents.send("organization:on-activity-timer-resume")
+      }
     }
   }
 

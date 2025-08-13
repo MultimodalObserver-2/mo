@@ -127,15 +127,58 @@ const organization = {
     ipcRenderer.send("organization:activity-message:set-height", height)
   },
   onActivityTimerChange: (callback: (seconds: number) => void) => {
-    ipcRenderer.on("organization:on-activity-timer-change", (_, seconds) => callback(seconds))
+    const listener = (_, seconds) => {
+      callback(seconds)
+    }
+    ipcRenderer.on("organization:on-activity-timer-change", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-timer-change", listener)
+    }
   },
   onActivityTimerStart: (callback: (initialSeconds: number) => void) => {
-    ipcRenderer.on("organization:on-activity-timer-start", (_, initialSeconds) =>
+    const listener = (_, initialSeconds) => {
       callback(initialSeconds)
-    )
+    }
+    ipcRenderer.on("organization:on-activity-timer-start", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-timer-start", listener)
+    }
   },
   onActivityTimerStop: (callback: () => void) => {
-    ipcRenderer.on("organization:on-activity-timer-stop", () => callback())
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-activity-timer-stop", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-timer-stop", listener)
+    }
+  },
+  onActivityTimerPause: (callback: () => void) => {
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-activity-timer-pause", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-timer-pause", listener)
+    }
+  },
+  onActivityTimerResume: (callback: () => void) => {
+    const listener = () => {
+      callback()
+    }
+    ipcRenderer.on("organization:on-activity-timer-resume", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-timer-resume", listener)
+    }
+  },
+  onActivityActionsDisable: (callback: (disabled: boolean) => void) => {
+    const listener = (_, disabled) => {
+      callback(disabled)
+    }
+    ipcRenderer.on("organization:on-activity-actions-disable", listener)
+    return () => {
+      ipcRenderer.removeListener("organization:on-activity-actions-disable", listener)
+    }
   },
   setProject: (projectName: string | null) => {
     ipcRenderer.send("organization:set-project", projectName)

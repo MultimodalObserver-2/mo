@@ -6,13 +6,14 @@ import ModalFooter from "@renderer/core/components/page-modal/modal-footer/Modal
 import ModalHeader from "@renderer/core/components/page-modal/modal-header/ModalHeader"
 import ModalTitle from "@renderer/core/components/page-modal/modal-header/ModalTitle"
 import PageModal from "@renderer/core/components/page-modal/PageModal"
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useParams, useSearchParams } from "react-router"
 
 export default function ActivityMessagePage() {
   const { activityName } = useParams<{ activityName: string }>()
   const [searchParams] = useSearchParams()
   const messageRef = useRef<HTMLDivElement>(null)
+  const [disabled, setDisabled] = useState(false)
   const buttons = searchParams.get("button")?.split(",")
 
   const handleClick = (index) => {
@@ -24,6 +25,14 @@ export default function ActivityMessagePage() {
     const contentHeight = 135
     const messageScrollHeight = messageRef.current?.scrollHeight || 0
     window.organization.setActivityMessageHeight(messageScrollHeight + contentHeight)
+
+    const removeDisableListener = window.organization.onActivityActionsDisable((disabled) => {
+      setDisabled(disabled)
+    })
+
+    return () => {
+      removeDisableListener()
+    }
   }, [])
 
   return (
@@ -41,7 +50,7 @@ export default function ActivityMessagePage() {
       </ModalBody>
       <ModalFooter>
         {buttons?.map((button, index) => (
-          <Button key={button + index} onClick={() => handleClick(index)}>
+          <Button key={button + index} onClick={() => handleClick(index)} disabled={disabled}>
             {button}
           </Button>
         ))}

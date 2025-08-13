@@ -30,9 +30,12 @@ export default interface OrganizationAPI {
   }>
   activityMessageButtonClicked: (idx) => void
   setActivityMessageHeight: (height) => void
-  onActivityTimerChange: (callback: (seconds: number) => void) => void
-  onActivityTimerStart: (callback: (initialSeconds) => void) => void
-  onActivityTimerStop: (callback: () => void) => void
+  onActivityTimerChange: (callback: (seconds: number) => void) => () => void
+  onActivityTimerStart: (callback: (initialSeconds) => void) => () => void
+  onActivityTimerStop: (callback: () => void) => () => void
+  onActivityTimerPause: (callback: () => void) => () => void
+  onActivityTimerResume: (callback: () => void) => () => void
+  onActivityActionsDisable: (callback: (disabled: boolean) => void) => () => void
   setProject: (projectUuid: string | null) => Promise<void>
   setParticipant: (participantUuid: string | null) => Promise<void>
   setProtocol: (protocolUuid: string | null) => Promise<void>
