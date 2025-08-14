@@ -93,7 +93,7 @@ export default function PlaybackCapturedFiles({
                     }
                     onChange(newPlaybackConfig)
                   }}
-                  {...(data.hasDefault ? { defaultValue: data.capture_config_id } : {})}
+                  defaultValue={data.capture_config_id}
                 >
                   {data.captures.map((capture) => (
                     <option key={capture.config_id} value={capture.config_id}>
