@@ -20,6 +20,15 @@ class PlaybackService {
     )
   }
 
+  isValidOutputDescriptor(pluginId: string, descriptor: Record<string, unknown> | null): boolean {
+    const plugin = this.getPluginInstanceById(pluginId)
+    if (!plugin) {
+      return false
+    }
+
+    return plugin.validateCaptureDescriptor(descriptor)
+  }
+
   getPluginValidExtensions(pluginId: string): string[] {
     const plugin = this.getPluginInstanceById(pluginId)
     if (plugin) {
@@ -35,8 +44,10 @@ class PlaybackService {
     const validExtensions = this.getPluginValidExtensions(pluginId)
     const captureConfigsRes = await captureConfigService.getAll(projectName)
     const captureConfigs = captureConfigsRes.data
-    const validCaptureConfigs = captureConfigs.filter((config) =>
-      validExtensions.includes(config.file_extension)
+    const validCaptureConfigs = captureConfigs.filter(
+      (config) =>
+        validExtensions.includes(config.file_extension) &&
+        this.isValidOutputDescriptor(pluginId, config.output_descriptor || null)
     )
     return validCaptureConfigs
   }

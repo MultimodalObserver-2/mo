@@ -8,6 +8,7 @@ export type CaptureConfig = {
   plugin_is_loaded: boolean
   settings: Record<string, string | number | boolean>
   file_extension: string
+  output_descriptor?: Record<string, unknown>
 }
 
 export type CaptureConfigCreate = {

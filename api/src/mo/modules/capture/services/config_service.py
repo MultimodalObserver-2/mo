@@ -18,7 +18,7 @@ from mo.modules.capture.schemas.capture_config import (
     CaptureConfigPutReq,
     CaptureConfigRes,
 )
-from mo.modules.capture.services.capture_plugin_callbacks import get_file_extension_callback
+from mo.modules.capture.services.capture_plugin_callbacks import get_file_extension_callback, get_output_descriptor_callback
 from mo.modules.capture.services.paths import CAPTURE_CONFIGS_DIR, CAPTURE_CONFIGS_FILE
 from mo.modules.organization.errors.project import project_does_not_exist
 from mo.modules.organization.services.project_service import ProjectService
@@ -125,6 +125,7 @@ class CaptureConfigService:
         )
 
         plugin_file_extension = None
+        plugin_output_descriptor = None
         try:
             plugin_process = self.plugin_management.get_plugin_process(
                 config.plugin_id)
@@ -133,6 +134,8 @@ class CaptureConfigService:
                     config.name, Settings(config.settings), overwrite=True)
                 plugin_file_extension = plugin_process.execute_callback_on_instance(
                     config.name, get_file_extension_callback)
+                plugin_output_descriptor = plugin_process.execute_callback_on_instance(
+                    config.name, get_output_descriptor_callback)
         except Exception as e:
             raise BadRequestException(
                 translate("capture.fileExtensionError",
@@ -144,6 +147,7 @@ class CaptureConfigService:
             plugin_id=config.plugin_id,
             settings=config.settings,
             file_extension=plugin_file_extension,
+            output_descriptor=plugin_output_descriptor
         )
         configurations_storage.insert_one(final_config.model_dump())
 
@@ -155,6 +159,7 @@ class CaptureConfigService:
             settings=config.settings,
             plugin_is_loaded=plugin_metadata._is_loaded,
             file_extension=plugin_file_extension,
+            output_descriptor=plugin_output_descriptor
         )
 
     async def get_all_capture_configs(self, project_name: str) -> list[CaptureConfigRes]:
@@ -182,6 +187,7 @@ class CaptureConfigService:
                 plugin_id=config_data.plugin_id,
                 settings=config_data.settings,
                 file_extension=config_data.file_extension,
+                output_descriptor=config_data.output_descriptor,
             )
             if plugin_metadata:
                 plugin_icon = PluginRes.get_icon_path(
@@ -222,6 +228,7 @@ class CaptureConfigService:
             plugin_id=settings_data.plugin_id,
             settings=settings_data.settings,
             file_extension=settings_data.file_extension,
+            output_descriptor=settings_data.output_descriptor
         )
         if plugin_metadata:
             plugin_icon = PluginRes.get_icon_path(
@@ -270,6 +277,7 @@ class CaptureConfigService:
             existing_config.name = config.name
 
         plugin_file_extension = existing_config.file_extension
+        plugin_output_descriptor = existing_config.output_descriptor
         try:
             plugin_process = self.plugin_management.get_plugin_process(
                 existing_config.plugin_id)
@@ -278,6 +286,8 @@ class CaptureConfigService:
                     existing_config.id, Settings(config.settings), overwrite=True)
                 plugin_file_extension = plugin_process.execute_callback_on_instance(
                     existing_config.id, get_file_extension_callback)
+                plugin_output_descriptor = plugin_process.execute_callback_on_instance(
+                    existing_config.id, get_output_descriptor_callback)
         except Exception as e:
             raise BadRequestException(
                 translate("capture.fileExtensionError",
@@ -289,6 +299,7 @@ class CaptureConfigService:
             plugin_id=existing_config.plugin_id,
             settings=existing_config.settings,
             file_extension=plugin_file_extension,
+            output_descriptor=plugin_output_descriptor
         )
 
         configs_storage = self._get_configurations_storage(project_name)

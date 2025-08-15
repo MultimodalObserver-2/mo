@@ -1,6 +1,6 @@
 import typing
 from abc import abstractmethod
-from typing import Callable
+from typing import Any, Callable
 
 from mo.core.plugin.models.plugin import Plugin
 
@@ -51,6 +51,7 @@ class CapturePlugin(Plugin):
     - `stop()` finalizes the capture session.
     - `save()` is called repeatedly with data batches.
     - `get_file_extension()` specifies the output format.
+    - `get_output_descriptor()` can provide additional metadata about the output.
 
     Notes:
     - Each call to `save()` receives a time-ordered list of `CaptureData` instances. The
@@ -151,3 +152,13 @@ class CapturePlugin(Plugin):
             str: The file extension used by the plugin, or an empty string if not applicable.
         """
         pass
+    
+    def get_output_descriptor(self) -> dict[str, Any] | None:
+        """Get the output descriptor for the plugin.
+
+        This method can be overridden to provide additional metadata about the output
+        of the plugin, such as format, encoding, or other relevant information.
+        Returns:
+            dict[str, Any] | None: A dictionary containing output metadata, or None if not applicable.
+        """
+        return None

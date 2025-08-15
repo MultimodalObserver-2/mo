@@ -136,6 +136,19 @@ def get_file_extension_callback(instance: Plugin, *_) -> str:
     return ""
 
 
+def get_output_descriptor_callback(instance: Plugin, *_) -> dict[str, Any] | None:
+    """Returns the output descriptor for the CapturePlugin instance.
+    This function is called to retrieve additional metadata about the output of the plugin.
+    Args:
+        instance (Plugin): The CapturePlugin instance for which to get the output descriptor.
+    Returns:
+        dict[str, Any] | None: A dictionary containing output metadata, or None if not applicable.
+    """
+    if isinstance(instance, CapturePlugin):
+        return instance.get_output_descriptor()
+    return None
+
+
 def save_callback(instance: Plugin, extra_args: Optional[dict[str, Any]], *_):
     """Saves the captured data from the CapturePlugin instance.
     This function is called to save the data captured by the plugin, allowing it to persist

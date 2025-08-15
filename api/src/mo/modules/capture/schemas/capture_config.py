@@ -25,6 +25,7 @@ class CaptureConfigRes(BaseModel):
     plugin_is_loaded: bool = False
     settings: dict[str, Any]
     file_extension: Optional[str] = None
+    output_descriptor: Optional[dict[str, Any]] = None
 
 
 class CaptureConfigData(BaseModel):
@@ -33,6 +34,7 @@ class CaptureConfigData(BaseModel):
     plugin_id: str
     settings: dict[str, Any]
     file_extension: Optional[str] = None
+    output_descriptor: Optional[dict[str, Any]] = None
 
 
 class CaptureConfigLoaded(BaseModel):

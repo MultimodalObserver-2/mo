@@ -134,4 +134,20 @@ export abstract class PlaybackPlugin extends PluginBase {
    * @returns Array of supported file extension strings (e.g., ["mp4", "json"]).
    */
   abstract validExtensions(): string[]
+
+  /**
+   * Validate a capture plugin's output descriptor to decide if this playback
+   * plugin can consume the produced artifact.
+   *
+   * Called by the host when evaluating which playback plugin(s) are compatible
+   * with a capture configuration. Plugins can override this static method to
+   * implement custom validation logic.
+   *
+   * @param descriptor - The descriptor object produced by the capture plugin or null if none.
+   * @returns boolean - true if this playback plugin accepts the descriptor.
+   */
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  validateCaptureDescriptor(_descriptor: Record<string, unknown> | null): boolean {
+    return true
+  }
 }
