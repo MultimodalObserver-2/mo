@@ -1,5 +1,3 @@
-import { PluginMetadata } from "./PluginMetadata"
-
 /**
  * Abstract base class for all plugins.
  *
@@ -8,7 +6,6 @@ import { PluginMetadata } from "./PluginMetadata"
  * configuration changes.
  *
  * @property static __module - The module name this plugin belongs to. Used for grouping and identification.
- * @property metadata - Plugin metadata (must be implemented by each plugin).
  * @property settings - Current settings applied to the plugin.
  *
  * @method configure - Sets plugin settings and triggers `onConfigure` hook.
@@ -16,7 +13,6 @@ import { PluginMetadata } from "./PluginMetadata"
  */
 export abstract class PluginBase {
   static readonly __module: string = "core"
-  abstract readonly metadata: PluginMetadata
   settings: Record<string, unknown> = {}
 
   /**
