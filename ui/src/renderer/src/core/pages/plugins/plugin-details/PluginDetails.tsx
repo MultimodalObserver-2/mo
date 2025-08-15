@@ -37,13 +37,6 @@ export default function PluginDetails() {
         window.close()
         return
       }
-      if (pluginTarget === "ui") {
-        // Register the plugin directory if specified in the search params.
-        // This is necessary for UI plugins to load correctly,
-        // since memory is not shared between window processes in Electron.
-        const dirName = searchParams.get("dir") ?? ""
-        await pluginService.ui.registerByDir(dirName)
-      }
 
       try {
         const response = await pluginService.get(pluginId, pluginTarget)

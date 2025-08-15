@@ -15,7 +15,6 @@ import {
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
 import playbackService from "../../services/PlaybackService"
-import pluginService from "@renderer/core/services/PluginService"
 import { openConfigurePlaybackViewModal } from "../../utils/modalWindows"
 import DashboardIcon from "@renderer/core/components/icons/DashboardIcon"
 
@@ -28,7 +27,6 @@ export default function SelectPlaybackView() {
   useEffect(() => {
     const fetchPlugins = async () => {
       try {
-        await pluginService.ui.loadAll()
         const response = await playbackService.getPlugins()
         setPlugins(response)
         setSelectedView(response[0] || null)

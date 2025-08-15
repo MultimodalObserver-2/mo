@@ -5,7 +5,6 @@ import { showApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import { PlaybackConfigCreate } from "../../types/PlaybackConfig"
 import playbackConfigService from "../../services/PlaybackConfigService"
 import { Suspense } from "react"
-import pluginService from "@renderer/core/services/PluginService"
 import ErrorElement from "@renderer/core/components/error-element/ErrorElement"
 import Select from "@renderer/core/components/select/Select"
 import playbackService from "../../services/PlaybackService"
@@ -44,7 +43,6 @@ export default function AddPlaybackConfig() {
   }
 
   const getPluginValidCaptureConfigs = async () => {
-    await pluginService.ui.loadAll()
     return playbackService.getPluginValidCaptureConfigs(projectName, pluginId)
   }
 
