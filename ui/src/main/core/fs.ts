@@ -139,4 +139,6 @@ function pickNewProcess(
       return { name, pid: found?.pid }
     }
   }
+
+  return undefined
 }

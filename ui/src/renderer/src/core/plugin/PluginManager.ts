@@ -15,8 +15,8 @@ import { PluginBase, Properties } from "./types"
 import { PluginMetadata } from "./types/PluginMetadata"
 import { validateId } from "./utils/validateId"
 import { PluginDTO, PluginIcons } from "./types/PluginDTO"
-import { PLUGIN_BASE_PATH } from "./constants"
 import i18n from "i18next"
+import { getPluginBasePath } from "./constants"
 
 export interface PluginConstructor {
   new (): PluginBase
@@ -50,10 +50,10 @@ class PluginManager {
    * Errors are logged and do not prevent other plugins from loading.
    */
   async loadAllPlugins(): Promise<void> {
-    const dirs = await window.core.fs.readdirSync(PLUGIN_BASE_PATH)
+    const dirs = await window.core.fs.readdirSync(getPluginBasePath())
 
     const pluginDirPromises = dirs.map(async (dir) => {
-      const dirPath = await window.core.path.join(PLUGIN_BASE_PATH, dir)
+      const dirPath = await window.core.path.join(getPluginBasePath(), dir)
       if (await window.core.fs.isDirectory(dirPath)) {
         return dirPath
       }
@@ -338,7 +338,7 @@ class PluginManager {
    * @returns The registered plugin as a DTO.
    */
   async registerPluginByDir(dir: string): Promise<PluginDTO> {
-    const pluginPath = await window.core.path.join(PLUGIN_BASE_PATH, dir)
+    const pluginPath = await window.core.path.join(getPluginBasePath(), dir)
     return this.registerPlugin(pluginPath)
   }
 

@@ -91,6 +91,18 @@ class ProtocolExecService:
             raise BadRequestException(
                 invalid_execution_request(activity_name=activity_name if activity_name else "unknown"))
         
+    async def _wait_for_resume(self, websocket: WebSocket) -> None:
+        """        
+        Wait until the execution is resumed if it is currently paused.
+        If the execution is not paused, it will continue to listen for control messages.
+        Args:
+            websocket (WebSocket): The WebSocket connection.
+        """
+        if not self._running_event.is_set():
+            while not self._running_event.is_set():
+                text = await websocket.receive_text()
+                await self._handle_control_message(websocket, text)
+        
     async def _tick_or_control(self, websocket: WebSocket, activity_name: str, seconds: float) -> None:
         """
         Wait for a specified number of seconds or until a control message is received.
@@ -105,11 +117,7 @@ class ProtocolExecService:
         Raises:
             BadRequestException: If the execution request is invalid.
         """
-        # If already paused, wait for resume
-        if not self._running_event.is_set():
-            while not self._running_event.is_set():
-                text = await websocket.receive_text()
-                await self._handle_control_message(websocket, text)
+        await self._wait_for_resume(websocket)
         
         remaining_time = seconds
         
@@ -146,10 +154,7 @@ class ProtocolExecService:
                     invalid_execution_request(activity_name=activity_name))
             
             # If paused, wait until resumed
-            if not self._running_event.is_set():
-                while not self._running_event.is_set():
-                    text = await websocket.receive_text()
-                    await self._handle_control_message(websocket, text)
+            await self._wait_for_resume(websocket)
 
     async def run(self, websocket: WebSocket, protocol_name: str, project_name: str):
         """Run the protocol execution process.

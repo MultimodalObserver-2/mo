@@ -21,6 +21,9 @@ window.core = {
     paths: {
       plugins: () => Promise.resolve("/mock/plugins/path"),
       locales: () => Promise.resolve("/mock/locales/path")
+    },
+    version: function (): Promise<string> {
+      return Promise.resolve("1.0.0")
     }
   }
 }

@@ -11,4 +11,6 @@ if (typeof window !== "undefined" && window.core?.app?.paths?.plugins) {
   PLUGIN_BASE_PATH = await window.core.app.paths.plugins()
 }
 
-export { PLUGIN_BASE_PATH }
+export function getPluginBasePath() {
+  return PLUGIN_BASE_PATH
+}

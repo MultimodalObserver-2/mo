@@ -67,7 +67,7 @@ def test_add_capture_config_success(config_service, mock_plugin_metadata):
     process_mock = MagicMock()
     config_service.plugin_management.get_plugin_process.return_value = process_mock
     process_mock.add_plugin_instance.return_value = MagicMock()
-    process_mock.execute_callback_on_instance.return_value = "json"
+    process_mock.execute_callback_on_instance.return_value = None
 
     with patch("mo.modules.capture.services.config_service.JsonStorage") as mock_json_storage_class:
         mock_storage_instance = MagicMock()
@@ -252,7 +252,7 @@ def test_update_capture_config_success(config_service):
     process_mock = MagicMock()
     config_service.plugin_management.get_plugin_process.return_value = process_mock
     process_mock.add_plugin_instance.return_value = MagicMock()
-    process_mock.execute_callback_on_instance.return_value = "json"
+    process_mock.execute_callback_on_instance.return_value = None
 
     with patch("mo.modules.capture.services.config_service.JsonStorage") as mock_json_storage_class:
         mock_storage_instance = MagicMock()

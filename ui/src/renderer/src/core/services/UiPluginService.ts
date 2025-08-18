@@ -1,15 +1,15 @@
 import { Plugin } from "../types/Plugin"
-import { PLUGIN_BASE_PATH } from "../plugin/constants"
 import pluginManager from "../plugin/PluginManager"
 import { getFolderName } from "../utils/getFolderName"
 import { PluginDTO } from "../plugin/types/PluginDTO"
 import { PluginProperty } from "../types/PluginProperty"
+import { getPluginBasePath } from "../plugin/constants"
 
 export class UiPluginService {
   async register(pluginFile: File): Promise<Plugin> {
     const fileName = pluginFile.name.replace(/\.[^/.]+$/, "")
-    const folderName = await getFolderName(PLUGIN_BASE_PATH, fileName) // Remove file extension for folder name
-    const destPath = await window.core.path.join(PLUGIN_BASE_PATH, folderName)
+    const folderName = await getFolderName(getPluginBasePath(), fileName) // Remove file extension for folder name
+    const destPath = await window.core.path.join(getPluginBasePath(), folderName)
     const arrayBuffer = await pluginFile.arrayBuffer()
 
     const response = await window.core.zip.extract(arrayBuffer, destPath)
