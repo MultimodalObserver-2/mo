@@ -75,7 +75,7 @@ function createWindow(): BrowserWindow {
     })
 
     if (!is.dev && apiProcess?.pid) {
-      treeKill(apiProcess.pid)
+      closeApiProcess()
       apiProcess = null
     }
   })
@@ -170,23 +170,26 @@ app.on("window-all-closed", () => {
   if (process.platform == "darwin") {
     return
   }
-  if (!is.dev && apiProcess?.pid) {
-    if (process.platform === "win32") {
-      treeKill(apiProcess.pid, (err) => {
-        if (err) {
-          console.error("Failed to kill API process:", err)
-        } else {
-          console.log("API process killed successfully")
-        }
-        app.quit()
-      })
-    } else {
-      process.kill(-apiProcess.pid)
-    }
-  } else {
-    app.quit()
-  }
+  closeApiProcess()
+  app.quit()
 })
+
+function closeApiProcess(): void {
+  if (is.dev || !apiProcess || !apiProcess.pid) {
+    return
+  }
+  if (process.platform === "win32") {
+    treeKill(apiProcess.pid, (err) => {
+      if (err) {
+        console.error("Failed to kill API process:", err)
+      } else {
+        console.log("API process killed successfully")
+      }
+    })
+  } else {
+    process.kill(-apiProcess.pid)
+  }
+}
 
 export function getApiPort(): number | null {
   return apiPort
