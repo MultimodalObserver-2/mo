@@ -6,3 +6,9 @@
   height: 25vh;
   background-color: var(--color-primary-700);
 }
+
+@media (max-width: 1280px) {
+  .panel {
+    padding: 1vh 18px;
+  }
+}

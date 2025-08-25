@@ -36,6 +36,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  text-overflow: ellipsis;
 }
 
 .item:hover {
@@ -102,4 +103,20 @@
 .actions svg:not(.action):hover {
   transform: scale(1.15);
   fill: var(--color-accent-400);
+}
+
+@media (max-width: 1280px) {
+  .item .actions {
+    gap: 2px;
+  }
+
+  .actions .action {
+    width: 18px;
+    height: 18px;
+  }
+
+  .actions svg:not(.action) {
+    width: 18px;
+    height: 18px;
+  }
 }

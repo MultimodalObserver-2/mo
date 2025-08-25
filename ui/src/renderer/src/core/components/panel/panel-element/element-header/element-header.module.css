@@ -27,3 +27,9 @@
   transform: scale(1.1);
   fill: var(--color-primary-100);
 }
+
+@media (max-width: 1280px) {
+  .header {
+    gap: 6px;
+  }
+}

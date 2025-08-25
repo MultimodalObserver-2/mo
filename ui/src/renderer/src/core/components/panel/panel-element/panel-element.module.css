@@ -4,3 +4,9 @@
   width: 19vw;
   min-width: 180px;
 }
+
+@media (max-width: 1280px) {
+  .box {
+    font-size: 15px;
+  }
+}

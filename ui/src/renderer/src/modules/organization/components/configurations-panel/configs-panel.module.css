@@ -9,6 +9,7 @@
   font-weight: 500 !important;
   font-size: 0.95em !important;
   margin: 0 !important;
+  width: 100%;
 }
 
 .select option {
