@@ -5,6 +5,7 @@ import ExtensionIcon from "../icons/ExtensionIcon"
 import SettingsIcon from "../icons/SettingsIcon"
 import { useSelector } from "react-redux"
 import { selectMainUrl } from "@renderer/core/store/mainUrlSlice"
+import HelpIcon from "../icons/HelpIcon"
 
 /**
  * A static layout component that renders the main application sidebar.
@@ -22,6 +23,10 @@ export default function Sidebar() {
         <SidebarItem testid="sidebar-plugins-link" path="/plugins" Icon={ExtensionIcon} />
       </section>
       <section className={styles.utils}>
+        <SidebarItem
+          path="/about"
+          Icon={(props: React.SVGProps<SVGSVGElement>) => <HelpIcon filled {...props} />}
+        />
         <SidebarItem path="/settings" Icon={SettingsIcon} />
       </section>
     </aside>

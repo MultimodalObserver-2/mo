@@ -70,6 +70,20 @@
 			"name": "Nombre",
 			"enterConfigName": "Ingresa el nombre de la configuración",
 			"close": "Cerrar"
+		},
+		"about": {
+			"title": "Acerca de",
+			"moo": {
+				"description": "<1>MOo</1> es una aplicación de escritorio de código libre diseñada para <2>capturar, visualizar y analizar datos multimodales</2>, permitiendo la integración de diversas fuentes de entrada mediante un sistema de plugins, con soporte de nuevos sensores y formatos de reproducción de los datos. También posibilita la ejecución de <3>protocolos de investigación</3>, para guiar a los participantes de un estudio sobre diversas actividades o tareas.",
+				"sdks": {
+					"intro": "<1>MOo</1> también ofrece <2>SDKs oficiales</2> para desarrolladores de plugins, que incluyen plantillas y herramientas de línea de comando para ayudar al desarrollo de nuevos plugins.",
+					"ui": "Orientado a la creación de plugins de interfaz e integración con el entorno React/Electron de MOo.",
+					"api": "Diseñado para el desarrollo de plugins de backend, con utilidades, interfaces base y herramientas de empaquetado y prueba."
+				}
+			},
+			"ito": {
+				"description": "<1>MOo</1> es desarrollado por miembros de <2>InTeractiOn Lab</2>, un laboratorio de investigación y desarrollo dedicado a estudiar, desarrollar, aplicar y evaluar tecnología en problemas relativos a búsqueda y recuperación de información, interacción humano-información y visualización, utilizando bases multidisciplinarias de las ciencias de la información, ciencias de la computación e ingeniería."
+			}
 		}
 	},
 	"tray": {

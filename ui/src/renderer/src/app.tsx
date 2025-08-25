@@ -25,6 +25,7 @@ import { AppLayoutVisualizationRoutes, VisualizationRoutes } from "./modules/vis
 import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
 import SettingsPage from "./core/pages/settings/Settings"
+import AboutPage from "./core/pages/about/About"
 
 export default function App() {
   const navigate = useNavigate()
@@ -43,6 +44,7 @@ export default function App() {
       <Route element={<SideBarLayout />}>
         <Route path="/plugins" element={<PluginsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
+        <Route path="/about" element={<AboutPage />} />
       </Route>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />

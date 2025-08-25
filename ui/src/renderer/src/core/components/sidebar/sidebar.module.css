@@ -21,3 +21,9 @@
   flex-direction: column;
   gap: 3vh;
 }
+
+.utils {
+  display: flex;
+  flex-direction: column;
+  gap: 3vh;
+}
