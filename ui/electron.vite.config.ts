@@ -26,7 +26,7 @@ export default defineConfig({
       react(),
       injectImportMap([
         { importMapKey: "react", chunkName: "react", generateWrapper: true },
-        { importMapKey: "mo", chunkName: "shared", generateWrapper: true }
+        { importMapKey: "mo-sdk", chunkName: "shared", generateWrapper: true }
       ])
     ],
     build: {
