@@ -18,9 +18,9 @@ export default function PluginsPage() {
         <Tab title={t("register")} key="register">
           <Register />
         </Tab>
-        <Tab title={t("available")} key="available">
+        {/* <Tab title={t("available")} key="available">
           <p style={{ color: "black" }}>{t("available", "Available")}</p>
-        </Tab>
+        </Tab> */}
       </Tabs>
     </main>
   )
