@@ -1,0 +1,246 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  gap: 12px;
+  overflow: hidden;
+}
+
+/* Search bar */
+.search-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background-color: var(--color-primary-100, #f0f0f0);
+  border: 1px solid var(--color-primary-200, #ddd);
+  border-radius: 6px;
+  padding: 6px 12px;
+  flex-shrink: 0;
+}
+
+.search-input {
+  flex: 1;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95em;
+  color: var(--color-primary-800, #333);
+}
+
+.search-input::placeholder {
+  color: var(--color-primary-400, #999);
+}
+
+.search-icon {
+  width: 16px;
+  height: 16px;
+  fill: var(--color-primary-400, #999);
+  flex-shrink: 0;
+}
+
+/* Split panels */
+.panels {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  border: 1px solid var(--color-primary-200, #ddd);
+  border-radius: 6px;
+}
+
+.list-panel {
+  width: 280px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-primary-200, #ddd);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+
+.list-panel > div {
+  flex: 1;
+  gap: 0;
+  overflow: hidden;
+}
+
+/* Detail panel */
+.detail-panel {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--color-surface, #fff);
+}
+
+.detail-empty {
+  display: flex;
+  height: 100%;
+  align-items: center;
+  justify-content: center;
+  color: var(--color-primary-400, #999);
+  font-size: 0.95em;
+}
+
+.detail-view {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  overflow: hidden;
+}
+
+/* Detail header */
+.detail-header {
+  display: flex;
+  gap: 16px;
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--color-primary-200, #ddd);
+  flex-shrink: 0;
+}
+
+.detail-logo {
+  width: 64px;
+  height: 64px;
+  border-radius: 8px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background-color: var(--color-primary-100, #f0f0f0);
+}
+
+.detail-info {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 0;
+}
+
+.detail-name {
+  font-size: 1.15em;
+  font-weight: 700;
+  color: var(--color-primary-900, #111);
+  margin: 0;
+}
+
+.detail-meta {
+  display: flex;
+  gap: 14px;
+  flex-wrap: wrap;
+  font-size: 0.85em;
+  color: var(--color-primary-600, #555);
+}
+
+.detail-description {
+  font-size: 0.9em;
+  color: var(--color-primary-700, #444);
+  margin: 4px 0 0 0;
+}
+
+/* Nav tabs */
+.detail-nav {
+  display: flex;
+  border-bottom: 1px solid var(--color-primary-200, #ddd);
+  flex-shrink: 0;
+}
+
+.nav-btn {
+  padding: 10px 20px;
+  font-size: 0.9em;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  cursor: pointer;
+  color: var(--color-primary-500, #888);
+  transition: color 150ms, border-color 150ms;
+}
+
+.nav-btn:hover {
+  color: var(--color-primary-800, #333);
+}
+
+.nav-btn-active {
+  color: var(--color-primary-900, #111);
+  border-bottom-color: var(--color-accent-500, #0066cc);
+  font-weight: 600;
+}
+
+/* Tab content */
+.detail-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px 20px;
+}
+
+.long-description {
+  font-family: inherit;
+  font-size: 0.9em;
+  line-height: 1.7;
+  color: var(--color-primary-800, #333);
+  white-space: pre-wrap;
+  word-break: break-word;
+  margin: 0;
+}
+
+.detail-placeholder {
+  color: var(--color-primary-400, #999);
+  font-size: 0.9em;
+}
+
+/* Releases */
+.releases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.release {
+  border: 1px solid var(--color-primary-200, #ddd);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.release-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.release-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--color-primary-900, #111);
+}
+
+.release-status {
+  font-size: 0.8em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--color-primary-100, #eee);
+  color: var(--color-primary-600, #666);
+  text-transform: capitalize;
+}
+
+.assets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88em;
+}
+
+.asset-so {
+  font-weight: 600;
+  min-width: 60px;
+  color: var(--color-primary-600, #555);
+  text-transform: capitalize;
+}
+
+.asset-name {
+  color: var(--color-primary-700, #444);
+}

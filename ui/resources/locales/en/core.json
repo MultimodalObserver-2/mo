@@ -36,7 +36,25 @@
     "plugins": {
       "installed": "Installed",
       "register": "Register",
-      "available": "Available"
+      "available": "Available",
+      "repository": "Plugin Repository"
+    },
+    "pluginRepository": {
+      "searchPlaceholder": "Search plugins...",
+      "loading": "Loading plugins...",
+      "noResults": "No plugins found",
+      "selectPlugin": "Select a plugin to see its details",
+      "fieldModule": "Module",
+      "fieldRepository": "Repository",
+      "fieldAuthor": "Author",
+      "fieldVersion": "Latest version",
+      "fieldPublisher": "Publisher",
+      "fieldType": "Type",
+      "backToList": "Back to plugins",
+      "tabDescription": "Description",
+      "tabReleases": "Releases",
+      "noDescription": "No description available",
+      "noReleases": "No releases available"
     },
     "loading": {
       "message": "Loading the app, please wait..."

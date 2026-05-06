@@ -4,6 +4,7 @@ import Tabs from "@renderer/core/components/tabs/Tabs"
 import Tab from "@renderer/core/components/tabs/Tab"
 import Register from "./Register"
 import Installed from "./Installed"
+import Repository from "./repository/Repository"
 import { useTranslation } from "react-i18next"
 
 export default function PluginsPage() {
@@ -18,9 +19,9 @@ export default function PluginsPage() {
         <Tab title={t("register")} key="register">
           <Register />
         </Tab>
-        {/* <Tab title={t("available")} key="available">
-          <p style={{ color: "black" }}>{t("available", "Available")}</p>
-        </Tab> */}
+        <Tab title={t("repository")} key="repository">
+          <Repository />
+        </Tab>
       </Tabs>
     </main>
   )
