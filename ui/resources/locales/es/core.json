@@ -31,6 +31,12 @@
 			},
 			"options": {
 				"title": "Opciones"
+			},
+			"repository": {
+				"title": "Repositorio de plugins",
+				"save": "Guardar",
+				"saved": "¡Guardado!",
+				"reset": "Restablecer por defecto"
 			}
 		},
 		"plugins": {
@@ -43,6 +49,10 @@
 			"searchPlaceholder": "Buscar plugins...",
 			"loading": "Cargando plugins...",
 			"noResults": "No se encontraron plugins",
+			"connectionError": "No se pudo conectar al repositorio.",
+			"connectionErrorHint": "Verificá la URL en Ajustes.",
+			"install": "Instalar",
+			"installed": "Instalado",
 			"selectPlugin": "Selecciona un plugin para ver sus detalles",
 			"fieldModule": "Módulo",
 			"fieldRepository": "Repositorio",

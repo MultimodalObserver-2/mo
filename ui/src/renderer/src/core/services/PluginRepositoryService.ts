@@ -1,15 +1,22 @@
-import axios from "axios"
-import { RepositoryPlugin, RepositoryPluginDetail, RepositoryPluginsPage } from "../types/RepositoryPlugin"
+import {
+  RepositoryPlugin,
+  RepositoryPluginDetail,
+  RepositoryPluginsPage
+} from "../types/RepositoryPlugin"
+import repositoryAxios, { DEFAULT_REPOSITORY_URL } from "../lib/repositoryAxios"
 
-const REPOSITORY_API_URL =
-  import.meta.env.VITE_REPOSITORY_API_URL || "http://localhost:8001/api/v1/plugins"
-
-const repositoryAxios = axios.create({
-  baseURL: REPOSITORY_API_URL,
-  headers: { "Content-type": "application/json" }
-})
+export { DEFAULT_REPOSITORY_URL }
 
 class PluginRepositoryService {
+  async initialize(): Promise<void> {
+    const savedUrl = await window.core.preferences.get("pluginRepository:url")
+    this.setBaseUrl((savedUrl as string) || DEFAULT_REPOSITORY_URL)
+  }
+
+  setBaseUrl(url: string): void {
+    repositoryAxios.defaults.baseURL = url
+  }
+
   async getAll(): Promise<RepositoryPlugin[]> {
     const response = await repositoryAxios.get<RepositoryPluginsPage>("")
     return response.data.items

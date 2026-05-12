@@ -2,11 +2,13 @@ import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { RepositoryPlugin, RepositoryPluginDetail } from "@renderer/core/types/RepositoryPlugin"
 import pluginRepositoryService from "@renderer/core/services/PluginRepositoryService"
+import pluginService from "@renderer/core/services/PluginService"
 import {
   PluginCard,
   PluginDisplay,
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
+import Button from "@renderer/core/components/button/Button"
 import styles from "./repository.module.css"
 
 type DetailTab = "description" | "releases"
@@ -18,13 +20,22 @@ export default function Repository() {
   const [detail, setDetail] = useState<RepositoryPluginDetail | null>(null)
   const [isLoadingList, setIsLoadingList] = useState(true)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
+  const [listError, setListError] = useState(false)
+  const [installedIds, setInstalledIds] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<DetailTab>("description")
 
   useEffect(() => {
     pluginRepositoryService
-      .getAll()
-      .then(setPlugins)
-      .catch(() => setPlugins([]))
+      .initialize()
+      .then(() =>
+        Promise.all([
+          pluginRepositoryService.getAll().then(setPlugins),
+          pluginService
+            .getAll()
+            .then((installed) => setInstalledIds(new Set(installed.map((p) => p.id))))
+        ])
+      )
+      .catch(() => setListError(true))
       .finally(() => setIsLoadingList(false))
   }, [])
 
@@ -59,21 +70,28 @@ export default function Repository() {
 
       <div className={styles.panels}>
         <div className={styles["list-panel"]}>
-          <PluginDisplay style="light" textSize="sm" isLoading={isLoadingList}>
-            <PluginDisplayList isLoading={isLoadingList} selectable>
-              {plugins.map((plugin) => (
-                <PluginCard
-                  key={plugin._id}
-                  name={plugin.name}
-                  description={plugin.description}
-                  iconPath={plugin.logo_url ?? ""}
-                  isSelected={selectedId === plugin._id}
-                  showActions={false}
-                  onClick={() => handleSelect(plugin)}
-                />
-              ))}
-            </PluginDisplayList>
-          </PluginDisplay>
+          {listError ? (
+            <div className={styles["list-error"]}>
+              <span>{t("connectionError")}</span>
+              <span className={styles["list-error-hint"]}>{t("connectionErrorHint")}</span>
+            </div>
+          ) : (
+            <PluginDisplay style="light" textSize="sm" isLoading={isLoadingList}>
+              <PluginDisplayList isLoading={isLoadingList} selectable>
+                {plugins.map((plugin) => (
+                  <PluginCard
+                    key={plugin._id}
+                    name={plugin.name}
+                    description={plugin.description}
+                    iconPath={plugin.logo_url ?? ""}
+                    isSelected={selectedId === plugin._id}
+                    showActions={false}
+                    onClick={() => handleSelect(plugin)}
+                  />
+                ))}
+              </PluginDisplayList>
+            </PluginDisplay>
+          )}
         </div>
 
         <div className={styles["detail-panel"]}>
@@ -87,6 +105,7 @@ export default function Repository() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               t={t}
+              isInstalled={installedIds.has(`${detail.publisher_slug}.${detail.slug}`)}
             />
           ) : null}
         </div>
@@ -99,12 +118,14 @@ function PluginDetailView({
   detail,
   activeTab,
   onTabChange,
-  t
+  t,
+  isInstalled
 }: {
   detail: RepositoryPluginDetail
   activeTab: DetailTab
   onTabChange: (tab: DetailTab) => void
   t: (key: string) => string
+  isInstalled: boolean
 }) {
   return (
     <div className={styles["detail-view"]}>
@@ -122,13 +143,24 @@ function PluginDetailView({
         <div className={styles["detail-info"]}>
           <h2 className={styles["detail-name"]}>{detail.name}</h2>
           <div className={styles["detail-meta"]}>
-            <span><strong>{t("fieldPublisher")}:</strong> {detail.publisher.name}</span>
-            <span><strong>{t("fieldType")}:</strong> {detail.type}</span>
+            <span>
+              <strong>{t("fieldPublisher")}:</strong> {detail.publisher.name}
+            </span>
+            <span>
+              <strong>{t("fieldType")}:</strong> {detail.type}
+            </span>
             {detail.author && (
-              <span><strong>{t("fieldAuthor")}:</strong> {detail.author.name}</span>
+              <span>
+                <strong>{t("fieldAuthor")}:</strong> {detail.author.name}
+              </span>
             )}
           </div>
           <p className={styles["detail-description"]}>{detail.description}</p>
+        </div>
+        <div className={styles["detail-actions"]}>
+          <Button styleType={isInstalled ? "soft" : "default"} disabled={isInstalled}>
+            {isInstalled ? t("installed") : t("install")}
+          </Button>
         </div>
       </div>
 
