@@ -44,6 +44,7 @@ export default function App() {
     <Routes>
       <Route element={<SideBarLayout />}>
         <Route path="/plugins" element={<PluginsPage />} />
+        <Route path="/plugins/repository/:pluginSlug" element={<PluginsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/about" element={<AboutPage />} />
         <Route path="/communication/*">{CommunicationRoutes}</Route>

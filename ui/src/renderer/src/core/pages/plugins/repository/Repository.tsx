@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
+import { useMatch, useNavigate } from "react-router"
 import { RepositoryPlugin, RepositoryPluginDetail } from "@renderer/core/types/RepositoryPlugin"
 import pluginRepositoryService from "@renderer/core/services/PluginRepositoryService"
 import pluginService from "@renderer/core/services/PluginService"
@@ -8,15 +9,18 @@ import {
   PluginDisplay,
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
-import Button from "@renderer/core/components/button/Button"
+import PluginDetailView from "./PluginDetailView"
 import styles from "./repository.module.css"
 
 type DetailTab = "description" | "releases"
 
 export default function Repository() {
   const { t } = useTranslation("core", { keyPrefix: "pages.pluginRepository" })
+  const navigate = useNavigate()
+  const match = useMatch("/plugins/repository/:pluginSlug")
+  const selectedSlug = match?.params.pluginSlug ?? null
+
   const [plugins, setPlugins] = useState<RepositoryPlugin[]>([])
-  const [selectedId, setSelectedId] = useState<string | null>(null)
   const [detail, setDetail] = useState<RepositoryPluginDetail | null>(null)
   const [isLoadingList, setIsLoadingList] = useState(true)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
@@ -39,19 +43,27 @@ export default function Repository() {
       .finally(() => setIsLoadingList(false))
   }, [])
 
-  const handleSelect = async (plugin: RepositoryPlugin) => {
-    if (selectedId === plugin._id) return
-    setSelectedId(plugin._id)
+  useEffect(() => {
+    if (!selectedSlug) {
+      setDetail(null)
+      return
+    }
+    const dotIndex = selectedSlug.indexOf(".")
+    const publisherSlug = selectedSlug.substring(0, dotIndex)
+    const slug = selectedSlug.substring(dotIndex + 1)
+
     setDetail(null)
     setActiveTab("description")
     setIsLoadingDetail(true)
-    try {
-      const data = await pluginRepositoryService.getBySlug(plugin.publisher_slug, plugin.slug)
-      setDetail(data)
-    } catch {
-      setDetail(null)
-    }
-    setIsLoadingDetail(false)
+    pluginRepositoryService
+      .getBySlug(publisherSlug, slug)
+      .then(setDetail)
+      .catch(() => setDetail(null))
+      .finally(() => setIsLoadingDetail(false))
+  }, [selectedSlug])
+
+  const handleSelect = (plugin: RepositoryPlugin) => {
+    navigate(`/plugins/repository/${plugin.publisher_slug}.${plugin.slug}`)
   }
 
   return (
@@ -84,7 +96,7 @@ export default function Repository() {
                     name={plugin.name}
                     description={plugin.description}
                     iconPath={plugin.logo_url ?? ""}
-                    isSelected={selectedId === plugin._id}
+                    isSelected={selectedSlug === `${plugin.publisher_slug}.${plugin.slug}`}
                     showActions={false}
                     onClick={() => handleSelect(plugin)}
                   />
@@ -95,7 +107,7 @@ export default function Repository() {
         </div>
 
         <div className={styles["detail-panel"]}>
-          {!selectedId ? (
+          {!selectedSlug ? (
             <div className={styles["detail-empty"]}>{t("selectPlugin")}</div>
           ) : isLoadingDetail ? (
             <div className={styles["detail-empty"]}>{t("loading")}</div>
@@ -114,101 +126,3 @@ export default function Repository() {
   )
 }
 
-function PluginDetailView({
-  detail,
-  activeTab,
-  onTabChange,
-  t,
-  isInstalled
-}: {
-  detail: RepositoryPluginDetail
-  activeTab: DetailTab
-  onTabChange: (tab: DetailTab) => void
-  t: (key: string) => string
-  isInstalled: boolean
-}) {
-  return (
-    <div className={styles["detail-view"]}>
-      <div className={styles["detail-header"]}>
-        {detail.logo_url && (
-          <img
-            className={styles["detail-logo"]}
-            src={detail.logo_url}
-            alt={detail.name}
-            onError={(e) => {
-              e.currentTarget.style.display = "none"
-            }}
-          />
-        )}
-        <div className={styles["detail-info"]}>
-          <h2 className={styles["detail-name"]}>{detail.name}</h2>
-          <div className={styles["detail-meta"]}>
-            <span>
-              <strong>{t("fieldPublisher")}:</strong> {detail.publisher.name}
-            </span>
-            <span>
-              <strong>{t("fieldType")}:</strong> {detail.type}
-            </span>
-            {detail.author && (
-              <span>
-                <strong>{t("fieldAuthor")}:</strong> {detail.author.name}
-              </span>
-            )}
-          </div>
-          <p className={styles["detail-description"]}>{detail.description}</p>
-        </div>
-        <div className={styles["detail-actions"]}>
-          <Button styleType={isInstalled ? "soft" : "default"} disabled={isInstalled}>
-            {isInstalled ? t("installed") : t("install")}
-          </Button>
-        </div>
-      </div>
-
-      <div className={styles["detail-nav"]}>
-        <button
-          className={`${styles["nav-btn"]} ${activeTab === "description" ? styles["nav-btn-active"] : ""}`}
-          onClick={() => onTabChange("description")}
-        >
-          {t("tabDescription")}
-        </button>
-        <button
-          className={`${styles["nav-btn"]} ${activeTab === "releases" ? styles["nav-btn-active"] : ""}`}
-          onClick={() => onTabChange("releases")}
-        >
-          {t("tabReleases")}
-        </button>
-      </div>
-
-      <div className={styles["detail-content"]}>
-        {activeTab === "description" ? (
-          detail.long_description ? (
-            <pre className={styles["long-description"]}>{detail.long_description}</pre>
-          ) : (
-            <p className={styles["detail-placeholder"]}>{t("noDescription")}</p>
-          )
-        ) : detail.releases.length === 0 ? (
-          <p className={styles["detail-placeholder"]}>{t("noReleases")}</p>
-        ) : (
-          <div className={styles.releases}>
-            {detail.releases.map((release) => (
-              <div key={release._id} className={styles.release}>
-                <div className={styles["release-header"]}>
-                  <span className={styles["release-name"]}>{release.name}</span>
-                  <span className={styles["release-status"]}>{release.status}</span>
-                </div>
-                <div className={styles.assets}>
-                  {release.assets.map((asset) => (
-                    <div key={asset.asset_github_id} className={styles.asset}>
-                      <span className={styles["asset-so"]}>{asset.so}</span>
-                      <span className={styles["asset-name"]}>{asset.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
-    </div>
-  )
-}

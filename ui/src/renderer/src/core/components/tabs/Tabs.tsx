@@ -5,6 +5,8 @@ import Tab, { TabProps } from "./Tab"
 interface TabsProps {
   /** One or more `Tab` components. */
   children: React.ReactElement<TabProps> | React.ReactElement<TabProps>[]
+  /** Index of the tab to show on mount. Defaults to 0. */
+  defaultIndex?: number
 }
 
 /**
@@ -13,13 +15,14 @@ interface TabsProps {
  * of the currently active tab.
  *
  * @param {React.ReactElement<TabProps> | React.ReactElement<TabProps>[]} props.children - One or more `Tab` components. The `title` prop of each `Tab` is used for the button label.
+ * @param {number} [props.defaultIndex=0] - Index of the tab active on mount.
  * @returns {React.ReactElement | null} The rendered tabs interface, or `null` if no valid `Tab` children are provided.
  */
-export default function Tabs({ children }: Readonly<TabsProps>) {
+export default function Tabs({ children, defaultIndex = 0 }: Readonly<TabsProps>) {
   const tabs = Children.toArray(children).filter(
     (child): child is React.ReactElement<TabProps> => isValidElement(child) && child.type === Tab
   )
-  const [activeTabIndex, setActiveTabIndex] = useState(0)
+  const [activeTabIndex, setActiveTabIndex] = useState(defaultIndex)
 
   if (tabs.length === 0) {
     return null

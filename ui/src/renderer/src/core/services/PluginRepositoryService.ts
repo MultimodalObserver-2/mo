@@ -24,7 +24,7 @@ class PluginRepositoryService {
 
   async getBySlug(publisherSlug: string, pluginSlug: string): Promise<RepositoryPluginDetail> {
     const response = await repositoryAxios.get<RepositoryPluginDetail>(
-      `/slug/${publisherSlug}.${pluginSlug}`
+      `/${publisherSlug}.${pluginSlug}`
     )
     return response.data
   }
