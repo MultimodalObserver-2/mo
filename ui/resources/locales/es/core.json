@@ -64,7 +64,9 @@
 			"tabDescription": "Descripción",
 			"tabReleases": "Versiones",
 			"noDescription": "Sin descripción disponible",
-			"noReleases": "Sin versiones disponibles"
+			"noReleases": "Sin versiones disponibles",
+			"installTitle": "Instalación de plugin",
+			"installedButFailed": "El plugin se instaló pero no se pudo cargar: {{error}}"
 		},
 		"loading": {
 			"message": "Cargando la aplicación, por favor espera..."

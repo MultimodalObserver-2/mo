@@ -125,6 +125,14 @@ export default interface CoreAPI {
      * Removes the reload plugins event listener.
      */
     removeReloadPlugins: () => void
+
+    /**
+     * Downloads a GitHub release asset via the main process (bypasses CORS).
+     * @param assetId - The GitHub asset ID.
+     * @param repoPath - The repository path in "owner/repo" format.
+     * @returns Promise resolving to the file content as ArrayBuffer.
+     */
+    downloadAsset: (assetId: number, repoPath: string) => Promise<ArrayBuffer>
   }
 
   /**
@@ -145,6 +153,8 @@ export default interface CoreAPI {
       locales: () => Promise<string>
     }
     version: () => Promise<string>
+    /** The current OS platform (e.g. "win32", "darwin", "linux"). */
+    platform: string
   }
 
   /**

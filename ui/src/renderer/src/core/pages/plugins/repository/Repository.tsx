@@ -27,6 +27,7 @@ export default function Repository() {
   const [listError, setListError] = useState(false)
   const [installedIds, setInstalledIds] = useState<Set<string>>(new Set())
   const [activeTab, setActiveTab] = useState<DetailTab>("description")
+  const [isInstalling, setIsInstalling] = useState(false)
 
   useEffect(() => {
     pluginRepositoryService
@@ -64,6 +65,30 @@ export default function Repository() {
 
   const handleSelect = (plugin: RepositoryPlugin) => {
     navigate(`/plugins/repository/${plugin.publisher_slug}.${plugin.slug}`)
+  }
+
+  const handleInstall = async () => {
+    if (!detail) return
+    setIsInstalling(true)
+    try {
+      const plugin = await pluginRepositoryService.installPlugin(detail)
+      setInstalledIds((prev) => new Set([...prev, plugin.id]))
+      if (!plugin.is_loaded) {
+        window.core.dialog.showMessageBox({
+          type: "warning",
+          title: t("installTitle"),
+          message: t("installedButFailed", { error: plugin.error })
+        })
+      }
+    } catch (error) {
+      window.core.dialog.showMessageBox({
+        type: "error",
+        title: t("installTitle"),
+        message: error instanceof Error ? error.message : String(error)
+      })
+    } finally {
+      setIsInstalling(false)
+    }
   }
 
   return (
@@ -118,6 +143,8 @@ export default function Repository() {
               onTabChange={setActiveTab}
               t={t}
               isInstalled={installedIds.has(`${detail.publisher_slug}.${detail.slug}`)}
+              isInstalling={isInstalling}
+              onInstall={handleInstall}
             />
           ) : null}
         </div>
@@ -125,4 +152,3 @@ export default function Repository() {
     </div>
   )
 }
-

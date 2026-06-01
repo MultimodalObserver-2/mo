@@ -10,6 +10,8 @@ interface PluginDetailViewProps {
   onTabChange: (tab: DetailTab) => void
   t: (key: string) => string
   isInstalled: boolean
+  isInstalling: boolean
+  onInstall: () => void
 }
 
 export default function PluginDetailView({
@@ -17,7 +19,9 @@ export default function PluginDetailView({
   activeTab,
   onTabChange,
   t,
-  isInstalled
+  isInstalled,
+  isInstalling,
+  onInstall
 }: PluginDetailViewProps) {
   return (
     <div className={styles["detail-view"]}>
@@ -50,7 +54,12 @@ export default function PluginDetailView({
           <p className={styles["detail-description"]}>{detail.description}</p>
         </div>
         <div className={styles["detail-actions"]}>
-          <Button styleType={isInstalled ? "soft" : "default"} disabled={isInstalled}>
+          <Button
+            styleType={isInstalled ? "soft" : "default"}
+            disabled={isInstalled || isInstalling}
+            isLoading={isInstalling}
+            onClick={onInstall}
+          >
             {isInstalled ? t("installed") : t("install")}
           </Button>
         </div>

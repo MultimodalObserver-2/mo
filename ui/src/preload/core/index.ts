@@ -54,6 +54,9 @@ const core = {
     },
     removeReloadPlugins: () => {
       ipcRenderer.removeAllListeners("core:on-reload-plugins")
+    },
+    downloadAsset: (assetId: number, repoPath: string): Promise<ArrayBuffer> => {
+      return ipcRenderer.invoke("core:plugin:download-asset", assetId, repoPath)
     }
   },
   app: {
@@ -67,7 +70,8 @@ const core = {
     },
     version: () => {
       return ipcRenderer.invoke("core:app:version")
-    }
+    },
+    platform: process.platform
   },
   zip: {
     extract: (

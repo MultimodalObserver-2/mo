@@ -64,7 +64,9 @@
       "tabDescription": "Description",
       "tabReleases": "Releases",
       "noDescription": "No description available",
-      "noReleases": "No releases available"
+      "noReleases": "No releases available",
+      "installTitle": "Plugin Installation",
+      "installedButFailed": "Plugin installed but failed to load: {{error}}"
     },
     "loading": {
       "message": "Loading the app, please wait..."
