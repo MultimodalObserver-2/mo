@@ -127,6 +127,9 @@ const core = {
       return () => {
         ipcRenderer.removeListener("core:router:on-navigate", listener)
       }
+    },
+    notifyReady: () => {
+      ipcRenderer.send("core:router:ready")
     }
   },
   preferences: {

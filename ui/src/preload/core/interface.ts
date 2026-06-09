@@ -287,6 +287,13 @@ export default interface CoreAPI {
      * @returns Unsubscribe function.
      */
     onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => () => void
+
+    /**
+     * Signals to the main process that the renderer has mounted and is ready
+     * to receive navigation events. Used to flush queued deep-links once the
+     * final renderer (not the splash) is online.
+     */
+    notifyReady: () => void
   }
 
   /**
@@ -298,7 +305,7 @@ export default interface CoreAPI {
      * @param key - The preference key.
      * @returns The preference value or undefined if not set.
      */
-    get: <T = unknown>(key: string) => T | undefined
+    get: <T = unknown>(key: string) => Promise<T | undefined>
 
     /**
      * Sets a preference value by key.

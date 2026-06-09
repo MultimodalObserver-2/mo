@@ -22,6 +22,9 @@ extraFiles:
     to: resources/plugins
 asarUnpack:
   - resources/icon.png
+protocols:
+  - name: Multimodal Observer
+    schemes: [mo]
 win:
   executableName: multimodal-observer
 nsis:

@@ -35,6 +35,7 @@ export default function App() {
     const unsubscribe = window.core.router.onNavigate((path: string, options?: NavigateOptions) => {
       navigate(path, options)
     })
+    window.core.router.notifyReady()
     return () => {
       unsubscribe()
     }
