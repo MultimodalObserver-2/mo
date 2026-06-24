@@ -1,0 +1,128 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  background: white;
+}
+
+.messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+}
+
+.bubbleWrapper {
+  display: flex;
+  flex-direction: column;
+  max-width: 75%;
+}
+
+.left {
+  align-self: flex-start;
+  align-items: flex-start;
+}
+
+.right {
+  align-self: flex-end;
+  align-items: flex-end;
+}
+
+.sender {
+  font-size: 0.72em;
+  font-weight: 700;
+  margin-bottom: 2px;
+}
+
+.left .sender {
+  color: var(--color-gray-500);
+}
+
+.right .sender {
+  color: var(--color-primary-200);
+}
+
+.bubble {
+  padding: 8px 12px;
+  border-radius: 12px;
+  font-size: 0.87em;
+  line-height: 1.4;
+  word-break: break-word;
+}
+
+.bubbleServer {
+  background: var(--color-gray-25);
+  border: 1px solid var(--color-gray-100);
+  color: var(--color-text-dark);
+  border-bottom-left-radius: 4px;
+}
+
+.bubbleClient {
+  background: var(--color-primary-500);
+  color: var(--color-text-light);
+  border-bottom-right-radius: 4px;
+}
+
+.inputRow {
+  display: flex;
+  gap: 8px;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--color-gray-100);
+  align-items: flex-end;
+  flex-shrink: 0;
+}
+
+.textarea {
+  flex: 1;
+  padding: 7px 10px;
+  border: 1px solid var(--color-gray-200);
+  border-radius: 8px;
+  font-size: 0.85em;
+  resize: none;
+  background: var(--color-gray-25);
+  color: var(--color-text-dark);
+  font-family: inherit;
+  outline: none;
+  line-height: 1.4;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary-400);
+  background: white;
+}
+
+.textarea::placeholder {
+  color: var(--color-gray-300);
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.sendButton {
+  padding: 7px 14px;
+  border: none;
+  border-radius: 8px;
+  background: var(--color-primary-500);
+  color: var(--color-text-light);
+  font-size: 0.82em;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+  font-family: inherit;
+  flex-shrink: 0;
+}
+
+.sendButton:hover:not(:disabled) {
+  background: var(--color-primary-400);
+}
+
+.sendButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}

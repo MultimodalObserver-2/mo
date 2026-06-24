@@ -22,6 +22,7 @@ import AppLayout from "./core/layouts/AppLayout"
 import { OrganizationRoutes } from "./modules/organization/routes"
 import { CaptureRoutes } from "./modules/capture/routes"
 import { AppLayoutVisualizationRoutes, VisualizationRoutes } from "./modules/visualization/routes"
+import { CommunicationRoutes } from "./modules/communication/routes"
 import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
 import SettingsPage from "./core/pages/settings/Settings"
@@ -45,6 +46,7 @@ export default function App() {
         <Route path="/plugins" element={<PluginsPage />} />
         <Route path="/settings" element={<SettingsPage />} />
         <Route path="/about" element={<AboutPage />} />
+        <Route path="/communication/*">{CommunicationRoutes}</Route>
       </Route>
       <Route element={<AppLayout />}>
         <Route path="/" element={<Home />} />

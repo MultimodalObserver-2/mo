@@ -1,0 +1,34 @@
+{
+  "components": {
+    "serverPanel": {
+      "title": "Servidor",
+      "portTcp": "Puerto TCP",
+      "portUdp": "Puerto UDP",
+      "localIp": "IP local",
+      "clients": "Clientes conectados",
+      "start": "Iniciar servidor",
+      "stop": "Detener servidor"
+    },
+    "clientList": {
+      "title": "Clientes",
+      "noClients": "Sin clientes conectados",
+      "streaming": "Transmitiendo"
+    },
+    "chatPanel": {
+      "title": "Chat",
+      "noMessages": "Sin mensajes aún",
+      "placeholder": "Escribe un mensaje y presiona Enter…",
+      "serverOffline": "Inicia el servidor para enviar mensajes",
+      "send": "Enviar"
+    },
+    "notesPanel": {
+      "title": "Notas Remotas",
+      "noNotes": "Sin notas recibidas aún"
+    }
+  },
+  "pages": {
+    "communication": {
+      "title": "Comunicación"
+    }
+  }
+}

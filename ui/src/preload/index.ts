@@ -1,3 +1,4 @@
+console.log('--- MI SCRIPT PRELOAD (v2) ESTÁ CORRIENDO ---')
 import { contextBridge } from "electron"
 import { electronAPI } from "@electron-toolkit/preload"
 /**
@@ -14,10 +15,17 @@ import "./modules/visualization/index"
 if (process.contextIsolated) {
   try {
     contextBridge.exposeInMainWorld("electron", electronAPI)
+    contextBridge.exposeInMainWorld("process", {
+      env: process.env
+    })
   } catch (error) {
     console.error(error)
   }
 } else {
   // @ts-ignore (define in dts)
   window.electron = electronAPI
+  // @ts-ignore (define in dts)
+  window.process = {
+    env: process.env
+  }
 }

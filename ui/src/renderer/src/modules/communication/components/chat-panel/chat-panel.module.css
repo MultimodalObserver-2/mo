@@ -1,0 +1,144 @@
+.chat-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+  min-height: 0;
+  border-bottom: 1px solid var(--color-gray-200);
+  background: white;
+}
+
+.title {
+  font-size: 0.75em;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  flex-shrink: 0;
+  padding: 14px 16px 10px;
+  border-bottom: 1px solid var(--color-gray-100);
+}
+
+.messages-container {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  overflow-y: auto;
+  flex: 1;
+  min-height: 0;
+  padding: 12px 16px;
+}
+
+.empty {
+  font-size: 0.82em;
+  color: var(--color-gray-400);
+  margin: auto;
+  font-style: italic;
+}
+
+.bubble {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px;
+  border-radius: 12px;
+  max-width: 75%;
+  word-break: break-word;
+}
+
+.bubble.server {
+  align-self: flex-end;
+  background-color: var(--color-primary-500);
+  border-bottom-right-radius: 4px;
+}
+
+.bubble.server .bubble-name {
+  color: var(--color-primary-100);
+}
+
+.bubble.server .bubble-content {
+  color: var(--color-text-light);
+}
+
+.bubble.server .bubble-time {
+  color: var(--color-primary-200);
+}
+
+.bubble.client {
+  align-self: flex-start;
+  background-color: var(--color-gray-25);
+  border: 1px solid var(--color-gray-100);
+  border-bottom-left-radius: 4px;
+}
+
+.bubble.client .bubble-name {
+  color: var(--color-gray-500);
+}
+
+.bubble.client .bubble-content {
+  color: var(--color-text-dark);
+}
+
+.bubble.client .bubble-time {
+  color: var(--color-gray-400);
+}
+
+.bubble-name {
+  font-size: 0.72em;
+  font-weight: 700;
+}
+
+.bubble-content {
+  font-size: 0.87em;
+  line-height: 1.4;
+}
+
+.bubble-time {
+  font-size: 0.68em;
+  align-self: flex-end;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+  flex-shrink: 0;
+  padding: 10px 16px 14px;
+  border-top: 1px solid var(--color-gray-100);
+}
+
+.textarea {
+  flex: 1;
+  padding: 7px 10px;
+  border-radius: 8px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-gray-25);
+  color: var(--color-text-dark);
+  font-size: 0.85em;
+  resize: none;
+  font-family: inherit;
+  outline: none;
+  line-height: 1.4;
+}
+
+.textarea:focus {
+  border-color: var(--color-primary-400);
+  background: white;
+}
+
+.textarea::placeholder {
+  color: var(--color-gray-300);
+}
+
+.textarea:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.send-button {
+  font-size: 0.82em !important;
+  font-weight: 700 !important;
+  padding: 7px 14px !important;
+  flex-shrink: 0;
+}
