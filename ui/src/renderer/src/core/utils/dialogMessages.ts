@@ -43,6 +43,25 @@ export function showLockedErrorMessage(action: string, item: string) {
   )
 }
 
+/**
+ * Asks the user to confirm installing/updating a plugin whose release has not been
+ * validated (approved) by the repository. Returns the message box result so the caller
+ * can abort when the user does not accept.
+ */
+export async function showUnvalidatedPluginMessage(pluginName: string, acceptId: number) {
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
+  const options: Electron.MessageBoxOptions = {
+    title: t("unvalidatedPlugin.title", "Unvalidated plugin"),
+    message: t("unvalidatedPlugin.message", { pluginName }),
+    type: "warning",
+    buttons: buttons,
+    defaultId: acceptId,
+    noLink: true
+  }
+
+  return await window.core.dialog.showMessageBox(options)
+}
+
 export async function showDeletePluginMessage(
   pluginName: string,
   pluginPublisher: string,

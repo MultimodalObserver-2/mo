@@ -12,7 +12,10 @@ import pluginRepositoryService, {
 import pluginService from "@renderer/core/services/PluginService"
 import { Plugin } from "@renderer/core/types/Plugin"
 import { compareVersions } from "@renderer/core/utils/compareVersions"
-import { getApiErrorMessage } from "@renderer/core/utils/dialogMessages"
+import {
+  getApiErrorMessage,
+  showUnvalidatedPluginMessage
+} from "@renderer/core/utils/dialogMessages"
 import {
   PluginCard,
   PluginDisplay,
@@ -182,6 +185,15 @@ export default function Repository() {
     const installed = installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)
     const isUpdate = installed !== undefined
     const title = isUpdate ? t("updateTitle") : t("installTitle")
+
+    // Warn before installing/updating to a release that the repository has not validated.
+    const release = latestRelease(detail.releases)
+    if (release && release.status !== "approved") {
+      const acceptId = 0
+      const response = await showUnvalidatedPluginMessage(detail.name, acceptId)
+      if (response.response !== acceptId) return
+    }
+
     setIsInstalling(true)
     try {
       const plugin = installed

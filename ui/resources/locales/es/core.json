@@ -165,6 +165,10 @@
 				"message": "¿Estás seguro de que deseas eliminar el plugin {{pluginName}} (v{{pluginVersion}} \ndel autor {{pluginPublisher}})? Esta acción no se puede deshacer."
 			}
 		},
+		"unvalidatedPlugin": {
+			"title": "Plugin no validado",
+			"message": "El plugin {{pluginName}} todavía no fue validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Querés continuar?"
+		},
 		"buttons": {
 			"accept": "Aceptar",
 			"cancel": "Cancelar"

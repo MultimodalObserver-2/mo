@@ -165,6 +165,10 @@
         "message": "Are you sure you want to delete the plugin {{pluginName}} (v{{pluginVersion}} \nfrom the publisher {{pluginPublisher}})? This action cannot be undone."
       }
     },
+    "unvalidatedPlugin": {
+      "title": "Unvalidated plugin",
+      "message": "The plugin {{pluginName}} has not been validated by the repository yet. Installing unvalidated plugins can be risky. Do you want to continue?"
+    },
     "buttons": {
       "accept": "Accept",
       "cancel": "Cancel"
