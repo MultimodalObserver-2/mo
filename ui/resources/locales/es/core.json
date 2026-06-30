@@ -53,6 +53,8 @@
 			"connectionErrorHint": "Verificá la URL en Ajustes.",
 			"install": "Instalar",
 			"installed": "Instalado",
+			"installHint": "Instalar {{name}} {{version}}",
+			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
 			"selectPlugin": "Selecciona un plugin para ver sus detalles",
 			"fieldModule": "Módulo",
 			"fieldRepository": "Repositorio",
@@ -60,6 +62,22 @@
 			"fieldVersion": "Última versión",
 			"fieldPublisher": "Publisher",
 			"fieldType": "Tipo",
+			"fieldCategory": "Categoría",
+			"allCategories": "Todas las categorías",
+			"tagsPlaceholder": "Filtrar por tags...",
+			"removeTag": "Quitar tag",
+			"category": {
+				"capture": "Captura",
+				"visualization": "Visualización",
+				"analysis": "Análisis",
+				"browser": "Navegador"
+			},
+			"status": {
+				"no_releases": "Sin versiones",
+				"under_review": "En revisión",
+				"approved": "Aprobado"
+			},
+			"noReviews": "Sin reseñas todavía",
 			"backToList": "Volver a plugins",
 			"tabDescription": "Descripción",
 			"tabReleases": "Versiones",

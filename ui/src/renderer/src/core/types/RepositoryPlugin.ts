@@ -1,31 +1,43 @@
+/** Categories supported by the repository (`PluginCategory` on the backend). */
+export type PluginCategory = "capture" | "visualization" | "analysis" | "browser"
+
+export const PLUGIN_CATEGORIES: PluginCategory[] = [
+  "capture",
+  "visualization",
+  "analysis",
+  "browser"
+]
+
+/** Release-derived status of a plugin (`PluginStatus` on the backend). */
+export type PluginStatus = "no_releases" | "under_review" | "approved"
+
+/** Maximum number of tags accepted by the repository `/search` endpoint. */
+export const MAX_TAGS_PER_SEARCH = 5
+
+/** A plugin as returned by the repository (`PluginRead`). */
 export type RepositoryPlugin = {
   _id: string
-  slug: string
+  slug?: string
   name: string
-  description: string
+  description?: string
   long_description?: string
-  author_id: string
+  author_id?: string
   publisher_slug: string
   repository_url?: string
   logo_url?: string
   image_url?: string[]
   github_id?: number
-  type: string
+  category?: PluginCategory
+  tags?: string[]
+  status?: PluginStatus
+  average_rating: number
+  reviews_count: number
+  created_at?: string
+  updated_at?: string
 }
 
-export type RepositoryPluginDetail = {
-  _id: string
-  slug: string
-  name: string
-  description: string
-  long_description?: string
-  author_id: string
-  publisher_slug: string
-  repository_url?: string
-  logo_url?: string
-  image_url?: string[]
-  github_id?: number
-  type: string
+/** A plugin with its publisher, author and releases populated (detail view). */
+export type RepositoryPluginDetail = RepositoryPlugin & {
   publisher: {
     _id: string
     name: string
@@ -55,6 +67,15 @@ export type RepositoryPluginDetail = {
   }[]
 }
 
+/** A tag as returned by the repository (`TagRead`). */
+export type RepositoryTag = {
+  _id: string
+  name: string
+  created_by?: string
+  created_at?: string
+}
+
+/** Paginated plugin response (`PluginPagination`). */
 export type RepositoryPluginsPage = {
   total: number
   page: number

@@ -1,13 +1,24 @@
 import {
-  RepositoryPlugin,
+  MAX_TAGS_PER_SEARCH,
+  PluginCategory,
   RepositoryPluginDetail,
-  RepositoryPluginsPage
+  RepositoryPluginsPage,
+  RepositoryTag
 } from "../types/RepositoryPlugin"
 import repositoryAxios, { DEFAULT_REPOSITORY_URL } from "../lib/repositoryAxios"
 import pluginService from "./PluginService"
 import { Plugin } from "../types/Plugin"
 
 export { DEFAULT_REPOSITORY_URL }
+
+export type SearchPluginsParams = {
+  /** Free text query. The backend requires at least 2 characters; shorter values must be omitted. */
+  query?: string
+  category?: PluginCategory
+  tags?: string[]
+  page?: number
+  perPage?: number
+}
 
 type ReleaseAsset = RepositoryPluginDetail["releases"][number]["assets"][number]
 
@@ -42,9 +53,39 @@ class PluginRepositoryService {
     repositoryAxios.defaults.baseURL = url
   }
 
-  async getAll(): Promise<RepositoryPlugin[]> {
-    const response = await repositoryAxios.get<RepositoryPluginsPage>("")
-    return response.data.items
+  /**
+   * Searches plugins through the repository `/search` endpoint, supporting an optional
+   * text query plus category and tag filters. Returns the full paginated page so callers
+   * can access pagination metadata.
+   */
+  async search(params: SearchPluginsParams = {}): Promise<RepositoryPluginsPage> {
+    const { query, category, tags, page = 1, perPage = 10 } = params
+    const response = await repositoryAxios.get<RepositoryPluginsPage>("/search", {
+      params: {
+        ...(query ? { query } : {}),
+        ...(category ? { category } : {}),
+        ...(tags && tags.length ? { tags: tags.slice(0, MAX_TAGS_PER_SEARCH) } : {}),
+        page,
+        per_page: perPage
+      },
+      // Serialize array params as repeated keys (`tags=a&tags=b`) to match FastAPI's List[str].
+      paramsSerializer: { indexes: null }
+    })
+    return response.data
+  }
+
+  /** Lists existing tags, used to seed the tag filter. */
+  async listTags(limit = 100): Promise<RepositoryTag[]> {
+    const response = await repositoryAxios.get<RepositoryTag[]>("/tags", { params: { limit } })
+    return response.data
+  }
+
+  /** Autocompletes tags by prefix for the tag filter. */
+  async searchTags(query: string, limit = 20): Promise<RepositoryTag[]> {
+    const response = await repositoryAxios.get<RepositoryTag[]>("/tags/search", {
+      params: { query, limit }
+    })
+    return response.data
   }
 
   async getBySlug(publisherSlug: string, pluginSlug: string): Promise<RepositoryPluginDetail> {
