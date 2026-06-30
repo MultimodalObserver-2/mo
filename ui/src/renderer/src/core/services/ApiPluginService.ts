@@ -17,6 +17,17 @@ export class ApiPluginService {
     })
   }
 
+  async update(finalId: string, pluginFile: File): Promise<AxiosResponse<Plugin, unknown>> {
+    const formData = new FormData()
+    formData.append("file", pluginFile)
+
+    return axios.put(`${this.endpoint}/${finalId}`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data"
+      }
+    })
+  }
+
   async getAll(): Promise<AxiosResponse<Plugin[], unknown>> {
     return axios.get(`${this.endpoint}/`)
   }

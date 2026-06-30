@@ -343,6 +343,56 @@ class PluginManager {
   }
 
   /**
+   * Atomically replaces an already-registered plugin with a newer release located at
+   * `newPath`. The new metadata must resolve to the same final ID as `oldId`. The old
+   * plugin directory is only removed once the new one registers successfully; on failure
+   * the old plugin is re-registered (its directory is never removed beforehand) so the
+   * user keeps a working install.
+   * @param oldId - The final ID of the plugin being updated.
+   * @param newPath - Absolute path to the already-extracted new plugin directory.
+   * @returns The updated plugin as a DTO.
+   * @throws Error if the old plugin is unknown or the new release does not match its ID.
+   */
+  async updatePlugin(oldId: string, newPath: string): Promise<PluginDTO> {
+    const old = this.plugins.get(oldId)
+    if (!old) {
+      await window.core.fs.rmSync(newPath, { recursive: true, force: true })
+      throw new Error(`Plugin with ID ${oldId} not found`)
+    }
+
+    const metadataPath = await window.core.path.join(newPath, "metadata.json")
+    if (!(await window.core.fs.existsSync(metadataPath))) {
+      await window.core.fs.rmSync(newPath, { recursive: true, force: true })
+      throw new Error(`Plugin metadata not found at ${metadataPath}`)
+    }
+    const metadataContent = await window.core.fs.readFileSync(metadataPath, "utf-8")
+    const newMetadata = JSON.parse(
+      typeof metadataContent === "string" ? metadataContent : metadataContent.toString("utf-8")
+    ) as PluginMetadata
+    const newId = this.getPluginFinalId(newMetadata)
+    if (newId !== oldId) {
+      await window.core.fs.rmSync(newPath, { recursive: true, force: true })
+      throw new Error(`Plugin ID mismatch: expected ${oldId} but got ${newId}`)
+    }
+
+    const oldLocation = old.location
+    await this.removePlugin(oldId)
+    try {
+      const dto = await this.registerPlugin(newPath)
+      if (oldLocation !== newPath && (await window.core.fs.existsSync(oldLocation))) {
+        await window.core.fs.rmSync(oldLocation, { recursive: true, force: true })
+      }
+      return dto
+    } catch (error) {
+      // Registration failed: re-register the old plugin (its directory was never
+      // removed) and discard the staging directory so the user keeps a working install.
+      await this.registerPlugin(oldLocation)
+      await window.core.fs.rmSync(newPath, { recursive: true, force: true })
+      throw error
+    }
+  }
+
+  /**
    * Removes all loaded plugins from the manager.
    */
   async removeAll(): Promise<void> {

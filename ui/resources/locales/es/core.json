@@ -53,7 +53,9 @@
 			"connectionErrorHint": "Verificá la URL en Ajustes.",
 			"install": "Instalar",
 			"installed": "Instalado",
+			"update": "Actualizar",
 			"installHint": "Instalar {{name}} {{version}}",
+			"updateHint": "Actualizar {{name}} a {{version}}",
 			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
 			"selectPlugin": "Selecciona un plugin para ver sus detalles",
 			"fieldModule": "Módulo",
@@ -84,7 +86,11 @@
 			"noDescription": "Sin descripción disponible",
 			"noReleases": "Sin versiones disponibles",
 			"installTitle": "Instalación de plugin",
-			"installedButFailed": "El plugin se instaló pero no se pudo cargar: {{error}}"
+			"updateTitle": "Actualización de plugin",
+			"installedSuccessfully": "El plugin {{name}} se instaló correctamente",
+			"updatedSuccessfully": "El plugin {{name}} se actualizó a {{version}} correctamente",
+			"installedButFailed": "El plugin se instaló pero no se pudo cargar: {{error}}",
+			"updatedButFailed": "El plugin se actualizó pero no se pudo cargar: {{error}}"
 		},
 		"loading": {
 			"message": "Cargando la aplicación, por favor espera..."

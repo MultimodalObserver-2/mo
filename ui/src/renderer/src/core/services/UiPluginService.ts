@@ -20,6 +20,20 @@ export class UiPluginService {
     return pluginManager.registerPlugin(destPath)
   }
 
+  async update(pluginId: string, pluginFile: File): Promise<Plugin> {
+    const fileName = pluginFile.name.replace(/\.[^/.]+$/, "")
+    const folderName = await getFolderName(getPluginBasePath(), fileName)
+    const destPath = await window.core.path.join(getPluginBasePath(), folderName)
+    const arrayBuffer = await pluginFile.arrayBuffer()
+
+    const response = await window.core.zip.extract(arrayBuffer, destPath)
+    if (!response.success) {
+      throw new Error(`Failed to extract plugin: ${response.error}`)
+    }
+
+    return pluginManager.updatePlugin(pluginId, destPath)
+  }
+
   async getAll(): Promise<Plugin[]> {
     return pluginManager.getPluginsMetadata()
   }

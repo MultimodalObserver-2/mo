@@ -5,6 +5,8 @@ import styles from "./repository.module.css"
 
 type DetailTab = "description" | "releases"
 
+type InstallState = "install" | "update" | "installed"
+
 // U+2605 BLACK STAR, built from its code point to avoid an i18next literal-string flag.
 const STAR = String.fromCharCode(0x2605)
 
@@ -13,7 +15,9 @@ interface PluginDetailViewProps {
   activeTab: DetailTab
   onTabChange: (tab: DetailTab) => void
   t: (key: string, options?: Record<string, unknown>) => string
-  isInstalled: boolean
+  installState: InstallState
+  latestVersion?: string
+  installedVersion?: string
   isInstalling: boolean
   onInstall: () => void
 }
@@ -23,10 +27,24 @@ export default function PluginDetailView({
   activeTab,
   onTabChange,
   t,
-  isInstalled,
+  installState,
+  latestVersion,
+  installedVersion,
   isInstalling,
   onInstall
 }: PluginDetailViewProps) {
+  const buttonLabel =
+    installState === "installed"
+      ? t("installed")
+      : installState === "update"
+        ? t("update")
+        : t("install")
+  const buttonHint =
+    installState === "installed"
+      ? t("installedHint", { name: detail.name, version: installedVersion ?? latestVersion })
+      : installState === "update"
+        ? t("updateHint", { name: detail.name, version: latestVersion })
+        : t("installHint", { name: detail.name, version: latestVersion })
   return (
     <div className={styles["detail-view"]}>
       <div className={styles["detail-header"]}>
@@ -94,17 +112,13 @@ export default function PluginDetailView({
         </div>
         <div className={styles["detail-actions"]}>
           <Button
-            title={
-              isInstalled
-                ? t("installedHint", { name: detail.name, version: detail.releases[0]?.name })
-                : t("installHint", { name: detail.name, version: detail.releases[0]?.name })
-            }
-            styleType={isInstalled ? "soft" : "default"}
-            disabled={isInstalled || isInstalling}
+            title={buttonHint}
+            styleType={installState === "installed" ? "soft" : "default"}
+            disabled={installState === "installed" || isInstalling}
             isLoading={isInstalling}
             onClick={onInstall}
           >
-            {isInstalled ? t("installed") : t("install")}
+            {buttonLabel}
           </Button>
         </div>
       </div>

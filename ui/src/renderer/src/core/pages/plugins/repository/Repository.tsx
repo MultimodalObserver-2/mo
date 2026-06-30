@@ -6,8 +6,13 @@ import {
   RepositoryPlugin,
   RepositoryPluginDetail
 } from "@renderer/core/types/RepositoryPlugin"
-import pluginRepositoryService from "@renderer/core/services/PluginRepositoryService"
+import pluginRepositoryService, {
+  latestRelease
+} from "@renderer/core/services/PluginRepositoryService"
 import pluginService from "@renderer/core/services/PluginService"
+import { Plugin } from "@renderer/core/types/Plugin"
+import { compareVersions } from "@renderer/core/utils/compareVersions"
+import { getApiErrorMessage } from "@renderer/core/utils/dialogMessages"
 import {
   PluginCard,
   PluginDisplay,
@@ -19,6 +24,8 @@ import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
 
 type DetailTab = "description" | "releases"
+
+type InstallState = "install" | "update" | "installed"
 
 type SearchFilters = {
   query?: string
@@ -48,7 +55,7 @@ export default function Repository() {
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [listError, setListError] = useState(false)
-  const [installedIds, setInstalledIds] = useState<Set<string>>(new Set())
+  const [installedPlugins, setInstalledPlugins] = useState<Map<string, Plugin>>(new Map())
   const [activeTab, setActiveTab] = useState<DetailTab>("description")
   const [isInstalling, setIsInstalling] = useState(false)
 
@@ -107,7 +114,7 @@ export default function Repository() {
         setIsReady(true)
         return pluginService
           .getAll()
-          .then((installed) => setInstalledIds(new Set(installed.map((p) => p.id))))
+          .then((installed) => setInstalledPlugins(new Map(installed.map((p) => [p.id, p]))))
       })
       .catch(() => {
         setListError(true)
@@ -172,26 +179,51 @@ export default function Repository() {
 
   const handleInstall = async () => {
     if (!detail) return
+    const installed = installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)
+    const isUpdate = installed !== undefined
+    const title = isUpdate ? t("updateTitle") : t("installTitle")
     setIsInstalling(true)
     try {
-      const plugin = await pluginRepositoryService.installPlugin(detail)
-      setInstalledIds((prev) => new Set([...prev, plugin.id]))
-      if (!plugin.is_loaded) {
+      const plugin = installed
+        ? await pluginRepositoryService.updatePlugin(detail, installed)
+        : await pluginRepositoryService.installPlugin(detail)
+      setInstalledPlugins((prev) => new Map(prev).set(plugin.id, plugin))
+      if (plugin.is_loaded) {
+        window.core.dialog.showMessageBox({
+          type: "info",
+          title,
+          message: isUpdate
+            ? t("updatedSuccessfully", { name: plugin.name, version: plugin.version })
+            : t("installedSuccessfully", { name: plugin.name })
+        })
+      } else {
         window.core.dialog.showMessageBox({
           type: "warning",
-          title: t("installTitle"),
-          message: t("installedButFailed", { error: plugin.error })
+          title,
+          message: isUpdate
+            ? t("updatedButFailed", { error: plugin.error })
+            : t("installedButFailed", { error: plugin.error })
         })
       }
     } catch (error) {
       window.core.dialog.showMessageBox({
         type: "error",
-        title: t("installTitle"),
-        message: error instanceof Error ? error.message : String(error)
+        title,
+        message: getApiErrorMessage(error)
       })
     } finally {
       setIsInstalling(false)
     }
+  }
+
+  // Derives the button state for a plugin: "update" when the repository has a strictly
+  // higher version than the installed one, "installed" when it is up to date (or newer),
+  // and "install" when it is not installed at all.
+  const installStateFor = (d: RepositoryPluginDetail): InstallState => {
+    const installed = installedPlugins.get(`${d.publisher_slug}.${d.slug}`)
+    if (!installed) return "install"
+    const latest = latestRelease(d.releases)
+    return latest && compareVersions(latest.name, installed.version) > 0 ? "update" : "installed"
   }
 
   return (
@@ -258,7 +290,11 @@ export default function Repository() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               t={t}
-              isInstalled={installedIds.has(`${detail.publisher_slug}.${detail.slug}`)}
+              installState={installStateFor(detail)}
+              latestVersion={latestRelease(detail.releases)?.name}
+              installedVersion={
+                installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)?.version
+              }
               isInstalling={isInstalling}
               onInstall={handleInstall}
             />

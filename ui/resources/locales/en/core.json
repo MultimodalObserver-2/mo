@@ -53,7 +53,9 @@
       "connectionErrorHint": "Check the URL in Settings.",
       "install": "Install",
       "installed": "Installed",
+      "update": "Update",
       "installHint": "Install {{name}} {{version}}",
+      "updateHint": "Update {{name}} to {{version}}",
       "installedHint": "Plugin {{name}} {{version}} is already installed",
       "selectPlugin": "Select a plugin to see its details",
       "fieldModule": "Module",
@@ -84,7 +86,11 @@
       "noDescription": "No description available",
       "noReleases": "No releases available",
       "installTitle": "Plugin Installation",
-      "installedButFailed": "Plugin installed but failed to load: {{error}}"
+      "updateTitle": "Plugin Update",
+      "installedSuccessfully": "Plugin {{name}} installed successfully",
+      "updatedSuccessfully": "Plugin {{name}} updated to {{version}} successfully",
+      "installedButFailed": "Plugin installed but failed to load: {{error}}",
+      "updatedButFailed": "Plugin updated but failed to load: {{error}}"
     },
     "loading": {
       "message": "Loading the app, please wait..."

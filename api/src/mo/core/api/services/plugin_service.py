@@ -8,6 +8,7 @@ from mo.core.config.constants import RELATIVE_PLUGINS_DIR_PATH
 from mo.core.file_management.file_management import FileManagement
 from mo.core.plugin.dir_observer import PluginsDirHandler
 from mo.core.plugin.manager import PluginManager
+from mo.core.plugin.metadata_loader import load_plugin_metadata
 from mo.core.plugin.models.settings import Settings
 from mo.core.utils.http_exceptions import BadRequestException
 from mo.core.plugin.loading import plugin_ready_event
@@ -64,6 +65,84 @@ class PluginService:
         self.plugins_dir_handler.add_known_dir(dir_name)
         self.plugins_dir_handler.resume()
         return PluginRes.from_plugin_metadata(plugin_metadata)
+
+    async def update_plugin(self, final_id: str, file: UploadFile) -> PluginRes:
+        """Atomically replaces an already installed plugin with a newer release.
+
+        The new release is extracted into a temporary staging directory and validated
+        to share the same final ID before the swap. The old directory is only deleted
+        once the new one registers successfully; if registration fails, the old plugin
+        is re-registered (its directory is never removed beforehand) so the user keeps
+        a working install.
+
+        Args:
+            final_id (str): The final ID of the plugin to update (publisher_id.plugin_id).
+            file (UploadFile): The zip file containing the newer plugin release.
+        Returns:
+            PluginRes: The metadata of the updated plugin.
+        Raises:
+            BadRequestException: If the plugin does not exist, the file is not a valid
+            zip archive, the new release does not match the plugin's final ID, or the
+            update fails.
+        """
+        if not self.plugin_manager.plugin_metadata_exists(final_id):
+            raise BadRequestException(
+                translate(self.PLUGIN_NOT_FOUND, final_id=final_id)
+            )
+
+        file_name = file.filename
+        if file_name is None or not file_name.endswith(".zip"):
+            raise BadRequestException(translate("core.fileMustBeZip"))
+
+        self.plugins_dir_handler.suspend()
+        # Extract the new release into a staging directory without touching the
+        # currently installed plugin yet.
+        staging_dir = self.file_management.get_unique_name(file_name.replace(".zip", ""))
+        staging_path = self.file_management.create_directory(staging_dir)
+        zip_path = await self.file_management.copy_file_obj_async(
+            file.file, staging_dir, staging_path
+        )
+        await self.file_management.extract_zip_async(zip_path, staging_path)
+        await self.file_management.delete_file_async(zip_path)
+
+        try:
+            new_metadata = load_plugin_metadata(
+                self.plugin_manager._get_plugin_metadata_path(staging_dir)
+            )
+            if new_metadata.get_final_id() != final_id:
+                raise ValueError(
+                    translate(
+                        "core.pluginIdMismatch",
+                        expected=final_id,
+                        actual=new_metadata.get_final_id(),
+                    )
+                )
+        except Exception as e:
+            await self.file_management.delete_directory_async(staging_dir)
+            self.plugins_dir_handler.resume()
+            raise BadRequestException(
+                translate("core.failedToUpdatePlugin", final_id=final_id, error=str(e))
+            )
+
+        old_dir = self.plugin_manager.get_plugin_dir_name(final_id)
+        self.plugin_manager.remove_plugin(final_id)
+        try:
+            updated_metadata = self.plugin_manager.register_plugin(staging_dir)
+        except Exception as e:
+            # Registration of the new release failed: re-register the old plugin
+            # (its directory was never removed) and discard the staging directory.
+            self.plugin_manager.register_plugin(old_dir)
+            await self.file_management.delete_directory_async(staging_dir)
+            self.plugins_dir_handler.resume()
+            raise BadRequestException(
+                translate("core.failedToUpdatePlugin", final_id=final_id, error=str(e))
+            )
+
+        await self.file_management.delete_directory_async(old_dir)
+        self.plugins_dir_handler.remove_known_dir(old_dir)
+        self.plugins_dir_handler.add_known_dir(staging_dir)
+        self.plugins_dir_handler.resume()
+        return PluginRes.from_plugin_metadata(updated_metadata)
 
     async def get_all_plugins(self) -> list[PluginRes]:
         """Retrieves metadata for all registered plugins.

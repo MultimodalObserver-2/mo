@@ -8,8 +8,24 @@ import {
 import repositoryAxios, { DEFAULT_REPOSITORY_URL } from "../lib/repositoryAxios"
 import pluginService from "./PluginService"
 import { Plugin } from "../types/Plugin"
+import { compareVersions } from "../utils/compareVersions"
 
 export { DEFAULT_REPOSITORY_URL }
+
+type Release = RepositoryPluginDetail["releases"][number]
+
+/**
+ * Returns the release with the highest semantic version (`name` is `x.y.z`), or
+ * `undefined` when there are no releases. Used to decide which release to download and
+ * to compare against the installed version.
+ */
+export function latestRelease(releases: Release[]): Release | undefined {
+  return releases.reduce<Release | undefined>(
+    (latest, release) =>
+      latest === undefined || compareVersions(release.name, latest.name) > 0 ? release : latest,
+    undefined
+  )
+}
 
 export type SearchPluginsParams = {
   /** Free text query. The backend requires at least 2 characters; shorter values must be omitted. */
@@ -95,12 +111,16 @@ class PluginRepositoryService {
     return response.data
   }
 
-  async installPlugin(detail: RepositoryPluginDetail): Promise<Plugin> {
+  /**
+   * Downloads the asset of the latest release matching the current platform and builds
+   * a zip `File` ready to be registered or used to update an installed plugin.
+   */
+  private async downloadReleaseFile(detail: RepositoryPluginDetail): Promise<File> {
     if (!detail.repository_url) {
       throw new Error("Plugin has no repository URL")
     }
 
-    const release = detail.releases[0]
+    const release = latestRelease(detail.releases)
     if (!release) {
       throw new Error("No releases available for this plugin")
     }
@@ -113,8 +133,22 @@ class PluginRepositoryService {
 
     const repoPath = parseRepoPath(detail.repository_url)
     const arrayBuffer = await window.core.plugins.downloadAsset(asset.asset_github_id, repoPath)
-    const file = new File([arrayBuffer], asset.name, { type: "application/zip" })
+    return new File([arrayBuffer], asset.name, { type: "application/zip" })
+  }
+
+  async installPlugin(detail: RepositoryPluginDetail): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(detail)
     return pluginService.register(file)
+  }
+
+  /**
+   * Atomically replaces an already installed plugin with the latest release from the
+   * repository, keeping the same final ID. The download and validation happen before the
+   * old plugin is touched (see the runtime-specific update paths).
+   */
+  async updatePlugin(detail: RepositoryPluginDetail, installed: Plugin): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(detail)
+    return pluginService.update(file, installed.id, installed.target)
   }
 }
 
