@@ -1,0 +1,177 @@
+.markdown {
+  font-size: 0.9em;
+  line-height: 1.7;
+  color: var(--color-primary-800, #333);
+  word-break: break-word;
+}
+
+/* Headings */
+.markdown h1,
+.markdown h2,
+.markdown h3,
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  color: var(--color-primary-900, #111);
+  line-height: 1.3;
+  margin: 20px 0 8px;
+}
+
+.markdown h1:first-child,
+.markdown h2:first-child,
+.markdown h3:first-child,
+.markdown h4:first-child,
+.markdown h5:first-child,
+.markdown h6:first-child {
+  margin-top: 0;
+}
+
+.markdown h1 {
+  font-size: 1.5em;
+  font-weight: 700;
+  border-bottom: 1px solid var(--color-gray-200, #ddd);
+  padding-bottom: 6px;
+}
+
+.markdown h2 {
+  font-size: 1.25em;
+  font-weight: 600;
+  border-bottom: 1px solid var(--color-gray-200, #ddd);
+  padding-bottom: 4px;
+}
+
+.markdown h3 {
+  font-size: 1.1em;
+  font-weight: 600;
+}
+
+.markdown h4,
+.markdown h5,
+.markdown h6 {
+  font-size: 1em;
+  font-weight: 600;
+}
+
+/* Text */
+.markdown p {
+  margin: 0 0 12px;
+}
+
+.markdown p:last-child {
+  margin-bottom: 0;
+}
+
+.markdown strong {
+  font-weight: 600;
+  color: var(--color-primary-900, #111);
+}
+
+.markdown em {
+  font-style: italic;
+}
+
+.markdown del {
+  text-decoration: line-through;
+  color: var(--color-primary-400, #999);
+}
+
+.markdown hr {
+  border: none;
+  border-top: 1px solid var(--color-gray-200, #ddd);
+  margin: 16px 0;
+}
+
+/* Lists: `base.css` resets `ul` app-wide, so the markers are restored here. */
+.markdown ul,
+.markdown ol {
+  margin: 0 0 12px;
+  padding-left: 24px;
+}
+
+.markdown ul {
+  list-style: disc;
+}
+
+.markdown ol {
+  list-style: decimal;
+}
+
+.markdown li {
+  margin-bottom: 4px;
+}
+
+.markdown li::marker {
+  color: var(--color-primary-400, #999);
+}
+
+.markdown ul ul,
+.markdown ol ol,
+.markdown ul ol,
+.markdown ol ul {
+  margin: 4px 0 0;
+}
+
+/* Task lists (GFM) */
+.markdown input[type="checkbox"] {
+  margin-right: 6px;
+  accent-color: var(--color-accent-600, #00b4a5);
+}
+
+/* Code */
+.markdown code {
+  font-family: monospace;
+  font-size: 0.85em;
+  background-color: var(--color-gray-50, #eee);
+  color: var(--color-primary-900, #111);
+  padding: 2px 5px;
+  border-radius: 4px;
+}
+
+.markdown pre {
+  background-color: var(--color-primary-900, #111);
+  border-radius: 8px;
+  padding: 12px 14px;
+  margin: 0 0 12px;
+  overflow-x: auto;
+}
+
+.markdown pre code {
+  background-color: transparent;
+  color: var(--color-text-light, #f1f1f1);
+  padding: 0;
+  border-radius: 0;
+}
+
+.markdown blockquote {
+  border-left: 3px solid var(--color-accent-500, #00dbd0);
+  padding-left: 12px;
+  margin: 0 0 12px;
+  color: var(--color-primary-600, #555);
+  font-style: italic;
+}
+
+/* Tables */
+.markdown table {
+  border-collapse: collapse;
+  margin: 0 0 12px;
+  font-size: 0.95em;
+  /* Wide tables scroll on their own instead of stretching the panel. */
+  display: block;
+  width: max-content;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.markdown th,
+.markdown td {
+  border: 1px solid var(--color-gray-200, #ddd);
+  padding: 6px 10px;
+  text-align: left;
+}
+
+.markdown th {
+  background-color: var(--color-gray-25, #f1f1f1);
+  font-weight: 600;
+  color: var(--color-primary-900, #111);
+  white-space: nowrap;
+}

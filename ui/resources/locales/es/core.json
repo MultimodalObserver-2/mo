@@ -34,6 +34,7 @@
 			},
 			"repository": {
 				"title": "Repositorio de plugins",
+				"hostPlaceholder": "localhost:8001",
 				"save": "Guardar",
 				"saved": "¡Guardado!",
 				"reset": "Restablecer por defecto"
@@ -167,7 +168,7 @@
 		},
 		"unvalidatedPlugin": {
 			"title": "Plugin no validado",
-			"message": "El plugin {{pluginName}} todavía no fue validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Querés continuar?"
+			"message": "El plugin {{pluginName}} aún no ha sido validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Desea continuar?"
 		},
 		"buttons": {
 			"accept": "Aceptar",

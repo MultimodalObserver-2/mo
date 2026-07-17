@@ -466,3 +466,171 @@ Se agregó `*.tsbuildinfo`. El typecheck incremental de TypeScript (`tsc -p tsco
 - **`releases` sin tipar a fondo:** se mantiene la forma actual hasta contar con el schema `ReleaseRead`.
 - **Filtros solo en Repository:** el widget de tags y los badges de status/tags quedaron inline (no se extrajo un componente `Badge`/`Tag` reutilizable, por decisión explícita).
 - **Selección de asset / versión:** la instalación sigue usando `releases[0]`; no se contempla arquitectura (x64/arm) ni recorrido de releases buscando uno compatible.
+
+---
+
+## Novena iteración — Actualización de extensiones instaladas (backend + cadena completa)
+
+Se implementó la **actualización in-place** de un plugin ya instalado a una versión más nueva del repositorio. El plugin se reemplaza de forma **atómica** conservando el mismo ID final. Decisión de diseño clave: **el control del versionado vive en el frontend** (compara la versión instalada contra el último release disponible); el backend actualiza **sin revalidar la versión**, solo garantiza que el ID final coincida y que el swap sea seguro.
+
+### Archivos creados
+
+#### `ui/src/renderer/src/core/utils/compareVersions.ts`
+Utilidad `compareVersions(a, b)` que compara dos versiones semánticas (`x.y.z`, con `v` opcional). Devuelve negativo/cero/positivo según `a < b`, `a == b`, `a > b`. Componentes faltantes o no numéricos se tratan como `0`. Es la base de la decisión "instalar vs. actualizar" en el frontend.
+
+### Archivos modificados — Backend
+
+#### `api/src/mo/core/api/routers/plugins.py`
+Se agrega el endpoint `PUT /{final_id}` (`update_plugin`), que recibe un `UploadFile` (zip del nuevo release) y delega en `PluginService.update_plugin`. Responde `200` con `PluginRes`, `400` ante formato inválido o error de actualización, y `404` si el plugin no existe. Usa `response_model_exclude_none=True`.
+
+#### `api/src/mo/core/api/services/plugin_service.py`
+Se agrega el método `async update_plugin(final_id, file) -> PluginRes`. Implementa el reemplazo atómico:
+1. Valida que el plugin exista (`plugin_metadata_exists`) y que el archivo sea `.zip`.
+2. Suspende el observer de directorio (`plugins_dir_handler.suspend()`).
+3. Extrae el nuevo release en un **directorio de staging** sin tocar el instalado.
+4. Carga la metadata nueva (`load_plugin_metadata`) y valida que su `get_final_id()` coincida con `final_id`; si no, borra el staging y lanza `BadRequestException`.
+5. Remueve el plugin viejo del manager y registra el nuevo desde staging. **Si el registro falla**, re-registra el viejo (su directorio nunca se borró antes) y descarta el staging → el usuario conserva una instalación funcional.
+6. Recién con el registro exitoso borra el directorio viejo y sincroniza los *known dirs* del observer.
+
+Import agregado: `load_plugin_metadata` desde `mo.core.plugin.metadata_loader`.
+
+#### `api/resources/locales/en/core.json` y `api/resources/locales/es/core.json`
+Nuevos textos de error de la actualización: `pluginIdMismatch`, `failedToUpdatePlugin` (y reuso de `fileMustBeZip`).
+
+### Archivos modificados — Frontend (cadena de actualización)
+
+El método de actualización se agrega en **toda la cadena**, espejando la ruta de instalación existente:
+
+#### `ui/src/renderer/src/core/plugin/PluginManager.ts`
+Se agrega `updatePlugin(oldId, newPath)`: reemplazo atómico del lado UI. Valida que la metadata del `newPath` resuelva al mismo `oldId`, remueve el viejo, registra el nuevo y solo entonces borra el directorio viejo; ante fallo re-registra el viejo y descarta el staging. Misma semántica que el backend pero para plugins `target: "ui"`.
+
+#### `ui/src/renderer/src/core/services/ApiPluginService.ts`
+Se agrega `update(finalId, pluginFile): Promise<AxiosResponse<Plugin>>` → hace `PUT /{finalId}` contra el nuevo endpoint del backend.
+
+#### `ui/src/renderer/src/core/services/UiPluginService.ts`
+Se agrega `update(pluginId, pluginFile): Promise<Plugin>` → extrae el zip a un directorio destino y delega en `pluginManager.updatePlugin(pluginId, destPath)`.
+
+#### `ui/src/renderer/src/core/services/PluginService.ts`
+Se agrega `update(pluginFile, pluginId, target): Promise<Plugin>` que enruta a `this.api.update` o `this.ui.update` según el `target`, igual que hace `register`.
+
+#### `ui/src/renderer/src/core/services/PluginRepositoryService.ts`
+- Se agrega la función `latestRelease(releases)`: devuelve el release de mayor versión semántica (usando `compareVersions`), reemplazando el uso implícito de `releases[0]`.
+- Se refactoriza la descarga a `downloadReleaseFile(detail)` (privado), reutilizado por instalación y actualización.
+- Se agrega `updatePlugin(detail, installed): Promise<Plugin>`: descarga el último release y delega en `pluginService.update(file, installed.id, installed.target)`.
+- `installPlugin` se reescribe sobre `downloadReleaseFile`.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/PluginDetailView.tsx`
+El botón del header pasa a tener tres estados (`install | update | installed`) vía el prop `installState`, más `latestVersion` e `installedVersion`. Muestra "Instalar" / "Actualizar" / "Instalado" según la comparación de versiones, con su tooltip correspondiente.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/Repository.tsx`
+- `handleInstall` ahora resuelve instalación **o** actualización: si el plugin ya está en `installedPlugins`, llama a `updatePlugin`; si no, a `installPlugin`.
+- Usa `compareVersions` para decidir el `installState` que se pasa al detalle.
+- Los plugins instalados se guardan como `Map<string, Plugin>` para tener a mano la versión instalada y el `target`.
+
+#### `ui/src/renderer/src/core/utils/dialogMessages.ts`
+Ajustes en los mensajes de diálogo del flujo instalar/actualizar.
+
+#### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
+Claves de la UI de actualización: `updateTitle`, `update`, `updateHint`, etc. bajo `pages.pluginRepository`.
+
+### Nota sobre la 8ª iteración
+Esto **supera** el pendiente que dejó la octava iteración ("la instalación sigue usando `releases[0]`"): a partir de acá la selección de versión usa `latestRelease()` (mayor versión semántica), no el primer elemento del array.
+
+---
+
+## Décima iteración — Notificaciones de validación previa a instalar/actualizar
+
+Se agrega una **advertencia explícita** antes de instalar o actualizar un plugin cuyo release **no está validado** (`status !== "approved"`) por el repositorio. El usuario debe confirmar; si cancela, la operación se aborta. Refuerza la decisión de seguridad de que el versionado/validación se controla en el frontend.
+
+### Archivos modificados
+
+#### `ui/src/renderer/src/core/utils/dialogMessages.ts`
+Se agrega `showUnvalidatedPluginMessage(pluginName, acceptId)`: muestra un `MessageBox` nativo tipo `warning` con botones Aceptar/Cancelar y devuelve el resultado para que el caller pueda abortar. Textos vía `unvalidatedPlugin.title` / `unvalidatedPlugin.message`.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/Repository.tsx`
+En `handleInstall`, antes de setear `isInstalling`, se obtiene el último release con `latestRelease(detail.releases)`; si su `status` no es `"approved"`, se muestra `showUnvalidatedPluginMessage` y se hace `return` temprano si el usuario no acepta. Aplica tanto a instalación como a actualización.
+
+#### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
+Se agregan `unvalidatedPlugin.title` y `unvalidatedPlugin.message` (con interpolación `{{pluginName}}`), más los botones `buttons.accept` / `buttons.cancel` si no existían.
+
+### Alcance
+- La validación de "aprobado" es del **repositorio** (campo `status` del release), no del backend local: MO solo advierte, no bloquea. El backend actualiza igual sin revalidar versión (ver 9ª iteración).
+- Es una confirmación de un solo paso; no persiste una preferencia de "no volver a preguntar".
+
+---
+
+## Undécima iteración — Render de `long_description` como Markdown
+
+La descripción larga del plugin se mostraba como texto plano dentro de un `<pre>`, dejando la sintaxis Markdown (`#`, `**`, tablas) visible en pantalla. Ahora se renderiza con `react-markdown` + `remark-gfm`.
+
+### Archivos creados
+
+#### `ui/src/renderer/src/core/components/markdown/Markdown.tsx`
+Componente que renderiza Markdown no confiable (viene de READMEs de terceros vía la API del repositorio). Expone una allowlist `ALLOWED_ELEMENTS` y `unwrapDisallowed`.
+
+**Decisión de seguridad:** este renderer corre con `nodeIntegration: true` (`main/index.ts:116-118`), por lo que una inyección de marcado sería ejecución de código en la máquina del usuario, no un XSS contenido. Lo que lo hace seguro es que `react-markdown` **no renderiza HTML crudo**: la gramática Markdown no puede expresar un handler de eventos, así que atributos como `onerror` son inalcanzables. **Agregar `rehype-raw` anularía esto**, y la allowlist no compensaría (filtra elementos, no atributos).
+
+Se excluyen dos elementos de la allowlist:
+- `img` — único nodo que hace una request saliente por sí solo; un README podría usarlo para confirmar IP y qué plugin se abrió.
+- `a` — llegaría al `setWindowOpenHandler` (`main/index.ts:167-189`), que entrega la URL al handler de protocolo del SO vía `shell.openExternal`. Con `unwrapDisallowed` se conserva el texto del link y solo se pierde la navegación.
+
+Se mantienen `code`/`pre` e `input` (checkbox de task lists de GFM): son inertes y quitarlos degradaría READMEs sin ganancia.
+
+#### `ui/src/renderer/src/core/components/markdown/markdown.module.css`
+Estilado por descendencia desde `.markdown`, con los tokens de `base.css`. Compensa dos resets globales: `font-weight: normal` sobre `*` (headings y `strong`) y `list-style: none` sobre `ul` (viñetas). Las tablas anchas scrollean solas en vez de estirar el panel.
+
+#### `ui/tests/unit/Markdown.test.ts`
+Fija el contrato de render con `renderToStaticMarkup` (sin jsdom): que `img` y `a` no se rendericen, que el texto del link sobreviva, que el HTML crudo quede escapado como texto, y que code blocks, task lists y tablas sí se rendericen.
+
+### Archivos modificados
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/PluginDetailView.tsx`
+El `<pre className={styles["long-description"]}>` pasa a `<Markdown>{detail.long_description}</Markdown>`.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/repository.module.css`
+Se elimina `.long-description`, que quedó sin uso.
+
+### Alcance
+- Dependencias nuevas: `react-markdown@10` y `remark-gfm@4`.
+- La descripción no es seleccionable, igual que el resto de la app (`base.css` aplica `user-select: none` en el `body`).
+
+---
+
+## Duodécima iteración — La preferencia del repositorio guarda solo el host
+
+La preferencia guardaba la URL completa (`http://localhost:8001/api/v1/plugins`) y se inyectaba tal cual en `repositoryAxios.defaults.baseURL`. Ahora guarda **solo el host** (`localhost:8001`); el esquema y el path los arma la app.
+
+Al hacerlo salió a la luz un **bug preexistente**: el `baseURL` venía siendo `/api/v1/plugins` desde la 1ª iteración, pero en el repositorio `/plugins` y `/tags` son routers **hermanos** bajo `/api/v1`. Los dos métodos de tags pedían `/api/v1/plugins/tags` y `/api/v1/plugins/tags/search`, ambos 404. El filtro de etiquetas nunca pudo haber funcionado.
+
+### Archivos modificados
+
+#### `ui/src/renderer/src/core/lib/repositoryAxios.ts`
+- `DEFAULT_REPOSITORY_URL` → `DEFAULT_REPOSITORY_HOST` (`localhost:8001`), leído de `VITE_REPOSITORY_API_HOST`.
+- `REPOSITORY_API_PATH` (`/api/v1`) queda como constante privada: es parte del contrato de la API, no configuración. **Corta en el segmento de versión**, no en `/plugins`, porque cada router aporta su propio prefijo.
+- `normalizeHost(value)` — reduce un host o una URL completa a `host[:port]`, o `""` si no parsea. Acepta URLs completas para que pegar una en ajustes siga funcionando.
+- `buildBaseUrl(value)` — arma la URL final. **El esquema se deriva del host:** loopback y redes privadas (`localhost`, `127.x`, `10.x`, `192.168.x`, `172.16-31.x`, `::1`) usan `http`; cualquier otro host usa `https`. El motivo: esta API decide qué asset se descarga e instala como plugin, así que su metadata no puede viajar en texto plano por una red no confiable. Si el valor no parsea cae al host por defecto; si ese tampoco parsea lanza, para que un build mal configurado se note en vez de apuntar en silencio a otro lado.
+
+#### `ui/src/renderer/src/core/services/PluginRepositoryService.ts`
+- `setBaseUrl(url)` → `setHost(host)`, que ahora llama a `buildBaseUrl`.
+- Los métodos de plugins pasan a llevar su prefijo explícito: `/search` → `/plugins/search`, y el detalle por slug → `/plugins/{publisher}.{plugin}`. Los de tags (`/tags`, `/tags/search`) quedan **sin tocar**: con la base en `/api/v1` ya resuelven bien.
+- La clave de preferencias pasa de `pluginRepository:url` a `pluginRepository:host`.
+- Re-exporta `DEFAULT_REPOSITORY_HOST` y `normalizeHost` para que `RepositorySettings` no dependa de `lib` directamente (ver 3ª iteración).
+
+#### `ui/src/renderer/src/core/pages/settings/repository/RepositorySettings.tsx`
+Trabaja con host en vez de URL. Al guardar, normaliza antes de persistir: si se pega una URL completa, el campo se ajusta al host canónico, lo que además le muestra al usuario el formato esperado. Se agrega `placeholder`.
+
+#### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
+Se agrega `pages.settings.repository.hostPlaceholder`.
+
+#### `ui/.env.example`
+Se agrega `VITE_REPOSITORY_API_HOST` (la variable estaba documentada desde la 1ª iteración pero nunca se había agregado al ejemplo).
+
+#### `ui/tests/unit/repositoryAxios.test.ts` (nuevo)
+Cubre `normalizeHost` y `buildBaseUrl`: hosts pelados, URLs completas, http vs https según rango, rangos públicos que rozan los privados (`172.32.x`, `11.x`) y el fallback.
+
+#### `ui/tests/unit/PluginRepositoryEndpoints.test.ts` (nuevo)
+Fija la URL **resuelta** de cada endpoint (base + path), no el argumento de path. La distinción es la que importa: con la base en `/api/v1/plugins` los argumentos de path quedan idénticos y las llamadas de tags igual se van a un 404, así que un test sobre el path no habría detectado el bug. Se verificó que falla al reintroducirlo.
+
+### Alcance
+- La clave vieja `pluginRepository:url` queda huérfana. No se migra: la feature aún no se publicó, y un valor ausente cae al default, que en local es el mismo `localhost:8001`.
+- El esquema guardado en un valor viejo **no se respeta**: `buildBaseUrl` siempre lo deriva del host. Apuntar a un host público por `http` ya no es posible desde preferencias.

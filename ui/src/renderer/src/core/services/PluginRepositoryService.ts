@@ -5,12 +5,16 @@ import {
   RepositoryPluginsPage,
   RepositoryTag
 } from "../types/RepositoryPlugin"
-import repositoryAxios, { DEFAULT_REPOSITORY_URL } from "../lib/repositoryAxios"
+import repositoryAxios, {
+  DEFAULT_REPOSITORY_HOST,
+  buildBaseUrl,
+  normalizeHost
+} from "../lib/repositoryAxios"
 import pluginService from "./PluginService"
 import { Plugin } from "../types/Plugin"
 import { compareVersions } from "../utils/compareVersions"
 
-export { DEFAULT_REPOSITORY_URL }
+export { DEFAULT_REPOSITORY_HOST, normalizeHost }
 
 type Release = RepositoryPluginDetail["releases"][number]
 
@@ -61,12 +65,17 @@ function selectAssetForPlatform(
 
 class PluginRepositoryService {
   async initialize(): Promise<void> {
-    const savedUrl = await window.core.preferences.get("pluginRepository:url")
-    this.setBaseUrl((savedUrl as string) || DEFAULT_REPOSITORY_URL)
+    const savedHost = await window.core.preferences.get("pluginRepository:host")
+    this.setHost((savedHost as string) || DEFAULT_REPOSITORY_HOST)
   }
 
-  setBaseUrl(url: string): void {
-    repositoryAxios.defaults.baseURL = url
+  /**
+   * Points the client at `host`, rebuilding the scheme and the API path around it.
+   *
+   * @param host - A host (`localhost:8001`) or a full URL.
+   */
+  setHost(host: string): void {
+    repositoryAxios.defaults.baseURL = buildBaseUrl(host)
   }
 
   /**
@@ -76,7 +85,7 @@ class PluginRepositoryService {
    */
   async search(params: SearchPluginsParams = {}): Promise<RepositoryPluginsPage> {
     const { query, category, tags, page = 1, perPage = 10 } = params
-    const response = await repositoryAxios.get<RepositoryPluginsPage>("/search", {
+    const response = await repositoryAxios.get<RepositoryPluginsPage>("/plugins/search", {
       params: {
         ...(query ? { query } : {}),
         ...(category ? { category } : {}),
@@ -106,7 +115,7 @@ class PluginRepositoryService {
 
   async getBySlug(publisherSlug: string, pluginSlug: string): Promise<RepositoryPluginDetail> {
     const response = await repositoryAxios.get<RepositoryPluginDetail>(
-      `/${publisherSlug}.${pluginSlug}`
+      `/plugins/${publisherSlug}.${pluginSlug}`
     )
     return response.data
   }

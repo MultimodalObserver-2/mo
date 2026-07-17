@@ -1,5 +1,6 @@
 import { RepositoryPluginDetail } from "@renderer/core/types/RepositoryPlugin"
 import Button from "@renderer/core/components/button/Button"
+import Markdown from "@renderer/core/components/markdown/Markdown"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
 
@@ -141,7 +142,7 @@ export default function PluginDetailView({
       <div className={styles["detail-content"]}>
         {activeTab === "description" ? (
           detail.long_description ? (
-            <pre className={styles["long-description"]}>{detail.long_description}</pre>
+            <Markdown>{detail.long_description}</Markdown>
           ) : (
             <p className={styles["detail-placeholder"]}>{t("noDescription")}</p>
           )

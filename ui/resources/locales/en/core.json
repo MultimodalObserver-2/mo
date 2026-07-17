@@ -34,6 +34,7 @@
       },
       "repository": {
         "title": "Plugin Repository",
+        "hostPlaceholder": "localhost:8001",
         "save": "Save",
         "saved": "Saved!",
         "reset": "Reset to default"
