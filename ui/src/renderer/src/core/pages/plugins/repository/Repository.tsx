@@ -12,11 +12,11 @@ import pluginRepositoryService, {
 } from "@renderer/core/services/PluginRepositoryService"
 import pluginService from "@renderer/core/services/PluginService"
 import { Plugin } from "@renderer/core/types/Plugin"
-import { compareVersions } from "@renderer/core/utils/compareVersions"
 import {
   getApiErrorMessage,
   showUnvalidatedPluginMessage
 } from "@renderer/core/utils/dialogMessages"
+import { isNewerRelease, pluginKey } from "./repositoryHelpers"
 import {
   PluginCard,
   PluginDisplay,
@@ -214,14 +214,14 @@ export default function Repository() {
   }, [selectedSlug])
 
   const handleSelect = (plugin: RepositoryPlugin) => {
-    navigate(`/plugins/repository/${plugin.publisher_slug}.${plugin.slug}`)
+    navigate(`/plugins/repository/${pluginKey(plugin)}`)
   }
 
   // Installs (or updates to) a specific `release`. `release` need not be the latest: any
   // version other than the installed one can be picked from the releases list.
   const handleInstallRelease = async (release: RepositoryRelease) => {
     if (!detail || isInstalling) return
-    const installed = installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)
+    const installed = installedPlugins.get(pluginKey(detail))
     const isUpdate = installed !== undefined
     const title = isUpdate ? t("updateTitle") : t("installTitle")
 
@@ -278,22 +278,17 @@ export default function Repository() {
   // higher version than the installed one, "installed" when it is up to date (or newer),
   // and "install" when it is not installed at all.
   const installStateFor = (d: RepositoryPluginDetail): InstallState => {
-    const installed = installedPlugins.get(`${d.publisher_slug}.${d.slug}`)
+    const installed = installedPlugins.get(pluginKey(d))
     if (!installed) return "install"
-    const latest = latestRelease(d.releases)
-    return latest && compareVersions(latest.name, installed.version) > 0 ? "update" : "installed"
+    return isNewerRelease(latestRelease(d.releases), installed.version) ? "update" : "installed"
   }
 
-  // Whether the repository's latest release is strictly newer than the installed version.
-  // Mirrors the "update" branch of `installStateFor`, but reads `latest_release` from the
-  // list item, since its `releases` array is empty in listings.
+  // Whether a list item has a newer release than the installed version. Reads `latest_release`
+  // (the `releases` array is empty in listings) and shares `isNewerRelease` with
+  // `installStateFor`, so the list dot and the detail button cannot disagree.
   const hasUpdate = (plugin: RepositoryPlugin): boolean => {
-    const installed = installedPlugins.get(`${plugin.publisher_slug}.${plugin.slug}`)
-    return (
-      installed !== undefined &&
-      plugin.latest_release != null &&
-      compareVersions(plugin.latest_release.name, installed.version) > 0
-    )
+    const installed = installedPlugins.get(pluginKey(plugin))
+    return installed !== undefined && isNewerRelease(plugin.latest_release, installed.version)
   }
 
   return (
@@ -337,7 +332,7 @@ export default function Repository() {
                       name={plugin.name}
                       description={plugin.description ?? ""}
                       iconPath={plugin.logo_url || pluginFallback}
-                      isSelected={selectedSlug === `${plugin.publisher_slug}.${plugin.slug}`}
+                      isSelected={selectedSlug === pluginKey(plugin)}
                       showActions={false}
                       onClick={() => handleSelect(plugin)}
                     />
@@ -365,7 +360,7 @@ export default function Repository() {
               installState={installStateFor(detail)}
               latestVersion={latestRelease(detail.releases)?.name}
               installedVersion={
-                installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)?.version
+                installedPlugins.get(pluginKey(detail))?.version
               }
               isInstalling={isInstalling}
               installingReleaseName={installingRelease}
