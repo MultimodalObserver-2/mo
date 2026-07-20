@@ -634,3 +634,59 @@ Fija la URL **resuelta** de cada endpoint (base + path), no el argumento de path
 ### Alcance
 - La clave vieja `pluginRepository:url` queda huérfana. No se migra: la feature aún no se publicó, y un valor ausente cae al default, que en local es el mismo `localhost:8001`.
 - El esquema guardado en un valor viejo **no se respeta**: `buildBaseUrl` siempre lo deriva del host. Apuntar a un host público por `http` ya no es posible desde preferencias.
+
+---
+
+## Decimotercera iteración — Link a la vista del plugin en la plataforma web
+
+En la vista de detalle del repositorio, a la derecha del estado del plugin, se agrega un ícono que abre la página de ese plugin en la plataforma web (`https://mo.diinf.usach.cl/plugins/{publisher}.{plugin}`) en el navegador del sistema.
+
+Es un `<a target="_blank">`, no un botón con IPC: `main/index.ts:167-189` ya tiene un `setWindowOpenHandler` que intercepta y hace `shell.openExternal`. Es el mismo patrón que usa `About.tsx` para los links a GitHub, así que no hizo falta agregar nada al main ni al preload.
+
+### Archivos creados
+
+#### `ui/src/renderer/src/core/lib/repositoryUrls.ts`
+Se mueve acá todo el armado de URLs del repositorio, que vivía en `repositoryAxios.ts`: `DEFAULT_REPOSITORY_HOST`, `normalizeHost`, `buildBaseUrl` y los helpers privados de esquema (`isLocalNetworkHost`, `parseHost`). El motivo del corte es que la URL de la plataforma web no tiene nada que ver con Axios, y `repositoryAxios.ts` queda con responsabilidad única (ver 3ª iteración): solo crea la instancia.
+
+Se agrega:
+- `DEFAULT_REPOSITORY_WEB_HOST` — host de la web, leído de `VITE_REPOSITORY_WEB_HOST`, con default `localhost:3000` en dev y `mo.diinf.usach.cl` en prod. En producción **comparte dominio con la API** (que cuelga de `/api/v1`), pero en dev son apps separadas en puertos distintos: por eso no se puede derivar del host de la API y se fija en build time, no en preferencias.
+- `buildPluginWebUrl(publisherSlug, pluginSlug)` — arma la URL de la página del plugin. Reusa la misma derivación de esquema que `buildBaseUrl` (`localhost` → http, dominio público → https) y escapa los slugs para que no puedan alterar el path.
+
+### Archivos modificados
+
+#### `ui/src/renderer/src/core/lib/repositoryAxios.ts`
+Queda solo con la creación de la instancia de Axios; importa `buildBaseUrl` de `repositoryUrls`. **Cambia respecto de la 12ª iteración:** `REPOSITORY_API_PATH`, `DEFAULT_REPOSITORY_HOST`, `normalizeHost` y `buildBaseUrl` ya no están definidos acá, ahora viven en `repositoryUrls.ts`.
+
+#### `DEFAULT_REPOSITORY_HOST` — corrección del default en producción
+**Cambia respecto de la 12ª iteración**, donde el default era `localhost:8001` sin distinguir entorno. Ahora es `localhost:8001` en dev y `mo.diinf.usach.cl` en prod, igual que el host web.
+
+El default anterior venía de la 1ª iteración (`VITE_REPOSITORY_API_URL || "http://localhost:8001/api/v1/plugins"`) y significaba que un build de producción sin `VITE_REPOSITORY_API_HOST` y sin preferencia guardada intentaba `http://localhost:8001/api/v1` en la máquina del usuario, fallando con el error de conexión. La asimetría se hizo visible al agregar el split dev/prod del host web en esta misma iteración. Sigue siendo solo un **default**: la preferencia `pluginRepository:host` lo pisa cuando hay una guardada.
+
+#### `ui/src/renderer/src/core/services/PluginRepositoryService.ts`
+Importa la instancia de `lib/repositoryAxios` y las funciones de URL de `lib/repositoryUrls`. Re-exporta también `buildPluginWebUrl`, siguiendo el criterio de que las páginas no dependan de `lib` directamente.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/PluginDetailView.tsx`
+Dentro de `detail-title-row`, después del badge de estado, se agrega el `<a>` con `BrowserExploreIcon`. La URL se calcula una vez en `webUrl`; si el plugin no tiene `slug` (el campo es opcional) el link no se renderiza.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/repository.module.css`
+Se agregan `.web-link` y `.web-icon`. No hizo falta CSS de posicionamiento: `detail-title-row` ya es un flex con `align-items: center` y `gap`.
+
+#### `ui/src/renderer/src/core/pages/settings/repository/RepositorySettings.tsx`
+El `placeholder` del campo pasa de `t("hostPlaceholder")` a `DEFAULT_REPOSITORY_HOST`. **Cambia respecto de la 12ª iteración**, que lo agregó como texto fijo `localhost:8001`: con el split dev/prod, ese literal le sugeriría el host de desarrollo a un usuario de un build de producción. No se traduce porque es el host por defecto del build, no un mensaje.
+
+#### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
+- Se agrega `pages.pluginRepository.openInWebHint` (con interpolación `{{name}}`), usada como `title` del link.
+- Se elimina `pages.settings.repository.hostPlaceholder`, agregada en la 12ª iteración y ahora sin uso.
+
+#### `ui/.env.example`
+Se agrega `VITE_REPOSITORY_WEB_HOST`.
+
+#### `ui/tests/unit/repositoryAxios.test.ts` → `ui/tests/unit/repositoryUrls.test.ts`
+Renombrado para seguir al módulo. Se agregan tres casos de `buildPluginWebUrl`: la URL de la página, que el host web no es el de la API, y el escapado de slugs.
+
+#### `ui/tests/unit/PluginRepositoryEndpoints.test.ts`
+Se simplifica el mock: como `repositoryAxios` ahora solo exporta la instancia, ya no hace falta `importOriginal` para conservar el `buildBaseUrl` real — este viene de `repositoryUrls`, que no se mockea.
+
+### Alcance
+- El host de la web **no es configurable desde preferencias**, a diferencia del de la API. Si se apunta la app a otro repositorio, el link sigue yendo al dominio del build.
+- No se agregó `shell.openExternal` al preload. El botón equivalente en `DisplayPath` (usado por el detalle del plugin instalado para ir a GitHub) sigue usando `shell.openPath`, que es la API de Electron para archivos: funciona en Windows y Linux, pero probablemente no en macOS. Queda pendiente, fuera del alcance de esta iteración.

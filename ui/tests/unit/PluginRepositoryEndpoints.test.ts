@@ -1,16 +1,11 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
-type RepositoryAxiosModule = typeof import("../../src/renderer/src/core/lib/repositoryAxios")
-
 const get = vi.fn().mockResolvedValue({ data: [] })
 const instance = { get, defaults: { baseURL: "" } }
 
-// Only the Axios instance is faked: the real `buildBaseUrl` has to run, because the base
-// is half of the URL under test. PluginService is stubbed since it reaches `window.core`.
-vi.mock("../../src/renderer/src/core/lib/repositoryAxios", async (importOriginal) => ({
-  ...(await importOriginal<RepositoryAxiosModule>()),
-  default: instance
-}))
+// Only the Axios instance is faked. `repositoryUrls` is left real on purpose: the base it
+// builds is half of the URL under test. PluginService is stubbed as it reaches `window.core`.
+vi.mock("../../src/renderer/src/core/lib/repositoryAxios", () => ({ default: instance }))
 vi.mock("../../src/renderer/src/core/services/PluginService", () => ({ default: {} }))
 
 const { default: pluginRepositoryService } = await import(

@@ -34,7 +34,6 @@
 			},
 			"repository": {
 				"title": "Repositorio de plugins",
-				"hostPlaceholder": "localhost:8001",
 				"save": "Guardar",
 				"saved": "¡Guardado!",
 				"reset": "Restablecer por defecto"
@@ -58,6 +57,7 @@
 			"installHint": "Instalar {{name}} {{version}}",
 			"updateHint": "Actualizar {{name}} a {{version}}",
 			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
+			"openInWebHint": "Ver {{name}} en el repositorio web",
 			"selectPlugin": "Selecciona un plugin para ver sus detalles",
 			"fieldModule": "Módulo",
 			"fieldRepository": "Repositorio",

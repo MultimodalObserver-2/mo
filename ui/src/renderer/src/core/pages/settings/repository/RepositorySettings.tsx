@@ -41,7 +41,8 @@ export default function RepositorySettings() {
       <div className={styles.container}>
         <Input
           value={host}
-          placeholder={t("hostPlaceholder")}
+          // Not translated: it is the build's own default host, not a message.
+          placeholder={DEFAULT_REPOSITORY_HOST}
           onChange={(e) => {
             setHost(e.target.value)
             setSaved(false)

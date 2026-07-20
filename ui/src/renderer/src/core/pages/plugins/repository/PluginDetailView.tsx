@@ -1,6 +1,8 @@
 import { RepositoryPluginDetail } from "@renderer/core/types/RepositoryPlugin"
 import Button from "@renderer/core/components/button/Button"
 import Markdown from "@renderer/core/components/markdown/Markdown"
+import BrowserExploreIcon from "@renderer/core/components/icons/BrowserExploreIcon"
+import { buildPluginWebUrl } from "@renderer/core/services/PluginRepositoryService"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
 
@@ -46,6 +48,8 @@ export default function PluginDetailView({
       : installState === "update"
         ? t("updateHint", { name: detail.name, version: latestVersion })
         : t("installHint", { name: detail.name, version: latestVersion })
+  // A plugin without a slug has no page to link to.
+  const webUrl = detail.slug ? buildPluginWebUrl(detail.publisher_slug, detail.slug) : undefined
   return (
     <div className={styles["detail-view"]}>
       <div className={styles["detail-header"]}>
@@ -65,6 +69,17 @@ export default function PluginDetailView({
               <span className={styles["detail-status"]} data-status={detail.status}>
                 {t(`status.${detail.status}`)}
               </span>
+            )}
+            {webUrl && (
+              <a
+                href={webUrl}
+                target="_blank"
+                rel="noreferrer"
+                title={t("openInWebHint", { name: detail.name })}
+                className={styles["web-link"]}
+              >
+                <BrowserExploreIcon className={styles["web-icon"]} />
+              </a>
             )}
           </div>
           <div className={styles["detail-meta"]}>

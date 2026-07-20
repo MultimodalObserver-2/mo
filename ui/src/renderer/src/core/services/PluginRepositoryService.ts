@@ -5,16 +5,18 @@ import {
   RepositoryPluginsPage,
   RepositoryTag
 } from "../types/RepositoryPlugin"
-import repositoryAxios, {
+import repositoryAxios from "../lib/repositoryAxios"
+import {
   DEFAULT_REPOSITORY_HOST,
   buildBaseUrl,
+  buildPluginWebUrl,
   normalizeHost
-} from "../lib/repositoryAxios"
+} from "../lib/repositoryUrls"
 import pluginService from "./PluginService"
 import { Plugin } from "../types/Plugin"
 import { compareVersions } from "../utils/compareVersions"
 
-export { DEFAULT_REPOSITORY_HOST, normalizeHost }
+export { DEFAULT_REPOSITORY_HOST, buildPluginWebUrl, normalizeHost }
 
 type Release = RepositoryPluginDetail["releases"][number]
 

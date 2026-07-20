@@ -1,5 +1,9 @@
 import { describe, it, expect } from "vitest"
-import { buildBaseUrl, normalizeHost } from "../../src/renderer/src/core/lib/repositoryAxios"
+import {
+  buildBaseUrl,
+  buildPluginWebUrl,
+  normalizeHost
+} from "../../src/renderer/src/core/lib/repositoryUrls"
 
 describe("normalizeHost", () => {
   it("keeps a bare host untouched", () => {
@@ -60,5 +64,20 @@ describe("buildBaseUrl", () => {
   it("falls back to the default host when the value cannot be parsed", () => {
     expect(buildBaseUrl("")).toBe("http://localhost:8001/api/v1")
     expect(buildBaseUrl("not a host")).toBe("http://localhost:8001/api/v1")
+  })
+})
+
+describe("buildPluginWebUrl", () => {
+  // Tests run in dev mode, so the web host resolves to its dev default.
+  it("builds the plugin page on the web platform", () => {
+    expect(buildPluginWebUrl("interaction-lab", "keyboard-capture")).toBe(
+      "http://localhost:3000/plugins/interaction-lab.keyboard-capture"
+    )
+  })
+
+  it("escapes slugs so they cannot alter the path", () => {
+    expect(buildPluginWebUrl("acme", "../admin")).toBe(
+      "http://localhost:3000/plugins/acme...%2Fadmin"
+    )
   })
 })

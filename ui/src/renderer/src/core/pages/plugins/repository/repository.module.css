@@ -259,6 +259,23 @@
   flex-shrink: 0;
 }
 
+.web-link {
+  display: inline-flex;
+  align-items: center;
+  text-decoration: none;
+}
+
+.web-icon {
+  width: 22px;
+  height: 22px;
+  fill: var(--color-primary-800, #333);
+  transition: transform 0.2s;
+}
+
+.web-icon:hover {
+  transform: scale(1.1);
+}
+
 .detail-title-row {
   display: flex;
   align-items: center;
