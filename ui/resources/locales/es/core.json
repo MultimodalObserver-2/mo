@@ -58,6 +58,8 @@
 			"updateHint": "Actualizar {{name}} a {{version}}",
 			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
 			"openInWebHint": "Ver {{name}} en el repositorio web",
+			"updatesAvailableTitle": "Actualizaciones de plugins",
+			"updatesAvailableMessage": "Hay actualizaciones disponibles para tus plugins.",
 			"selectPlugin": "Selecciona un plugin para ver sus detalles",
 			"fieldModule": "Módulo",
 			"fieldRepository": "Repositorio",

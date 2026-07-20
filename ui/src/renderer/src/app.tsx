@@ -27,9 +27,13 @@ import { NavigateOptions, Route, Routes, useNavigate } from "react-router"
 import { useEffect } from "react"
 import SettingsPage from "./core/pages/settings/Settings"
 import AboutPage from "./core/pages/about/About"
+import useCheckPluginUpdates from "./core/pages/plugins/repository/useCheckPluginUpdates"
 
 export default function App() {
   const navigate = useNavigate()
+
+  // Notify once at startup if any installed plugin has an update available.
+  useCheckPluginUpdates()
 
   useEffect(() => {
     const unsubscribe = window.core.router.onNavigate((path: string, options?: NavigateOptions) => {

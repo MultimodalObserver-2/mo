@@ -690,3 +690,58 @@ Se simplifica el mock: como `repositoryAxios` ahora solo exporta la instancia, y
 ### Alcance
 - El host de la web **no es configurable desde preferencias**, a diferencia del de la API. Si se apunta la app a otro repositorio, el link sigue yendo al dominio del build.
 - No se agregó `shell.openExternal` al preload. El botón equivalente en `DisplayPath` (usado por el detalle del plugin instalado para ir a GitHub) sigue usando `shell.openPath`, que es la API de Electron para archivos: funciona en Windows y Linux, pero probablemente no en macOS. Queda pendiente, fuera del alcance de esta iteración.
+
+---
+
+## Decimocuarta iteración — Indicador de actualización en el listado y aviso al abrir la app
+
+Dos agregados que informan al usuario, sin acción automática, sobre plugins instalados con una versión nueva disponible:
+
+1. Un **círculo rojo** a la derecha de cada card del listado del repositorio cuando la última versión disponible es mayor a la instalada.
+2. Una **notificación al abrir la app** si existe al menos un plugin instalado con actualización. Es meramente informativa: no indica qué plugins ni qué versiones.
+
+Ambos se apoyan en cambios del backend (otro sistema): el listado `/plugins/search` ahora devuelve `latest_release` por item, y se agregó el endpoint `POST /plugins/check-updates`.
+
+### Archivos creados
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/useCheckPluginUpdates.ts`
+Hook que corre **una vez al arrancar**, montado en `App`. Flujo: `initialize()` (resuelve el host configurado) → `pluginService.getAll()` (lista plana de instalados, no pagina) → arma `{ slug: p.id, version: p.version }[]` → `checkUpdates(payload)`. Si el server responde `true`, muestra una sola notificación genérica con `showMessageBox`.
+
+Decisiones:
+- **Silencio total ante error/offline**: el `catch` no muestra nada. Al ser informativo, no debe molestar en un arranque sin conexión ni antes de que el endpoint exista.
+- **Guarda de deep link**: si al resolver el chequeo la ruta actual ya es `/plugins/repository/...` (la app se abrió apuntando a un plugin puntual), no se muestra el modal, para no competir con esa intención. Ver la nota de deep link en la 13ª iteración; el modal usa la variante **async** de `showMessageBox` (`core/dialog.ts`), que no bloquea el event loop del main, así que la navegación del deep link no se rompe.
+- `hasRun` ref para no duplicar la ejecución por el doble montaje de `StrictMode` en dev.
+
+### Archivos modificados
+
+#### `ui/src/renderer/src/core/types/RepositoryPlugin.ts`
+- Se extraen dos tipos compartidos, `RepositoryReleaseAsset` y `RepositoryRelease`, y se reemplaza con `RepositoryRelease[]` la definición inline de `releases` que tenía `RepositoryPluginDetail` (evita duplicar el shape en dos lados).
+- `RepositoryReleaseAsset` incluye el nuevo campo **`browser_download_url?`** que el backend agregó al asset.
+- En `RepositoryRelease`, los campos `_id`, `status` y `required_reviewers` son **opcionales**: el search (`latest_release`) y el detalle (`releases`) pueblan subconjuntos distintos.
+- Se agrega `latest_release?: RepositoryRelease | null` a `RepositoryPlugin` — lo que ahora trae cada item de `/plugins/search` (en los listados `releases` sigue viniendo vacío).
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/Repository.tsx`
+- Helper `hasUpdate(plugin)`: hay update si el plugin está instalado y `compareVersions(latest_release.name, installed.version) > 0`. Es la misma regla que la rama `"update"` de `installStateFor`, pero leyendo `latest_release` porque en el listado `releases` está vacío.
+- Cada `PluginCard` se envuelve en un `<div className="card-wrapper">` que renderiza el dot condicional. **No se tocó `PluginCard`** (componente compartido por Installed, capture y visualization): el indicador se resuelve desde la página con un wrapper y CSS.
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/repository.module.css`
+Se agregan `.card-wrapper` (relative, `width: 100%`) y `.update-dot` (círculo de 9px, `var(--color-red-500)`, `pointer-events: none` para no interceptar el click de la card). No rompe hover/selección: esas reglas usan selectores descendientes (`.plugins.selectable .plugin`), así que el wrapper intermedio no las corta.
+
+#### `ui/src/renderer/src/core/services/PluginRepositoryService.ts`
+- Nuevo tipo `InstalledPluginRef` (`{ slug, version }`).
+- Nuevo método `checkUpdates(installed)`: `POST /plugins/check-updates` con `{ plugins: [...] }`, devuelve `updates_available`. Con **lista vacía no hace request y devuelve `false`** (resuelve la regla "lista vacía → false" del lado del cliente, evitando un round-trip).
+
+#### `ui/src/renderer/src/app.tsx`
+Se invoca `useCheckPluginUpdates()` en el root, junto al efecto de navegación existente.
+
+#### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
+Se agregan `pages.pluginRepository.updatesAvailableTitle` y `updatesAvailableMessage`, el título y el texto genérico del modal (sin nombres ni versiones).
+
+#### `ui/tests/unit/PluginRepositoryEndpoints.test.ts`
+Se agrega `post` al mock del Axios instance y dos casos de `checkUpdates`: que postea a la URL resuelta correcta (`/api/v1/plugins/check-updates`) con el body esperado, y que con lista vacía no hace request y devuelve `false`.
+
+### Alcance
+- **La comparación de versiones queda en dos lados**: el dot/botón del listado la hacen en el front con `compareVersions`; el aviso de arranque la delega al server vía `check-updates`. Se aceptó la duplicación. El contrato del endpoint fija comparación semver considerando todos los releases (sin filtrar por estado de revisión), alineado con la regla del dot, para que no se contradigan.
+- El dot está implementado **como prototipo dentro de `Repository.tsx`** (wrapper + CSS), no en `PluginCard`. Queda pendiente moverlo a un prop del componente compartido (`showUpdateBadge`) si se quiere reusar en otras vistas.
+- La guarda de deep link es la **variante simple** (chequeo de la ruta al resolver): suprime el modal tanto si se abrió por deep link como si el usuario ya está navegando el repositorio. Queda pendiente la variante estricta con un flag expuesto desde el main.
+- El asset ahora trae `browser_download_url`, pero `downloadReleaseFile` sigue reconstruyendo la URL de la GitHub API a partir de `repository_url` + `asset_github_id`. Simplificar la descarga usando la URL directa queda pendiente, fuera del alcance de esta iteración.

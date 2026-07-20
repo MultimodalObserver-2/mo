@@ -1,7 +1,8 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 
 const get = vi.fn().mockResolvedValue({ data: [] })
-const instance = { get, defaults: { baseURL: "" } }
+const post = vi.fn().mockResolvedValue({ data: {} })
+const instance = { get, post, defaults: { baseURL: "" } }
 
 // Only the Axios instance is faked. `repositoryUrls` is left real on purpose: the base it
 // builds is half of the URL under test. PluginService is stubbed as it reaches `window.core`.
@@ -23,6 +24,7 @@ const requestedUrl = (): string => `${instance.defaults.baseURL}${get.mock.calls
 describe("repository endpoint URLs", () => {
   beforeEach(() => {
     get.mockClear()
+    post.mockClear()
     pluginRepositoryService.setHost("localhost:8001")
   })
 
@@ -45,5 +47,25 @@ describe("repository endpoint URLs", () => {
   it("autocompletes tags as a sibling of /plugins, not below it", async () => {
     await pluginRepositoryService.searchTags("au")
     expect(requestedUrl()).toBe("http://localhost:8001/api/v1/tags/search")
+  })
+
+  it("checks updates by POSTing the installed plugins under the /plugins router", async () => {
+    post.mockResolvedValueOnce({ data: { updates_available: true } })
+    const installed = [{ slug: "acme.recorder", version: "1.2.0" }]
+
+    const result = await pluginRepositoryService.checkUpdates(installed)
+
+    expect(result).toBe(true)
+    const [path, body] = post.mock.calls[0]
+    expect(`${instance.defaults.baseURL}${path}`).toBe(
+      "http://localhost:8001/api/v1/plugins/check-updates"
+    )
+    expect(body).toEqual({ plugins: installed })
+  })
+
+  it("skips the request and returns false when nothing is installed", async () => {
+    const result = await pluginRepositoryService.checkUpdates([])
+    expect(result).toBe(false)
+    expect(post).not.toHaveBeenCalled()
   })
 })

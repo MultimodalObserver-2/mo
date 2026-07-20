@@ -238,6 +238,18 @@ export default function Repository() {
     return latest && compareVersions(latest.name, installed.version) > 0 ? "update" : "installed"
   }
 
+  // Whether the repository's latest release is strictly newer than the installed version.
+  // Mirrors the "update" branch of `installStateFor`, but reads `latest_release` from the
+  // list item, since its `releases` array is empty in listings.
+  const hasUpdate = (plugin: RepositoryPlugin): boolean => {
+    const installed = installedPlugins.get(`${plugin.publisher_slug}.${plugin.slug}`)
+    return (
+      installed !== undefined &&
+      plugin.latest_release != null &&
+      compareVersions(plugin.latest_release.name, installed.version) > 0
+    )
+  }
+
   return (
     <div className={styles.container}>
       <div className={styles["search-bar"]}>
@@ -274,15 +286,17 @@ export default function Repository() {
             <PluginDisplay style="light" textSize="sm" isLoading={isLoadingList}>
               <PluginDisplayList isLoading={isLoadingList} selectable>
                 {plugins.map((plugin) => (
-                  <PluginCard
-                    key={plugin._id}
-                    name={plugin.name}
-                    description={plugin.description ?? ""}
-                    iconPath={plugin.logo_url || pluginFallback}
-                    isSelected={selectedSlug === `${plugin.publisher_slug}.${plugin.slug}`}
-                    showActions={false}
-                    onClick={() => handleSelect(plugin)}
-                  />
+                  <div key={plugin._id} className={styles["card-wrapper"]}>
+                    <PluginCard
+                      name={plugin.name}
+                      description={plugin.description ?? ""}
+                      iconPath={plugin.logo_url || pluginFallback}
+                      isSelected={selectedSlug === `${plugin.publisher_slug}.${plugin.slug}`}
+                      showActions={false}
+                      onClick={() => handleSelect(plugin)}
+                    />
+                    {hasUpdate(plugin) && <span className={styles["update-dot"]} />}
+                  </div>
                 ))}
                 <div ref={sentinelRef} className={styles["list-sentinel"]} />
                 {isLoadingMore && <div className={styles["list-loading-more"]}>{t("loading")}</div>}

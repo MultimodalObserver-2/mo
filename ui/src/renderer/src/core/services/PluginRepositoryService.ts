@@ -33,6 +33,14 @@ export function latestRelease(releases: Release[]): Release | undefined {
   )
 }
 
+/** An installed plugin as sent to the repository's `/plugins/check-updates` endpoint. */
+export type InstalledPluginRef = {
+  /** `publisher.plugin`, matching the plugin's local `id`. */
+  slug: string
+  /** Installed version, `x.y.z`. */
+  version: string
+}
+
 export type SearchPluginsParams = {
   /** Free text query. The backend requires at least 2 characters; shorter values must be omitted. */
   query?: string
@@ -113,6 +121,23 @@ class PluginRepositoryService {
       params: { query, limit }
     })
     return response.data
+  }
+
+  /**
+   * Asks the repository whether any installed plugin has a higher-version release available.
+   * Purely informative: the response is a single boolean, with no per-plugin detail (which
+   * versions are outdated is intentionally not revealed). Returns `false` without a request
+   * when the list is empty.
+   *
+   * @param installed - Installed plugins as `{ slug: "publisher.plugin", version: "x.y.z" }`.
+   */
+  async checkUpdates(installed: InstalledPluginRef[]): Promise<boolean> {
+    if (installed.length === 0) return false
+    const response = await repositoryAxios.post<{ updates_available: boolean }>(
+      "/plugins/check-updates",
+      { plugins: installed }
+    )
+    return response.data.updates_available
   }
 
   async getBySlug(publisherSlug: string, pluginSlug: string): Promise<RepositoryPluginDetail> {

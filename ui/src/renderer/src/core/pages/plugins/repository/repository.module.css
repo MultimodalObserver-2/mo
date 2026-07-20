@@ -188,6 +188,24 @@
   color: var(--color-primary-400, #999);
 }
 
+/* Update indicator: red dot on a card whose latest release is newer than the installed one */
+.card-wrapper {
+  position: relative;
+  width: 100%;
+}
+
+.update-dot {
+  position: absolute;
+  top: 50%;
+  right: 12px;
+  transform: translateY(-50%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background-color: var(--color-red-500);
+  pointer-events: none;
+}
+
 /* Infinite scroll */
 .list-sentinel {
   height: 1px;
