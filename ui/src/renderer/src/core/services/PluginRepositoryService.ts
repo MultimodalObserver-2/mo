@@ -53,14 +53,6 @@ export type SearchPluginsParams = {
 
 type ReleaseAsset = RepositoryPluginDetail["releases"][number]["assets"][number]
 
-function parseRepoPath(repositoryUrl: string): string {
-  try {
-    return new URL(repositoryUrl).pathname.slice(1).replace(/\/$/, "")
-  } catch {
-    throw new Error(`Invalid repository URL: ${repositoryUrl}`)
-  }
-}
-
 function selectAssetForPlatform(
   assets: ReleaseAsset[],
   platform: string
@@ -173,27 +165,26 @@ class PluginRepositoryService {
 
   /**
    * Downloads the `release` asset matching the current platform and builds a zip `File`
-   * ready to be registered or used to update an installed plugin.
+   * ready to be registered or used to update an installed plugin. Uses the asset's direct
+   * `browser_download_url`, so it needs neither the repository URL nor the GitHub API.
    */
-  private async downloadReleaseFile(detail: RepositoryPluginDetail, release: Release): Promise<File> {
-    if (!detail.repository_url) {
-      throw new Error("Plugin has no repository URL")
-    }
-
+  private async downloadReleaseFile(release: Release): Promise<File> {
     const platform = window.core.app.platform
     const asset = selectAssetForPlatform(release.assets, platform)
     if (!asset) {
       throw new Error(`No compatible release found for your operating system (${platform})`)
     }
+    if (!asset.browser_download_url) {
+      throw new Error(`Asset "${asset.name}" has no download URL`)
+    }
 
-    const repoPath = parseRepoPath(detail.repository_url)
-    const arrayBuffer = await window.core.plugins.downloadAsset(asset.asset_github_id, repoPath)
+    const arrayBuffer = await window.core.plugins.downloadAsset(asset.browser_download_url)
     return new File([arrayBuffer], asset.name, { type: "application/zip" })
   }
 
   /** Installs a specific `release` of a plugin. */
-  async installPlugin(detail: RepositoryPluginDetail, release: Release): Promise<Plugin> {
-    const file = await this.downloadReleaseFile(detail, release)
+  async installPlugin(release: Release): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(release)
     return pluginService.register(file)
   }
 
@@ -203,12 +194,8 @@ class PluginRepositoryService {
    * touched (see the runtime-specific update paths). `release` need not be the latest: any
    * version other than the installed one can be selected from the detail view.
    */
-  async updatePlugin(
-    detail: RepositoryPluginDetail,
-    installed: Plugin,
-    release: Release
-  ): Promise<Plugin> {
-    const file = await this.downloadReleaseFile(detail, release)
+  async updatePlugin(installed: Plugin, release: Release): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(release)
     return pluginService.update(file, installed.id, installed.target)
   }
 }

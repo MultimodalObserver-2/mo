@@ -55,8 +55,8 @@ const core = {
     removeReloadPlugins: () => {
       ipcRenderer.removeAllListeners("core:on-reload-plugins")
     },
-    downloadAsset: (assetId: number, repoPath: string): Promise<ArrayBuffer> => {
-      return ipcRenderer.invoke("core:plugin:download-asset", assetId, repoPath)
+    downloadAsset: (url: string): Promise<ArrayBuffer> => {
+      return ipcRenderer.invoke("core:plugin:download-asset", url)
     }
   },
   app: {

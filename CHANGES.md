@@ -704,6 +704,8 @@ Cuatro agregados alrededor del versionado de plugins:
 
 Se apoyan en cambios del backend (otro sistema): el listado `/plugins/search` ahora devuelve `latest_release` por item, se agregó el endpoint `POST /plugins/check-updates`, y el router `/releases` expone el histórico completo por plugin.
 
+Además, aprovechando que el backend ahora incluye `browser_download_url` en cada asset, se **simplifica la descarga**: deja de usarse la REST API de GitHub (`api.github.com`) y se descarga directo desde esa URL. Es la única parte de la iteración que toca componentes externos (proceso main + preload).
+
 ### Archivos creados
 
 #### `ui/src/renderer/src/core/pages/plugins/repository/useCheckPluginUpdates.ts`
@@ -745,6 +747,13 @@ Se agregan `.card-wrapper` (relative, `width: 100%`) y `.update-dot` (círculo d
 - Nuevo método `getReleases(repositoryId)`: `GET /releases/repository/{repositoryId}`, devuelve `RepositoryRelease[]` (el histórico completo, sin el tope del detalle). `repositoryId` es el `_id` del plugin (= `repository_id` de un release).
 - `downloadReleaseFile`, `installPlugin` y `updatePlugin` pasan a recibir un **release específico** como parámetro, en vez de calcular siempre el latest internamente. Así se puede instalar/actualizar a cualquier versión elegida desde la lista. El botón del header sigue apuntando al latest, ahora calculándolo en el llamador.
 - Nuevo helper exportado `hasCompatibleAsset(release, platform)`: `true` si el release trae un asset para ese SO. Reusa `selectAssetForPlatform` (la misma lógica que ya elegía el asset a descargar), y sirve para habilitar/deshabilitar los botones de la vista de detalle.
+- **Descarga simplificada**: `downloadReleaseFile` pasa a usar `asset.browser_download_url` directo, por lo que **ya no depende de `detail.repository_url` ni del `asset_github_id`**. Se elimina `parseRepoPath` (quedó sin uso), y como `detail` ya no interviene en la descarga, `installPlugin` y `updatePlugin` pierden ese parámetro (`installPlugin(release)`, `updatePlugin(installed, release)`). Si el asset no trae `browser_download_url`, tira un error claro.
+
+#### `ui/src/main/core/plugins.ts` *(componente externo)*
+El handler IPC `core:plugin:download-asset` pasa a recibir una **URL** y la descarga directo, en vez de armar `https://api.github.com/repos/{repoPath}/releases/assets/{assetId}`. `downloadFromUrl` ya seguía las redirecciones 301/302, que es justo lo que hace `browser_download_url`: pega a `github.com/.../releases/download/{tag}/{archivo}`, recibe un 302 y baja el binario del host de almacenamiento de assets de GitHub. Sin auth (repos públicos), igual que antes.
+
+#### `ui/src/preload/core/index.ts` e `interface.ts` *(componente externo)*
+`downloadAsset` cambia de firma: `downloadAsset(url)` en vez de `downloadAsset(assetId, repoPath)`.
 
 #### `ui/src/renderer/src/app.tsx`
 Se invoca `useCheckPluginUpdates()` en el root, junto al efecto de navegación existente.
@@ -759,7 +768,7 @@ Se agrega `post` al mock del Axios instance y dos casos de `checkUpdates`: que p
 - **La comparación de versiones queda en dos lados**: el dot/botón del listado la hacen en el front con `compareVersions`; el aviso de arranque la delega al server vía `check-updates`. Se aceptó la duplicación. El contrato del endpoint fija comparación semver considerando todos los releases (sin filtrar por estado de revisión), alineado con la regla del dot, para que no se contradigan.
 - El dot está implementado **como prototipo dentro de `Repository.tsx`** (wrapper + CSS), no en `PluginCard`. Queda pendiente moverlo a un prop del componente compartido (`showUpdateBadge`) si se quiere reusar en otras vistas.
 - La guarda de deep link es la **variante simple** (chequeo de la ruta al resolver): suprime el modal tanto si se abrió por deep link como si el usuario ya está navegando el repositorio. Queda pendiente la variante estricta con un flag expuesto desde el main.
-- El asset ahora trae `browser_download_url`, pero `downloadReleaseFile` sigue reconstruyendo la URL de la GitHub API a partir de `repository_url` + `asset_github_id`. Simplificar la descarga usando la URL directa queda pendiente, fuera del alcance de esta iteración.
+- Con la descarga simplificada, **el destino lo dicta el dato del repositorio** (`browser_download_url`) en vez de derivarlo el app desde `repository_url` + `asset_github_id`. Para un repositorio confiable —que de todos modos es la fuente de verdad— está bien, pero es un cambio real de quién decide la URL de descarga. `asset_github_id` sigue existiendo en el tipo/UI (se usa como `key`), pero ya no interviene en la descarga.
 - El histórico de releases se trae con un **segundo request secuencial** (detalle → releases), porque el `repository_id` sale del `_id` que devuelve el detalle. El detalle se muestra apenas llega y los releases completos cargan detrás; como la pestaña por defecto es "description", normalmente el histórico ya está cuando el usuario abre "releases". Como efecto colateral, la lógica de latest/install ahora usa el set completo, lo que corrige el caso latente en que el detalle truncaba y dejaba afuera el release más nuevo.
 - El botón de instalar/actualizar por release toma **"distinta a la instalada → actualizar" de forma literal**: una versión menor a la instalada también ofrece "Update" y la reinstala (downgrade). No se distingue downgrade de upgrade; si se quisiera, sería un cambio de etiqueta/estado acotado.
 - Se **mantiene el botón del header** (instala el latest) además de los botones por release. Es redundante con el botón del latest en la lista; quitarlo, si se decide, es un cambio chico.

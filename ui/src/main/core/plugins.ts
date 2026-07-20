@@ -45,12 +45,8 @@ app.whenReady().then(() => {
     })
   })
 
-  ipcMain.handle(
-    "core:plugin:download-asset",
-    async (_event, assetId: number, repoPath: string) => {
-      const url = `https://api.github.com/repos/${repoPath}/releases/assets/${assetId}`
-      const buffer = await downloadFromUrl(url)
-      return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
-    }
-  )
+  ipcMain.handle("core:plugin:download-asset", async (_event, url: string) => {
+    const buffer = await downloadFromUrl(url)
+    return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+  })
 })

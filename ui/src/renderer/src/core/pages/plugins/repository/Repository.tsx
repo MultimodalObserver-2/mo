@@ -235,8 +235,8 @@ export default function Repository() {
     setInstallingRelease(release.name)
     try {
       const plugin = installed
-        ? await pluginRepositoryService.updatePlugin(detail, installed, release)
-        : await pluginRepositoryService.installPlugin(detail, release)
+        ? await pluginRepositoryService.updatePlugin(installed, release)
+        : await pluginRepositoryService.installPlugin(release)
       setInstalledPlugins((prev) => new Map(prev).set(plugin.id, plugin))
       if (plugin.is_loaded) {
         window.core.dialog.showMessageBox({

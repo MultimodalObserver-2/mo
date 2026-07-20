@@ -127,12 +127,11 @@ export default interface CoreAPI {
     removeReloadPlugins: () => void
 
     /**
-     * Downloads a GitHub release asset via the main process (bypasses CORS).
-     * @param assetId - The GitHub asset ID.
-     * @param repoPath - The repository path in "owner/repo" format.
+     * Downloads a release asset via the main process (bypasses CORS), following redirects.
+     * @param url - The asset's direct download URL (`browser_download_url`).
      * @returns Promise resolving to the file content as ArrayBuffer.
      */
-    downloadAsset: (assetId: number, repoPath: string) => Promise<ArrayBuffer>
+    downloadAsset: (url: string) => Promise<ArrayBuffer>
   }
 
   /**
