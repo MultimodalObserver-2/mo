@@ -3,6 +3,7 @@ import {
   PluginCategory,
   RepositoryPluginDetail,
   RepositoryPluginsPage,
+  RepositoryRelease,
   RepositoryTag
 } from "../types/RepositoryPlugin"
 import repositoryAxios from "../lib/repositoryAxios"
@@ -71,6 +72,15 @@ function selectAssetForPlatform(
   }
   const candidates = platformMap[platform] ?? [platform]
   return assets.find((a) => candidates.some((c) => a.so.toLowerCase().includes(c)))
+}
+
+/**
+ * Whether `release` ships an asset for `platform`, i.e. whether it can actually be
+ * downloaded and installed on this machine. Used to enable/disable the per-release
+ * install/update action in the detail view.
+ */
+export function hasCompatibleAsset(release: Release, platform: string): boolean {
+  return selectAssetForPlatform(release.assets, platform) !== undefined
 }
 
 class PluginRepositoryService {
@@ -148,17 +158,26 @@ class PluginRepositoryService {
   }
 
   /**
-   * Downloads the asset of the latest release matching the current platform and builds
-   * a zip `File` ready to be registered or used to update an installed plugin.
+   * Lists every release of a plugin from the dedicated `/releases` router, keyed by the
+   * plugin's repository id (`_id`). Unlike the `releases` array embedded in the plugin
+   * detail, this is not capped, so it is the source for the full release history.
+   *
+   * @param repositoryId - The plugin's `_id` (a release's `repository_id`).
    */
-  private async downloadReleaseFile(detail: RepositoryPluginDetail): Promise<File> {
+  async getReleases(repositoryId: string): Promise<RepositoryRelease[]> {
+    const response = await repositoryAxios.get<RepositoryRelease[]>(
+      `/releases/repository/${repositoryId}`
+    )
+    return response.data
+  }
+
+  /**
+   * Downloads the `release` asset matching the current platform and builds a zip `File`
+   * ready to be registered or used to update an installed plugin.
+   */
+  private async downloadReleaseFile(detail: RepositoryPluginDetail, release: Release): Promise<File> {
     if (!detail.repository_url) {
       throw new Error("Plugin has no repository URL")
-    }
-
-    const release = latestRelease(detail.releases)
-    if (!release) {
-      throw new Error("No releases available for this plugin")
     }
 
     const platform = window.core.app.platform
@@ -172,18 +191,24 @@ class PluginRepositoryService {
     return new File([arrayBuffer], asset.name, { type: "application/zip" })
   }
 
-  async installPlugin(detail: RepositoryPluginDetail): Promise<Plugin> {
-    const file = await this.downloadReleaseFile(detail)
+  /** Installs a specific `release` of a plugin. */
+  async installPlugin(detail: RepositoryPluginDetail, release: Release): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(detail, release)
     return pluginService.register(file)
   }
 
   /**
-   * Atomically replaces an already installed plugin with the latest release from the
-   * repository, keeping the same final ID. The download and validation happen before the
-   * old plugin is touched (see the runtime-specific update paths).
+   * Atomically replaces an already installed plugin with a specific `release` from the
+   * repository, keeping the same final ID. The download happens before the old plugin is
+   * touched (see the runtime-specific update paths). `release` need not be the latest: any
+   * version other than the installed one can be selected from the detail view.
    */
-  async updatePlugin(detail: RepositoryPluginDetail, installed: Plugin): Promise<Plugin> {
-    const file = await this.downloadReleaseFile(detail)
+  async updatePlugin(
+    detail: RepositoryPluginDetail,
+    installed: Plugin,
+    release: Release
+  ): Promise<Plugin> {
+    const file = await this.downloadReleaseFile(detail, release)
     return pluginService.update(file, installed.id, installed.target)
   }
 }

@@ -4,7 +4,8 @@ import { useMatch, useNavigate } from "react-router"
 import {
   PluginCategory,
   RepositoryPlugin,
-  RepositoryPluginDetail
+  RepositoryPluginDetail,
+  RepositoryRelease
 } from "@renderer/core/types/RepositoryPlugin"
 import pluginRepositoryService, {
   latestRelease
@@ -57,10 +58,14 @@ export default function Repository() {
   const [isLoadingList, setIsLoadingList] = useState(true)
   const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
+  const [isLoadingReleases, setIsLoadingReleases] = useState(false)
   const [listError, setListError] = useState(false)
   const [installedPlugins, setInstalledPlugins] = useState<Map<string, Plugin>>(new Map())
   const [activeTab, setActiveTab] = useState<DetailTab>("description")
-  const [isInstalling, setIsInstalling] = useState(false)
+  // Name (version) of the release currently being installed, or null when idle. A single
+  // in-flight install at a time: this both flags global busy-ness and marks which button spins.
+  const [installingRelease, setInstallingRelease] = useState<string | null>(null)
+  const isInstalling = installingRelease !== null
 
   // Monotonic counter to discard responses from superseded requests (e.g. a stale
   // search resolving after the user already typed a newer query).
@@ -166,39 +171,72 @@ export default function Repository() {
     const publisherSlug = selectedSlug.substring(0, dotIndex)
     const slug = selectedSlug.substring(dotIndex + 1)
 
+    // Guards against a slower response landing after the user selected another plugin.
+    let cancelled = false
     setDetail(null)
     setActiveTab("description")
     setIsLoadingDetail(true)
+    setIsLoadingReleases(true)
+
     pluginRepositoryService
       .getBySlug(publisherSlug, slug)
-      .then(setDetail)
-      .catch(() => setDetail(null))
-      .finally(() => setIsLoadingDetail(false))
+      .then((d) => {
+        if (cancelled) return
+        setDetail(d)
+        // The detail's own `releases` is capped; replace it with the full history from the
+        // dedicated `/releases` endpoint. Everything downstream (release list, latest-release
+        // and install/update logic) then reads the complete set from `detail.releases`.
+        pluginRepositoryService
+          .getReleases(d._id)
+          .then((releases) => {
+            if (!cancelled) setDetail((prev) => (prev ? { ...prev, releases } : prev))
+          })
+          .catch(() => {
+            // Keep the detail's capped releases if the full fetch fails.
+          })
+          .finally(() => {
+            if (!cancelled) setIsLoadingReleases(false)
+          })
+      })
+      .catch(() => {
+        if (!cancelled) {
+          setDetail(null)
+          setIsLoadingReleases(false)
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setIsLoadingDetail(false)
+      })
+
+    return () => {
+      cancelled = true
+    }
   }, [selectedSlug])
 
   const handleSelect = (plugin: RepositoryPlugin) => {
     navigate(`/plugins/repository/${plugin.publisher_slug}.${plugin.slug}`)
   }
 
-  const handleInstall = async () => {
-    if (!detail) return
+  // Installs (or updates to) a specific `release`. `release` need not be the latest: any
+  // version other than the installed one can be picked from the releases list.
+  const handleInstallRelease = async (release: RepositoryRelease) => {
+    if (!detail || isInstalling) return
     const installed = installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)
     const isUpdate = installed !== undefined
     const title = isUpdate ? t("updateTitle") : t("installTitle")
 
     // Warn before installing/updating to a release that the repository has not validated.
-    const release = latestRelease(detail.releases)
-    if (release && release.status !== "approved") {
+    if (release.status !== "approved") {
       const acceptId = 0
       const response = await showUnvalidatedPluginMessage(detail.name, acceptId)
       if (response.response !== acceptId) return
     }
 
-    setIsInstalling(true)
+    setInstallingRelease(release.name)
     try {
       const plugin = installed
-        ? await pluginRepositoryService.updatePlugin(detail, installed)
-        : await pluginRepositoryService.installPlugin(detail)
+        ? await pluginRepositoryService.updatePlugin(detail, installed, release)
+        : await pluginRepositoryService.installPlugin(detail, release)
       setInstalledPlugins((prev) => new Map(prev).set(plugin.id, plugin))
       if (plugin.is_loaded) {
         window.core.dialog.showMessageBox({
@@ -224,8 +262,16 @@ export default function Repository() {
         message: getApiErrorMessage(error)
       })
     } finally {
-      setIsInstalling(false)
+      setInstallingRelease(null)
     }
+  }
+
+  // The header button installs/updates to the latest release; the per-release buttons in the
+  // list target a specific version.
+  const handleInstallLatest = () => {
+    if (!detail) return
+    const latest = latestRelease(detail.releases)
+    if (latest) handleInstallRelease(latest)
   }
 
   // Derives the button state for a plugin: "update" when the repository has a strictly
@@ -322,7 +368,10 @@ export default function Repository() {
                 installedPlugins.get(`${detail.publisher_slug}.${detail.slug}`)?.version
               }
               isInstalling={isInstalling}
-              onInstall={handleInstall}
+              installingReleaseName={installingRelease}
+              isLoadingReleases={isLoadingReleases}
+              onInstall={handleInstallLatest}
+              onInstallRelease={handleInstallRelease}
             />
           ) : null}
         </div>

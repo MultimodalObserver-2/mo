@@ -39,6 +39,13 @@ describe("repository endpoint URLs", () => {
     expect(requestedUrl()).toBe("http://localhost:8001/api/v1/plugins/acme.recorder")
   })
 
+  it("lists a plugin's releases under the /releases router", async () => {
+    await pluginRepositoryService.getReleases("6a4de43bc791f8c59c771467")
+    expect(requestedUrl()).toBe(
+      "http://localhost:8001/api/v1/releases/repository/6a4de43bc791f8c59c771467"
+    )
+  })
+
   it("lists tags as a sibling of /plugins, not below it", async () => {
     await pluginRepositoryService.listTags()
     expect(requestedUrl()).toBe("http://localhost:8001/api/v1/tags")

@@ -451,6 +451,12 @@
   gap: 10px;
 }
 
+/* Pushes the per-release install/update action to the right edge of the row. */
+.release-action {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
 .release-name {
   font-weight: 600;
   font-size: 0.95em;

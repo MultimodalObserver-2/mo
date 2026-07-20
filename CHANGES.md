@@ -693,14 +693,16 @@ Se simplifica el mock: como `repositoryAxios` ahora solo exporta la instancia, y
 
 ---
 
-## Decimocuarta iteración — Indicador de actualización en el listado y aviso al abrir la app
+## Decimocuarta iteración — Indicador de actualización, aviso al abrir la app y listado completo de releases
 
-Dos agregados que informan al usuario, sin acción automática, sobre plugins instalados con una versión nueva disponible:
+Cuatro agregados alrededor del versionado de plugins:
 
 1. Un **círculo rojo** a la derecha de cada card del listado del repositorio cuando la última versión disponible es mayor a la instalada.
 2. Una **notificación al abrir la app** si existe al menos un plugin instalado con actualización. Es meramente informativa: no indica qué plugins ni qué versiones.
+3. En la vista de detalle, el **listado completo de releases** deja de salir del detalle (que viene limitado) y pasa a traerse del endpoint dedicado `/releases/repository/{repository_id}`.
+4. En ese listado, un **botón de instalar/actualizar por release**: instala/actualiza a esa versión puntual (no solo a la última), habilitado únicamente si el release trae un asset para el SO actual.
 
-Ambos se apoyan en cambios del backend (otro sistema): el listado `/plugins/search` ahora devuelve `latest_release` por item, y se agregó el endpoint `POST /plugins/check-updates`.
+Se apoyan en cambios del backend (otro sistema): el listado `/plugins/search` ahora devuelve `latest_release` por item, se agregó el endpoint `POST /plugins/check-updates`, y el router `/releases` expone el histórico completo por plugin.
 
 ### Archivos creados
 
@@ -723,25 +725,41 @@ Decisiones:
 #### `ui/src/renderer/src/core/pages/plugins/repository/Repository.tsx`
 - Helper `hasUpdate(plugin)`: hay update si el plugin está instalado y `compareVersions(latest_release.name, installed.version) > 0`. Es la misma regla que la rama `"update"` de `installStateFor`, pero leyendo `latest_release` porque en el listado `releases` está vacío.
 - Cada `PluginCard` se envuelve en un `<div className="card-wrapper">` que renderiza el dot condicional. **No se tocó `PluginCard`** (componente compartido por Installed, capture y visualization): el indicador se resuelve desde la página con un wrapper y CSS.
+- El efecto de carga del detalle, tras `getBySlug`, dispara `getReleases(detail._id)` y **mergea el histórico completo en `detail.releases`** (`setDetail(prev => ({ ...prev, releases }))`). Al reemplazar ahí la lista, todo lo que ya leía `detail.releases` (la pestaña de releases, `latestRelease(...)` y la lógica de install/update/descarga) pasa a usar el set completo sin tocar el servicio de instalación. Se agrega un flag `cancelled` en el cleanup del efecto para que una respuesta lenta no pise el detalle de otro plugin, y un estado `isLoadingReleases`. Si el fetch completo falla, se conservan los releases (limitados) del detalle como fallback.
+- `handleInstall` se generaliza a `handleInstallRelease(release)`: instala/actualiza al release recibido (con el warning de release no aprobado sobre **ese** release) en vez de asumir el latest. `handleInstallLatest()` envuelve el caso del botón del header (calcula `latestRelease` y delega). El estado `isInstalling` (booleano) se reemplaza por `installingRelease` (nombre de la versión en curso): permite un solo install a la vez, marca qué botón gira y deshabilita el resto; `isInstalling` queda como derivado (`installingRelease !== null`).
+
+#### `ui/src/renderer/src/core/pages/plugins/repository/PluginDetailView.tsx`
+- Nuevo prop `isLoadingReleases`: la pestaña de releases muestra estado de carga mientras llega el histórico completo del endpoint dedicado.
+- Nuevos props `installingReleaseName` y `onInstallRelease`. Cada fila del listado de releases suma un **botón de acción**:
+  - **No instalado** → todas las versiones muestran "Install".
+  - **Instalado** → la versión instalada muestra "Installed" (deshabilitada); **todas las demás muestran "Update"** (regla "distinta a la instalada → actualizar", incluye downgrades).
+  - El botón se **habilita solo si el release tiene asset para el SO actual** (`hasCompatibleAsset(release, window.core.app.platform)`); si no, queda deshabilitado con tooltip `noAssetForOs`. El spinner aparece solo en el release que se está instalando (`installingReleaseName === release.name`), el resto se deshabilita mientras tanto.
+- **El botón del header** (arriba a la derecha, junto al ícono de la web) pasa a validar el SO igual que los de la lista: se computa `latestRelease(detail.releases)` y su `hasCompatibleAsset`, y el botón se deshabilita (con el mismo tooltip) si el latest no trae asset para el SO. Su `isLoading` pasó de `isInstalling` (global) a `installingReleaseName === latestVersion`, para que gire solo cuando se instala el latest y no cuando se instala una versión puntual desde la lista.
 
 #### `ui/src/renderer/src/core/pages/plugins/repository/repository.module.css`
-Se agregan `.card-wrapper` (relative, `width: 100%`) y `.update-dot` (círculo de 9px, `var(--color-red-500)`, `pointer-events: none` para no interceptar el click de la card). No rompe hover/selección: esas reglas usan selectores descendientes (`.plugins.selectable .plugin`), así que el wrapper intermedio no las corta.
+Se agregan `.card-wrapper` (relative, `width: 100%`) y `.update-dot` (círculo de 9px, `var(--color-red-500)`, `pointer-events: none` para no interceptar el click de la card). No rompe hover/selección: esas reglas usan selectores descendientes (`.plugins.selectable .plugin`), así que el wrapper intermedio no las corta. Se agrega `.release-action` (`margin-left: auto`) para empujar el botón de cada release al borde derecho de su fila.
 
 #### `ui/src/renderer/src/core/services/PluginRepositoryService.ts`
 - Nuevo tipo `InstalledPluginRef` (`{ slug, version }`).
 - Nuevo método `checkUpdates(installed)`: `POST /plugins/check-updates` con `{ plugins: [...] }`, devuelve `updates_available`. Con **lista vacía no hace request y devuelve `false`** (resuelve la regla "lista vacía → false" del lado del cliente, evitando un round-trip).
+- Nuevo método `getReleases(repositoryId)`: `GET /releases/repository/{repositoryId}`, devuelve `RepositoryRelease[]` (el histórico completo, sin el tope del detalle). `repositoryId` es el `_id` del plugin (= `repository_id` de un release).
+- `downloadReleaseFile`, `installPlugin` y `updatePlugin` pasan a recibir un **release específico** como parámetro, en vez de calcular siempre el latest internamente. Así se puede instalar/actualizar a cualquier versión elegida desde la lista. El botón del header sigue apuntando al latest, ahora calculándolo en el llamador.
+- Nuevo helper exportado `hasCompatibleAsset(release, platform)`: `true` si el release trae un asset para ese SO. Reusa `selectAssetForPlatform` (la misma lógica que ya elegía el asset a descargar), y sirve para habilitar/deshabilitar los botones de la vista de detalle.
 
 #### `ui/src/renderer/src/app.tsx`
 Se invoca `useCheckPluginUpdates()` en el root, junto al efecto de navegación existente.
 
 #### `ui/resources/locales/en/core.json` y `ui/resources/locales/es/core.json`
-Se agregan `pages.pluginRepository.updatesAvailableTitle` y `updatesAvailableMessage`, el título y el texto genérico del modal (sin nombres ni versiones).
+Se agregan `pages.pluginRepository.updatesAvailableTitle` y `updatesAvailableMessage`, el título y el texto genérico del modal (sin nombres ni versiones), y `noAssetForOs`, el tooltip del botón deshabilitado cuando el release no tiene versión para el SO actual.
 
 #### `ui/tests/unit/PluginRepositoryEndpoints.test.ts`
-Se agrega `post` al mock del Axios instance y dos casos de `checkUpdates`: que postea a la URL resuelta correcta (`/api/v1/plugins/check-updates`) con el body esperado, y que con lista vacía no hace request y devuelve `false`.
+Se agrega `post` al mock del Axios instance y dos casos de `checkUpdates`: que postea a la URL resuelta correcta (`/api/v1/plugins/check-updates`) con el body esperado, y que con lista vacía no hace request y devuelve `false`. Se agrega también un caso de `getReleases` (URL resuelta bajo `/api/v1/releases/repository/{id}`).
 
 ### Alcance
 - **La comparación de versiones queda en dos lados**: el dot/botón del listado la hacen en el front con `compareVersions`; el aviso de arranque la delega al server vía `check-updates`. Se aceptó la duplicación. El contrato del endpoint fija comparación semver considerando todos los releases (sin filtrar por estado de revisión), alineado con la regla del dot, para que no se contradigan.
 - El dot está implementado **como prototipo dentro de `Repository.tsx`** (wrapper + CSS), no en `PluginCard`. Queda pendiente moverlo a un prop del componente compartido (`showUpdateBadge`) si se quiere reusar en otras vistas.
 - La guarda de deep link es la **variante simple** (chequeo de la ruta al resolver): suprime el modal tanto si se abrió por deep link como si el usuario ya está navegando el repositorio. Queda pendiente la variante estricta con un flag expuesto desde el main.
 - El asset ahora trae `browser_download_url`, pero `downloadReleaseFile` sigue reconstruyendo la URL de la GitHub API a partir de `repository_url` + `asset_github_id`. Simplificar la descarga usando la URL directa queda pendiente, fuera del alcance de esta iteración.
+- El histórico de releases se trae con un **segundo request secuencial** (detalle → releases), porque el `repository_id` sale del `_id` que devuelve el detalle. El detalle se muestra apenas llega y los releases completos cargan detrás; como la pestaña por defecto es "description", normalmente el histórico ya está cuando el usuario abre "releases". Como efecto colateral, la lógica de latest/install ahora usa el set completo, lo que corrige el caso latente en que el detalle truncaba y dejaba afuera el release más nuevo.
+- El botón de instalar/actualizar por release toma **"distinta a la instalada → actualizar" de forma literal**: una versión menor a la instalada también ofrece "Update" y la reinstala (downgrade). No se distingue downgrade de upgrade; si se quisiera, sería un cambio de etiqueta/estado acotado.
+- Se **mantiene el botón del header** (instala el latest) además de los botones por release. Es redundante con el botón del latest en la lista; quitarlo, si se decide, es un cambio chico.

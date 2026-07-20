@@ -1,8 +1,12 @@
-import { RepositoryPluginDetail } from "@renderer/core/types/RepositoryPlugin"
+import { RepositoryPluginDetail, RepositoryRelease } from "@renderer/core/types/RepositoryPlugin"
 import Button from "@renderer/core/components/button/Button"
 import Markdown from "@renderer/core/components/markdown/Markdown"
 import BrowserExploreIcon from "@renderer/core/components/icons/BrowserExploreIcon"
-import { buildPluginWebUrl } from "@renderer/core/services/PluginRepositoryService"
+import {
+  buildPluginWebUrl,
+  hasCompatibleAsset,
+  latestRelease
+} from "@renderer/core/services/PluginRepositoryService"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
 
@@ -22,7 +26,12 @@ interface PluginDetailViewProps {
   latestVersion?: string
   installedVersion?: string
   isInstalling: boolean
+  /** Name (version) of the release currently installing, to spin only that button. */
+  installingReleaseName?: string | null
+  isLoadingReleases?: boolean
   onInstall: () => void
+  /** Installs/updates to a specific release picked from the releases list. */
+  onInstallRelease: (release: RepositoryRelease) => void
 }
 
 export default function PluginDetailView({
@@ -34,8 +43,16 @@ export default function PluginDetailView({
   latestVersion,
   installedVersion,
   isInstalling,
-  onInstall
+  installingReleaseName,
+  isLoadingReleases = false,
+  onInstall,
+  onInstallRelease
 }: PluginDetailViewProps) {
+  const platform = window.core.app.platform
+  // The header button targets the latest release, so it can only install/update when that
+  // release ships an asset for this OS.
+  const latest = latestRelease(detail.releases)
+  const latestCompatible = latest !== undefined && hasCompatibleAsset(latest, platform)
   const buttonLabel =
     installState === "installed"
       ? t("installed")
@@ -128,10 +145,12 @@ export default function PluginDetailView({
         </div>
         <div className={styles["detail-actions"]}>
           <Button
-            title={buttonHint}
+            title={
+              installState !== "installed" && !latestCompatible ? t("noAssetForOs") : buttonHint
+            }
             styleType={installState === "installed" ? "soft" : "default"}
-            disabled={installState === "installed" || isInstalling}
-            isLoading={isInstalling}
+            disabled={installState === "installed" || isInstalling || !latestCompatible}
+            isLoading={installingReleaseName === latestVersion}
             onClick={onInstall}
           >
             {buttonLabel}
@@ -161,26 +180,51 @@ export default function PluginDetailView({
           ) : (
             <p className={styles["detail-placeholder"]}>{t("noDescription")}</p>
           )
+        ) : isLoadingReleases ? (
+          <p className={styles["detail-placeholder"]}>{t("loading")}</p>
         ) : detail.releases.length === 0 ? (
           <p className={styles["detail-placeholder"]}>{t("noReleases")}</p>
         ) : (
           <div className={styles.releases}>
-            {detail.releases.map((release) => (
-              <div key={release._id} className={styles.release}>
-                <div className={styles["release-header"]}>
-                  <span className={styles["release-name"]}>{release.name}</span>
-                  <span className={styles["release-status"]}>{release.status}</span>
+            {detail.releases.map((release) => {
+              // A plugin is installed at exactly one version; that release is the current one.
+              const isCurrent =
+                installedVersion !== undefined && release.name === installedVersion
+              // Any other version can be switched to; without an installed version it's a fresh
+              // install. Either action is only possible if the release ships an asset for this OS.
+              const compatible = hasCompatibleAsset(release, platform)
+              const label = isCurrent
+                ? t("installed")
+                : installedVersion === undefined
+                  ? t("install")
+                  : t("update")
+              return (
+                <div key={release._id ?? release.name} className={styles.release}>
+                  <div className={styles["release-header"]}>
+                    <span className={styles["release-name"]}>{release.name}</span>
+                    <span className={styles["release-status"]}>{release.status}</span>
+                    <Button
+                      className={styles["release-action"]}
+                      styleType={isCurrent ? "soft" : "default"}
+                      disabled={isCurrent || !compatible || isInstalling}
+                      isLoading={installingReleaseName === release.name}
+                      title={!isCurrent && !compatible ? t("noAssetForOs") : undefined}
+                      onClick={() => onInstallRelease(release)}
+                    >
+                      {label}
+                    </Button>
+                  </div>
+                  <div className={styles.assets}>
+                    {release.assets.map((asset) => (
+                      <div key={asset.asset_github_id} className={styles.asset}>
+                        <span className={styles["asset-so"]}>{asset.so}</span>
+                        <span className={styles["asset-name"]}>{asset.name}</span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
-                <div className={styles.assets}>
-                  {release.assets.map((asset) => (
-                    <div key={asset.asset_github_id} className={styles.asset}>
-                      <span className={styles["asset-so"]}>{asset.so}</span>
-                      <span className={styles["asset-name"]}>{asset.name}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         )}
       </div>
