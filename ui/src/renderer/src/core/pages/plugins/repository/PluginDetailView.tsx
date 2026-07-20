@@ -7,6 +7,7 @@ import {
   hasCompatibleAsset,
   latestRelease
 } from "@renderer/core/services/PluginRepositoryService"
+import { compareVersions } from "@renderer/core/utils/compareVersions"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
 
@@ -186,45 +187,48 @@ export default function PluginDetailView({
           <p className={styles["detail-placeholder"]}>{t("noReleases")}</p>
         ) : (
           <div className={styles.releases}>
-            {detail.releases.map((release) => {
-              // A plugin is installed at exactly one version; that release is the current one.
-              const isCurrent =
-                installedVersion !== undefined && release.name === installedVersion
-              // Any other version can be switched to; without an installed version it's a fresh
-              // install. Either action is only possible if the release ships an asset for this OS.
-              const compatible = hasCompatibleAsset(release, platform)
-              const label = isCurrent
-                ? t("installed")
-                : installedVersion === undefined
-                  ? t("install")
-                  : t("update")
-              return (
-                <div key={release._id ?? release.name} className={styles.release}>
-                  <div className={styles["release-header"]}>
-                    <span className={styles["release-name"]}>{release.name}</span>
-                    <span className={styles["release-status"]}>{release.status}</span>
-                    <Button
-                      className={styles["release-action"]}
-                      styleType={isCurrent ? "soft" : "default"}
-                      disabled={isCurrent || !compatible || isInstalling}
-                      isLoading={installingReleaseName === release.name}
-                      title={!isCurrent && !compatible ? t("noAssetForOs") : undefined}
-                      onClick={() => onInstallRelease(release)}
-                    >
-                      {label}
-                    </Button>
+            {/* Copy before sorting: `sort` mutates in place and `detail.releases` is state. */}
+            {[...detail.releases]
+              .sort((a, b) => compareVersions(b.name, a.name))
+              .map((release) => {
+                // A plugin is installed at exactly one version; that release is the current one.
+                const isCurrent =
+                  installedVersion !== undefined && release.name === installedVersion
+                // Any other version can be switched to; without an installed version it's a fresh
+                // install. Either action is only possible if the release ships an asset for this OS.
+                const compatible = hasCompatibleAsset(release, platform)
+                const label = isCurrent
+                  ? t("installed")
+                  : installedVersion === undefined
+                    ? t("install")
+                    : t("update")
+                return (
+                  <div key={release._id ?? release.name} className={styles.release}>
+                    <div className={styles["release-header"]}>
+                      <span className={styles["release-name"]}>{release.name}</span>
+                      <span className={styles["release-status"]}>{release.status}</span>
+                      <Button
+                        className={styles["release-action"]}
+                        styleType={isCurrent ? "soft" : "default"}
+                        disabled={isCurrent || !compatible || isInstalling}
+                        isLoading={installingReleaseName === release.name}
+                        title={!isCurrent && !compatible ? t("noAssetForOs") : undefined}
+                        onClick={() => onInstallRelease(release)}
+                      >
+                        {label}
+                      </Button>
+                    </div>
+                    <div className={styles.assets}>
+                      {release.assets.map((asset) => (
+                        <div key={asset.asset_github_id} className={styles.asset}>
+                          <span className={styles["asset-so"]}>{asset.so}</span>
+                          <span className={styles["asset-name"]}>{asset.name}</span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                  <div className={styles.assets}>
-                    {release.assets.map((asset) => (
-                      <div key={asset.asset_github_id} className={styles.asset}>
-                        <span className={styles["asset-so"]}>{asset.so}</span>
-                        <span className={styles["asset-name"]}>{asset.name}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              )
-            })}
+                )
+              })}
           </div>
         )}
       </div>
