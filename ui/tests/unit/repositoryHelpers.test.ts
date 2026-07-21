@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   isNewerRelease,
+  parseSlug,
   pluginKey
 } from "../../src/renderer/src/core/pages/plugins/repository/repositoryHelpers"
 import { RepositoryRelease } from "../../src/renderer/src/core/types/RepositoryPlugin"
@@ -39,5 +40,22 @@ describe("pluginKey", () => {
     expect(pluginKey({ publisher_slug: "interaction-lab", slug: "keyboard-capture" })).toBe(
       "interaction-lab.keyboard-capture"
     )
+  })
+})
+
+describe("parseSlug", () => {
+  it("splits a route slug on the first dot", () => {
+    expect(parseSlug("interaction-lab.keyboard-capture")).toEqual({
+      publisherSlug: "interaction-lab",
+      pluginSlug: "keyboard-capture"
+    })
+  })
+
+  it("round-trips with pluginKey", () => {
+    const parts = { publisher_slug: "acme", slug: "recorder" }
+    expect(parseSlug(pluginKey(parts))).toEqual({
+      publisherSlug: "acme",
+      pluginSlug: "recorder"
+    })
   })
 })

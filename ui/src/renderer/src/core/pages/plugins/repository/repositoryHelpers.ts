@@ -16,6 +16,18 @@ export function pluginKey(plugin: { publisher_slug: string; slug?: string }): st
 }
 
 /**
+ * Splits a route slug (`{publisher}.{plugin}`) into its parts. The first dot separates the
+ * publisher from the plugin slug (which itself never contains a dot).
+ */
+export function parseSlug(routeSlug: string): { publisherSlug: string; pluginSlug: string } {
+  const dotIndex = routeSlug.indexOf(".")
+  return {
+    publisherSlug: routeSlug.substring(0, dotIndex),
+    pluginSlug: routeSlug.substring(dotIndex + 1)
+  }
+}
+
+/**
  * Whether `release` is a strictly higher semantic version than `installedVersion`.
  * A missing release (`null`/`undefined`) is never newer.
  *

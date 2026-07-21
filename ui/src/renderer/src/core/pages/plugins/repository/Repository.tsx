@@ -16,7 +16,7 @@ import {
   getApiErrorMessage,
   showUnvalidatedPluginMessage
 } from "@renderer/core/utils/dialogMessages"
-import { isNewerRelease, pluginKey } from "./repositoryHelpers"
+import { isNewerRelease, parseSlug, pluginKey } from "./repositoryHelpers"
 import {
   PluginCard,
   PluginDisplay,
@@ -167,9 +167,7 @@ export default function Repository() {
       setDetail(null)
       return
     }
-    const dotIndex = selectedSlug.indexOf(".")
-    const publisherSlug = selectedSlug.substring(0, dotIndex)
-    const slug = selectedSlug.substring(dotIndex + 1)
+    const { publisherSlug, pluginSlug } = parseSlug(selectedSlug)
 
     // Guards against a slower response landing after the user selected another plugin.
     let cancelled = false
@@ -179,7 +177,7 @@ export default function Repository() {
     setIsLoadingReleases(true)
 
     pluginRepositoryService
-      .getBySlug(publisherSlug, slug)
+      .getBySlug(publisherSlug, pluginSlug)
       .then((d) => {
         if (cancelled) return
         setDetail(d)
