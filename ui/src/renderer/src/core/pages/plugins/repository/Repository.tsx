@@ -1,23 +1,11 @@
-import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMatch, useNavigate } from "react-router"
-import {
-  RepositoryPlugin,
-  RepositoryPluginDetail,
-  RepositoryRelease
-} from "@renderer/core/types/RepositoryPlugin"
-import pluginRepositoryService, {
-  latestRelease
-} from "@renderer/core/services/PluginRepositoryService"
-import pluginService from "@renderer/core/services/PluginService"
-import { Plugin } from "@renderer/core/types/Plugin"
-import {
-  getApiErrorMessage,
-  showUnvalidatedPluginMessage
-} from "@renderer/core/utils/dialogMessages"
-import { isNewerRelease, pluginKey } from "./repositoryHelpers"
+import { RepositoryPlugin } from "@renderer/core/types/RepositoryPlugin"
+import { latestRelease } from "@renderer/core/services/PluginRepositoryService"
+import { pluginKey } from "./repositoryHelpers"
 import usePluginSearch from "./usePluginSearch"
 import usePluginDetail from "./usePluginDetail"
+import useInstalledPlugins from "./useInstalledPlugins"
 import {
   PluginCard,
   PluginDisplay,
@@ -27,8 +15,6 @@ import PluginDetailView from "./PluginDetailView"
 import RepositoryFilters from "./RepositoryFilters"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
-
-type InstallState = "install" | "update" | "installed"
 
 export default function Repository() {
   const { t } = useTranslation("core", { keyPrefix: "pages.pluginRepository" })
@@ -53,98 +39,18 @@ export default function Repository() {
   const { detail, isLoadingDetail, isLoadingReleases, activeTab, setActiveTab } =
     usePluginDetail(selectedSlug)
 
-  const [installedPlugins, setInstalledPlugins] = useState<Map<string, Plugin>>(new Map())
-  // Name (version) of the release currently being installed, or null when idle. A single
-  // in-flight install at a time: this both flags global busy-ness and marks which button spins.
-  const [installingRelease, setInstallingRelease] = useState<string | null>(null)
-  const isInstalling = installingRelease !== null
-
-  // Load the set of already-installed plugins (local, independent of the repository client).
-  useEffect(() => {
-    pluginService
-      .getAll()
-      .then((installed) => setInstalledPlugins(new Map(installed.map((p) => [p.id, p]))))
-      .catch(() => {
-        // Leave the installed set empty; the repository list still renders.
-      })
-  }, [])
+  const {
+    installedPlugins,
+    installingRelease,
+    isInstalling,
+    installRelease,
+    installLatest,
+    installStateFor,
+    hasUpdate
+  } = useInstalledPlugins()
 
   const handleSelect = (plugin: RepositoryPlugin) => {
     navigate(`/plugins/repository/${pluginKey(plugin)}`)
-  }
-
-  // Installs (or updates to) a specific `release`. `release` need not be the latest: any
-  // version other than the installed one can be picked from the releases list.
-  const handleInstallRelease = async (release: RepositoryRelease) => {
-    if (!detail || isInstalling) return
-    const installed = installedPlugins.get(pluginKey(detail))
-    const isUpdate = installed !== undefined
-    const title = isUpdate ? t("updateTitle") : t("installTitle")
-
-    // Warn before installing/updating to a release that the repository has not validated.
-    if (release.status !== "approved") {
-      const acceptId = 0
-      const response = await showUnvalidatedPluginMessage(detail.name, acceptId)
-      if (response.response !== acceptId) return
-    }
-
-    setInstallingRelease(release.name)
-    try {
-      const plugin = installed
-        ? await pluginRepositoryService.updatePlugin(installed, release)
-        : await pluginRepositoryService.installPlugin(release)
-      setInstalledPlugins((prev) => new Map(prev).set(plugin.id, plugin))
-      if (plugin.is_loaded) {
-        window.core.dialog.showMessageBox({
-          type: "info",
-          title,
-          message: isUpdate
-            ? t("updatedSuccessfully", { name: plugin.name, version: plugin.version })
-            : t("installedSuccessfully", { name: plugin.name })
-        })
-      } else {
-        window.core.dialog.showMessageBox({
-          type: "warning",
-          title,
-          message: isUpdate
-            ? t("updatedButFailed", { error: plugin.error })
-            : t("installedButFailed", { error: plugin.error })
-        })
-      }
-    } catch (error) {
-      window.core.dialog.showMessageBox({
-        type: "error",
-        title,
-        message: getApiErrorMessage(error)
-      })
-    } finally {
-      setInstallingRelease(null)
-    }
-  }
-
-  // The header button installs/updates to the latest release; the per-release buttons in the
-  // list target a specific version.
-  const handleInstallLatest = () => {
-    if (!detail) return
-    const latest = latestRelease(detail.releases)
-    if (latest) handleInstallRelease(latest)
-  }
-
-  // Derives the button state for a plugin: "update" when the repository has a strictly
-  // higher version than the installed one, "installed" when it is up to date (or newer),
-  // and "install" when it is not installed at all.
-  const installStateFor = (d: RepositoryPluginDetail): InstallState => {
-    const installed = installedPlugins.get(pluginKey(d))
-    if (!installed) return "install"
-    return isNewerRelease(latestRelease(d.releases), installed.version) ? "update" : "installed"
-  }
-
-  // Whether a list item has a newer release than the installed version. Reads `latest_release`
-  // (the `releases` array is empty in listings) and shares `isNewerRelease` with
-  // `installStateFor`, so the list dot and the detail button cannot disagree.
-  const hasUpdate = (plugin: RepositoryPlugin): boolean => {
-    const installed = installedPlugins.get(pluginKey(plugin))
-    return installed !== undefined && isNewerRelease(plugin.latest_release, installed.version)
   }
 
   return (
@@ -219,8 +125,8 @@ export default function Repository() {
               isInstalling={isInstalling}
               installingReleaseName={installingRelease}
               isLoadingReleases={isLoadingReleases}
-              onInstall={handleInstallLatest}
-              onInstallRelease={handleInstallRelease}
+              onInstall={() => installLatest(detail)}
+              onInstallRelease={(release) => installRelease(detail, release)}
             />
           ) : null}
         </div>
