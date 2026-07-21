@@ -15,8 +15,9 @@ import {
   getApiErrorMessage,
   showUnvalidatedPluginMessage
 } from "@renderer/core/utils/dialogMessages"
-import { isNewerRelease, parseSlug, pluginKey } from "./repositoryHelpers"
+import { isNewerRelease, pluginKey } from "./repositoryHelpers"
 import usePluginSearch from "./usePluginSearch"
+import usePluginDetail from "./usePluginDetail"
 import {
   PluginCard,
   PluginDisplay,
@@ -26,8 +27,6 @@ import PluginDetailView from "./PluginDetailView"
 import RepositoryFilters from "./RepositoryFilters"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
 import styles from "./repository.module.css"
-
-type DetailTab = "description" | "releases"
 
 type InstallState = "install" | "update" | "installed"
 
@@ -51,11 +50,10 @@ export default function Repository() {
     setSelectedTags
   } = usePluginSearch()
 
-  const [detail, setDetail] = useState<RepositoryPluginDetail | null>(null)
-  const [isLoadingDetail, setIsLoadingDetail] = useState(false)
-  const [isLoadingReleases, setIsLoadingReleases] = useState(false)
+  const { detail, isLoadingDetail, isLoadingReleases, activeTab, setActiveTab } =
+    usePluginDetail(selectedSlug)
+
   const [installedPlugins, setInstalledPlugins] = useState<Map<string, Plugin>>(new Map())
-  const [activeTab, setActiveTab] = useState<DetailTab>("description")
   // Name (version) of the release currently being installed, or null when idle. A single
   // in-flight install at a time: this both flags global busy-ness and marks which button spins.
   const [installingRelease, setInstallingRelease] = useState<string | null>(null)
@@ -70,55 +68,6 @@ export default function Repository() {
         // Leave the installed set empty; the repository list still renders.
       })
   }, [])
-
-  useEffect(() => {
-    if (!selectedSlug) {
-      setDetail(null)
-      return
-    }
-    const { publisherSlug, pluginSlug } = parseSlug(selectedSlug)
-
-    // Guards against a slower response landing after the user selected another plugin.
-    let cancelled = false
-    setDetail(null)
-    setActiveTab("description")
-    setIsLoadingDetail(true)
-    setIsLoadingReleases(true)
-
-    pluginRepositoryService
-      .getBySlug(publisherSlug, pluginSlug)
-      .then((d) => {
-        if (cancelled) return
-        setDetail(d)
-        // The detail's own `releases` is capped; replace it with the full history from the
-        // dedicated `/releases` endpoint. Everything downstream (release list, latest-release
-        // and install/update logic) then reads the complete set from `detail.releases`.
-        pluginRepositoryService
-          .getReleases(d._id)
-          .then((releases) => {
-            if (!cancelled) setDetail((prev) => (prev ? { ...prev, releases } : prev))
-          })
-          .catch(() => {
-            // Keep the detail's capped releases if the full fetch fails.
-          })
-          .finally(() => {
-            if (!cancelled) setIsLoadingReleases(false)
-          })
-      })
-      .catch(() => {
-        if (!cancelled) {
-          setDetail(null)
-          setIsLoadingReleases(false)
-        }
-      })
-      .finally(() => {
-        if (!cancelled) setIsLoadingDetail(false)
-      })
-
-    return () => {
-      cancelled = true
-    }
-  }, [selectedSlug])
 
   const handleSelect = (plugin: RepositoryPlugin) => {
     navigate(`/plugins/repository/${pluginKey(plugin)}`)
