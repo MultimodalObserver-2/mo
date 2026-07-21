@@ -1,8 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { useTranslation } from "react-i18next"
 import { useMatch, useNavigate } from "react-router"
 import {
-  PluginCategory,
   RepositoryPlugin,
   RepositoryPluginDetail,
   RepositoryRelease
@@ -17,6 +16,7 @@ import {
   showUnvalidatedPluginMessage
 } from "@renderer/core/utils/dialogMessages"
 import { isNewerRelease, parseSlug, pluginKey } from "./repositoryHelpers"
+import usePluginSearch from "./usePluginSearch"
 import {
   PluginCard,
   PluginDisplay,
@@ -31,35 +31,29 @@ type DetailTab = "description" | "releases"
 
 type InstallState = "install" | "update" | "installed"
 
-type SearchFilters = {
-  query?: string
-  category?: PluginCategory
-  tags: string[]
-}
-
-const PER_PAGE = 20
-const SEARCH_DEBOUNCE_MS = 1000
-
 export default function Repository() {
   const { t } = useTranslation("core", { keyPrefix: "pages.pluginRepository" })
   const navigate = useNavigate()
   const match = useMatch("/plugins/repository/:pluginSlug")
   const selectedSlug = match?.params.pluginSlug ?? null
 
-  const [plugins, setPlugins] = useState<RepositoryPlugin[]>([])
+  const {
+    plugins,
+    isLoadingList,
+    isLoadingMore,
+    listError,
+    sentinelRef,
+    searchQuery,
+    setSearchQuery,
+    category,
+    setCategory,
+    selectedTags,
+    setSelectedTags
+  } = usePluginSearch()
+
   const [detail, setDetail] = useState<RepositoryPluginDetail | null>(null)
-  const [searchQuery, setSearchQuery] = useState("")
-  const [debouncedQuery, setDebouncedQuery] = useState("")
-  const [category, setCategory] = useState<PluginCategory | undefined>(undefined)
-  const [selectedTags, setSelectedTags] = useState<string[]>([])
-  const [isReady, setIsReady] = useState(false)
-  const [page, setPage] = useState(1)
-  const [totalPages, setTotalPages] = useState(1)
-  const [isLoadingList, setIsLoadingList] = useState(true)
-  const [isLoadingMore, setIsLoadingMore] = useState(false)
   const [isLoadingDetail, setIsLoadingDetail] = useState(false)
   const [isLoadingReleases, setIsLoadingReleases] = useState(false)
-  const [listError, setListError] = useState(false)
   const [installedPlugins, setInstalledPlugins] = useState<Map<string, Plugin>>(new Map())
   const [activeTab, setActiveTab] = useState<DetailTab>("description")
   // Name (version) of the release currently being installed, or null when idle. A single
@@ -67,100 +61,15 @@ export default function Repository() {
   const [installingRelease, setInstallingRelease] = useState<string | null>(null)
   const isInstalling = installingRelease !== null
 
-  // Monotonic counter to discard responses from superseded requests (e.g. a stale
-  // search resolving after the user already typed a newer query).
-  const requestSeq = useRef(0)
-  const sentinelRef = useRef<HTMLDivElement | null>(null)
-
-  // Fetches one page from the `/search` endpoint. `append` adds the results to the
-  // current list (infinite scroll); otherwise it replaces them (new search / first load).
-  const fetchPage = useCallback(
-    async (filters: SearchFilters, pageToLoad: number, append: boolean) => {
-      const seq = ++requestSeq.current
-      if (append) setIsLoadingMore(true)
-      else setIsLoadingList(true)
-      setListError(false)
-      try {
-        const result = await pluginRepositoryService.search({
-          query: filters.query,
-          category: filters.category,
-          tags: filters.tags,
-          page: pageToLoad,
-          perPage: PER_PAGE
-        })
-        if (seq !== requestSeq.current) return // a newer request superseded this one
-        setPlugins((prev) => (append ? [...prev, ...result.items] : result.items))
-        setPage(result.page)
-        setTotalPages(result.total_pages)
-      } catch {
-        if (seq === requestSeq.current) setListError(true)
-      } finally {
-        if (append) setIsLoadingMore(false)
-        else if (seq === requestSeq.current) setIsLoadingList(false)
-      }
-    },
-    []
-  )
-
-  // Builds the active filter set. The backend requires text queries of at least 2
-  // characters; shorter input is omitted so all plugins are listed.
-  const buildFilters = useCallback((): SearchFilters => {
-    const trimmed = debouncedQuery.trim()
-    return {
-      query: trimmed.length >= 2 ? trimmed : undefined,
-      category,
-      tags: selectedTags
-    }
-  }, [debouncedQuery, category, selectedTags])
-
-  // Initialize the repository client (resolves the configured base URL) and load the
-  // set of already-installed plugins. Searching is enabled only once this completes.
+  // Load the set of already-installed plugins (local, independent of the repository client).
   useEffect(() => {
-    pluginRepositoryService
-      .initialize()
-      .then(() => {
-        setIsReady(true)
-        return pluginService
-          .getAll()
-          .then((installed) => setInstalledPlugins(new Map(installed.map((p) => [p.id, p]))))
-      })
+    pluginService
+      .getAll()
+      .then((installed) => setInstalledPlugins(new Map(installed.map((p) => [p.id, p]))))
       .catch(() => {
-        setListError(true)
-        setIsLoadingList(false)
+        // Leave the installed set empty; the repository list still renders.
       })
   }, [])
-
-  // Debounce only the free-text query; category and tag changes apply immediately.
-  useEffect(() => {
-    const handle = setTimeout(() => setDebouncedQuery(searchQuery), SEARCH_DEBOUNCE_MS)
-    return () => clearTimeout(handle)
-  }, [searchQuery])
-
-  // (Re)load the first page whenever the active filters change. Replaces the list and
-  // resets pagination.
-  useEffect(() => {
-    if (!isReady) return
-    fetchPage(buildFilters(), 1, false)
-  }, [isReady, buildFilters, fetchPage])
-
-  // Infinite scroll: load the next page when the sentinel at the bottom of the list
-  // becomes visible, until there are no more pages.
-  useEffect(() => {
-    const sentinel = sentinelRef.current
-    if (!sentinel || page >= totalPages) return
-
-    const root = document.getElementById("plugin-display-list")
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (entries[0].isIntersecting && !isLoadingList && !isLoadingMore) {
-          fetchPage(buildFilters(), page + 1, true)
-        }
-      },
-      { root, rootMargin: "120px" }
-    )
-    observer.observe(sentinel)
-    return () => observer.disconnect()
-  }, [page, totalPages, isLoadingList, isLoadingMore, buildFilters, fetchPage])
 
   useEffect(() => {
     if (!selectedSlug) {
@@ -357,9 +266,7 @@ export default function Repository() {
               t={t}
               installState={installStateFor(detail)}
               latestVersion={latestRelease(detail.releases)?.name}
-              installedVersion={
-                installedPlugins.get(pluginKey(detail))?.version
-              }
+              installedVersion={installedPlugins.get(pluginKey(detail))?.version}
               isInstalling={isInstalling}
               installingReleaseName={installingRelease}
               isLoadingReleases={isLoadingReleases}
