@@ -206,7 +206,9 @@ export default function PluginDetailView({
                   <div key={release._id ?? release.name} className={styles.release}>
                     <div className={styles["release-header"]}>
                       <span className={styles["release-name"]}>{release.name}</span>
-                      <span className={styles["release-status"]}>{release.status}</span>
+                      <span className={styles["release-status"]}>
+                        {release.status && t(`status.${release.status}`)}
+                      </span>
                       <Button
                         className={styles["release-action"]}
                         styleType={isCurrent ? "soft" : "default"}
