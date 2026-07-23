@@ -1,0 +1,7 @@
+{
+  "client": {
+    "already_connected": "Already connected to a server. Disconnect first.",
+    "connection_failed": "Could not connect to the server. Check IP and port.",
+    "not_connected": "Not connected to any server."
+  }
+}

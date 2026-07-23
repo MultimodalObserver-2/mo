@@ -1,0 +1,65 @@
+.page {
+  display: flex;
+  height: 100vh;
+  gap: 0;
+  overflow: hidden;
+  background: var(--color-background);
+}
+
+.sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  border-right: 1px solid var(--color-gray-200);
+  padding: 16px;
+  overflow-y: auto;
+  overflow-x: hidden;
+  background: white;
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: white;
+}
+
+.tabs {
+  display: flex;
+  border-bottom: 1px solid var(--color-gray-200);
+  padding: 0 16px;
+  background: white;
+  flex-shrink: 0;
+}
+
+.tab {
+  padding: 10px 20px;
+  border: none;
+  background: transparent;
+  font-size: 0.82em;
+  font-weight: 600;
+  cursor: pointer;
+  color: var(--color-gray-400);
+  border-bottom: 2px solid transparent;
+  margin-bottom: -1px;
+  font-family: inherit;
+}
+
+.tab:hover {
+  color: var(--color-primary-500);
+}
+
+.tabActive {
+  color: var(--color-primary-500);
+  border-bottom-color: var(--color-primary-500);
+}
+
+.tabContent {
+  flex: 1;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}

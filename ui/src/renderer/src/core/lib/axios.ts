@@ -16,6 +16,8 @@ try {
 
 const BASE_URL = `http://localhost:${API_PORT}/`
 
+export { API_PORT }
+
 export default axios.create({
   baseURL: BASE_URL,
   headers: {

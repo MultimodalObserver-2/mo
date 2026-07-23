@@ -1,0 +1,77 @@
+.server-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  padding: 16px;
+  border-bottom: 1px solid var(--color-gray-200);
+}
+
+.title {
+  font-size: 0.75em;
+  font-weight: 700;
+  margin: 0;
+  color: var(--color-gray-500);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.port-row {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 0.78em;
+  font-weight: 600;
+  color: var(--color-gray-600);
+  overflow: hidden;
+  gap: 8px;
+}
+
+.label-text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  min-width: 0;
+}
+
+.input {
+  padding: 4px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--color-gray-200);
+  background: var(--color-gray-25);
+  color: var(--color-text-dark);
+  font-size: 0.88em;
+  width: 80px;
+  outline: none;
+  font-family: inherit;
+  text-align: right;
+}
+
+.input:focus {
+  border-color: var(--color-primary-400);
+}
+
+.info-row {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  font-size: 0.8em;
+  color: var(--color-gray-600);
+}
+
+.info-row strong {
+  color: var(--color-text-dark);
+  font-weight: 600;
+}
+
+.button {
+  align-self: stretch;
+  font-size: 0.82em !important;
+  font-weight: 700 !important;
+}

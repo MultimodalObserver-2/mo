@@ -14,6 +14,8 @@
  */
 
 import "./core/assets/main.css"
+import React from "react"
+import ReactDOM from "react-dom"
 
 import { StrictMode } from "react"
 import { createRoot } from "react-dom/client"
@@ -25,6 +27,11 @@ import { registerAll } from "./registrations"
 import pluginManager from "./core/plugin/PluginManager"
 import "./utils/i18n"
 import "./utils/dummy_keep_exports"
+
+// @ts-ignore
+window.React = React
+// @ts-ignore
+window.ReactDOM = ReactDOM
 
 registerAll()
 await pluginManager.loadAllPlugins()

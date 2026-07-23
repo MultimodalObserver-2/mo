@@ -1,0 +1,7 @@
+{
+  "client": {
+    "already_connected": "Ya está conectado a un servidor. Desconéctese primero.",
+    "connection_failed": "No se pudo conectar al servidor. Verifique IP y puerto.",
+    "not_connected": "No está conectado a ningún servidor."
+  }
+}

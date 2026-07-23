@@ -1,0 +1,32 @@
+{
+  "panel": {
+    "title": "Connect to Server",
+    "ip": "Server IP",
+    "port": "Port (1002–9999)",
+    "username": "Username",
+    "connect": "Connect",
+    "connecting": "Connecting...",
+    "disconnect": "Disconnect",
+    "connected": "Connected",
+    "user": "User",
+    "udpActive": "UDP Streaming active",
+    "plugins": "Capture plugins"
+  },
+  "chat": {
+    "placeholder": "Type a message and press Enter...",
+    "notConnected": "Connect to a server to start chatting",
+    "send": "Send"
+  },
+  "notes": {
+    "empty": "No notes yet. Click 'New Note' to start.",
+    "placeholder": "Write your note...",
+    "newNote": "+ New Note",
+    "send": "Save Note",
+    "sending": "Saving...",
+    "cancel": "Cancel"
+  },
+  "page": {
+    "chat": "Chat",
+    "notes": "Notes"
+  }
+}

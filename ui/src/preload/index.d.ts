@@ -11,5 +11,8 @@ declare global {
     organization: OrganizationAPI
     capture: CaptureAPI
     visualization: VisualizationAPI
+    process: {
+      env: NodeJS.ProcessEnv
+    }
   }
 }

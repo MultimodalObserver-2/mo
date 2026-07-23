@@ -6,7 +6,7 @@ import SettingsIcon from "../icons/SettingsIcon"
 import { useSelector } from "react-redux"
 import { selectMainUrl } from "@renderer/core/store/mainUrlSlice"
 import HelpIcon from "../icons/HelpIcon"
-
+import CaptivePortalIcon from "../icons/CaptivePortalIcon"
 /**
  * A static layout component that renders the main application sidebar.
  * It includes navigation links for primary features and utility sections.
@@ -21,6 +21,7 @@ export default function Sidebar() {
       <section className={styles.features}>
         <SidebarItem testid="sidebar-main-link" path={mainUrl} Icon={StacksIcon} />
         <SidebarItem testid="sidebar-plugins-link" path="/plugins" Icon={ExtensionIcon} />
+        <SidebarItem testid="sidebar-communication-link" path="/communication" Icon={CaptivePortalIcon} />
       </section>
       <section className={styles.utils}>
         <SidebarItem

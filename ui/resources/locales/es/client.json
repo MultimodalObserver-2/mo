@@ -1,0 +1,32 @@
+{
+  "panel": {
+    "title": "Conectar al Servidor",
+    "ip": "IP del Servidor",
+    "port": "Puerto (1002–9999)",
+    "username": "Nombre de usuario",
+    "connect": "Conectar",
+    "connecting": "Conectando...",
+    "disconnect": "Desconectar",
+    "connected": "Conectado",
+    "user": "Usuario",
+    "udpActive": "Streaming UDP activo",
+    "plugins": "Plugins de captura"
+  },
+  "chat": {
+    "placeholder": "Escribe un mensaje y presiona Enter...",
+    "notConnected": "Conéctate a un servidor para chatear",
+    "send": "Enviar"
+  },
+  "notes": {
+    "empty": "Sin notas aún. Haz clic en 'Nueva Nota' para comenzar.",
+    "placeholder": "Escribe tu nota...",
+    "newNote": "+ Nueva Nota",
+    "send": "Guardar Nota",
+    "sending": "Guardando...",
+    "cancel": "Cancelar"
+  },
+  "page": {
+    "chat": "Chat",
+    "notes": "Notas"
+  }
+}

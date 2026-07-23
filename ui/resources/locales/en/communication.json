@@ -1,0 +1,34 @@
+{
+  "components": {
+    "serverPanel": {
+      "title": "Server",
+      "portTcp": "TCP Port",
+      "portUdp": "UDP Port",
+      "localIp": "Local IP",
+      "clients": "Connected clients",
+      "start": "Start server",
+      "stop": "Stop server"
+    },
+    "clientList": {
+      "title": "Clients",
+      "noClients": "No clients connected",
+      "streaming": "Streaming"
+    },
+    "chatPanel": {
+      "title": "Chat",
+      "noMessages": "No messages yet",
+      "placeholder": "Type a message and press Enter…",
+      "serverOffline": "Start the server to send messages",
+      "send": "Send"
+    },
+    "notesPanel": {
+      "title": "Remote Notes",
+      "noNotes": "No notes received yet"
+    }
+  },
+  "pages": {
+    "communication": {
+      "title": "Communication"
+    }
+  }
+}

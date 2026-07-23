@@ -1,0 +1,7 @@
+{
+  "alreadyOnline": "The communication server is already online.",
+  "notOnline": "The communication server is not online.",
+  "serverStarted": "Communication server started.",
+  "serverStopped": "Communication server stopped.",
+  "portInUse": "Port {port} is already in use. Choose a different port or close the process using it."
+}
