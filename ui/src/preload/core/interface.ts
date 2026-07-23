@@ -125,6 +125,13 @@ export default interface CoreAPI {
      * Removes the reload plugins event listener.
      */
     removeReloadPlugins: () => void
+
+    /**
+     * Downloads a release asset via the main process (bypasses CORS), following redirects.
+     * @param url - The asset's direct download URL (`browser_download_url`).
+     * @returns Promise resolving to the file content as ArrayBuffer.
+     */
+    downloadAsset: (url: string) => Promise<ArrayBuffer>
   }
 
   /**
@@ -145,6 +152,8 @@ export default interface CoreAPI {
       locales: () => Promise<string>
     }
     version: () => Promise<string>
+    /** The current OS platform (e.g. "win32", "darwin", "linux"). */
+    platform: string
   }
 
   /**
@@ -277,6 +286,13 @@ export default interface CoreAPI {
      * @returns Unsubscribe function.
      */
     onNavigate: (callback: (path: string, options?: NavigateOptions) => void) => () => void
+
+    /**
+     * Signals to the main process that the renderer has mounted and is ready
+     * to receive navigation events. Used to flush queued deep-links once the
+     * final renderer (not the splash) is online.
+     */
+    notifyReady: () => void
   }
 
   /**
@@ -288,7 +304,7 @@ export default interface CoreAPI {
      * @param key - The preference key.
      * @returns The preference value or undefined if not set.
      */
-    get: <T = unknown>(key: string) => T | undefined
+    get: <T = unknown>(key: string) => Promise<T | undefined>
 
     /**
      * Sets a preference value by key.

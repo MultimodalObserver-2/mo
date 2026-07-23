@@ -14,7 +14,11 @@ export function showUnexpectedErrorMessage() {
   )
 }
 
-export function showApiErrorMessage(error: unknown) {
+/**
+ * Extracts a human-readable message from an error, preferring the API error detail
+ * (`error.response.data.detail`) returned by the backend over the generic Axios message.
+ */
+export function getApiErrorMessage(error: unknown): string {
   let errorMessage = "An unexpected error occurred"
   if (error instanceof AxiosError && error.response?.data.detail) {
     if (typeof error.response.data.detail === "string") {
@@ -25,7 +29,11 @@ export function showApiErrorMessage(error: unknown) {
   } else if (error instanceof Error) {
     errorMessage = error.message
   }
-  window.core.dialog.showErrorBox("Error", errorMessage)
+  return errorMessage
+}
+
+export function showApiErrorMessage(error: unknown) {
+  window.core.dialog.showErrorBox("Error", getApiErrorMessage(error))
 }
 
 export function showLockedErrorMessage(action: string, item: string) {
@@ -33,6 +41,25 @@ export function showLockedErrorMessage(action: string, item: string) {
     t("errors.locked.title", "Locked"),
     t("errors.locked.description", { action, item })
   )
+}
+
+/**
+ * Asks the user to confirm installing/updating a plugin whose release has not been
+ * validated (approved) by the repository. Returns the message box result so the caller
+ * can abort when the user does not accept.
+ */
+export async function showUnvalidatedPluginMessage(pluginName: string, acceptId: number) {
+  const buttons = [t("buttons.accept"), t("buttons.cancel")]
+  const options: Electron.MessageBoxOptions = {
+    title: t("unvalidatedPlugin.title", "Unvalidated plugin"),
+    message: t("unvalidatedPlugin.message", { pluginName }),
+    type: "warning",
+    buttons: buttons,
+    defaultId: acceptId,
+    noLink: true
+  }
+
+  return await window.core.dialog.showMessageBox(options)
 }
 
 export async function showDeletePluginMessage(

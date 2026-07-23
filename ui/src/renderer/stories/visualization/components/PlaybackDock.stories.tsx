@@ -24,7 +24,8 @@ window.core = {
     },
     version: function (): Promise<string> {
       return Promise.resolve("1.0.0")
-    }
+    },
+    platform: "win32"
   }
 }
 

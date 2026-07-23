@@ -54,6 +54,9 @@ const core = {
     },
     removeReloadPlugins: () => {
       ipcRenderer.removeAllListeners("core:on-reload-plugins")
+    },
+    downloadAsset: (url: string): Promise<ArrayBuffer> => {
+      return ipcRenderer.invoke("core:plugin:download-asset", url)
     }
   },
   app: {
@@ -67,7 +70,8 @@ const core = {
     },
     version: () => {
       return ipcRenderer.invoke("core:app:version")
-    }
+    },
+    platform: process.platform
   },
   zip: {
     extract: (
@@ -123,6 +127,9 @@ const core = {
       return () => {
         ipcRenderer.removeListener("core:router:on-navigate", listener)
       }
+    },
+    notifyReady: () => {
+      ipcRenderer.send("core:router:ready")
     }
   },
   preferences: {

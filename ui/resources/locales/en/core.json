@@ -31,12 +31,70 @@
       },
       "options": {
         "title": "Options"
+      },
+      "repository": {
+        "title": "Plugin Repository",
+        "save": "Save",
+        "saved": "Saved!",
+        "reset": "Reset to default"
       }
     },
     "plugins": {
       "installed": "Installed",
       "register": "Register",
-      "available": "Available"
+      "available": "Available",
+      "repository": "Plugin Repository"
+    },
+    "pluginRepository": {
+      "searchPlaceholder": "Search plugins...",
+      "loading": "Loading plugins...",
+      "noResults": "No plugins found",
+      "connectionError": "Could not connect to the repository.",
+      "connectionErrorHint": "Check the URL in Settings.",
+      "install": "Install",
+      "installed": "Installed",
+      "update": "Update",
+      "installHint": "Install {{name}} {{version}}",
+      "updateHint": "Update {{name}} to {{version}}",
+      "installedHint": "Plugin {{name}} {{version}} is already installed",
+      "openInWebHint": "View {{name}} on the web repository",
+      "noAssetForOs": "No version available for your operating system",
+      "updatesAvailableTitle": "Plugin updates",
+      "updatesAvailableMessage": "Updates are available for your plugins.",
+      "selectPlugin": "Select a plugin to see its details",
+      "fieldModule": "Module",
+      "fieldRepository": "Repository",
+      "fieldAuthor": "Author",
+      "fieldVersion": "Latest version",
+      "fieldPublisher": "Publisher",
+      "fieldType": "Type",
+      "fieldCategory": "Category",
+      "allCategories": "All categories",
+      "tagsPlaceholder": "Filter by tags...",
+      "removeTag": "Remove tag",
+      "category": {
+        "capture": "Capture",
+        "visualization": "Visualization",
+        "analysis": "Analysis",
+        "browser": "Browser"
+      },
+      "status": {
+        "no_releases": "No releases",
+        "under_review": "Under review",
+        "approved": "Approved"
+      },
+      "noReviews": "No reviews yet",
+      "backToList": "Back to plugins",
+      "tabDescription": "Description",
+      "tabReleases": "Releases",
+      "noDescription": "No description available",
+      "noReleases": "No releases available",
+      "installTitle": "Plugin Installation",
+      "updateTitle": "Plugin Update",
+      "installedSuccessfully": "Plugin {{name}} installed successfully",
+      "updatedSuccessfully": "Plugin {{name}} updated to {{version}} successfully",
+      "installedButFailed": "Plugin installed but failed to load: {{error}}",
+      "updatedButFailed": "Plugin updated but failed to load: {{error}}"
     },
     "loading": {
       "message": "Loading the app, please wait..."
@@ -110,6 +168,10 @@
         "title": "Delete Plugin",
         "message": "Are you sure you want to delete the plugin {{pluginName}} (v{{pluginVersion}} \nfrom the publisher {{pluginPublisher}})? This action cannot be undone."
       }
+    },
+    "unvalidatedPlugin": {
+      "title": "Unvalidated plugin",
+      "message": "The plugin {{pluginName}} has not been validated by the repository yet. Installing unvalidated plugins can be risky. Do you want to continue?"
     },
     "buttons": {
       "accept": "Accept",

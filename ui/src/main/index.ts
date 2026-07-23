@@ -1,5 +1,5 @@
 import { app, shell, BrowserWindow, screen } from "electron"
-import { join } from "path"
+import path, { join } from "path"
 import { electronApp, optimizer, is } from "@electron-toolkit/utils"
 import icon from "../../resources/icon.png?asset"
 import { ChildProcess } from "child_process"
@@ -11,11 +11,84 @@ import preferencesManager from "./core/preferences/PreferencesManager"
 import { initI18n } from "./core/i18n/i18n"
 import { runApi, waitForApiReady } from "./core/runApi"
 
+const DEEP_LINK_PROTOCOL = "mo"
+
 let forceQuit = false
 let apiProcess: ChildProcess | null = null
 let apiPort: number | null = null
 let mainWindow: BrowserWindow | null = null
 let systemTray: SystemTray | null = null
+let pendingDeepLinkPath: string | null = null
+let rendererReady = false
+let argvDeepLinkProcessed = false
+
+const gotSingleInstanceLock = app.requestSingleInstanceLock()
+if (!gotSingleInstanceLock) {
+  app.quit()
+} else {
+  if (process.defaultApp && process.argv.length >= 2) {
+    app.setAsDefaultProtocolClient(DEEP_LINK_PROTOCOL, process.execPath, [
+      path.resolve(process.argv[1])
+    ])
+  } else {
+    app.setAsDefaultProtocolClient(DEEP_LINK_PROTOCOL)
+  }
+}
+
+function parseDeepLink(rawUrl: string): string | null {
+  let url: URL
+  try {
+    url = new URL(rawUrl)
+  } catch {
+    return null
+  }
+  if (url.protocol !== `${DEEP_LINK_PROTOCOL}:`) return null
+
+  const segments = `${url.host}${url.pathname}`.split("/").filter(Boolean)
+  if (segments[0] !== "plugins" || segments[1] !== "repository" || !segments[2]) {
+    return null
+  }
+  const slug = segments[2]
+  if (!/^[a-z0-9_-]+\.[a-z0-9_-]+$/i.test(slug)) return null
+
+  return `/plugins/repository/${slug}`
+}
+
+function dispatchDeepLink(targetPath: string): void {
+  const win = mainWindow
+  if (!win || !rendererReady) {
+    pendingDeepLinkPath = targetPath
+    return
+  }
+  if (win.isMinimized()) win.restore()
+  if (!win.isVisible()) win.show()
+  win.focus()
+  win.webContents.send("core:router:on-navigate", targetPath)
+}
+
+function flushPendingDeepLink(): void {
+  if (!pendingDeepLinkPath || !rendererReady) return
+  const queued = pendingDeepLinkPath
+  pendingDeepLinkPath = null
+  dispatchDeepLink(queued)
+}
+
+function handleArgvForDeepLink(argv: string[]): void {
+  const urlArg = argv.find((a) => a.startsWith(`${DEEP_LINK_PROTOCOL}://`))
+  if (!urlArg) return
+  const targetPath = parseDeepLink(urlArg)
+  if (targetPath) dispatchDeepLink(targetPath)
+}
+
+app.on("open-url", (event, url) => {
+  event.preventDefault()
+  const targetPath = parseDeepLink(url)
+  if (targetPath) dispatchDeepLink(targetPath)
+})
+
+app.on("second-instance", (_event, argv) => {
+  handleArgvForDeepLink(argv)
+})
 
 function createWindow(): BrowserWindow {
   const { width: screenWidth, height: screenHeight } = screen.getPrimaryDisplay().workAreaSize
@@ -52,6 +125,10 @@ function createWindow(): BrowserWindow {
     if (windowState?.maximized) {
       mainWindow.maximize()
     }
+  })
+
+  mainWindow.webContents.on("did-start-loading", () => {
+    rendererReady = false
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
@@ -212,4 +289,18 @@ export function getSystemTray(): SystemTray | null {
 
 export function setForceQuit(value: boolean): void {
   forceQuit = value
+}
+
+export function onRendererReady(): void {
+  const win = mainWindow
+  if (!win) return
+  const url = win.webContents.getURL()
+  if (url.includes("#/loading") || url.includes("#/error")) return
+
+  rendererReady = true
+  if (!argvDeepLinkProcessed) {
+    argvDeepLinkProcessed = true
+    handleArgvForDeepLink(process.argv)
+  }
+  flushPendingDeepLink()
 }

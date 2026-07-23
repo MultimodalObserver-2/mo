@@ -24,6 +24,29 @@ async def add_plugin(file: UploadFile, service: PluginService = Depends()):
     return await service.add_plugin(file)
 
 
+@plugin_router.put(
+    "/{final_id}",
+    response_model=PluginRes,
+    summary="Update an installed plugin from a zip file",
+    description="Upload a zip file containing a newer release of an already installed "
+    "plugin to atomically replace it, keeping the same final ID.",
+    status_code=status.HTTP_200_OK,
+    response_model_exclude_none=True,
+    responses={
+        400: {
+            "description": "Invalid file format or plugin update error",
+        },
+        404: {
+            "description": "Plugin not found",
+        },
+    },
+)
+async def update_plugin(
+    final_id: str, file: UploadFile, service: PluginService = Depends()
+):
+    return await service.update_plugin(final_id, file)
+
+
 @plugin_router.get(
     "/",
     response_model=list[PluginRes],

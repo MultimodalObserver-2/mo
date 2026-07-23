@@ -2,5 +2,7 @@
   "fileMustBeZip": "File must be a zip archive.",
   "failedToAddPlugin": "Failed to add plugin '%{file_name}'.\nError: %{error}",
   "pluginNotFound": "Plugin '%{final_id}' not found.",
-  "failedToRemovePlugin": "Failed to remove plugin '%{final_id}'.\nError: %{error}"
+  "failedToRemovePlugin": "Failed to remove plugin '%{final_id}'.\nError: %{error}",
+  "failedToUpdatePlugin": "Failed to update plugin '%{final_id}'.\nError: %{error}",
+  "pluginIdMismatch": "The uploaded plugin '%{actual}' does not match the plugin being updated '%{expected}'."
 }

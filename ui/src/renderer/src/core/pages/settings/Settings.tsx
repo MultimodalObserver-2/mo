@@ -3,6 +3,7 @@ import HotkeysSettings from "./hotkeys/HotkeysSettings"
 import Options from "./options/Options"
 import styles from "./settings.module.css"
 import LanguageSetting from "./language/LanguageSetting"
+import RepositorySettings from "./repository/RepositorySettings"
 
 export default function SettingsPage() {
   const { t } = useTranslation("core", { keyPrefix: "pages.settings" })
@@ -13,6 +14,7 @@ export default function SettingsPage() {
       <section className={styles.settings}>
         <LanguageSetting />
         <Options />
+        <RepositorySettings />
         <HotkeysSettings />
       </section>
     </main>

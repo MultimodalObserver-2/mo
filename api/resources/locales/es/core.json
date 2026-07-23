@@ -2,5 +2,7 @@
   "fileMustBeZip": "El archivo debe ser un archivo zip.",
   "failedToAddPlugin": "No se pudo agregar el plugin '%{file_name}'.\nError: %{error}",
   "pluginNotFound": "El plugin '%{final_id}' no fue encontrado.",
-  "failedToRemovePlugin": "No se pudo eliminar el plugin '%{final_id}'.\nError: %{error}"
+  "failedToRemovePlugin": "No se pudo eliminar el plugin '%{final_id}'.\nError: %{error}",
+  "failedToUpdatePlugin": "No se pudo actualizar el plugin '%{final_id}'.\nError: %{error}",
+  "pluginIdMismatch": "El plugin subido '%{actual}' no coincide con el plugin que se está actualizando '%{expected}'."
 }

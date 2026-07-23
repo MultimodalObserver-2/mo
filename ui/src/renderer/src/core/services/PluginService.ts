@@ -56,6 +56,19 @@ class PluginService {
     throw new Error(`Unknown plugin target: ${metadata.target}`)
   }
 
+  async update(pluginFile: File, pluginId: string, target: string): Promise<Plugin> {
+    if (target === "api") {
+      const response = await this.api.update(pluginId, pluginFile)
+      return response.data
+    }
+
+    if (target === "ui") {
+      return this.ui.update(pluginId, pluginFile)
+    }
+
+    throw new Error(`Unknown plugin target: ${target}`)
+  }
+
   async delete(pluginId: string, target: string): Promise<void> {
     if (target === "api") {
       await this.api.delete(pluginId)

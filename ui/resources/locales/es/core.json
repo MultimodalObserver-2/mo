@@ -31,12 +31,70 @@
 			},
 			"options": {
 				"title": "Opciones"
+			},
+			"repository": {
+				"title": "Repositorio de plugins",
+				"save": "Guardar",
+				"saved": "¡Guardado!",
+				"reset": "Restablecer por defecto"
 			}
 		},
 		"plugins": {
 			"installed": "Instalados",
 			"register": "Registrar",
-			"available": "Disponibles"
+			"available": "Disponibles",
+			"repository": "Repositorio de Plugins"
+		},
+		"pluginRepository": {
+			"searchPlaceholder": "Buscar plugins...",
+			"loading": "Cargando plugins...",
+			"noResults": "No se encontraron plugins",
+			"connectionError": "No se pudo conectar al repositorio.",
+			"connectionErrorHint": "Verificá la URL en Ajustes.",
+			"install": "Instalar",
+			"installed": "Instalado",
+			"update": "Actualizar",
+			"installHint": "Instalar {{name}} {{version}}",
+			"updateHint": "Actualizar {{name}} a {{version}}",
+			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
+			"openInWebHint": "Ver {{name}} en el repositorio web",
+			"noAssetForOs": "No hay versión disponible para tu sistema operativo",
+			"updatesAvailableTitle": "Actualizaciones de plugins",
+			"updatesAvailableMessage": "Hay actualizaciones disponibles para tus plugins.",
+			"selectPlugin": "Selecciona un plugin para ver sus detalles",
+			"fieldModule": "Módulo",
+			"fieldRepository": "Repositorio",
+			"fieldAuthor": "Autor",
+			"fieldVersion": "Última versión",
+			"fieldPublisher": "Publisher",
+			"fieldType": "Tipo",
+			"fieldCategory": "Categoría",
+			"allCategories": "Todas las categorías",
+			"tagsPlaceholder": "Filtrar por tags...",
+			"removeTag": "Quitar tag",
+			"category": {
+				"capture": "Captura",
+				"visualization": "Visualización",
+				"analysis": "Análisis",
+				"browser": "Navegador"
+			},
+			"status": {
+				"no_releases": "Sin versiones",
+				"under_review": "En revisión",
+				"approved": "Aprobado"
+			},
+			"noReviews": "Sin reseñas todavía",
+			"backToList": "Volver a plugins",
+			"tabDescription": "Descripción",
+			"tabReleases": "Versiones",
+			"noDescription": "Sin descripción disponible",
+			"noReleases": "Sin versiones disponibles",
+			"installTitle": "Instalación de plugin",
+			"updateTitle": "Actualización de plugin",
+			"installedSuccessfully": "El plugin {{name}} se instaló correctamente",
+			"updatedSuccessfully": "El plugin {{name}} se actualizó a {{version}} correctamente",
+			"installedButFailed": "El plugin se instaló pero no se pudo cargar: {{error}}",
+			"updatedButFailed": "El plugin se actualizó pero no se pudo cargar: {{error}}"
 		},
 		"loading": {
 			"message": "Cargando la aplicación, por favor espera..."
@@ -110,6 +168,10 @@
 				"title": "Eliminar plugin",
 				"message": "¿Estás seguro de que deseas eliminar el plugin {{pluginName}} (v{{pluginVersion}} \ndel autor {{pluginPublisher}})? Esta acción no se puede deshacer."
 			}
+		},
+		"unvalidatedPlugin": {
+			"title": "Plugin no validado",
+			"message": "El plugin {{pluginName}} aún no ha sido validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Desea continuar?"
 		},
 		"buttons": {
 			"accept": "Aceptar",
