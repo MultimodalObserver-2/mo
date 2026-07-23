@@ -1,10 +1,7 @@
 import importlib
-import logging
 import pkgutil
 
 from fastapi import FastAPI
-
-from mo.core.config.constants import LOGGER_NAME
 
 
 def load_modules(app: FastAPI) -> None:
