@@ -27,7 +27,9 @@ from mo.modules.organization.routers.participants import participant_router
 from mo.modules.organization.routers.projects import project_router
 from mo.modules.organization.routers.protocols import protocols_router
 from mo.modules.visualization.routers.playback_config import playback_config_router
-from mo.core.module_loader import load_modules
+from mo.modules.communication.routers.server import server_router
+from mo.modules.communication.routers.chat import chat_router
+from mo.modules.communication.routers.notes import notes_router
 
 # Initialize application setup
 app_setup()
@@ -96,7 +98,10 @@ app.include_router(session_router)
 # Visualization routers
 app.include_router(playback_config_router)
 
-load_modules(app)
+# Communication routers
+app.include_router(server_router)
+app.include_router(chat_router)
+app.include_router(notes_router)
 
 if __name__ == "__main__":
 
