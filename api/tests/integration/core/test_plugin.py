@@ -1,5 +1,6 @@
 import json
 import os
+import shutil
 import zipfile
 
 import pytest
@@ -103,6 +104,85 @@ async def test_add_plugin_success(temp_service, test_plugin_source_path):
     # Check if the metadata file exists in the plugin directory
     metadata_in_place = expected_plugin_dir / "metadata.json"
     assert os.path.exists(metadata_in_place), "Metadata file does not exist in the plugin directory"
+
+    app.dependency_overrides = {}
+
+
+def make_updated_plugin_source(source_dir: Path, dest_dir: Path, new_version: str) -> None:
+    """Copies the plugin fixture into ``dest_dir`` and bumps its metadata version,
+    keeping the same id/publisher so the final ID stays identical."""
+    shutil.copytree(str(source_dir), str(dest_dir))
+    metadata_file = os.path.join(str(dest_dir), "metadata.json")
+    with open(metadata_file, "r") as f:
+        metadata = json.load(f)
+    metadata["version"] = new_version
+    with open(metadata_file, "w") as f:
+        json.dump(metadata, f)
+
+
+@pytest.mark.asyncio
+async def test_update_plugin_success(temp_service, test_plugin_source_path):
+    plugin_service, tmp_path = temp_service
+    app.dependency_overrides[PluginService] = lambda: plugin_service
+
+    metadata = load_test_metadata(test_plugin_source_path)
+    final_id = f"{metadata['publisher']['id']}.{metadata['id']}"
+
+    # Install the original release first
+    zip_to_upload = tmp_path / "plugin_to_upload.zip"
+    await create_zip_from_dir(zip_to_upload, test_plugin_source_path)
+
+    # Build an updated release (bumped version, same final ID)
+    updated_source = tmp_path / "updated_source"
+    make_updated_plugin_source(test_plugin_source_path, updated_source, "2.0.0")
+    updated_zip = tmp_path / "plugin_update.zip"
+    await create_zip_from_dir(updated_zip, Path(str(updated_source)))
+
+    async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+        with open(zip_to_upload, "rb") as f:
+            post_response = await client.post(
+                "/plugins/", files={"file": (zip_to_upload.name, f, "application/zip")}
+            )
+        with open(updated_zip, "rb") as f:
+            update_response = await client.put(
+                f"/plugins/{final_id}",
+                files={"file": (updated_zip.name, f, "application/zip")},
+            )
+        get_response = await client.get(f"/plugins/{final_id}")
+
+    assert post_response.status_code == status.HTTP_201_CREATED
+    assert post_response.json()["version"] == "1.0.0"
+
+    # The update swaps the release in place, keeping the same final ID
+    assert update_response.status_code == status.HTTP_200_OK
+    updated_data = update_response.json()
+    assert updated_data["id"] == final_id
+    assert updated_data["version"] == "2.0.0"
+
+    # The newer version is what remains installed
+    assert get_response.status_code == status.HTTP_200_OK
+    assert get_response.json()["version"] == "2.0.0"
+
+    app.dependency_overrides = {}
+
+
+@pytest.mark.asyncio
+async def test_update_plugin_not_found(temp_service, test_plugin_source_path):
+    plugin_service, tmp_path = temp_service
+    app.dependency_overrides[PluginService] = lambda: plugin_service
+
+    # Build a valid zip but never install the plugin beforehand
+    zip_to_upload = tmp_path / "plugin_update.zip"
+    await create_zip_from_dir(zip_to_upload, test_plugin_source_path)
+
+    async with AsyncClient(transport=ASGITransport(app), base_url="http://test") as client:
+        with open(zip_to_upload, "rb") as f:
+            response = await client.put(
+                "/plugins/non.existent.id",
+                files={"file": (zip_to_upload.name, f, "application/zip")},
+            )
+
+    assert response.status_code == status.HTTP_400_BAD_REQUEST
 
     app.dependency_overrides = {}
 
