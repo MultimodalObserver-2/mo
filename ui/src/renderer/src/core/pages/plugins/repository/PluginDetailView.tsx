@@ -1,3 +1,4 @@
+import { useEffect, useState } from "react"
 import { RepositoryPluginDetail, RepositoryRelease } from "@renderer/core/types/RepositoryPlugin"
 import Button from "@renderer/core/components/button/Button"
 import Markdown from "@renderer/core/components/markdown/Markdown"
@@ -49,6 +50,22 @@ export default function PluginDetailView({
   onInstall,
   onInstallRelease
 }: PluginDetailViewProps) {
+  const [downloadProgress, setDownloadProgress] = useState<number | null>(null)
+
+  useEffect(() => {
+    window.core.plugins.onDownloadProgress((progress) => {
+      setDownloadProgress(progress)
+    })
+
+    return () => window.core.plugins.removeDownloadProgress()
+  }, [])
+
+  useEffect(() => {
+    if (!isInstalling) {
+      setDownloadProgress(null)
+    }
+  }, [isInstalling])
+
   const platform = window.core.app.platform
   // The header button targets the latest release, so it can only install/update when that
   // release ships an asset for this OS.
@@ -145,17 +162,37 @@ export default function PluginDetailView({
           )}
         </div>
         <div className={styles["detail-actions"]}>
-          <Button
-            title={
-              installState !== "installed" && !latestCompatible ? t("noAssetForOs") : buttonHint
-            }
-            styleType={installState === "installed" ? "soft" : "default"}
-            disabled={installState === "installed" || isInstalling || !latestCompatible}
-            isLoading={installingReleaseName === latestVersion}
-            onClick={onInstall}
-          >
-            {buttonLabel}
-          </Button>
+          <div>
+            <Button
+              title={
+                installState !== "installed" && !latestCompatible ? t("noAssetForOs") : buttonHint
+              }
+              styleType={installState === "installed" ? "soft" : "default"}
+              disabled={installState === "installed" || isInstalling || !latestCompatible}
+              isLoading={installingReleaseName === latestVersion}
+              onClick={onInstall}
+            >
+              {buttonLabel}
+            </Button>
+            {downloadProgress !== null && (
+              <>
+                {downloadProgress < 100 ? (
+                  <>
+                    <div className={styles["progress-phase"]}>{t("downloading")}</div>
+                    <div className={styles["progress-container"]}>
+                      <div
+                        className={styles["progress-bar"]}
+                        style={{ width: `${downloadProgress}%` }}
+                      />
+                    </div>
+                    <div className={styles["progress-percentage"]}>{downloadProgress}%</div>
+                  </>
+                ) : isInstalling ? (
+                  <div className={styles["progress-phase"]}>{t("installing")}</div>
+                ) : null}
+              </>
+            )}
+          </div>
         </div>
       </div>
 

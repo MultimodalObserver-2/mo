@@ -94,7 +94,9 @@
 			"installedSuccessfully": "El plugin {{name}} se instaló correctamente",
 			"updatedSuccessfully": "El plugin {{name}} se actualizó a {{version}} correctamente",
 			"installedButFailed": "El plugin se instaló pero no se pudo cargar: {{error}}",
-			"updatedButFailed": "El plugin se actualizó pero no se pudo cargar: {{error}}"
+			"updatedButFailed": "El plugin se actualizó pero no se pudo cargar: {{error}}",
+			"downloading": "Descargando",
+			"installing": "Instalando..."
 		},
 		"loading": {
 			"message": "Cargando la aplicación, por favor espera..."

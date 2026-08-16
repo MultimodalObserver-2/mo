@@ -132,6 +132,19 @@ export default interface CoreAPI {
      * @returns Promise resolving to the file content as ArrayBuffer.
      */
     downloadAsset: (url: string) => Promise<ArrayBuffer>
+
+    /**
+     * Registers a callback to be called during asset downloads to track progress.
+     * @param callback - Function called with progress (0-100), bytes downloaded, and total bytes.
+     */
+    onDownloadProgress: (
+      callback: (progress: number, downloaded: number, total: number) => void
+    ) => void
+
+    /**
+     * Removes the download progress event listener.
+     */
+    removeDownloadProgress: () => void
   }
 
   /**

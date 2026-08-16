@@ -94,7 +94,9 @@
       "installedSuccessfully": "Plugin {{name}} installed successfully",
       "updatedSuccessfully": "Plugin {{name}} updated to {{version}} successfully",
       "installedButFailed": "Plugin installed but failed to load: {{error}}",
-      "updatedButFailed": "Plugin updated but failed to load: {{error}}"
+      "updatedButFailed": "Plugin updated but failed to load: {{error}}",
+      "downloading": "Downloading",
+      "installing": "Installing..."
     },
     "loading": {
       "message": "Loading the app, please wait..."

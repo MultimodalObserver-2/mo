@@ -57,6 +57,14 @@ const core = {
     },
     downloadAsset: (url: string): Promise<ArrayBuffer> => {
       return ipcRenderer.invoke("core:plugin:download-asset", url)
+    },
+    onDownloadProgress: (callback: (progress: number, downloaded: number, total: number) => void) => {
+      ipcRenderer.on("download:progress", (_event, data) => {
+        callback(data.progress, data.downloaded, data.total)
+      })
+    },
+    removeDownloadProgress: () => {
+      ipcRenderer.removeAllListeners("download:progress")
     }
   },
   app: {
