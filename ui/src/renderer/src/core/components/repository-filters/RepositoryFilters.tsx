@@ -7,7 +7,7 @@ import {
   PluginCategory,
   RepositoryTag
 } from "@renderer/core/types/RepositoryPlugin"
-import styles from "./repository.module.css"
+import styles from "./repository-filters.module.css"
 
 interface RepositoryFiltersProps {
   category?: PluginCategory
@@ -15,6 +15,12 @@ interface RepositoryFiltersProps {
   selectedTags: string[]
   onTagsChange: (tags: string[]) => void
   t: (key: string) => string
+  /**
+   * Looks up tags by prefix for the autocomplete. Defaults to the repository service, so the
+   * component owns no data source of its own. Must be a stable reference: it is a dependency
+   * of the debounced effect below.
+   */
+  searchTags?: (query: string) => Promise<RepositoryTag[]>
 }
 
 export default function RepositoryFilters({
@@ -22,7 +28,8 @@ export default function RepositoryFilters({
   onCategoryChange,
   selectedTags,
   onTagsChange,
-  t
+  t,
+  searchTags = pluginRepositoryService.searchTags
 }: RepositoryFiltersProps) {
   const [tagInput, setTagInput] = useState("")
   const [suggestions, setSuggestions] = useState<RepositoryTag[]>([])
@@ -40,8 +47,7 @@ export default function RepositoryFilters({
     }
     const seq = ++reqSeq.current
     const handle = setTimeout(() => {
-      pluginRepositoryService
-        .searchTags(trimmed)
+      searchTags(trimmed)
         .then((tags) => {
           if (seq === reqSeq.current) setSuggestions(tags)
         })
@@ -50,7 +56,7 @@ export default function RepositoryFilters({
         })
     }, 250)
     return () => clearTimeout(handle)
-  }, [tagInput])
+  }, [tagInput, searchTags])
 
   const addTag = (name: string) => {
     const clean = name.trim().toLowerCase()

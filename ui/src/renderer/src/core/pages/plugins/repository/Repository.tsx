@@ -6,9 +6,9 @@ import { pluginKey } from "./repositoryHelpers"
 import usePluginSearch from "./usePluginSearch"
 import usePluginDetail from "./usePluginDetail"
 import useInstalledPlugins from "./useInstalledPlugins"
-import RepositorySearchBar from "./RepositorySearchBar"
-import RepositoryFilters from "./RepositoryFilters"
-import RepositoryList from "./RepositoryList"
+import SearchBar from "@renderer/core/components/search-bar/SearchBar"
+import RepositoryList from "@renderer/core/components/repository-list/RepositoryList"
+import RepositoryFilters from "@renderer/core/components/repository-filters/RepositoryFilters"
 import PluginDetailView from "./PluginDetailView"
 import styles from "./repository.module.css"
 
@@ -51,7 +51,7 @@ export default function Repository() {
 
   return (
     <div className={styles.container}>
-      <RepositorySearchBar
+      <SearchBar
         value={searchQuery}
         onChange={setSearchQuery}
         placeholder={t("searchPlaceholder")}
@@ -72,7 +72,7 @@ export default function Repository() {
             isLoadingList={isLoadingList}
             isLoadingMore={isLoadingMore}
             listError={listError}
-            selectedSlug={selectedSlug}
+            isSelected={(plugin) => selectedSlug === pluginKey(plugin)}
             hasUpdate={hasUpdate}
             onSelect={handleSelect}
             sentinelRef={sentinelRef}

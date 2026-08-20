@@ -5,15 +5,18 @@ import {
   PluginDisplayList
 } from "@renderer/core/components/plugin-display"
 import pluginFallback from "@renderer/core/assets/images/plugin_fallback.svg"
-import { pluginKey } from "./repositoryHelpers"
-import styles from "./repository.module.css"
+import styles from "./repository-list.module.css"
 
 interface RepositoryListProps {
   plugins: RepositoryPlugin[]
   isLoadingList: boolean
   isLoadingMore: boolean
   listError: boolean
-  selectedSlug: string | null
+  /**
+   * Whether a plugin is the one open in the detail panel. Injected like `hasUpdate` so the
+   * list does not need to know how a plugin's identity is encoded in the route.
+   */
+  isSelected: (plugin: RepositoryPlugin) => boolean
   /** Whether a plugin shows the "update available" dot. */
   hasUpdate: (plugin: RepositoryPlugin) => boolean
   onSelect: (plugin: RepositoryPlugin) => void
@@ -31,7 +34,7 @@ export default function RepositoryList({
   isLoadingList,
   isLoadingMore,
   listError,
-  selectedSlug,
+  isSelected,
   hasUpdate,
   onSelect,
   sentinelRef,
@@ -59,7 +62,7 @@ export default function RepositoryList({
               name={plugin.name}
               description={plugin.description ?? ""}
               iconPath={plugin.logo_url || pluginFallback}
-              isSelected={selectedSlug === pluginKey(plugin)}
+              isSelected={isSelected(plugin)}
               showActions={false}
               onClick={() => onSelect(plugin)}
             />

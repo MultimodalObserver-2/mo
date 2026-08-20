@@ -1,17 +1,13 @@
-import styles from "./repository.module.css"
+import styles from "./search-bar.module.css"
 
-interface RepositorySearchBarProps {
+interface SearchBarProps {
   value: string
   onChange: (value: string) => void
   placeholder: string
 }
 
-/** The repository free-text search input. */
-export default function RepositorySearchBar({
-  value,
-  onChange,
-  placeholder
-}: RepositorySearchBarProps) {
+/** A free-text search input with a leading magnifier icon. Fully controlled. */
+export default function SearchBar({ value, onChange, placeholder }: SearchBarProps) {
   return (
     <div className={styles["search-bar"]}>
       <svg className={styles["search-icon"]} viewBox="0 0 24 24">
