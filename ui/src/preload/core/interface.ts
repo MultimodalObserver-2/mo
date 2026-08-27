@@ -134,6 +134,15 @@ export default interface CoreAPI {
     downloadAsset: (url: string) => Promise<ArrayBuffer>
 
     /**
+     * Claims the once-per-session startup update check.
+     *
+     * Resolves to true for the first window that asks and false for every later one. Extra
+     * windows must skip the check entirely: the notification is application-modal, so a second
+     * one would surface over whatever the user is doing in an unrelated window.
+     */
+    claimUpdateCheck: () => Promise<boolean>
+
+    /**
      * Registers a callback to be called during asset downloads to track progress.
      * @param callback - Function called with progress (0-100), bytes downloaded, and total bytes.
      */

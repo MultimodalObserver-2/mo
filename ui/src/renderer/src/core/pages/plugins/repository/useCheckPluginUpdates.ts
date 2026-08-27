@@ -5,14 +5,8 @@ import pluginRepositoryService from "@renderer/core/services/PluginRepositorySer
 import pluginService from "@renderer/core/services/PluginService"
 
 /**
- * On the first mount, asks the repository whether any installed plugin has a newer release
- * and, if so, shows a single generic notification. Meant to run once per app launch from the
- * app root.
- *
- * Deliberately quiet: any failure (offline, endpoint down) is swallowed, since this is
- * informative only and must not interrupt startup. The notification is also suppressed when
- * the app already landed on a repository plugin view (e.g. opened via deep link), so it does
- * not compete with that intent.
+ * On mount asks the repository whether any installed plugin has a newer release and shows a
+ * single notification. Runs once per session across windows; failures are swallowed on purpose.
  */
 export default function useCheckPluginUpdates(): void {
   const { t } = useTranslation("core", { keyPrefix: "pages.pluginRepository" })
@@ -29,6 +23,9 @@ export default function useCheckPluginUpdates(): void {
 
     void (async () => {
       try {
+        // Only one window per session runs the check: the main process hands out the claim.
+        // Asking before any network work means the losing windows cost nothing.
+        if (!(await window.core.plugins.claimUpdateCheck())) return
         await pluginRepositoryService.initialize()
         const installed = await pluginService.getAll()
         const payload = installed.map((p) => ({ slug: p.id, version: p.version }))

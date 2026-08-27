@@ -58,6 +58,9 @@ const core = {
     downloadAsset: (url: string): Promise<ArrayBuffer> => {
       return ipcRenderer.invoke("core:plugin:download-asset", url)
     },
+    claimUpdateCheck: (): Promise<boolean> => {
+      return ipcRenderer.invoke("core:plugin:claim-update-check")
+    },
     onDownloadProgress: (callback: (progress: number, downloaded: number, total: number) => void) => {
       ipcRenderer.on("download:progress", (_event, data) => {
         callback(data.progress, data.downloaded, data.total)

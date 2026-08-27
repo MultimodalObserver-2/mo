@@ -6,6 +6,15 @@
 import { app, BrowserWindow, ipcMain } from "electron"
 import https from "https"
 
+/**
+ * Whether some window already took charge of the startup update check.
+ *
+ * The renderer cannot hold this flag: every window — the main one and each modal — loads
+ * `renderer/index.html` again and mounts its own React tree, so any ref living there starts
+ * fresh. The main process is the only state shared across windows.
+ */
+let updateCheckClaimed = false
+
 function downloadFromUrl(url: string, mainWindow: BrowserWindow | null): Promise<Buffer> {
   return new Promise((resolve, reject) => {
     const options = {
@@ -65,5 +74,13 @@ app.whenReady().then(() => {
     const mainWindow = BrowserWindow.fromWebContents(event.sender)
     const buffer = await downloadFromUrl(url, mainWindow)
     return buffer.buffer.slice(buffer.byteOffset, buffer.byteOffset + buffer.byteLength)
+  })
+
+  // Hands the startup update check to the first window that asks and denies it to the rest, so
+  // opening a modal neither re-queries the repository nor raises a second notification.
+  ipcMain.handle("core:plugin:claim-update-check", () => {
+    if (updateCheckClaimed) return false
+    updateCheckClaimed = true
+    return true
   })
 })
