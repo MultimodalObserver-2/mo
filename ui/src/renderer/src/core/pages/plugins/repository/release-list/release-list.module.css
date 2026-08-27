@@ -1,0 +1,73 @@
+/* Also defined in repository.module.css: the description tab uses it for its own empty
+   state. Duplicated so this component does not depend on the page stylesheet. */
+.detail-placeholder {
+  color: var(--color-primary-400, #999);
+  font-size: 0.9em;
+}
+
+/* Releases */
+.releases {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.release {
+  border: 1px solid var(--color-primary-200, #ddd);
+  border-radius: 8px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.release-header {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Pushes the per-release install/update action to the right edge of the row. */
+.release-action {
+  margin-left: auto;
+  flex-shrink: 0;
+}
+
+.release-name {
+  font-weight: 600;
+  font-size: 0.95em;
+  color: var(--color-primary-900, #111);
+}
+
+.release-status {
+  font-size: 0.8em;
+  padding: 2px 8px;
+  border-radius: 12px;
+  background-color: var(--color-primary-100, #eee);
+  color: var(--color-primary-600, #666);
+  text-transform: capitalize;
+}
+
+.assets {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.asset {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 0.88em;
+}
+
+.asset-so {
+  font-weight: 600;
+  min-width: 60px;
+  color: var(--color-primary-600, #555);
+  text-transform: capitalize;
+}
+
+.asset-name {
+  color: var(--color-primary-700, #444);
+}
