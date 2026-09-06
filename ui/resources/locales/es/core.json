@@ -50,7 +50,7 @@
 			"loading": "Cargando plugins...",
 			"noResults": "No se encontraron plugins",
 			"connectionError": "No se pudo conectar al repositorio.",
-			"connectionErrorHint": "Verificá la URL en Ajustes.",
+			"connectionErrorHint": "Verifica la URL en Ajustes.",
 			"install": "Instalar",
 			"installed": "Instalado",
 			"update": "Actualizar",
@@ -173,7 +173,7 @@
 		},
 		"unvalidatedPlugin": {
 			"title": "Plugin no validado",
-			"message": "El plugin {{pluginName}} aún no ha sido validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Desea continuar?"
+			"message": "El plugin {{pluginName}} aún no ha sido validado por el repositorio. Instalar plugins no validados puede ser riesgoso. ¿Deseas continuar?"
 		},
 		"buttons": {
 			"accept": "Aceptar",
