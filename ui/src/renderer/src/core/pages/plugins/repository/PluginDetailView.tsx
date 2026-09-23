@@ -14,9 +14,9 @@ import styles from "./repository.module.css"
 
 type DetailTab = "description" | "releases"
 
-type InstallState = "install" | "update" | "installed"
+type InstallState = "install" | "update" | "installed" | "external"
 
-// U+2605 BLACK STAR, built from its code point to avoid an i18next literal-string flag.
+// U+2605 BLACK STAR - plugin calification
 const STAR = String.fromCharCode(0x2605)
 
 interface PluginDetailViewProps {
@@ -67,6 +67,8 @@ export default function PluginDetailView({
   }, [isInstalling])
 
   const platform = window.core.app.platform
+  // external = plugin not instalable in MO (browser type)
+  const isExternal = installState === "external"
   // The header button targets the latest release, so it can only install/update when that
   // release ships an asset for this OS.
   const latest = latestRelease(detail.releases)
@@ -162,37 +164,48 @@ export default function PluginDetailView({
           )}
         </div>
         <div className={styles["detail-actions"]}>
-          <div>
-            <Button
-              title={
-                installState !== "installed" && !latestCompatible ? t("noAssetForOs") : buttonHint
-              }
-              styleType={installState === "installed" ? "soft" : "default"}
-              disabled={installState === "installed" || isInstalling || !latestCompatible}
-              isLoading={installingReleaseName === latestVersion}
-              onClick={onInstall}
-            >
-              {buttonLabel}
-            </Button>
-            {downloadProgress !== null && (
-              <>
-                {downloadProgress < 100 ? (
-                  <>
-                    <div className={styles["progress-phase"]}>{t("downloading")}</div>
-                    <div className={styles["progress-container"]}>
-                      <div
-                        className={styles["progress-bar"]}
-                        style={{ width: `${downloadProgress}%` }}
-                      />
-                    </div>
-                    <div className={styles["progress-percentage"]}>{downloadProgress}%</div>
-                  </>
-                ) : isInstalling ? (
-                  <div className={styles["progress-phase"]}>{t("installing")}</div>
-                ) : null}
-              </>
-            )}
-          </div>
+          {isExternal ? (
+            webUrl && (
+              <Button
+                title={t("openInWebHint", { name: detail.name })}
+                onClick={() => window.open(webUrl, "_blank", "noreferrer")}
+              >
+                {t("openInBrowser")}
+              </Button>
+            )
+          ) : (
+            <div>
+              <Button
+                title={
+                  installState !== "installed" && !latestCompatible ? t("noAssetForOs") : buttonHint
+                }
+                styleType={installState === "installed" ? "soft" : "default"}
+                disabled={installState === "installed" || isInstalling || !latestCompatible}
+                isLoading={installingReleaseName === latestVersion}
+                onClick={onInstall}
+              >
+                {buttonLabel}
+              </Button>
+              {downloadProgress !== null && (
+                <>
+                  {downloadProgress < 100 ? (
+                    <>
+                      <div className={styles["progress-phase"]}>{t("downloading")}</div>
+                      <div className={styles["progress-container"]}>
+                        <div
+                          className={styles["progress-bar"]}
+                          style={{ width: `${downloadProgress}%` }}
+                        />
+                      </div>
+                      <div className={styles["progress-percentage"]}>{downloadProgress}%</div>
+                    </>
+                  ) : isInstalling ? (
+                    <div className={styles["progress-phase"]}>{t("installing")}</div>
+                  ) : null}
+                </>
+              )}
+            </div>
+          )}
         </div>
       </div>
 
@@ -203,16 +216,18 @@ export default function PluginDetailView({
         >
           {t("tabDescription")}
         </button>
-        <button
-          className={`${styles["nav-btn"]} ${activeTab === "releases" ? styles["nav-btn-active"] : ""}`}
-          onClick={() => onTabChange("releases")}
-        >
-          {t("tabReleases")}
-        </button>
+        {!isExternal && (
+          <button
+            className={`${styles["nav-btn"]} ${activeTab === "releases" ? styles["nav-btn-active"] : ""}`}
+            onClick={() => onTabChange("releases")}
+          >
+            {t("tabReleases")}
+          </button>
+        )}
       </div>
 
       <div className={styles["detail-content"]}>
-        {activeTab === "description" ? (
+        {activeTab === "description" || isExternal ? (
           detail.long_description ? (
             <Markdown>{detail.long_description}</Markdown>
           ) : (

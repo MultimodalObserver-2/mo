@@ -14,9 +14,9 @@ import {
   getApiErrorMessage,
   showUnvalidatedPluginMessage
 } from "@renderer/core/utils/dialogMessages"
-import { isNewerRelease, pluginKey } from "./repositoryHelpers"
+import { isBrowserExtension, isNewerRelease, pluginKey } from "./repositoryHelpers"
 
-type InstallState = "install" | "update" | "installed"
+type InstallState = "install" | "update" | "installed" | "external"
 
 /**
  * Owns the set of installed plugins and the install/update flow. Loads the installed set on
@@ -47,6 +47,8 @@ export default function useInstalledPlugins() {
   // version other than the installed one can be picked from the releases list.
   const installRelease = async (detail: RepositoryPluginDetail, release: RepositoryRelease) => {
     if (isInstalling) return
+    // Browser plugin not have local install
+    if (isBrowserExtension(detail)) return
     const installed = installedPlugins.get(pluginKey(detail))
     const isUpdate = installed !== undefined
     const title = isUpdate ? t("updateTitle") : t("installTitle")
@@ -102,7 +104,9 @@ export default function useInstalledPlugins() {
   // Derives the button state for a plugin: "update" when the repository has a strictly higher
   // version than the installed one, "installed" when it is up to date (or newer), and
   // "install" when it is not installed at all.
+  // "external" when the plugin is not instalable in MO (browser type)
   const installStateFor = (d: RepositoryPluginDetail): InstallState => {
+    if (isBrowserExtension(d)) return "external"
     const installed = installedPlugins.get(pluginKey(d))
     if (!installed) return "install"
     return isNewerRelease(latestRelease(d.releases), installed.version) ? "update" : "installed"

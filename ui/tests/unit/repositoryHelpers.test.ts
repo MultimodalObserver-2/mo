@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import {
+  isBrowserExtension,
   isNewerRelease,
   parseSlug,
   pluginKey
@@ -57,5 +58,22 @@ describe("parseSlug", () => {
       publisherSlug: "acme",
       pluginSlug: "recorder"
     })
+  })
+})
+
+describe("isBrowserExtension", () => {
+  it("is true for the browser category", () => {
+    expect(isBrowserExtension({ category: "browser" })).toBe(true)
+  })
+
+  it("is false for the categories installed into MO", () => {
+    expect(isBrowserExtension({ category: "capture" })).toBe(false)
+    expect(isBrowserExtension({ category: "visualization" })).toBe(false)
+    expect(isBrowserExtension({ category: "analysis" })).toBe(false)
+  })
+
+  it("is false when the plugin has no category", () => {
+    // `category` is optional: an uncategorized plugin must stay installable.
+    expect(isBrowserExtension({})).toBe(false)
   })
 })

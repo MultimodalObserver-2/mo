@@ -3,7 +3,7 @@
  * Pure helpers for the plugin repository views. Kept free of React and `window.core` so
  * they can be unit-tested in isolation.
  */
-import { RepositoryRelease } from "../../../types/RepositoryPlugin"
+import { PluginCategory, RepositoryRelease } from "../../../types/RepositoryPlugin"
 import { compareVersions } from "../../../utils/compareVersions"
 
 /**
@@ -39,4 +39,11 @@ export function isNewerRelease(
   installedVersion: string
 ): boolean {
   return release != null && compareVersions(release.name, installedVersion) > 0
+}
+
+/**
+ * If the plugin is of the "browser" type, it is not installed in the local MO instance.
+ */
+export function isBrowserExtension(plugin: { category?: PluginCategory }): boolean {
+  return plugin.category === "browser"
 }

@@ -58,6 +58,7 @@
       "updateHint": "Update {{name}} to {{version}}",
       "installedHint": "Plugin {{name}} {{version}} is already installed",
       "openInWebHint": "View {{name}} on the web repository",
+      "openInBrowser": "Open in browser",
       "noAssetForOs": "No version available for your operating system",
       "updatesAvailableTitle": "Plugin updates",
       "updatesAvailableMessage": "Updates are available for your plugins.",

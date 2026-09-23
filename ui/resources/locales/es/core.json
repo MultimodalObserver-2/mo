@@ -58,6 +58,7 @@
 			"updateHint": "Actualizar {{name}} a {{version}}",
 			"installedHint": "El plugin {{name}} {{version}} ya se encuentra instalado",
 			"openInWebHint": "Ver {{name}} en el repositorio web",
+			"openInBrowser": "Abrir en el navegador",
 			"noAssetForOs": "No hay versión disponible para tu sistema operativo",
 			"updatesAvailableTitle": "Actualizaciones de plugins",
 			"updatesAvailableMessage": "Hay actualizaciones disponibles para tus plugins.",
