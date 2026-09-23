@@ -192,15 +192,14 @@
 
 .stars {
   display: inline-flex;
-  letter-spacing: 1px;
+  gap: 2px;
 }
 
-.star-filled {
-  color: var(--color-amber-500, #f5a623);
-}
-
-.star-empty {
-  color: var(--color-primary-300, #ccc);
+/* Filled and empty stars differ by shape (see StarIcon), so both share one color. */
+.star {
+  width: 16px;
+  height: 16px;
+  fill: var(--color-amber-500, #f5a623);
 }
 
 .rating-value {

@@ -3,6 +3,7 @@ import { RepositoryPluginDetail, RepositoryRelease } from "@renderer/core/types/
 import Button from "@renderer/core/components/button/Button"
 import Markdown from "@renderer/core/components/markdown/Markdown"
 import BrowserExploreIcon from "@renderer/core/components/icons/BrowserExploreIcon"
+import StarIcon from "@renderer/core/components/icons/StarIcon"
 import {
   buildPluginWebUrl,
   hasCompatibleAsset,
@@ -15,9 +16,6 @@ import styles from "./repository.module.css"
 type DetailTab = "description" | "releases"
 
 type InstallState = "install" | "update" | "installed" | "external"
-
-// U+2605 BLACK STAR - plugin calification
-const STAR = String.fromCharCode(0x2605)
 
 interface PluginDetailViewProps {
   detail: RepositoryPluginDetail
@@ -87,6 +85,7 @@ export default function PluginDetailView({
         : t("installHint", { name: detail.name, version: latestVersion })
   // A plugin without a slug has no page to link to.
   const webUrl = detail.slug ? buildPluginWebUrl(detail.publisher_slug, detail.slug) : undefined
+  const rating = Math.round(detail.average_rating)
   return (
     <div className={styles["detail-view"]}>
       <div className={styles["detail-header"]}>
@@ -137,16 +136,7 @@ export default function PluginDetailView({
           <div className={styles["detail-rating"]}>
             <span className={styles.stars} aria-hidden="true">
               {[0, 1, 2, 3, 4].map((i) => (
-                <span
-                  key={i}
-                  className={
-                    i < Math.round(detail.average_rating)
-                      ? styles["star-filled"]
-                      : styles["star-empty"]
-                  }
-                >
-                  {STAR}
-                </span>
+                <StarIcon key={i} filled={i < rating} className={styles.star} />
               ))}
             </span>
             <span className={styles["rating-value"]}>{detail.average_rating.toFixed(1)}</span>
