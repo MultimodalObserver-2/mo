@@ -18,6 +18,8 @@ export default function useCheckPluginUpdates(): void {
   const hasRun = useRef(false)
 
   useEffect(() => {
+    // Local API isn't up yet on these routes; wait for the reload.
+    if (pathnameRef.current === "/loading" || pathnameRef.current === "/error") return
     if (hasRun.current) return
     hasRun.current = true
 
